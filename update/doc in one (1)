@@ -1,0 +1,1162 @@
+Yojna Setu v4.0 — Unified 10-Agent AI System Master Blueprint
+This document compiles the entire system specification, including the High-Level Design (HLD), Product Requirements Document (PRD), System Requirements Specification (SRS), Security Design Document, API Contract, and developer guidelines (CLAUDE.md) into a single source of truth for the v4.0 10-Agent decoupled GovTech architecture.
+
+DOC 01 — Master Project Document
+Version 4.0 — 10-Agent AI System
+1. Executive Summary
+Yojna Setu v4.0 is a production-grade, multi-agent conversational platform designed to connect Indian citizens with 419+ indexed Central and State social welfare schemes. Under v4.0, the platform transitions to a stateful 10-agent AI system built on LangGraph StateGraph to handle the citizen's entire lifecycle dynamically. The system enables accessibility via low-latency voice streams in 22 regional Indian languages and integrates WhatsApp notifications while strictly complying with the Digital Personal Data Protection (DPDP) Act of 2023.   
+
+2. Problem Statement
+Welfare delivery in India faces significant digital divide barriers:   
+
+Linguistic Fragmentation: 22% of citizens speak languages outside the primary languages supported by traditional portals.   
+
+Digital Exclusion: Illiterate or non-digitally literate populations cannot type complex search queries or navigate form-heavy government layouts.   
+
+Complex Eligibility Rules: Welfare eligibility relies on multidimensional variables (caste, land, income, region, occupation) that are difficult for citizens to assess manually.   
+
+Trust and Grievances: Citizens face application blockages on government sites without transparent status feedback or reachable dispute channels.   
+
+3. System Architecture Summary
+Yojna Setu v4.0 is a 10-agent AI system built on LangGraph StateGraph. A central Orchestrator Agent receives all citizen input (text, voice, WhatsApp) and routes to specialist agents based on intent. Agents 1-3 handle the core citizen journey (eligibility, scheme discovery, application guidance). Agents 4-9 handle advanced capabilities (document verification, grievance filing, proactive nudging, financial planning, scheme comparison, CSC field verification). Agent 10 is admin-facing (analytics and insights). All agents share a common state object (citizen profile + session history) and communicate via LangGraph message passing — not direct API calls between agents.   
+
+Layer	Technology	Responsibility
+Frontend	React 18 + PWA + Tailwind	
+Citizen web UI, voice recorder, CSC dashboard, agent reasoning trace display, impact metrics.
+
+Orchestrator Agent	LangGraph StateGraph + Gemini 2.5 Flash	
+Intent classification, agent routing, parallel execution, shared state management.
+
+Agent 1 — Eligibility	LangGraph ReAct + Gemini 2.5 Flash	
+Self-directed eligibility reasoning, 6-tool registry, autonomous tool sequencing.
+
+Agent 2 — Discovery	LangGraph event loop + Gemini Flash + httpx	
+Persistent scheme ingestion from PIB RSS, MyScheme, data.gov.in, 5 state portals. Self-healing.
+
+Agent 3 — Application Guidance	LangGraph + browser-use + Playwright	
+Autonomous govt portal navigation, form pre-fill, step-by-step checklist generation.
+
+Agent 4 — Document Verification	LangGraph + Google Vision + Gemini Flash	
+Document authenticity check, field cross-verification, expiry detection, sufficiency check per scheme.
+
+Agent 5 — Grievance	LangGraph + browser-use + Gemini Flash	
+Application status check, grievance letter drafting, pgportal.gov.in submission, tracking.
+
+Agent 6 — Proactive Nudge	LangGraph scheduled + Twilio WhatsApp	
+Background citizen monitoring, deadline detection, personalised WhatsApp nudges.
+
+Agent 7 — Financial Planning	LangGraph + Gemini Flash	
+Multi-scheme benefit calculation, annual benefit estimate, payment calendar generation.
+
+Agent 8 — Scheme Comparison	LangGraph + Gemini Flash	
+Side-by-side scheme comparison against citizen profile, recommendation with reasoning.
+
+Agent 9 — CSC Field Verification	LangGraph + Gemini Flash	
+Alternative document guidance, self-declaration form generation, CSC operator assist.
+
+Agent 10 — Analytics	LangGraph scheduled + Gemini Flash	
+Drop-off analysis, scheme confusion detection, state coverage gaps, weekly admin report.
+
+Voice Orchestration	Pipecat + Sarvam Saaras V3 + Bulbul V3	
+Real-time voice pipeline feeding into Orchestrator Agent.
+
+Data Service	Java 17, Spring Boot 3.2, MongoDB Atlas	
+REST only: auth, profiles, scheme data, applications, audit logs.
+
+Vector Store	MongoDB Atlas Vector Search	
+Semantic scheme search used by Agent 1 and Agent 8.
+
+WhatsApp	Twilio Business API	
+Input channel for Orchestrator + output channel for Agent 6 nudges.
+
+Dev Tooling	Claude Code	
+Agentic multi-file editing across all 10 agent modules.
+
+Infrastructure	Google Cloud Run + GCS + Firebase Hosting	
+Serverless, auto-scaling, Mumbai region.
+
+  
+4. Development Workflow & Accelerators
+Claude Code acts as the primary developer accelerator. Operating directly within the workspace with a high token context window, Claude Code automates:   
+
+Synchronous schema propagation between Spring Boot DTOs and Python Pydantic structures.   
+
+Mock unit tests for Pipecat WebSocket audio chunk loops.   
+
+Fast deployment debugging of GCP Cloud Run VPC egress configurations.   
+
+5. Core Capabilities
+10-Agent AI System: LangGraph-orchestrated multi-agent architecture handles the complete citizen journey from scheme discovery to grievance resolution autonomously.   
+
+Eligibility Reasoning (Agent 1): Self-directed ReAct loop decides its own tool call sequence to verify eligibility across income, category, state, occupation, disability, and land criteria.   
+
+Autonomous Scheme Discovery (Agent 2): Persistent agent monitors PIB RSS, MyScheme, and 5 state portals. New Central schemes appear within 60 minutes of PIB announcement. Self-healing on source failures.   
+
+Application Guidance (Agent 3): Autonomously navigates government portals via browser-use, pre-fills forms from citizen profile, generates step-by-step screenshot checklist.   
+
+Document Verification (Agent 4): Verifies document authenticity, cross-checks fields against profile, detects expiry, confirms sufficiency per scheme requirements.   
+
+Grievance Filing (Agent 5): Checks application status on govt portal, drafts grievance letter, submits to pgportal.gov.in, tracks resolution.   
+
+Proactive Nudging (Agent 6): Background agent sends personalised WhatsApp alerts for upcoming deadlines, unapplied eligible schemes, missing documents.   
+
+Financial Planning (Agent 7): Calculates total annual benefit across all eligible schemes, generates payment calendar, prioritises by application effort vs benefit value.   
+
+Scheme Comparison (Agent 8): Side-by-side comparison of similar schemes, recommends correct one with plain-language reasoning in citizen's language.   
+
+CSC Field Verification (Agent 9): Guides operators on alternative acceptable documents, generates pre-filled self-declaration forms for document-less citizens.   
+
+Analytics and Insights (Agent 10): Admin-facing weekly report on drop-off rates, scheme confusion signals, state coverage gaps.   
+
+Real-Time Voice (Pipecat + Sarvam): All agents accessible via voice in 22 Indian languages through the Orchestrator.   
+
+6. Success Metrics
+Metric	Target	How Measured
+Voice sessions completed	200+	
+conversation_sessions where channel='voice'.
+
+STT accuracy (Hindi/Bengali/Tamil)	≥ 90%	
+Manual QA sample of 100 voice turns.
+
+Voice response latency (P95)	< 3 seconds	
+FastAPI + Pipecat round-trip network and execution logs.
+
+Citizen profiles created	500+	
+Decrypted documents inside citizen_profiles collection.
+
+Schemes matched	2,000+ queries	
+DB vector execution count logs.
+
+Languages served	5+ distinct	
+Session language parameter aggregates.
+
+WhatsApp sessions	100+	
+Twilio delivery success webhook statistics.
+
+Total agents operational by Week 8	10	
+Agent health endpoint returns all 10 green.
+
+Agent 3 portal navigation success rate	> 70%	
+browser-use session completion logs.
+
+Agent 5 grievance submissions	50+	
+pgportal submission logs.
+
+Agent 6 nudge open rate	> 40%	
+Twilio message delivery + reply rate.
+
+Agent 7 financial plans generated	500+	
+financial_plans collection count.
+
+  
+DOC 02 — Product Requirements Document (PRD)
+Version 4.0 — Multi-Agent Expansion
+1. Product Goals
+G1: Enable citizens to discover welfare options conversationally in their local dialect without manual forms.   
+
+G2: Maintain complete and securely encrypted profiles across discontinuous user sessions.   
+
+G3: Support high-quality real-time bidirectional speech loop under 3 seconds on standard mobile bandwidth.   
+
+G4: Ensure compliance with MEITY guidelines and DPDP Act data rights.   
+
+2. User Stories
+2.1 Voice Channel
+US-V01: As a rural farmer, I want to speak my query in Hindi and get a spoken answer without typing.   
+
+US-V02: As a citizen, I want the voice assistant to understand mixed Hindi-English (Hinglish).   
+
+US-V03: As a citizen, I want to switch from voice to text mid-conversation.   
+
+US-V05: As a CSC operator, I want to speak citizen details and have the profile auto-filled.   
+
+2.2 Core Text Features
+US-T01: Register and authenticate securely using mobile OTP.   
+
+US-T02: Upload Aadhaar card to automatically fill basic demographic variables.   
+
+US-T04: Permanently erase my profile data, triggering immediate deletion cascades.   
+
+US-T07: Interact with the full conversational engine natively via WhatsApp.   
+
+2.3 Agent 4: Document Verification
+ID	User Story	Acceptance Criteria
+US-DV01	
+As a citizen, I want to upload my income certificate and be told if it's sufficient for the schemes I want to apply to.
+
+Agent 4 checks document type, expiry date, issuing authority format, income figure vs scheme threshold — returns pass/fail per scheme with reason.
+
+US-DV02	
+As a citizen, I want to be told if my Aadhaar details match what I entered in my profile.
+
+Agent 4 cross-checks OCR-extracted name/DOB/address against citizen_profiles fields — flags mismatches.
+
+US-DV03	
+As a citizen, I want to know which documents are expired before I go to apply.
+
+Agent 4 extracts issue date + validity period from document — flags if expired or expiring within 30 days.
+
+  
+2.4 Agent 5: Grievance
+ID	User Story	Acceptance Criteria
+US-GR01	
+As a citizen who applied 3 months ago and received no benefit, I want to check the status of my application.
+
+Agent 5 opens govt portal via browser-use, navigates to application status page, returns current status in citizen's language.
+
+US-GR02	
+As a citizen, I want to file a grievance without understanding government portal navigation.
+
+Agent 5 drafts grievance letter, submits to pgportal.gov.in autonomously, returns reference number.
+
+US-GR03	
+As a citizen, I want to be notified when my grievance gets a response.
+
+Agent 6 monitors grievance status and sends WhatsApp notification on update.
+
+  
+2.5 Agent 6: Proactive Nudge
+ID	User Story	Acceptance Criteria
+US-PN01	
+As a citizen, I want to be reminded before a scheme application deadline.
+
+Agent 6 detects deadlines in scheme data, sends WhatsApp message 7 days and 1 day before deadline to eligible citizens who haven't applied.
+
+US-PN02	
+As a citizen, I want to be told about new schemes I qualify for without having to search.
+
+Agent 6 runs weekly profile-vs-newschemes check, sends WhatsApp if new eligible scheme found.
+
+US-PN03	
+As a citizen, I want to be reminded if my profile is incomplete which may cause me to miss schemes.
+
+Agent 6 checks profileCompleteness < 70, sends nudge with specific missing fields.
+
+  
+2.6 Agent 7: Financial Planning
+ID	User Story	Acceptance Criteria
+US-FP01	
+As a citizen, I want to know the total annual benefit I can receive across all schemes I'm eligible for.
+
+Agent 7 sums benefit_amount across all eligible schemes, returns total with breakdown.
+
+US-FP02	
+As a citizen, I want a calendar showing when each scheme pays me.
+
+Agent 7 generates month-by-month payment schedule: PM-KISAN in April/August/December, scholarship in July etc.
+
+US-FP03	
+As a citizen, I want to know which schemes give the highest benefit for the least application effort.
+
+Agent 7 ranks schemes by (benefit_value / application_complexity_score) ratio.
+
+  
+2.7 Agent 8: Scheme Comparison
+ID	User Story	Acceptance Criteria
+US-SC01	
+As a citizen confused between two similar schemes, I want a clear explanation of which one applies to me.
+
+Agent 8 fetches both scheme rule sets, compares against profile, recommends one with plain-language reasoning.
+
+US-SC02	
+As a citizen, I want to see a side-by-side comparison of two schemes in my language.
+
+Agent 8 returns structured comparison: eligibility diff, benefit diff, application process diff, recommendation.
+
+  
+2.8 Agent 9: CSC Field Verification
+ID	User Story	Acceptance Criteria
+US-CF01	
+As a CSC operator, I want to know what alternative documents are acceptable when a citizen has no income certificate.
+
+Agent 9 returns list of acceptable alternatives per scheme: self-declaration, ration card, bank statement.
+
+US-CF02	
+As a CSC operator, I want to generate a pre-filled self-declaration form for a citizen.
+
+Agent 9 generates PDF self-declaration with citizen's profile fields pre-filled, correct format per scheme.
+
+US-CF03	
+As a CSC operator, I want guidance on what self-declaration formats are legally valid per state.
+
+Agent 9 returns state-specific self-declaration validity rules.
+
+  
+2.9 Agent 10: Analytics
+ID	User Story	Acceptance Criteria
+US-AN01	
+As an admin, I want a weekly report showing which schemes have highest application drop-off.
+
+Agent 10 aggregates session data: scheme shown vs scheme saved vs application started — computes drop-off rate per scheme.
+
+US-AN02	
+As an admin, I want to know which eligibility criteria citizens most commonly misunderstand.
+
+Agent 10 detects confusion signals in conversation_sessions (repeated questions about same criterion).
+
+US-AN03	
+As an admin, I want to see which states are most underserved by the current scheme database.
+
+Agent 10 compares citizen state distribution vs scheme state coverage — flags gaps.
+
+  
+3. Feature Priority Matrix
+Component	Priority	Complexity & Effort	Deployment Target
+MongoDB persistent profiles	P0	Medium	
+Week 1-2.
+
+JWT auth + OTP login	P0	Medium	
+Week 1-2.
+
+PII field-level encryption	P0	Low	
+Week 1-2.
+
+Voice chat loop (Sarvam + Pipecat)	P0	High	
+Week 3-4.
+
+Gemini tool-use eligibility agent	P0	High	
+Week 3-4.
+
+MongoDB Atlas Vector Search	P0	Medium	
+Week 3-4.
+
+OCR Aadhaar autofill	P1	High	
+Week 3-4.
+
+Agent 4 — Document Verification	P1	Low (extends OCR)	
+Week 3-4.
+
+Agent 8 — Scheme Comparison	P1	Low (extends Agent 1)	
+Week 4.
+
+Agent 7 — Financial Planning	P1	Low (pure LLM)	
+Week 4-5.
+
+Agent 9 — CSC Field Verification	P1	Low	
+Week 5.
+
+WhatsApp Twilio integration	P1	Medium	
+Week 5-6.
+
+PWA service worker (offline)	P1	Medium	
+Week 5-6.
+
+CSC dashboard + voice mode	P1	High	
+Week 5-6.
+
+Agent 6 — Proactive Nudge	P1	Medium (WhatsApp built)	
+Week 5-6.
+
+Agent 5 — Grievance	P2	High (browser-use pgportal)	
+Week 6-7.
+
+DPDP consent flow	P0	Low	
+Week 7-8.
+
+Agent 10 — Analytics	P2	Medium	
+Week 7-8.
+
+Impact metrics dashboard	P2	Medium	
+Week 7-8.
+
+  
+DOC 03 — System Requirements Specification (SRS)
+Version 4.0 — IEEE 830 Compliance
+1. Introduction
+This document outlines the detailed functional and non-functional bounds for the 10-agent platform, establishing strict operational guidelines for performance, security, and accuracy.   
+
+2. Functional Requirements
+FR-1: User Management
+FR-1.1: Register citizens via OTP to phone number.   
+
+FR-1.2: Create encrypted citizen_profiles on registration.   
+
+FR-1.3: Cascade account deletion across all 5 databases within 30 seconds.   
+
+FR-1.4: Restrict operational PII collection until explicit user DPDP consent timestamp is captured.   
+
+FR-2: Voice Chat Pipeline
+FR-2.1: Capture React audio inputs and route to FastAPI voice sockets.   
+
+FR-2.2: Direct STT transcription in ≤ 1 second using Sarvam Saaras V3.   
+
+FR-2.3: Support code-mixed (Hinglish/Tanglish) linguistic parsing natively.   
+
+FR-2.4: Formulate Gemini responses and render using Sarvam Bulbul V3.   
+
+FR-2.5: Limit incoming raw audio frame segments to ≤ 25 seconds.   
+
+FR-3: AI Eligibility Engine
+FR-3.1: Extract structured JSON keys from 22 natural languages.   
+
+FR-3.2: Execute pre-filtered vector queries using dynamic demographics.   
+
+FR-3.3: Run automated security checks to prevent prompt injections.   
+
+FR-4: Document OCR
+FR-4.1: Identify name, DOB, and gender from raw images.   
+
+FR-4.3: Instantly transform Aadhaar numbers into salted SHA-256 hashes, immediately purging raw numbers from RAM.   
+
+FR-7: Agent 4 — Document Verification
+FR-7.1: Agent 4 shall verify document type from OCR output: income certificate, caste certificate, Aadhaar, disability certificate.   
+
+FR-7.2: Agent 4 shall extract and validate issue date and expiry date from document. Output schema: {issue_date, expiry_date, is_expired, expires_within_30_days}.   
+
+FR-7.3: Agent 4 shall cross-check OCR-extracted name and DOB against citizen_profiles fields. Output schema: {name_match: bool, dob_match: bool, mismatch_fields: []}.   
+
+FR-7.4: Agent 4 shall check document sufficiency against specific scheme requirements. Output schema: {sufficient: bool, reason: string, missing: []}.   
+
+FR-8: Agent 5 — Grievance
+FR-8.1: Agent 5 shall check application status on government portal using browser-use. Input: scheme_id + external_app_id.   
+
+FR-8.2: Agent 5 shall draft a grievance letter in citizen's language addressed to correct ministry officer.   
+
+FR-8.3: Agent 5 shall submit grievance to pgportal.gov.in autonomously. Output: {submitted: bool, reference_number: string}.   
+
+FR-8.4: Agent 5 shall store grievance reference number in applications collection for tracking.   
+
+FR-9: Agent 6 — Proactive Nudge
+FR-9.1: Agent 6 shall run daily background check for citizens with upcoming scheme deadlines (7 days and 1 day prior).   
+
+FR-9.2: Agent 6 shall run weekly new-scheme eligibility check for all active citizens.   
+
+FR-9.3: Agent 6 shall not send more than 2 WhatsApp messages per citizen per week to avoid spam.   
+
+FR-9.4: Agent 6 shall allow citizens to opt out of nudges via WhatsApp reply 'STOP'. Updates nudge_opted_out flag in citizen_profiles.   
+
+FR-10: Agent 7 — Financial Planning
+FR-10.1: Agent 7 shall calculate total annual benefit across all schemes citizen is eligible for. Output: {total_annual_benefit: number, breakdown: [{scheme, amount, frequency}]}.   
+
+FR-10.2: Agent 7 shall generate a month-by-month payment calendar for all eligible schemes.   
+
+FR-10.3: Agent 7 shall rank schemes by benefit-to-effort ratio based on payment values and complex application steps.   
+
+FR-11: Agent 8 — Scheme Comparison
+FR-11.1: Agent 8 shall accept two scheme IDs and return a structured comparison: eligibility discrepancies, benefit details, processes, and a clear recommendation.   
+
+FR-11.2: Agent 8 shall detect when citizen query implies confusion between two similar schemes and invoke automatically.   
+
+FR-11.3: Agent 8 shall return comparison in citizen's detected language.   
+
+FR-12: Agent 9 — CSC Field Verification
+FR-12.1: Agent 9 shall return list of acceptable alternative documents per scheme when primary document unavailable.   
+
+FR-12.2: Agent 9 shall generate pre-filled self-declaration PDF using citizen profile fields.   
+
+FR-12.3: Agent 9 shall return state-specific self-declaration validity rules.   
+
+FR-13: Agent 10 — Analytics
+FR-13.1: Agent 10 shall compute scheme drop-off rate: schemes shown vs saved vs application started.   
+
+FR-13.2: Agent 10 shall detect confusion signals: same eligibility criterion questioned more than 3 times in a session.   
+
+FR-13.3: Agent 10 shall generate weekly admin report and store in admin_reports collection.   
+
+FR-14: Orchestrator Agent
+FR-14.1: Orchestrator shall classify citizen intent into: eligibility_query, application_request, grievance, comparison, financial_plan, document_verify, status_check.   
+
+FR-14.2: Orchestrator shall route to correct specialist agent(s) based on intent.   
+
+FR-14.3: Orchestrator shall support parallel execution of Agent 1 and Agent 2 for new citizen queries.   
+
+FR-14.4: Orchestrator shall expose agent reasoning trace to frontend for transparency.   
+
+FR-14.5: Orchestrator shall enforce 30-second total timeout across all agent hops.   
+
+3. Non-Functional Requirements
+ID	Category	Metric Goal	Verification Channel
+NFR-1	Performance	Web text latency P95 < 3 seconds	
+FastAPI logging metrics.
+
+NFR-2	Performance	Voice round-trip (speech-to-speech) P95 < 3 seconds	
+Pipecat callback latency logs.
+
+NFR-3	Accuracy	Transcription accuracy ≥ 90% in regional dialects	
+Weekly manual evaluation on 100-sample sets.
+
+NFR-7	Encryption	Field-level AES-256 for PII before database write	
+Database random query verification.
+
+NFR-9	Compliance	Clean account erasure cascading across 5 collections	
+Delete user API execution time traces.
+
+NFR-17	Agent Performance	Agent 1 eligibility reasoning completes in < 5 seconds	
+LangGraph execution trace timing.
+
+NFR-18	Agent Performance	Agent 3 portal navigation completes in < 30 seconds per form	
+browser-use session timing.
+
+NFR-19	Agent Performance	Agent 6 nudge batch (all citizens) completes in < 10 minutes	
+Cloud Run job execution log.
+
+NFR-20	Agent Reliability	All agents have individual health check endpoints	
+GET /agents/health returns status per agent.
+
+NFR-21	Agent Transparency	Reasoning trace available for every Orchestrator decision	
+reasoning_traces collection, TTL 30 days.
+
+NFR-22	Agent Safety	Agent 3 and Agent 5 run in sandboxed Cloud Run instance without general internet access	
+browser-use domain whitelist enforced.
+
+NFR-23	Compliance	Agent 6 respects DPDP Act WhatsApp opt-ins and opt-outs	
+nudge_opted_in flag checks in profiles.
+
+  
+DOC 04 — High-Level Design (HLD)
+Version 4.0 — Multi-Agent Graph Orchestration
+1. High-Level Architecture Overview
+All real-time conversational channels (Web UI, Voice, and WhatsApp) communicate directly with the async Python FastAPI backend, which is optimized for running dynamic LangGraph execution pipelines and handling continuous WebSocket streams. This preserves the Java Spring Boot service as a blocking, transactional backend dedicated to managing data persistence, handling CRUD services, and generating PDF documents.   
+
+                     +----------------------------+
+                     |         React PWA          |
+                     +--------------+-------------+
+                                    |
+             +----------------------+----------------------+
+             | (WS/WSS Voice)                              | (REST /api/v2/*)
+             v                                             v
++------------+-------------+                 +-------------+------------+
+|    FastAPI AI Backend     |                 |  Spring Boot Data Layer  |
+|  (LangGraph StateGraph)  |                 |  (Authentication & CRUD) |
++------------+-------------+                 +-------------+------------+
+             |                                             |
+             +----------------------+----------------------+
+                                    |
+                                    v
+                           +--------+--------+
+                           |  MongoDB Atlas  |
+                           +-----------------+
+2. Voice Pipeline Architecture
+Real-time streaming is handled natively by FastAPI via the Pipecat pipeline framework, routing through Sarvam Saaras V3 for low-latency speech-to-text, Gemini 2.5 Flash for conversational logic, and Sarvam Bulbul V3 for natural-sounding audio synthesis. To prevent resource exhaustion, all voice interactions bypass the Spring Boot gateway entirely.   
+
+3. Storage Definitions
+MongoDB contains five transactional indexes with automatic indexing configurations:   
+
+users: Tracks basic registration schemas.   
+
+citizen_profiles: Encrypts sensitive demographic inputs (AES-256 Fernet).   
+
+schemes: Machine-readable program parameters and embeddings.   
+
+applications: Captures tracking histories.   
+
+conversation_sessions: Logs conversation transcripts with a 90-day TTL.   
+
+4. Multi-Agent System Architecture (LangGraph)
+The core AI system is a LangGraph StateGraph with one Orchestrator and 10 specialist agents. All agents share a common GraphState object passed through the graph. Agents communicate via LangGraph message passing — never direct API calls between agents.   
+
+4.1 GraphState (shared across all agents)
+JSON
+{
+  "citizen_id": "string",
+  "session_id": "string",
+  "channel": "web|voice|whatsapp",
+  "lang": "string",
+  "profile": "CitizenProfile",
+  "messages": "Message[]",
+  "intent": "string",
+  "active_schemes": "Scheme[]",
+  "reasoning_trace": "Step[]",
+  "agent_outputs": {
+    "eligibility": {},
+    "discovery": {},
+    "guidance": {},
+    "document": {},
+    "grievance": {},
+    "financial": {},
+    "comparison": {},
+    "csc": {},
+    "analytics": {}
+  }
+}
+   
+
+4.2 Orchestrator Routing Logic (LangGraph conditional edges)
+START
+  → intent_classifier node
+      → "eligibility_query"   → [Agent1, Agent2] parallel
+      → "application_request" → Agent1 → Agent3
+      → "grievance"           → Agent5
+      → "comparison"          → Agent8
+      → "financial_plan"      → Agent7
+      → "document_verify"     → Agent4
+      → "status_check"        → Spring Boot direct (no agent)
+      → "csc_assist"          → Agent9
+  → response_composer node
+END
+   
+
+4.3 Agent Flows
+Agent 1 — Eligibility Agent (LangGraph ReAct loop)
+Tool Registry (6 tools):
+
+get_profile_field(field) — fetches from shared GraphState profile.   
+
+check_scheme_eligibility(scheme_id, profile) — hard rule check, returns pass/fail per criterion.   
+
+verify_income_dbt(citizen_id) — cross-checks declared income against DBT transfer records.   
+
+check_disability_registry(aadhaar_hash) — verifies disability certificate against UDID registry.   
+
+fetch_state_rules(state, scheme_id) — fetches state-specific overrides for Central schemes.   
+
+query_similar_outcomes(profile_hash) — finds anonymised outcomes of citizens with similar profiles.   
+
+ReAct loop: Agent 1 reasons in natural language about which tool to call next. Example autonomous reasoning chain: "Citizen declared income ₹1.8L. Before confirming PM-KISAN eligibility I should verify_income_dbt to cross-check. DBT shows ₹2.1L transfers — above PM-KISAN threshold. Mark ineligible. Now check state-specific override for UP — UP has extended threshold to ₹2.5L. Citizen is eligible under UP override."   
+
+Agent 2 — Discovery Agent (persistent event loop)
+Runs as an always-on Cloud Run service (not a job) with its own LangGraph loop:
+TRIGGER (PIB RSS new item OR daily cron) → fetch_source node (PIB text / MyScheme page / state portal) → gemini_extract node (structured eligibility_rules JSON) → deduplication_check node (scheme_code hash lookup in MongoDB) → upsert_node (insert new / update changed / skip identical) → embed_node (Atlas Vector Search, only changed schemes) → alert_node (notify admin of new schemes added today).   
+
+Self-healing: If MyScheme returns 429 or blocks the crawler, Agent 2 switches to a sitemap fallback, logs the blockage in the admin_alerts collection, and backs off for 2 hours.   
+
+Agent 3 — Application Guidance Agent (browser-use)
+Domain whitelist (hardcoded, never changeable at runtime): *.gov.in domains only, pgportal.gov.in, scholarships.gov.in, pmayg.nic.in, pmkisan.gov.in.   
+
+Flow:
+TRIGGER (citizen selects scheme to apply) → portal_navigator (browser-use opens scheme apply URL) → form_analyser (identifies all form fields on current page) → profile_mapper (maps form fields to citizen_profiles fields) → pre_filler (fills mapped fields via browser-use) → screenshot_capturer (captures each completed step) → checklist_generator (Gemini generates step-by-step guide from screenshots) → missing_docs_detector (compares required fields vs profile — flags gaps) → output: {checklist, screenshots[], missing_docs[], pre_filled_count}.   
+
+Agent 4 — Document Verification Agent
+Extends the existing OCR pipeline. Once OCR extracts text:
+document_classifier (income_cert | caste_cert | aadhaar | disability_cert | land_record) → date_extractor (issue_date, expiry_date, validity_period) → expiry_checker (flag if expired or expiring < 30 days) → profile_crosscheck (name, DOB, address vs citizen_profiles) → scheme_sufficiency_check (for each target scheme: is this doc type + validity sufficient?) → output: {doc_type, is_valid, mismatches[], insufficient_for_schemes[], expires_in_days}.   
+
+Agent 5 — Grievance Agent (browser-use)
+Domain Whitelist: pgportal.gov.in only.   
+
+Flow:
+status_checker (browser-use: opens scheme portal, finds application by externalAppId, returns status) → grievance_drafter (Gemini: drafts letter in citizen's language, correct ministry officer, correct format) → pgportal_submitter (browser-use: navigates pgportal.gov.in, fills grievance form, submits) → reference_storer (saves reference number to applications.grievance_ref) → output: {current_status, grievance_submitted, reference_number}.   
+
+Agent 6 — Proactive Nudge Agent (scheduled)
+Runs on dual triggers (daily cron for deadlines and weekly cron for new schemes):   
+
+DAILY: deadline_scanner (schemes with application_deadline within 7 days OR 1 day) → eligible_citizen_finder (citizens matching scheme eligibility who haven't applied) → rate_limiter (max 2 messages/citizen/week, skip opted-out citizens) → whatsapp_sender (Twilio: personalised message in citizen's lang).   
+
+WEEKLY: new_scheme_fetcher (schemes added in last 7 days) → profile_matcher (which existing citizens newly qualify) → rate_limiter → whatsapp_sender.   
+
+Agent 7 — Financial Planning Agent
+Flow: eligible_scheme_loader (all schemes where eligibility_score > 70) → benefit_calculator (sum annual benefit_amount per scheme) → payment_calendar_builder (month: [scheme, amount] based on scheme disbursement schedule) → effort_ranker (rank by benefit_amount / application_complexity_score) → output: {total_annual_benefit, breakdown[], calendar{}, ranked_by_effort[]}.   
+
+Agent 8 — Scheme Comparison Agent
+Flow: scheme_fetcher (loads full scheme docs for both scheme IDs) → eligibility_diff (compares eligibility_rules field by field) → benefit_diff (compares benefit_amount, benefit_type, frequency) → process_diff (compares application steps, documents required, portal difficulty) → profile_matcher (which scheme fits THIS citizen better and why) → localiser (outputs comparison in citizen's detected language) → output: {scheme_a, scheme_b, diffs{}, recommendation, reasoning}.   
+
+Agent 9 — CSC Field Verification Agent
+Flow: alternative_doc_finder (scheme_id + missing_doc_type → acceptable_alternatives[]) → self_declaration_validator (state_code → valid self-declaration formats[]) → form_generator (citizen profile + scheme_id → pre-filled self-declaration PDF) → output: {alternatives[], valid_formats[], pdf_blob}.   
+
+Agent 10 — Analytics Agent (weekly scheduled)
+Flow: dropoff_analyser (schemes shown vs saved vs applied — MongoDB aggregation) → confusion_detector (sessions with repeated questions on same criterion) → state_gap_finder (citizen state distribution vs scheme state coverage) → benefit_calculator (total estimated benefits unlocked this week) → report_generator (Gemini: narrative weekly report from aggregation data) → report_storer (admin_reports collection) → output: stored weekly report + admin WhatsApp/email notification.   
+
+5. Agent Directory
+Agent Name	Type	Trigger	Timeout	Owner
+Orchestrator	Always-on (FastAPI)	Every citizen message	30s total	
+Rudra.
+
+Agent 1 — Eligibility	On-demand (LangGraph node)	Orchestrator route	10s	
+Rudra.
+
+Agent 2 — Discovery	Always-on (Cloud Run service)	PIB RSS 30min + daily cron	2h for full run	
+Rudra.
+
+Agent 3 — Application	On-demand (Cloud Run job)	Citizen apply action	60s	
+Rudra.
+
+Agent 4 — Document	On-demand (FastAPI)	Document upload	15s	
+Rudra.
+
+Agent 5 — Grievance	On-demand (Cloud Run job)	Citizen grievance request	120s	
+Rudra.
+
+Agent 6 — Nudge	Scheduled (Cloud Run job)	Daily 8AM + weekly Mon 9AM IST	10min	
+Rudra.
+
+Agent 7 — Financial	On-demand (LangGraph node)	Orchestrator route	10s	
+Rudra.
+
+Agent 8 — Comparison	On-demand (LangGraph node)	Orchestrator route	10s	
+Rudra.
+
+Agent 9 — CSC	On-demand (LangGraph node)	CSC operator request	15s	
+Rudra.
+
+Agent 10 — Analytics	Scheduled (Cloud Run job)	Weekly Sunday 11PM IST	30min	
+Rudra.
+
+  
+DOC 05 — Security Design Document
+Version 4.0 — Data Protection & DPDP Compliance
+1. Layered Defense System
+Layer 1: Network Controls: Enforce TLS 1.3 across all communication nodes, route WSS traffic directly to FastAPI to prevent resource exhaustion, and isolate backend databases within private VPC domains.   
+
+Layer 2: Multi-Factor OTP & Sessions: Restrict application entry strictly to OTP validation over mobile, using secure, short-lived RS256 JWT access tokens stored inside httpOnly secure cookies.   
+
+Layer 3: Cryptographic Field Protections: Apply dynamic Fernet AES-256 field-level encryption on PII fields (name, phone, DOB) inside MongoDB. Convert raw Aadhaar numbers into SHA-256 hashes immediately after capture, ensuring raw identifiers are never written to disk.   
+
+Layer 4: Input Validation & Masking: Sanitize incoming prompts to strip out SQL or prompt injections. Run automated masking regex passes to clean sensitive alphanumeric strings (such as PAN cards or Aadhaar formats) before sending transcripts to Gemini.   
+
+Layer 5: DPDP Act 2023 Compliance: Inform citizens about data usage terms via an onboarding screen, capture the exact timestamp of consent, provide comprehensive data erasure options, and process all user info exclusively within domestic cloud regions.   
+
+Layer 6: Audits & Alerts: Automatically record operational actions to write-once, append-only security logs. Configure real-time alerts to notify the team if API error rates spikes above 1%.   
+
+DOC 06 — API Contract Specifications
+Version 4.0 — FastAPI and Spring Boot Endpoints
+1. Overview of Base Boundaries
+Spring Boot Base: https://api.yojnasetu.in/api/v2 (REST authentication, profile CRUD, applications tracker, internal routing).   
+
+FastAPI Base: https://ai.yojnasetu.in (FastAPI handles all WebSocket connections (text + voice), all 10 agent endpoints, OCR, and Twilio webhooks. All agent invocations go through FastAPI → Orchestrator → specialist agent).   
+
+2. Core Auth & Profile Routes (Spring Boot)
+POST /auth/otp/send: Initiates transactional validation SMS.   
+
+POST /auth/otp/verify: Performs credential validation and sets secure JWT cookies.   
+
+GET /profile/me: Returns the citizen's decrypted demographic profile.   
+
+PATCH /profile/me: Partially updates demographics and auto-recalculates profile completeness.   
+
+DELETE /user/me: Trigger cascades that remove user records across all databases.   
+
+3. Real-Time Voice Sockets (FastAPI)
+WSS /ws/voice/{session_id}: Primary voice pipeline. Client connects directly to the FastAPI server using a secure WSS connection to stream raw binary audio chunks.   
+
+4. Agent Endpoints (FastAPI)
+Method	Endpoint	Auth	Notes
+GET	/agents/health	Admin JWT	
+Returns status of all 10 agents: {agent_name, status: green/yellow/red, last_active}.
+
+GET	/agents/trace/{session_id}	Citizen JWT	
+Returns full reasoning trace for a session: [{agent, tool, input, output, reasoning, duration_ms}].
+
+POST	/agents/compare	Citizen JWT	
+Body: {scheme_id_a, scheme_id_b}. Triggers Agent 8. Returns comparison object.
+
+GET	/agents/financial-plan	Citizen JWT	
+Triggers Agent 7 for authenticated citizen. Returns {total_annual_benefit, breakdown, calendar, ranked}.
+
+POST	/agents/grievance	Citizen JWT	
+Body: {scheme_id, external_app_id, complaint_description}. Triggers Agent 5. Returns {reference_number, status}.
+
+GET	/agents/nudge/status	Citizen JWT	
+Returns citizen's nudge preferences and last 5 nudges sent.
+
+POST	/agents/nudge/optout	Citizen JWT	
+Sets nudge_opted_out=true. Confirmed via WhatsApp.
+
+POST	/agents/document/verify	Citizen JWT	
+Multipart: document file + scheme_ids[]. Triggers Agent 4. Returns verification result.
+
+POST	/agents/csc/alternatives	Operator JWT	
+Body: {scheme_id, missing_doc_type}. Triggers Agent 9. Returns alternatives + self-declaration form PDF.
+
+GET	/admin/agents/analytics/latest	Admin JWT	
+Returns latest Agent 10 weekly report from admin_reports collection.
+
+POST	/admin/agents/nudge/trigger	Admin JWT	
+Manually triggers Agent 6 batch outside schedule.
+
+  
+5. System Error Coding Matrix
+Code	HTTP	Cause	Mitigation Step
+504	504	
+Agent exceeded its timeout limit.
+
+Retry; if persistent check /agents/health.
+
+503	503	
+Specific agent is down (browser-use agents most common).
+
+Check /agents/health for which agent.
+
+422	422	
+Agent 3 or 5 attempted non-gov.in domain.
+
+This is a security block — do not override.
+
+429	429	
+Agent 6 rate limit: max 2 messages/citizen/week.
+
+Wait until next week's allocation resets.
+
+  
+CLAUDE.md — Unified Developer Reference & AI Instructions
+Read this file at the start of every session. It is the single source of truth for codebase architecture, ownership, and conventions.   
+
+What This Project Is
+Yojna Setu is a multilingual AI assistant that helps Indian citizens discover and apply for government welfare schemes. It supports 22 Indian languages via text, voice (real-time), and WhatsApp. 419+ schemes indexed. DPDP Act 2023 compliant.   
+
+Repo Structure
+/
+├── CLAUDE.md                  ← you are here
+├── ai_service/                ← Rudra owns (Python 3.10, FastAPI)
+│   ├── main.py
+│   ├── routers/
+│   │   ├── chat.py            ← text WebSocket + REST chat
+│   │   ├── voice.py           ← voice WebSocket (WSS direct, NOT through Spring Boot)
+│   │   ├── ocr.py             ← Aadhaar + income cert OCR
+│   │   └── webhook.py         ← Twilio WhatsApp inbound
+│   ├── utils/
+│   │   ├── encryption.py      ← AES-256 Fernet PII encrypt/decrypt
+│   │   ├── pii_masker.py      ← strips Aadhaar/phone/PAN from text before LLM
+│   │   └── injection_guard.py ← prompt injection detection
+│   └── requirements.txt
+├── data_service/              ← Pranjal owns (Java 17, Spring Boot 3.2)
+│   ├── src/main/java/in/yojnasetu/
+│   │   ├── auth/              ← OTP + JWT (RS256)
+│   │   ├── profile/           ← CitizenProfile CRUD
+│   │   ├── schemes/           ← Scheme metadata + eligibility rules
+│   │   ├── applications/      ← Application tracking
+│   │   └── audit/             ← AuditLog append-only writes
+│   └── pom.xml
+├── frontend/                  ← React 18 + Vite + Tailwind PWA
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── VoiceRecorder.jsx   ← MediaRecorder → WSS to FastAPI DIRECT
+│   │   │   ├── ChatWindow.jsx
+│   │   │   └── CSCDashboard.jsx
+│   │   └── api/
+│   │       ├── springClient.js     ← REST calls to Spring Boot (/api/v2/*)
+│   │       └── aiClient.js         ← WebSocket to FastAPI (wss://ai.*)
+│   └── package.json
+├── voice/                     ← Pipecat pipeline modules (Rudra owns)
+│   ├── sarvam_stt.py          ← Saaras V3, mode="transcribe", chunk ≤ 25s
+│   ├── sarvam_tts.py          ← Bulbul V3, temperature + speaker config
+│   └── vad_config.py          ← Saaras V3 exclusive VAD tuning params
+└── docs/                      ← All 6 project documents
+Services and URLs
+Service	Dev	Staging	Prod
+FastAPI (AI)	localhost:8000	https://ai-staging.yojnasetu.in	
+https://ai.yojnasetu.in.
+
+Spring Boot (Data)	localhost:8080	https://api-staging.yojnasetu.in/api/v2	
+https://api.yojnasetu.in/api/v2.
+
+React PWA	localhost:5173	https://staging.yojnasetu.in	
+https://yojnasetu.in.
+
+MongoDB Atlas	Atlas Free Tier	Atlas M0 Mumbai	
+Atlas M10 Mumbai.
+
+  
+Critical Architecture Rules
+Voice WebSocket — DIRECT to FastAPI, Never Through Spring Boot
+CORRECT:   Browser → wss://ai.yojnasetu.in/ws/voice/{session_id}   (FastAPI, async)
+WRONG:     Browser → Spring Boot gateway → FastAPI                  (thread exhaustion)
+Spring Boot is thread-per-connection (blocking I/O). 100 concurrent voice sessions = thread pool exhaustion = total service failure. FastAPI is ASGI async — it handles thousands of concurrent WebSockets natively. This is a hard rule. Do not create any Spring Boot WebSocket endpoints.   
+
+REST vs WebSocket Split
+Spring Boot handles: all REST endpoints (/api/v2/*), auth, profile CRUD, scheme metadata, applications, audit logs, PDF export.   
+
+FastAPI handles: all WebSocket connections (text chat + voice), OCR, Twilio webhook, internal AI operations, Pipecat pipeline.   
+
+Never Touch the Other Service's Domain
+If editing data_service/, do not modify ai_service/ routes and vice versa — unless explicitly updating both sides of an API contract change, in which case update the contract in docs/06_API_Contract.docx first.   
+
+Environment Variables
+FastAPI (ai_service/.env) — never commit this file
+Code snippet
+GEMINI_API_KEY=
+SARVAM_API_KEY=
+GOOGLE_CLOUD_PROJECT=
+GCS_BUCKET_TEMP_OCR=
+SPRING_BOOT_INTERNAL_URL=http://localhost:8080
+FIELD_ENCRYPTION_KEY=           # Fernet key — load from GCP Secret Manager in prod
+TWILIO_AUTH_TOKEN=              # for X-Twilio-Signature validation
+TWILIO_ACCOUNT_SID=
+Spring Boot (data_service/src/main/resources/application-local.yml) — never commit
+YAML
+spring.data.mongodb.uri=
+JWT_PRIVATE_KEY_PATH=
+JWT_PUBLIC_KEY_PATH=
+FIELD_ENCRYPTION_KEY=           # same key as FastAPI — load from GCP Secret Manager in prod
+MongoDB Collections
+citizen_profiles
+JSON
+{
+  "_id": "ObjectId",
+  "userId": "ObjectId (ref: users, unique)",
+  "name": "string (AES-256 encrypted)",
+  "dob": "string (AES-256 encrypted)",
+  "phone": "string (AES-256 encrypted)",
+  "gender": "male|female|other",
+  "annualIncome": "number",
+  "category": "general|obc|sc|st",
+  "occupation": "farmer|student|daily_wage|...",
+  "isBpl": "boolean",
+  "isDisabled": "boolean",
+  "state": "UP|MH|... (2-char code)",
+  "district": "string",
+  "isRural": "boolean",
+  "familySize": "number",
+  "aadhaarHash": "string (SHA-256 + salt — NEVER raw UID)",
+  "verifiedDocs": ["aadhaar","pan","income_cert"],
+  "profileCompleteness": "0-100",
+  "consentGivenAt": "ISODate",
+  "updatedAt": "ISODate"
+}
+schemes
+JSON
+{
+  "_id": "ObjectId",
+  "schemeCode": "string (unique)",
+  "name": "string",
+  "ministry": "string",
+  "state": "string|null (null = central scheme)",
+  "category": ["farmer","student","sc","disabled",...],
+  "eligibilityRules": { "maxIncome": 200000, "minAge": 18, ... },
+  "benefitAmount": "string",
+  "applyUrl": "string",
+  "embedding": "[384-dim vector for Atlas Vector Search]",
+  "lastUpdated": "ISODate"
+}
+applications
+JSON
+{
+  "_id": "ObjectId",
+  "userId": "ObjectId",
+  "schemeId": "ObjectId",
+  "schemeCode": "string (denormalized)",
+  "schemeName": "string (denormalized)",
+  "status": "saved|in_progress|submitted|approved|rejected|disbursed",
+  "statusHistory": [{ "status": "string", "at": "ISODate" }],
+  "eligibilityScore": "0-100",
+  "externalAppId": "string (govt portal ref)",
+  "appliedAt": "ISODate"
+}
+conversation_sessions
+JSON
+{
+  "_id": "ObjectId",
+  "userId": "ObjectId",
+  "sessionId": "UUID v4 (unique)",
+  "channel": "web|whatsapp|voice",
+  "lang": "hi|ta|bn|te|mr|...",
+  "summary": "string (written by Gemini at session end)",
+  "profileUpdates": { "annualIncome": 150000 },
+  "schemesShown": ["ObjectId"],
+  "messages": [{ "role": "user|assistant", "content": "string", "at": "ISODate" }],
+  "intentTags": ["scheme_discovery","eligibility_check"],
+  "startedAt": "ISODate",
+  "expiresAt": "ISODate (TTL: startedAt + 90 days)"
+}
+audit_logs (append-only — never update or delete)
+JSON
+{
+  "_id": "ObjectId",
+  "userId": "ObjectId",
+  "action": "profile_read|profile_write|scheme_search|delete_request",
+  "endpoint": "string",
+  "ip": "string",
+  "at": "ISODate"
+}
+Multi-Agent System
+Framework: LangGraph StateGraph.   
+
+All agents share GraphState. Never call agents directly — always go through Orchestrator.   
+
+Directory structure
+/ai_service/
+├── orchestrator/
+│   ├── graph.py           ← LangGraph StateGraph definition
+│   ├── intent_classifier.py
+│   ├── state.py           ← GraphState dataclass
+│   └── router.py          ← conditional edge logic
+├── agents/
+│   ├── agent1_eligibility/
+│   │   ├── agent.py       ← ReAct loop
+│   │   └── tools.py       ← 6 tool definitions
+│   ├── agent2_discovery/
+│   │   ├── agent.py       ← persistent event loop
+│   │   ├── scrapers/      ← myscheme.py, pib_rss.py, datagov.py, states/
+│   │   └── normalizer.py  ← Gemini eligibility extractor
+│   ├── agent3_guidance/
+│   │   ├── agent.py
+│   │   ├── browser_navigator.py   ← browser-use wrapper
+│   │   └── domain_whitelist.py    ← NEVER modify without security review
+│   ├── agent4_document/
+│   │   ├── agent.py
+│   │   └── verifier.py
+│   ├── agent5_grievance/
+│   │   ├── agent.py
+│   │   └── pgportal_navigator.py  ← browser-use, pgportal.gov.in only
+│   ├── agent6_nudge/
+│   │   ├── agent.py
+│   │   └── whatsapp_sender.py
+│   ├── agent7_financial/
+│   │   └── agent.py
+│   ├── agent8_comparison/
+│   │   └── agent.py
+│   ├── agent9_csc/
+│   │   ├── agent.py
+│   │   └── form_generator.py
+│   └── agent10_analytics/
+│       ├── agent.py
+│       └── report_generator.py
+   
+
+Agent ownership rules for Claude Code
+When editing any agent file, check state.py first — GraphState is shared, any field change affects all agents.   
+
+Agent 3 and Agent 5 browser-use domain whitelists are in domain_whitelist.py — NEVER hardcode URLs elsewhere.   
+
+Agent 2 scrapers follow rate limit config in agents/agent2_discovery/config.py — RATE_LIMIT_SECONDS = 2, RESPECT_ROBOTS_TXT = True — never override.   
+
+Adding a new tool to Agent 1: add to tools.py AND update the tool descriptions in agent.py system prompt AND update this CLAUDE.md.   
+
+GraphState fields (never rename without updating all agents)
+Python
+@dataclass
+class GraphState:
+    citizen_id: str
+    session_id: str
+    channel: str          # "web|voice|whatsapp"
+    lang: str
+    profile: dict         # CitizenProfile decrypted
+    messages: list        # conversation history
+    intent: str           # set by intent_classifier
+    active_schemes: list  # set by Agent 1
+    reasoning_trace: list # append-only, every agent writes here
+    agent_outputs: dict   # keyed by agent name
+   
+
+New MongoDB collections added for multi-agent system
+reasoning_traces (TTL 30 days)
+JSON
+{
+  "session_id": "string",
+  "agent_name": "string",
+  "tool_called": "string",
+  "input": "string",
+  "output": "string",
+  "reasoning": "string",
+  "duration_ms": "number",
+  "at": "ISODate"
+}
+   
+
+admin_reports (permanent)
+JSON
+{
+  "report_date": "ISODate",
+  "top_dropoff_schemes": "string[]",
+  "confusing_criteria": "string[]",
+  "state_gaps": "string[]",
+  "new_citizens": "number",
+  "benefits_unlocked_estimate": "number",
+  "narrative": "string"
+}
+   
+
+agent_alerts (TTL 7 days)
+JSON
+{
+  "agent_name": "string",
+  "alert_type": "string",
+  "message": "string",
+  "at": "ISODate",
+  "resolved": "bool"
+}
+   
+
+nudge_log (TTL 90 days)
+JSON
+{
+  "citizen_id": "string",
+  "message_type": "string",
+  "scheme_id": "string",
+  "sent_at": "ISODate",
+  "delivered": "bool",
+  "replied": "bool"
+}
+   
+
+Browser-use security rules (Agent 3 and Agent 5)
+Domain whitelist is the ONLY access control — agents cannot navigate outside *.gov.in.   
+
+No login credentials stored — agents use publicly accessible portal pages only.   
+
+Screenshots stored in GCS temp bucket, TTL 24 hours — never in MongoDB.   
+
+If browser-use throws DomainBlockedError, log to agent_alerts and return graceful failure — never retry with different domain.   
+
+Agent timeout table
+Orchestrator total: 30s (hard limit — LangGraph graph-level timeout).   
+
+Agent 1 Eligibility: 10s.   
+
+Agent 2 Discovery: 2h (full pipeline run).   
+
+Agent 3 Guidance: 60s (portal navigation).   
+
+Agent 4 Document: 15s.   
+
+Agent 5 Grievance: 120s (portal navigation + submission).   
+
+Agent 6 Nudge batch: 10min.   
+
+Agent 7 Financial: 10s.   
+
+Agent 8 Comparison: 10s.   
+
+Agent 9 CSC: 15s.   
+
+Agent 10 Analytics: 30min.   
+
+Common Claude Code tasks for multi-agent system
+Add a new tool to Agent 1
+Add tool function to agents/agent1_eligibility/tools.py.   
+
+Add tool description to agent.py system prompt tool list.   
+
+Add tool to the tools=[] list in the ReAct agent constructor.   
+
+Write unit test in tests/test_agent1_tools.py.   
+
+Update this CLAUDE.md tool registry.   
+
+Add a new agent
+Create /agents/agentN_name/ directory with agent.py.   
+
+Add agent node to orchestrator/graph.py.   
+
+Add routing condition to orchestrator/router.py.   
+
+Add new intent label to orchestrator/intent_classifier.py.   
+
+Add agent output key to GraphState in orchestrator/state.py.   
+
+Add health check entry to /agents/health endpoint.   
+
+Update this CLAUDE.md agent directory table.   
+
+Debug an agent timeout
+Check /agents/health — which agent is red/yellow.   
+
+Check agent_alerts collection for recent alerts from that agent.   
+
+For browser-use agents (3, 5): check if govt portal changed its UI — most common cause.   
+
+For Agent 2: check agent_alerts for source blocks (MyScheme rate limiting).   
+
+Paste Cloud Run logs into Claude Code — it will identify root cause.   
+
+Last updated: reflects version 4.0 10-Agent Multi-Agent system architecture design lock.
+
+
+
+04_HLD_High_Level_Design (2).docx
+
+
+01_Master_Project_Document (1).docx
+
+
+02_PRD_Product_Requirements.docx
+
+
+05_Security_Design_Document (1).docx
+
+
+CLAUDE.md
+
+
+03_SRS_System_Requirements (1).docx
+
+
+06_API_Contract (1).docx

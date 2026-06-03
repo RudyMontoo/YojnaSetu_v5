@@ -1,0 +1,223 @@
+version: "2"
+type: backend
+tech_stack:
+  - Python 3.12
+  - FastAPI
+  - Uvicorn (ASGI)
+  - MongoDB (Motor async driver)
+  - LangGraph / LangChain orchestrator
+  - Google Gemini 2.5 Flash (LLM)
+  - Sarvam Saaras v3 (STT) + Bulbul v3 (TTS)
+features:
+  - name: Health & Root
+    description: Liveness and service metadata endpoints
+    files:
+      - ai_service/main.py
+    endpoints:
+      - method: GET
+        path: /
+        description: Root service info
+        auth_required: false
+        response_schema:
+          "200": Service metadata
+      - method: GET
+        path: /health
+        description: Liveness probe
+        auth_required: false
+        response_schema:
+          "200": Health status
+  - name: Chat API
+    description: Text chat with the AI assistant (sync, stream, session management)
+    files:
+      - ai_service/routers/chat.py
+    endpoints:
+      - method: POST
+        path: /chat/
+        description: Send a chat message and get a response
+        auth_required: true
+        response_schema:
+          "200": Chat response
+          "401": Unauthorized
+      - method: POST
+        path: /chat/stream
+        description: Stream chat tokens
+        auth_required: true
+        response_schema:
+          "200": Streamed tokens
+      - method: GET
+        path: /chat/health
+        description: Chat subsystem health
+        auth_required: false
+      - method: DELETE
+        path: /chat/session/{session_id}
+        description: Clear a chat session
+        auth_required: false
+  - name: Orchestrator
+    description: LangGraph multi-agent orchestrator entrypoint
+    files:
+      - ai_service/routers/orchestrator_router.py
+    endpoints:
+      - method: POST
+        path: /orchestrator/chat
+        description: Route a citizen message through the 10-agent LangGraph
+        auth_required: true
+        response_schema:
+          "200": Orchestrated agent response
+  - name: Eligibility Agent
+    description: Scheme eligibility Q&A and session lifecycle
+    files:
+      - ai_service/agents/agent1_eligibility/agent.py
+    endpoints:
+      - method: POST
+        path: /agent/start
+        description: Start an eligibility session
+        auth_required: true
+      - method: POST
+        path: /agent/answer
+        description: Answer an eligibility question
+        auth_required: true
+      - method: GET
+        path: /agent/checklist
+        description: Get scheme checklist
+        auth_required: false
+      - method: GET
+        path: /agent/session/{session_id}
+        description: Get session status
+        auth_required: false
+      - method: DELETE
+        path: /agent/session/{session_id}
+        description: Clear session
+        auth_required: false
+  - name: Application Guide
+    description: Scheme application guidance and supported scheme listing
+    files:
+      - ai_service/routers/apply.py
+    endpoints:
+      - method: GET
+        path: /apply/guide
+        description: Get step-by-step application guide
+        auth_required: false
+      - method: GET
+        path: /apply/schemes
+        description: List supported schemes
+        auth_required: false
+  - name: Status Tracker
+    description: Application status checks
+    files:
+      - ai_service/routers/status.py
+    endpoints:
+      - method: POST
+        path: /status/status/check
+        description: Check application status
+        auth_required: true
+      - method: GET
+        path: /status/status/schemes
+        description: List schemes supported for status checks
+        auth_required: false
+  - name: Help & Discovery
+    description: CSC locator and document guidance
+    files:
+      - ai_service/routers/help.py
+    endpoints:
+      - method: GET
+        path: /help/csc/nearby
+        description: Find nearby CSC centers
+        auth_required: false
+      - method: GET
+        path: /help/doc/guide
+        description: Document preparation guide
+        auth_required: false
+      - method: GET
+        path: /help/doc/list
+        description: List supported documents
+        auth_required: false
+  - name: OCR
+    description: Document OCR (Aadhaar / income certificate)
+    files:
+      - ai_service/routers/ocr.py
+    endpoints:
+      - method: POST
+        path: /ocr/scan
+        description: Scan a document image/PDF (MIME-validated)
+        auth_required: true
+        response_schema:
+          "200": Extracted fields
+          "400": Invalid file type
+  - name: Voice
+    description: Voice transcription, TTS models, voice-to-scheme query
+    files:
+      - ai_service/routers/voice.py
+      - ai_service/routers/voice_conversation.py
+    endpoints:
+      - method: GET
+        path: /voice/models
+        description: List available voice models
+        auth_required: false
+      - method: POST
+        path: /voice/transcribe
+        description: Transcribe audio (Sarvam Saaras v3)
+        auth_required: true
+      - method: POST
+        path: /voice/query
+        description: Voice-to-scheme discovery
+        auth_required: true
+      - method: POST
+        path: /voice/conversation/start
+        description: Start a voice conversation session
+        auth_required: false
+      - method: POST
+        path: /voice/conversation/chat
+        description: One-shot voice chat
+        auth_required: false
+      - method: POST
+        path: /voice/conversation/answer
+        description: Voice answer turn
+        auth_required: false
+      - method: GET
+        path: /voice/conversation/test-tts
+        description: Test TTS output
+        auth_required: false
+  - name: Jan Sahayak
+    description: Human helper registration, login, appointments, admin verification
+    files:
+      - ai_service/routers/sahayak.py
+    endpoints:
+      - method: POST
+        path: /sahayak/register
+        description: Register a helper
+        auth_required: false
+      - method: POST
+        path: /sahayak/helper/login
+        description: Helper login
+        auth_required: false
+      - method: GET
+        path: /sahayak/helpers
+        description: List helpers
+        auth_required: false
+      - method: GET
+        path: /sahayak/helper/dashboard/{helper_db_id}
+        description: Helper dashboard
+        auth_required: false
+      - method: POST
+        path: /sahayak/admin/verify/{helper_db_id}
+        description: Admin verify a helper
+        auth_required: false
+      - method: POST
+        path: /sahayak/appointments/request
+        description: Request an appointment
+        auth_required: false
+      - method: GET
+        path: /sahayak/appointments/respond/{token}
+        description: Respond to an appointment via token
+        auth_required: false
+      - method: GET
+        path: /sahayak/appointments/status/{appointment_id}
+        description: Get appointment status
+        auth_required: false
+known_limitations:
+  - issue: Several state-changing endpoints (Jan Sahayak register/login/appointments) are unauthenticated
+    location: ai_service/routers/sahayak.py
+    impact: Potential for abuse without rate limiting or auth
+  - issue: Endpoints depend on external services (MongoDB Atlas, Gemini, Sarvam) which may fail in local/test env
+    location: ai_service/db/mongo.py, ai_service/utils/sarvam.py
+    impact: Some tests may surface 5xx if secrets/services are unavailable locally

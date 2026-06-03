@@ -1,0 +1,566 @@
+Full 10-agent architecture. Writing everything as plain text for Antigravity now.
+
+---
+
+## DOC 01 — Master Project Document
+
+**Update title line:**
+Version 4.0 — 10-Agent AI System
+
+**Replace Section 3 system architecture summary paragraph:**
+
+Yojna Setu v4.0 is a 10-agent AI system built on LangGraph StateGraph. A central Orchestrator Agent receives all citizen input (text, voice, WhatsApp) and routes to specialist agents based on intent. Agents 1-3 handle the core citizen journey (eligibility, scheme discovery, application guidance). Agents 4-9 handle advanced capabilities (document verification, grievance filing, proactive nudging, financial planning, scheme comparison, CSC field verification). Agent 10 is admin-facing (analytics and insights). All agents share a common state object (citizen profile + session history) and communicate via LangGraph message passing — not direct API calls between agents.
+
+**Replace tech stack table completely:**
+
+| Layer | Technology | Responsibility |
+|---|---|---|
+| Frontend | React 18 + PWA + Tailwind | Citizen web UI, voice recorder, CSC dashboard, agent reasoning trace display, impact metrics |
+| Orchestrator Agent | LangGraph StateGraph + Gemini 2.5 Flash | Intent classification, agent routing, parallel execution, shared state management |
+| Agent 1 — Eligibility | LangGraph ReAct + Gemini 2.5 Flash | Self-directed eligibility reasoning, 6-tool registry, autonomous tool sequencing |
+| Agent 2 — Discovery | LangGraph event loop + Gemini Flash + httpx | Persistent scheme ingestion from PIB RSS, MyScheme, data.gov.in, 5 state portals. Self-healing. |
+| Agent 3 — Application Guidance | LangGraph + browser-use + Playwright | Autonomous govt portal navigation, form pre-fill, step-by-step checklist generation |
+| Agent 4 — Document Verification | LangGraph + Google Vision + Gemini Flash | Document authenticity check, field cross-verification, expiry detection, sufficiency check per scheme |
+| Agent 5 — Grievance | LangGraph + browser-use + Gemini Flash | Application status check, grievance letter drafting, pgportal.gov.in submission, tracking |
+| Agent 6 — Proactive Nudge | LangGraph scheduled + Twilio WhatsApp | Background citizen monitoring, deadline detection, personalised WhatsApp nudges |
+| Agent 7 — Financial Planning | LangGraph + Gemini Flash | Multi-scheme benefit calculation, annual benefit estimate, payment calendar generation |
+| Agent 8 — Scheme Comparison | LangGraph + Gemini Flash | Side-by-side scheme comparison against citizen profile, recommendation with reasoning |
+| Agent 9 — CSC Field Verification | LangGraph + Gemini Flash | Alternative document guidance, self-declaration form generation, CSC operator assist |
+| Agent 10 — Analytics | LangGraph scheduled + Gemini Flash | Drop-off analysis, scheme confusion detection, state coverage gaps, weekly admin report |
+| Voice Orchestration | Pipecat + Sarvam Saaras V3 + Bulbul V3 | Real-time voice pipeline feeding into Orchestrator Agent |
+| Data Service | Java 17, Spring Boot 3.2, MongoDB Atlas | REST only: auth, profiles, scheme data, applications, audit logs |
+| Vector Store | MongoDB Atlas Vector Search | Semantic scheme search used by Agent 1 and Agent 8 |
+| WhatsApp | Twilio Business API | Input channel for Orchestrator + output channel for Agent 6 nudges |
+| Dev Tooling | Claude Code | Agentic multi-file editing across all 10 agent modules |
+| Infrastructure | Google Cloud Run + GCS + Firebase Hosting | Serverless, auto-scaling, Mumbai region |
+
+**Replace Section 5.1 Core Capabilities:**
+
+1. 10-Agent AI System — LangGraph-orchestrated multi-agent architecture handles the complete citizen journey from scheme discovery to grievance resolution autonomously
+2. Eligibility Reasoning (Agent 1) — Self-directed ReAct loop decides its own tool call sequence to verify eligibility across income, category, state, occupation, disability, and land criteria
+3. Autonomous Scheme Discovery (Agent 2) — Persistent agent monitors PIB RSS, MyScheme, and 5 state portals. New Central schemes appear within 60 minutes of PIB announcement. Self-healing on source failures.
+4. Application Guidance (Agent 3) — Autonomously navigates government portals via browser-use, pre-fills forms from citizen profile, generates step-by-step screenshot checklist
+5. Document Verification (Agent 4) — Verifies document authenticity, cross-checks fields against profile, detects expiry, confirms sufficiency per scheme requirements
+6. Grievance Filing (Agent 5) — Checks application status on govt portal, drafts grievance letter, submits to pgportal.gov.in, tracks resolution
+7. Proactive Nudging (Agent 6) — Background agent sends personalised WhatsApp alerts for upcoming deadlines, unapplied eligible schemes, missing documents
+8. Financial Planning (Agent 7) — Calculates total annual benefit across all eligible schemes, generates payment calendar, prioritises by application effort vs benefit value
+9. Scheme Comparison (Agent 8) — Side-by-side comparison of similar schemes, recommends correct one with plain-language reasoning in citizen's language
+10. CSC Field Verification (Agent 9) — Guides operators on alternative acceptable documents, generates pre-filled self-declaration forms for document-less citizens
+11. Analytics and Insights (Agent 10) — Admin-facing weekly report on drop-off rates, scheme confusion signals, state coverage gaps
+12. Real-Time Voice (Pipecat + Sarvam) — All agents accessible via voice in 22 Indian languages through the Orchestrator
+
+**Update Section 6 success metrics — add:**
+
+| Total agents operational by Week 8 | 10 | Agent health endpoint returns all 10 green |
+| Agent 3 portal navigation success rate | > 70% | browser-use session completion logs |
+| Agent 5 grievance submissions | 50+ | pgportal submission logs |
+| Agent 6 nudge open rate | > 40% | Twilio message delivery + reply rate |
+| Agent 7 financial plans generated | 500+ | financial_plans collection count |
+
+---
+
+## DOC 02 — PRD
+
+**Add new Section 2.7 — Agent 4: Document Verification:**
+
+| US-DV01 | As a citizen, I want to upload my income certificate and be told if it's sufficient for the schemes I want to apply to | Agent 4 checks document type, expiry date, issuing authority format, income figure vs scheme threshold — returns pass/fail per scheme with reason |
+| US-DV02 | As a citizen, I want to be told if my Aadhaar details match what I entered in my profile | Agent 4 cross-checks OCR-extracted name/DOB/address against citizen_profiles fields — flags mismatches |
+| US-DV03 | As a citizen, I want to know which documents are expired before I go to apply | Agent 4 extracts issue date + validity period from document — flags if expired or expiring within 30 days |
+
+**Add new Section 2.8 — Agent 5: Grievance:**
+
+| US-GR01 | As a citizen who applied 3 months ago and received no benefit, I want to check the status of my application | Agent 5 opens govt portal via browser-use, navigates to application status page, returns current status in citizen's language |
+| US-GR02 | As a citizen, I want to file a grievance without understanding government portal navigation | Agent 5 drafts grievance letter, submits to pgportal.gov.in autonomously, returns reference number |
+| US-GR03 | As a citizen, I want to be notified when my grievance gets a response | Agent 6 monitors grievance status and sends WhatsApp notification on update |
+
+**Add new Section 2.9 — Agent 6: Proactive Nudge:**
+
+| US-PN01 | As a citizen, I want to be reminded before a scheme application deadline | Agent 6 detects deadlines in scheme data, sends WhatsApp message 7 days and 1 day before deadline to eligible citizens who haven't applied |
+| US-PN02 | As a citizen, I want to be told about new schemes I qualify for without having to search | Agent 6 runs weekly profile-vs-newschemes check, sends WhatsApp if new eligible scheme found |
+| US-PN03 | As a citizen, I want to be reminded if my profile is incomplete which may cause me to miss schemes | Agent 6 checks profileCompleteness < 70, sends nudge with specific missing fields |
+
+**Add new Section 2.10 — Agent 7: Financial Planning:**
+
+| US-FP01 | As a citizen, I want to know the total annual benefit I can receive across all schemes I'm eligible for | Agent 7 sums benefit_amount across all eligible schemes, returns total with breakdown |
+| US-FP02 | As a citizen, I want a calendar showing when each scheme pays me | Agent 7 generates month-by-month payment schedule: PM-KISAN in April/August/December, scholarship in July etc. |
+| US-FP03 | As a citizen, I want to know which schemes give the highest benefit for the least application effort | Agent 7 ranks schemes by (benefit_value / application_complexity_score) ratio |
+
+**Add new Section 2.11 — Agent 8: Scheme Comparison:**
+
+| US-SC01 | As a citizen confused between two similar schemes, I want a clear explanation of which one applies to me | Agent 8 fetches both scheme rule sets, compares against profile, recommends one with plain-language reasoning |
+| US-SC02 | As a citizen, I want to see a side-by-side comparison of two schemes in my language | Agent 8 returns structured comparison: eligibility diff, benefit diff, application process diff, recommendation |
+
+**Add new Section 2.12 — Agent 9: CSC Field Verification:**
+
+| US-CF01 | As a CSC operator, I want to know what alternative documents are acceptable when a citizen has no income certificate | Agent 9 returns list of acceptable alternatives per scheme: self-declaration, ration card, bank statement |
+| US-CF02 | As a CSC operator, I want to generate a pre-filled self-declaration form for a citizen | Agent 9 generates PDF self-declaration with citizen's profile fields pre-filled, correct format per scheme |
+| US-CF03 | As a CSC operator, I want guidance on what self-declaration formats are legally valid per state | Agent 9 returns state-specific self-declaration validity rules |
+
+**Add new Section 2.13 — Agent 10: Analytics:**
+
+| US-AN01 | As an admin, I want a weekly report showing which schemes have highest application drop-off | Agent 10 aggregates session data: scheme shown vs scheme saved vs application started — computes drop-off rate per scheme |
+| US-AN02 | As an admin, I want to know which eligibility criteria citizens most commonly misunderstand | Agent 10 detects confusion signals in conversation_sessions (repeated questions about same criterion) |
+| US-AN03 | As an admin, I want to see which states are most underserved by the current scheme database | Agent 10 compares citizen state distribution vs scheme state coverage — flags gaps |
+
+**Update Section 3 Feature Priority Matrix — add all new agents:**
+
+| Agent 4 — Document Verification | P1 | Low (extends OCR) | Week 3-4 |
+| Agent 7 — Financial Planning | P1 | Low (pure LLM) | Week 4-5 |
+| Agent 8 — Scheme Comparison | P1 | Low (extends Agent 1) | Week 4 |
+| Agent 6 — Proactive Nudge | P1 | Medium (WhatsApp already built) | Week 5-6 |
+| Agent 9 — CSC Field Verification | P1 | Low | Week 5 |
+| Agent 5 — Grievance | P2 | High (browser-use on pgportal) | Week 6-7 |
+| Agent 10 — Analytics | P2 | Medium | Week 7-8 |
+
+---
+
+## DOC 03 — SRS
+
+**Add FR-7: Agent 4 — Document Verification:**
+
+| FR-7.1 | Agent 4 shall verify document type from OCR output: income certificate, caste certificate, Aadhaar, disability certificate | OCR extracted text | Classified document type with confidence score |
+| FR-7.2 | Agent 4 shall extract and validate issue date and expiry date from document | Document image/PDF | {issue_date, expiry_date, is_expired, expires_within_30_days} |
+| FR-7.3 | Agent 4 shall cross-check OCR-extracted name and DOB against citizen_profiles fields | OCR result + profile | {name_match: bool, dob_match: bool, mismatch_fields: []} |
+| FR-7.4 | Agent 4 shall check document sufficiency against specific scheme requirements | Document type + scheme_id | {sufficient: bool, reason: string, missing: []} |
+
+**Add FR-8: Agent 5 — Grievance:**
+
+| FR-8.1 | Agent 5 shall check application status on government portal using browser-use | scheme_id + external_app_id | Current status string in citizen's language |
+| FR-8.2 | Agent 5 shall draft a grievance letter in citizen's language addressed to correct ministry officer | Citizen profile + scheme + complaint description | Formatted grievance letter text |
+| FR-8.3 | Agent 5 shall submit grievance to pgportal.gov.in autonomously | Drafted letter + citizen details | {submitted: bool, reference_number: string} |
+| FR-8.4 | Agent 5 shall store grievance reference number in applications collection for tracking | Submission result | applications.grievance_ref populated |
+
+**Add FR-9: Agent 6 — Proactive Nudge:**
+
+| FR-9.1 | Agent 6 shall run daily background check for citizens with upcoming scheme deadlines (7 days and 1 day prior) | All citizen profiles + scheme deadlines | WhatsApp messages sent to eligible citizens |
+| FR-9.2 | Agent 6 shall run weekly new-scheme eligibility check for all active citizens | New schemes added in last 7 days + all profiles | WhatsApp messages for newly eligible citizens |
+| FR-9.3 | Agent 6 shall not send more than 2 WhatsApp messages per citizen per week to avoid spam | Message log | Rate-limited message dispatch |
+| FR-9.4 | Agent 6 shall allow citizens to opt out of nudges via WhatsApp reply 'STOP' | WhatsApp inbound 'STOP' | nudge_opted_out flag set in citizen_profiles |
+
+**Add FR-10: Agent 7 — Financial Planning:**
+
+| FR-10.1 | Agent 7 shall calculate total annual benefit across all schemes citizen is eligible for | Eligible schemes list + benefit_amount per scheme | {total_annual_benefit: number, breakdown: [{scheme, amount, frequency}]} |
+| FR-10.2 | Agent 7 shall generate a month-by-month payment calendar for all eligible schemes | Scheme payment schedules + citizen eligibility | Calendar object: {month: [scheme_name, expected_amount]} |
+| FR-10.3 | Agent 7 shall rank schemes by benefit-to-effort ratio | benefit_amount + application_complexity_score | Ranked list with ratio score |
+
+**Add FR-11: Agent 8 — Scheme Comparison:**
+
+| FR-11.1 | Agent 8 shall accept two scheme IDs and return a structured comparison | Two scheme_ids + citizen profile | {scheme_a, scheme_b, eligibility_diff, benefit_diff, process_diff, recommendation} |
+| FR-11.2 | Agent 8 shall detect when citizen query implies confusion between two similar schemes and invoke automatically | Citizen query + intent classifier | Automatic comparison without citizen explicitly naming both schemes |
+| FR-11.3 | Agent 8 shall return comparison in citizen's detected language | Comparison object | Localised comparison text |
+
+**Add FR-12: Agent 9 — CSC Field Verification:**
+
+| FR-12.1 | Agent 9 shall return list of acceptable alternative documents per scheme when primary document unavailable | scheme_id + missing document type | List of acceptable alternatives with legal basis |
+| FR-12.2 | Agent 9 shall generate pre-filled self-declaration PDF using citizen profile fields | citizen_id + scheme_id | PDF blob with citizen details pre-filled |
+| FR-12.3 | Agent 9 shall return state-specific self-declaration validity rules | state_code | List of valid self-declaration formats for that state |
+
+**Add FR-13: Agent 10 — Analytics:**
+
+| FR-13.1 | Agent 10 shall compute scheme drop-off rate: schemes shown vs saved vs application started | conversation_sessions + applications collection | Drop-off percentage per scheme, weekly |
+| FR-13.2 | Agent 10 shall detect confusion signals: same eligibility criterion questioned more than 3 times in a session | conversation_sessions messages | List of confusing criteria with frequency count |
+| FR-13.3 | Agent 10 shall generate weekly admin report and store in admin_reports collection | All session + application data | {report_date, top_dropoff_schemes, confusing_criteria, state_gaps, new_citizens, benefits_unlocked} |
+
+**Add FR-14: Orchestrator Agent:**
+
+| FR-14.1 | Orchestrator shall classify citizen intent into: eligibility_query, application_request, grievance, comparison, financial_plan, document_verify, status_check | Any citizen input | intent_label + confidence_score |
+| FR-14.2 | Orchestrator shall route to correct specialist agent(s) based on intent | intent_label | Agent invocation with shared state |
+| FR-14.3 | Orchestrator shall support parallel execution of Agent 1 and Agent 2 for new citizen queries | New session + incomplete profile | Both agents run simultaneously, results merged |
+| FR-14.4 | Orchestrator shall expose agent reasoning trace to frontend for transparency | Agent execution log | {steps: [{agent, tool, input, output, reasoning}]} |
+| FR-14.5 | Orchestrator shall enforce 30-second total timeout across all agent hops | Timer on StateGraph execution | Graceful timeout response if exceeded |
+
+**Add new NFRs:**
+
+| NFR-17 | Agent Performance | Agent 1 eligibility reasoning completes in < 5 seconds | LangGraph execution trace timing |
+| NFR-18 | Agent Performance | Agent 3 portal navigation completes in < 30 seconds per form | browser-use session timing |
+| NFR-19 | Agent Performance | Agent 6 nudge batch (all citizens) completes in < 10 minutes | Cloud Run job execution log |
+| NFR-20 | Agent Reliability | All agents have individual health check endpoints | GET /agents/health returns status per agent |
+| NFR-21 | Agent Transparency | Reasoning trace available for every Orchestrator decision | reasoning_traces collection, TTL 30 days |
+| NFR-22 | Agent Safety | Agent 3 and Agent 5 (browser-use agents) run in sandboxed Cloud Run instance — cannot access non-government domains | browser-use domain whitelist enforced |
+| NFR-23 | Nudge Compliance | Agent 6 respects DPDP Act: explicit opt-in for WhatsApp nudges, STOP command honoured within 1 message | nudge_opted_in flag required before first nudge |
+
+---
+
+## DOC 04 — HLD
+
+**Replace Section 4 entirely — Eligibility Agent Architecture:**
+
+**4. Multi-Agent System Architecture (LangGraph)**
+
+The core AI system is a LangGraph StateGraph with one Orchestrator and 10 specialist agents. All agents share a common GraphState object passed through the graph. Agents communicate via LangGraph message passing — never direct API calls between agents.
+
+**GraphState (shared across all agents):**
+```
+{
+  citizen_id: string,
+  session_id: string,
+  channel: "web|voice|whatsapp",
+  lang: string,
+  profile: CitizenProfile,
+  messages: Message[],
+  intent: string,
+  active_schemes: Scheme[],
+  reasoning_trace: Step[],
+  agent_outputs: {
+    eligibility: {},
+    discovery: {},
+    guidance: {},
+    document: {},
+    grievance: {},
+    financial: {},
+    comparison: {},
+    csc: {},
+    analytics: {}
+  }
+}
+```
+
+**Orchestrator Routing Logic (LangGraph conditional edges):**
+```
+START
+  → intent_classifier node
+      → "eligibility_query"   → [Agent1, Agent2] parallel
+      → "application_request" → Agent1 → Agent3
+      → "grievance"           → Agent5
+      → "comparison"          → Agent8
+      → "financial_plan"      → Agent7
+      → "document_verify"     → Agent4
+      → "status_check"        → Spring Boot direct (no agent)
+      → "csc_assist"          → Agent9
+  → response_composer node
+END
+```
+
+**Agent 1 — Eligibility Agent (LangGraph ReAct loop):**
+
+Tool registry (6 tools):
+- get_profile_field(field) — fetches from shared GraphState profile
+- check_scheme_eligibility(scheme_id, profile) — hard rule check, returns pass/fail per criterion
+- verify_income_dbt(citizen_id) — cross-checks declared income against DBT transfer records
+- check_disability_registry(aadhaar_hash) — verifies disability certificate against UDID registry
+- fetch_state_rules(state, scheme_id) — fetches state-specific overrides for Central schemes
+- query_similar_outcomes(profile_hash) — finds anonymised outcomes of citizens with similar profiles
+
+ReAct loop: Agent 1 reasons in natural language about which tool to call next. Example autonomous reasoning chain: "Citizen declared income ₹1.8L. Before confirming PM-KISAN eligibility I should verify_income_dbt to cross-check. DBT shows ₹2.1L transfers — above PM-KISAN threshold. Mark ineligible. Now check state-specific override for UP — UP has extended threshold to ₹2.5L. Citizen is eligible under UP override."
+
+**Agent 2 — Discovery Agent (persistent event loop):**
+
+Runs as always-on Cloud Run service (not a job). Has its own LangGraph loop:
+```
+TRIGGER (PIB RSS new item OR daily cron)
+  → fetch_source node (PIB text / MyScheme page / state portal)
+  → gemini_extract node (structured eligibility_rules JSON)
+  → deduplication_check node (scheme_code hash lookup in MongoDB)
+  → upsert_node (insert new / update changed / skip identical)
+  → embed_node (Atlas Vector Search, only changed schemes)
+  → alert_node (notify admin of new schemes added today)
+```
+Self-healing: if MyScheme returns 429 or blocks bot, Agent 2 switches to sitemap fallback, logs the block to admin_alerts collection, backs off for 2 hours.
+
+**Agent 3 — Application Guidance Agent (browser-use):**
+
+Domain whitelist (hardcoded, never changeable at runtime):
+- *.gov.in domains only
+- pgportal.gov.in
+- scholarships.gov.in
+- pmayg.nic.in
+- pmkisan.gov.in
+
+Flow:
+```
+TRIGGER (citizen selects scheme to apply)
+  → portal_navigator (browser-use opens scheme apply URL)
+  → form_analyser (identifies all form fields on current page)
+  → profile_mapper (maps form fields to citizen_profiles fields)
+  → pre_filler (fills mapped fields via browser-use)
+  → screenshot_capturer (captures each completed step)
+  → checklist_generator (Gemini generates step-by-step guide from screenshots)
+  → missing_docs_detector (compares required fields vs profile — flags gaps)
+  → output: {checklist, screenshots[], missing_docs[], pre_filled_count}
+```
+
+**Agent 4 — Document Verification Agent:**
+
+Extends existing OCR pipeline. After OCR extracts fields:
+```
+  → document_classifier (income_cert | caste_cert | aadhaar | disability_cert | land_record)
+  → date_extractor (issue_date, expiry_date, validity_period)
+  → expiry_checker (flag if expired or expiring < 30 days)
+  → profile_crosscheck (name, DOB, address vs citizen_profiles)
+  → scheme_sufficiency_check (for each target scheme: is this doc type + validity sufficient?)
+  → output: {doc_type, is_valid, mismatches[], insufficient_for_schemes[], expires_in_days}
+```
+
+**Agent 5 — Grievance Agent (browser-use):**
+
+Domain whitelist: pgportal.gov.in only.
+```
+  → status_checker (browser-use: opens scheme portal, finds application by externalAppId, returns status)
+  → grievance_drafter (Gemini: drafts letter in citizen's language, correct ministry officer, correct format)
+  → pgportal_submitter (browser-use: navigates pgportal.gov.in, fills grievance form, submits)
+  → reference_storer (saves reference number to applications.grievance_ref)
+  → output: {current_status, grievance_submitted, reference_number}
+```
+
+**Agent 6 — Proactive Nudge Agent (scheduled):**
+
+Two triggers: daily cron (deadline check) + weekly cron (new schemes check).
+```
+DAILY:
+  → deadline_scanner (schemes with application_deadline within 7 days OR 1 day)
+  → eligible_citizen_finder (citizens matching scheme eligibility who haven't applied)
+  → rate_limiter (max 2 messages/citizen/week, skip opted-out citizens)
+  → whatsapp_sender (Twilio: personalised message in citizen's lang)
+
+WEEKLY:
+  → new_scheme_fetcher (schemes added in last 7 days)
+  → profile_matcher (which existing citizens newly qualify)
+  → rate_limiter
+  → whatsapp_sender
+```
+
+**Agent 7 — Financial Planning Agent:**
+```
+  → eligible_scheme_loader (all schemes where eligibility_score > 70)
+  → benefit_calculator (sum annual benefit_amount per scheme)
+  → payment_calendar_builder (month: [scheme, amount] based on scheme disbursement schedule)
+  → effort_ranker (rank by benefit_amount / application_complexity_score)
+  → output: {total_annual_benefit, breakdown[], calendar{}, ranked_by_effort[]}
+```
+
+**Agent 8 — Scheme Comparison Agent:**
+```
+  → scheme_fetcher (loads full scheme docs for both scheme IDs)
+  → eligibility_diff (compares eligibility_rules field by field)
+  → benefit_diff (compares benefit_amount, benefit_type, frequency)
+  → process_diff (compares application steps, documents required, portal difficulty)
+  → profile_matcher (which scheme fits THIS citizen better and why)
+  → localiser (outputs comparison in citizen's detected language)
+  → output: {scheme_a, scheme_b, diffs{}, recommendation, reasoning}
+```
+
+**Agent 9 — CSC Field Verification Agent:**
+```
+  → alternative_doc_finder (scheme_id + missing_doc_type → acceptable_alternatives[])
+  → self_declaration_validator (state_code → valid self-declaration formats[])
+  → form_generator (citizen profile + scheme_id → pre-filled self-declaration PDF)
+  → output: {alternatives[], valid_formats[], pdf_blob}
+```
+
+**Agent 10 — Analytics Agent (weekly scheduled):**
+```
+  → dropoff_analyser (schemes shown vs saved vs applied — MongoDB aggregation)
+  → confusion_detector (sessions with repeated questions on same criterion)
+  → state_gap_finder (citizen state distribution vs scheme state coverage)
+  → benefit_calculator (total estimated benefits unlocked this week)
+  → report_generator (Gemini: narrative weekly report from aggregation data)
+  → report_storer (admin_reports collection)
+  → output: stored weekly report + admin WhatsApp/email notification
+```
+
+**Add new Section 9 — Agent Directory:**
+
+| Agent | Type | Trigger | Timeout | Owner |
+|---|---|---|---|---|
+| Orchestrator | Always-on (FastAPI) | Every citizen message | 30s total | Rudra |
+| Agent 1 — Eligibility | On-demand (LangGraph node) | Orchestrator route | 10s | Rudra |
+| Agent 2 — Discovery | Always-on (Cloud Run service) | PIB RSS 30min + daily cron | 2h for full run | Rudra |
+| Agent 3 — Application | On-demand (Cloud Run job) | Citizen apply action | 60s | Rudra |
+| Agent 4 — Document | On-demand (FastAPI) | Document upload | 15s | Rudra |
+| Agent 5 — Grievance | On-demand (Cloud Run job) | Citizen grievance request | 120s | Rudra |
+| Agent 6 — Nudge | Scheduled (Cloud Run job) | Daily 8AM + weekly Monday 9AM IST | 10min | Rudra |
+| Agent 7 — Financial | On-demand (LangGraph node) | Orchestrator route | 10s | Rudra |
+| Agent 8 — Comparison | On-demand (LangGraph node) | Orchestrator route | 10s | Rudra |
+| Agent 9 — CSC | On-demand (LangGraph node) | CSC operator request | 15s | Rudra |
+| Agent 10 — Analytics | Scheduled (Cloud Run job) | Weekly Sunday 11PM IST | 30min | Rudra |
+
+---
+
+## DOC 06 — API Contract
+
+**Add new Section 11 — Agent Endpoints (FastAPI):**
+
+| Method | Endpoint | Auth | Notes |
+|---|---|---|---|
+| GET | /agents/health | Admin JWT | Returns status of all 10 agents: {agent_name, status: green/yellow/red, last_active} |
+| GET | /agents/trace/{session_id} | Citizen JWT | Returns full reasoning trace for a session: [{agent, tool, input, output, reasoning, duration_ms}] |
+| POST | /agents/compare | Citizen JWT | Body: {scheme_id_a, scheme_id_b}. Triggers Agent 8. Returns comparison object. |
+| GET | /agents/financial-plan | Citizen JWT | Triggers Agent 7 for authenticated citizen. Returns {total_annual_benefit, breakdown, calendar, ranked} |
+| POST | /agents/grievance | Citizen JWT | Body: {scheme_id, external_app_id, complaint_description}. Triggers Agent 5. Returns {reference_number, status} |
+| GET | /agents/nudge/status | Citizen JWT | Returns citizen's nudge preferences and last 5 nudges sent |
+| POST | /agents/nudge/optout | Citizen JWT | Sets nudge_opted_out=true. Confirmed via WhatsApp. |
+| POST | /agents/document/verify | Citizen JWT | Multipart: document file + scheme_ids[]. Triggers Agent 4. Returns verification result. |
+| POST | /agents/csc/alternatives | Operator JWT | Body: {scheme_id, missing_doc_type}. Triggers Agent 9. Returns alternatives + self-declaration form PDF. |
+| GET | /admin/agents/analytics/latest | Admin JWT | Returns latest Agent 10 weekly report from admin_reports collection |
+| POST | /admin/agents/nudge/trigger | Admin JWT | Manually triggers Agent 6 batch outside schedule |
+
+**Update Section 2 API Overview table — update FastAPI row:**
+
+FastAPI handles: all WebSocket connections (text + voice), all 10 agent endpoints, OCR, Twilio webhook. All agent invocations go through FastAPI → Orchestrator → specialist agent.
+
+**Add new error codes:**
+
+| 504 | AGENT_TIMEOUT | Agent exceeded its timeout limit | Retry; if persistent check /agents/health |
+| 503 | AGENT_UNAVAILABLE | Specific agent is down (browser-use agents most common) | Check /agents/health for which agent |
+| 422 | BROWSER_DOMAIN_BLOCKED | Agent 3 or 5 attempted non-gov.in domain | This is a security block — do not override |
+| 429 | NUDGE_RATE_LIMIT | Agent 6 rate limit: max 2 messages/citizen/week | Wait until next week's allocation resets |
+
+---
+
+## CLAUDE.md — Full Replacement of AI Section
+
+**Replace everything under "## Key API Endpoints" and add after it:**
+
+---
+
+## Multi-Agent System
+
+**Framework: LangGraph StateGraph**
+All agents share GraphState. Never call agents directly — always go through Orchestrator.
+
+**Directory structure:**
+```
+/ai_service/
+├── orchestrator/
+│   ├── graph.py           ← LangGraph StateGraph definition
+│   ├── intent_classifier.py
+│   ├── state.py           ← GraphState dataclass
+│   └── router.py          ← conditional edge logic
+├── agents/
+│   ├── agent1_eligibility/
+│   │   ├── agent.py       ← ReAct loop
+│   │   └── tools.py       ← 6 tool definitions
+│   ├── agent2_discovery/
+│   │   ├── agent.py       ← persistent event loop
+│   │   ├── scrapers/      ← myscheme.py, pib_rss.py, datagov.py, states/
+│   │   └── normalizer.py  ← Gemini eligibility extractor
+│   ├── agent3_guidance/
+│   │   ├── agent.py
+│   │   ├── browser_navigator.py   ← browser-use wrapper
+│   │   └── domain_whitelist.py    ← NEVER modify without security review
+│   ├── agent4_document/
+│   │   ├── agent.py
+│   │   └── verifier.py
+│   ├── agent5_grievance/
+│   │   ├── agent.py
+│   │   └── pgportal_navigator.py  ← browser-use, pgportal.gov.in only
+│   ├── agent6_nudge/
+│   │   ├── agent.py
+│   │   └── whatsapp_sender.py
+│   ├── agent7_financial/
+│   │   └── agent.py
+│   ├── agent8_comparison/
+│   │   └── agent.py
+│   ├── agent9_csc/
+│   │   ├── agent.py
+│   │   └── form_generator.py
+│   └── agent10_analytics/
+│       ├── agent.py
+│       └── report_generator.py
+```
+
+**Agent ownership rules for Claude Code:**
+- When editing any agent file, check state.py first — GraphState is shared, any field change affects all agents
+- Agent 3 and Agent 5 browser-use domain whitelists are in domain_whitelist.py — NEVER hardcode URLs elsewhere
+- Agent 2 scrapers follow rate limit config in agents/agent2_discovery/config.py — RATE_LIMIT_SECONDS = 2, RESPECT_ROBOTS_TXT = True — never override
+- Adding a new tool to Agent 1: add to tools.py AND update the tool descriptions in agent.py system prompt AND update this CLAUDE.md
+
+**GraphState fields (never rename without updating all agents):**
+```python
+@dataclass
+class GraphState:
+    citizen_id: str
+    session_id: str
+    channel: str          # "web|voice|whatsapp"
+    lang: str
+    profile: dict         # CitizenProfile decrypted
+    messages: list        # conversation history
+    intent: str           # set by intent_classifier
+    active_schemes: list  # set by Agent 1
+    reasoning_trace: list # append-only, every agent writes here
+    agent_outputs: dict   # keyed by agent name
+```
+
+**New MongoDB collections added for multi-agent system:**
+
+```
+reasoning_traces (TTL 30 days)
+{
+  session_id, agent_name, tool_called, input, output, reasoning, duration_ms, at
+}
+
+admin_reports (permanent)
+{
+  report_date, top_dropoff_schemes[], confusing_criteria[], 
+  state_gaps[], new_citizens, benefits_unlocked_estimate, narrative
+}
+
+agent_alerts (TTL 7 days)
+{
+  agent_name, alert_type, message, at, resolved: bool
+}
+
+nudge_log (TTL 90 days)
+{
+  citizen_id, message_type, scheme_id, sent_at, delivered: bool, replied: bool
+}
+```
+
+**Browser-use security rules (Agent 3 and Agent 5):**
+- Domain whitelist is the ONLY access control — agents cannot navigate outside *.gov.in
+- No login credentials stored — agents use publicly accessible portal pages only
+- Screenshots stored in GCS temp bucket, TTL 24 hours — never in MongoDB
+- If browser-use throws DomainBlockedError, log to agent_alerts and return graceful failure — never retry with different domain
+
+**Agent timeout table:**
+```
+Orchestrator total:    30s  (hard limit — LangGraph graph-level timeout)
+Agent 1 Eligibility:   10s
+Agent 2 Discovery:     2h   (full pipeline run)
+Agent 3 Guidance:      60s  (portal navigation)
+Agent 4 Document:      15s
+Agent 5 Grievance:     120s (portal navigation + submission)
+Agent 6 Nudge batch:   10min
+Agent 7 Financial:     10s
+Agent 8 Comparison:    10s
+Agent 9 CSC:           15s
+Agent 10 Analytics:    30min
+```
+
+**Common Claude Code tasks for multi-agent system:**
+
+Add a new tool to Agent 1:
+1. Add tool function to agents/agent1_eligibility/tools.py
+2. Add tool description to agent.py system prompt tool list
+3. Add tool to the tools=[] list in the ReAct agent constructor
+4. Write unit test in tests/test_agent1_tools.py
+5. Update this CLAUDE.md tool registry
+
+Add a new agent:
+1. Create /agents/agentN_name/ directory with agent.py
+2. Add agent node to orchestrator/graph.py
+3. Add routing condition to orchestrator/router.py
+4. Add new intent label to orchestrator/intent_classifier.py
+5. Add agent output key to GraphState in orchestrator/state.py
+6. Add health check entry to /agents/health endpoint
+7. Update this CLAUDE.md agent directory table
+
+Debug an agent timeout:
+1. Check /agents/health — which agent is red/yellow
+2. Check agent_alerts collection for recent alerts from that agent
+3. For browser-use agents (3, 5): check if govt portal changed its UI — most common cause
+4. For Agent 2: check agent_alerts for source blocks (MyScheme rate limiting)
+5. Paste Cloud Run logs into Claude Code — it will identify root cause
+
+---
+
+That's everything. All 7 files (6 docs + CLAUDE.md) — complete plain text, no overlap, no contradictions. Give this to Antigravity as-is.
+
+**Summary of what changed and why:**
+
+- Master: version bump to 4.0, full 10-agent stack table, 10 capabilities listed
+- PRD: 7 new user story sections (Agents 4-10), feature priority matrix updated
+- SRS: 8 new functional requirement blocks (FR-7 through FR-14 for all agents + orchestrator), 7 new NFRs
+- HLD: entire AI section replaced with LangGraph architecture, all 10 agent flows documented, agent directory table
+- API Contract: 11 new agent endpoints, 4 new error codes, FastAPI description updated
+- CLAUDE.md: full directory structure for 10 agents, GraphState documented, 4 new MongoDB collections, browser-use security rules, timeout table, Claude Code task guides for multi-agent work

@@ -1,0 +1,52 @@
+[
+  {
+    "id": "TC001",
+    "title": "get_root_service_info",
+    "description": "Verify that a GET request to the root endpoint '/' without authentication returns a 200 status code with correct service metadata including root information."
+  },
+  {
+    "id": "TC002",
+    "title": "get_health_liveness_probe",
+    "description": "Verify that a GET request to '/health' without authentication returns a 200 status code indicating the service is alive, and that when the service is unavailable, a non-200 error or no response is returned."
+  },
+  {
+    "id": "TC003",
+    "title": "post_chat_message_authenticated",
+    "description": "Verify that a POST request to '/chat/' with valid authenticated credentials and a message returns a 200 status code with a chat response, and that missing or invalid authentication returns 401 Unauthorized."
+  },
+  {
+    "id": "TC004",
+    "title": "post_orchestrator_chat_authenticated",
+    "description": "Verify that a POST request to '/orchestrator/chat' with valid authenticated credentials and a citizen message returns a 200 status code with an orchestrated agent response, and that missing or invalid authentication returns 401 Unauthorized."
+  },
+  {
+    "id": "TC005",
+    "title": "post_agent_start_session_authenticated",
+    "description": "Verify that a POST request to '/agent/start' with valid authenticated credentials starts an eligibility session and returns confirmation."
+  },
+  {
+    "id": "TC006",
+    "title": "get_apply_guide_no_authentication",
+    "description": "Verify that a GET request to '/apply/guide' without authentication returns a 200 status code with a step-by-step application guide, and that if guidance data is unavailable, an error response is returned."
+  },
+  {
+    "id": "TC007",
+    "title": "post_status_check_authenticated",
+    "description": "Verify that a POST request to '/status/status/check' with valid authenticated credentials and application details returns a 200 status code with the application status result, and that missing authentication returns 401 Unauthorized."
+  },
+  {
+    "id": "TC008",
+    "title": "post_ocr_scan_valid_file_authenticated",
+    "description": "Verify that a POST request to '/ocr/scan' with a valid authenticated image or PDF document returns a 200 status code with extracted fields, and that unsupported file types return 400 Invalid file type."
+  },
+  {
+    "id": "TC009",
+    "title": "post_voice_transcribe_authenticated",
+    "description": "Verify that a POST request to '/voice/transcribe' with valid authenticated audio returns a 200 status code with transcription from Sarvam Saaras v3, and that invalid or unsupported audio formats return an error response."
+  },
+  {
+    "id": "TC010",
+    "title": "post_sahayak_register_helper",
+    "description": "Verify that a POST request to '/sahayak/register' with valid helper profile details returns confirmation of successful registration, and that missing or invalid details return an error response indicating registration failure."
+  }
+]
