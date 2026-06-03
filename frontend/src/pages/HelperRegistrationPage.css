@@ -1,0 +1,339 @@
+/* ══════════════════════════════════════════════════════════════
+   HelperRegistrationPage.css — Jan Sahayak Registration
+═══════════════════════════════════════════════════════════════ */
+
+.helper-reg-main {
+    max-width: 560px;
+    margin: 0 auto;
+}
+
+.helper-reg-header {
+    padding: 8px 0 16px;
+}
+
+.helper-reg-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 12px 0 6px;
+}
+
+.helper-reg-title {
+    font-size: clamp(22px, 5vw, 28px);
+    font-weight: 800;
+    letter-spacing: -0.3px;
+}
+
+.helper-reg-sub {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* ── Progress steps ──────────────────────────────────────────── */
+.helper-reg-progress {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 20px;
+}
+
+.helper-reg-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    font-size: 12px;
+    color: var(--text-subtle);
+    position: relative;
+}
+
+.helper-reg-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: calc(22px + 8px);
+    right: 0;
+    top: 50%;
+    height: 1px;
+    background: rgba(255,255,255,0.08);
+}
+
+.helper-reg-step.active {
+    color: var(--saffron);
+}
+
+.helper-reg-step.done {
+    color: #4ade80;
+}
+
+.helper-reg-step-dot {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04);
+    z-index: 1;
+}
+
+.helper-reg-step.active .helper-reg-step-dot {
+    background: rgba(255,107,53,0.2);
+    border-color: var(--saffron);
+    color: var(--saffron);
+}
+
+.helper-reg-step.done .helper-reg-step-dot {
+    background: rgba(74,222,128,0.15);
+    border-color: #4ade80;
+    color: #4ade80;
+}
+
+/* ── Form card ───────────────────────────────────────────────── */
+.helper-reg-card {
+    padding: 24px;
+    border-radius: var(--radius-xl) !important;
+}
+
+.helper-reg-step-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+}
+
+.helper-reg-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.field-hint {
+    font-size: 11px;
+    color: var(--text-subtle);
+    margin: 3px 0 0;
+}
+
+.helper-reg-bio {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* ── Language/Service chip grid ─────────────────────────────── */
+.helper-reg-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 6px;
+}
+
+/* ── Nav button ──────────────────────────────────────────────── */
+.helper-reg-nav {
+    margin-top: 24px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.helper-reg-next {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px !important;
+    font-size: 15px !important;
+}
+
+.helper-reg-error {
+    font-size: 13px;
+    color: #f87171;
+    background: rgba(239,68,68,0.08);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+}
+
+/* ── Success state ───────────────────────────────────────────── */
+.helper-reg-success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+    padding: 36px 24px;
+    border-color: rgba(74,222,128,0.2) !important;
+    background: rgba(74,222,128,0.04) !important;
+}
+
+.helper-reg-success-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(74,222,128,0.12);
+    color: #4ade80;
+}
+
+.helper-reg-success h2 {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.helper-reg-success-btns {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 8px;
+}
+
+/* ── Step label truncation fix for 4 steps ────────────────────── */
+.helper-reg-step-label {
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 60px;
+}
+
+/* ── Verification notice ──────────────────────────────────────── */
+.helper-reg-notice {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: rgba(255, 107, 53, 0.06);
+    border: 1px solid rgba(255, 107, 53, 0.18);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.55;
+    margin-bottom: 4px;
+}
+
+/* ── Document type picker ─────────────────────────────────────── */
+.helper-doc-type-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.helper-doc-type-btn {
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.18s ease;
+}
+
+.helper-doc-type-btn:hover {
+    border-color: rgba(255, 107, 53, 0.3);
+    background: rgba(255, 107, 53, 0.05);
+    color: var(--text-primary);
+}
+
+.helper-doc-type-btn.selected {
+    border-color: var(--saffron);
+    background: rgba(255, 107, 53, 0.12);
+    color: var(--saffron);
+    font-weight: 600;
+}
+
+/* ── Upload zone ──────────────────────────────────────────────── */
+.field-hint-inline {
+    font-size: 11px;
+    color: var(--text-subtle);
+    font-weight: 400;
+}
+
+.helper-doc-upload-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 28px 16px;
+    border: 2px dashed rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    text-align: center;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.helper-doc-upload-zone:hover {
+    border-color: rgba(255, 107, 53, 0.4);
+    background: rgba(255, 107, 53, 0.04);
+}
+
+/* ── Preview ─────────────────────────────────────────────────── */
+.helper-doc-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-lg);
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.helper-doc-img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: var(--radius-md);
+}
+
+.helper-doc-pdf-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.helper-doc-remove {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: var(--radius-sm);
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.helper-doc-remove:hover {
+    background: rgba(239, 68, 68, 0.15);
+}
+
+/* ── Pending notice on success screen ────────────────────────── */
+.helper-reg-pending-notice {
+    background: rgba(255, 107, 53, 0.06);
+    border: 1px solid rgba(255, 107, 53, 0.18);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 13px;
+    color: var(--text-muted);
+    width: 100%;
+}
+
+.helper-reg-pending-notice ul {
+    margin: 8px 0 0 16px;
+    line-height: 2;
+}

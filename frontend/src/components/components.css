@@ -1,0 +1,203 @@
+/* Shared reusable components condensed into one CSS file */
+
+/* ------- GlassCard ------- */
+.glass-card-wrapper {
+    background: var(--navy-card);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-glass);
+    transition: all 0.25s ease;
+}
+
+.glass-card-wrapper:hover {
+    border-color: rgba(255, 107, 53, 0.3);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glass), 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* ------- SchemeCard ------- */
+.scheme-card {
+    padding: 20px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.scheme-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--saffron), transparent);
+    opacity: 0;
+    transition: opacity 0.25s;
+}
+
+.scheme-card:hover::before {
+    opacity: 1;
+}
+
+.scheme-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.scheme-card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+.scheme-card-benefit {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 14px;
+}
+
+.scheme-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+/* ------- LoadingShimmer ------- */
+.shimmer-line {
+    height: 14px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.shimmer-line.wide {
+    width: 80%;
+}
+
+.shimmer-line.medium {
+    width: 60%;
+}
+
+.shimmer-line.short {
+    width: 40%;
+}
+
+/* ------- Typing Indicator ------- */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 16px;
+}
+
+.typing-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    animation: typingBounce 1.2s ease-in-out infinite;
+}
+
+.typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typingBounce {
+
+    0%,
+    60%,
+    100% {
+        transform: translateY(0);
+        opacity: 0.5;
+    }
+
+    30% {
+        transform: translateY(-6px);
+        opacity: 1;
+    }
+}
+
+/* ------- Step Timeline ------- */
+.timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    position: relative;
+}
+
+.timeline-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 32px;
+    bottom: -4px;
+    width: 2px;
+    background: var(--border-glass);
+}
+
+.timeline-item.done:not(:last-child)::after {
+    background: var(--green);
+}
+
+.timeline-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 14px;
+}
+
+.timeline-dot.done {
+    background: var(--green-muted);
+    border: 1.5px solid var(--green);
+    color: var(--green);
+}
+
+.timeline-dot.pending {
+    background: rgba(255, 107, 53, 0.1);
+    border: 1.5px solid var(--saffron);
+    color: var(--saffron);
+}
+
+.timeline-dot.future {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1.5px solid var(--border-glass);
+    color: var(--text-subtle);
+}
+
+.timeline-content {
+    padding-bottom: 24px;
+    flex: 1;
+}
+
+.timeline-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+}
+
+.timeline-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+}

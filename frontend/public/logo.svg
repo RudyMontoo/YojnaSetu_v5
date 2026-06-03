@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Dark navy background -->
+  <rect width="100" height="100" rx="24" fill="#0f1a2e"/>
+  <!-- Outer glow ring -->
+  <circle cx="50" cy="50" r="48" fill="none" stroke="rgba(255,107,53,0.15)" stroke-width="1"/>
+  <!-- Praying hands icon (saffron/orange) -->
+  <!-- Left hand -->
+  <g fill="none" stroke="#FF6B35" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Left fingers -->
+    <path d="M38 35 C38 28, 34 26, 33 30 L32 48"/>
+    <path d="M41 33 C41 26, 37 24, 36 28 L35 48"/>
+    <path d="M44 34 C44 27, 40 25, 39 29 L38 48"/>
+    <path d="M47 36 C47 29, 44 28, 43 32 L43 48"/>
+    <!-- Left thumb -->
+    <path d="M35 48 C33 52, 30 55, 32 60"/>
+    <!-- Left palm -->
+    <path d="M32 48 L33 62 C33 66, 36 68, 40 67 L50 65"/>
+    <!-- Left wrist -->
+    <path d="M36 67 L38 72"/>
+  </g>
+  <!-- Right hand (mirrored) -->
+  <g fill="none" stroke="#FF6B35" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Right fingers -->
+    <path d="M62 35 C62 28, 66 26, 67 30 L68 48"/>
+    <path d="M59 33 C59 26, 63 24, 64 28 L65 48"/>
+    <path d="M56 34 C56 27, 60 25, 61 29 L62 48"/>
+    <path d="M53 36 C53 29, 56 28, 57 32 L57 48"/>
+    <!-- Right thumb -->
+    <path d="M65 48 C67 52, 70 55, 68 60"/>
+    <!-- Right palm -->
+    <path d="M68 48 L67 62 C67 66, 64 68, 60 67 L50 65"/>
+    <!-- Right wrist -->
+    <path d="M64 67 L62 72"/>
+  </g>
+  <!-- Center joining point glow -->
+  <circle cx="50" cy="50" r="4" fill="rgba(255,107,53,0.3)"/>
+</svg>

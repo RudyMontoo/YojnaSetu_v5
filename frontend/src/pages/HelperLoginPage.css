@@ -1,0 +1,202 @@
+/* HelperLoginPage.css */
+.helper-login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--color-bg);
+  padding: 1rem;
+}
+
+.helper-login-bg-glow {
+  position: absolute;
+  width: 60vh;
+  height: 60vh;
+  background: radial-gradient(circle, rgba(255, 107, 53, 0.15) 0%, rgba(255, 107, 53, 0) 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.helper-login-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 2.5rem 2rem;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.helper-login-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.helper-login-shield {
+  width: 64px;
+  height: 64px;
+  background: rgba(255, 107, 53, 0.1);
+  border: 1px solid rgba(255, 107, 53, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-saffron);
+  box-shadow: 0 0 20px rgba(255, 107, 53, 0.2);
+}
+
+.helper-login-brand {
+  font-size: 1.75rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.helper-login-sub {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.4;
+  margin-bottom: 2rem;
+}
+
+.helper-login-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin-bottom: 2rem;
+}
+
+.helper-login-field {
+  margin-bottom: 1.5rem;
+}
+
+.helper-login-input-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.helper-login-prefix {
+  position: absolute;
+  left: 1rem;
+  color: var(--color-saffron);
+  opacity: 0.8;
+  display: flex;
+}
+
+.helper-login-input {
+  width: 100%;
+  padding-left: 2.75rem !important;
+  padding-right: 2.75rem !important;
+  letter-spacing: 2px;
+  font-family: monospace;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-saffron) !important;
+}
+
+.helper-login-input::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+  letter-spacing: 2px;
+}
+
+.helper-login-toggle {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: flex;
+  padding: 0.25rem;
+  transition: color 0.2s;
+}
+
+.helper-login-toggle:hover {
+  color: var(--color-text);
+}
+
+.helper-login-hint {
+  font-size: 0.8rem;
+  color: var(--color-text-subtle);
+  margin-top: 0.75rem;
+  line-height: 1.4;
+}
+
+.helper-login-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+  height: 3.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.helper-login-error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+  animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+.helper-login-footer {
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.helper-login-reg-link {
+  color: var(--color-saffron);
+  font-weight: 600;
+  padding: 0;
+  height: auto;
+}
+
+.helper-login-reg-link:hover {
+  text-decoration: underline;
+  background: none;
+}
+
+.helper-login-citizen-link {
+  margin-top: 1.5rem;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 1.5rem;
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
+  40%, 60% { transform: translate3d(3px, 0, 0); }
+}

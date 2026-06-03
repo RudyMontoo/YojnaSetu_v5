@@ -1,0 +1,229 @@
+.signin-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--navy);
+    padding: 24px;
+    position: relative;
+}
+
+.signin-bg-glow {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 500px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(255, 107, 53, 0.1), transparent 70%);
+    pointer-events: none;
+}
+
+.signin-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 36px;
+    animation: fadeInUp 0.5s ease;
+}
+
+/* Mode Tabs */
+.signin-tabs {
+    display: flex;
+    gap: 0;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-full);
+    padding: 4px;
+    margin-bottom: 4px;
+}
+
+.signin-tab {
+    flex: 1;
+    padding: 9px 0;
+    border: none;
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--text-subtle);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.signin-tab.active {
+    background: linear-gradient(135deg, var(--saffron), var(--saffron-dark));
+    color: white;
+    box-shadow: 0 2px 12px rgba(255, 107, 53, 0.35);
+}
+
+
+.signin-logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 8px;
+}
+
+.signin-brand {
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.signin-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 3px;
+    font-family: var(--font-hindi);
+}
+
+.signin-divider {
+    width: 100%;
+    height: 1px;
+    background: var(--border-glass);
+    margin: 20px 0;
+}
+
+.signin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.signin-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.signin-input-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.signin-prefix {
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-glass);
+    border-right: none;
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+    font-size: 14px;
+    white-space: nowrap;
+    color: var(--text-muted);
+}
+
+.signin-input {
+    border-radius: 0 var(--radius-md) var(--radius-md) 0 !important;
+    flex: 1;
+}
+
+.signin-btn {
+    width: 100%;
+    margin-top: 4px;
+}
+
+.btn-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    display: inline-block;
+}
+
+.btn-resend {
+    background: none;
+    border: none;
+    font-size: 13px;
+    color: var(--saffron);
+    cursor: pointer;
+    text-align: left;
+}
+
+.signin-helper {
+    font-size: 12px;
+    color: var(--text-subtle);
+    text-align: center;
+    margin-top: 12px;
+}
+
+.signin-alt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.signin-skip {
+    font-size: 13px;
+    padding: 8px 20px;
+}
+/* ── Jan Sahayak CTA banner (below sign-in card) ──────────────── */
+.signin-helper-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    width: 100%;
+    max-width: 420px;
+    margin-top: 14px;
+    padding: 16px 18px;
+    border-radius: var(--radius-xl);
+    background: rgba(255, 107, 53, 0.06);
+    border: 1px solid rgba(255, 107, 53, 0.22);
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+
+.signin-helper-cta:hover {
+    background: rgba(255, 107, 53, 0.12);
+    border-color: rgba(255, 107, 53, 0.42);
+    transform: translateY(-2px);
+}
+
+.signin-helper-cta-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.signin-helper-cta-icon {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    border-radius: var(--radius-md);
+    background: rgba(255, 107, 53, 0.15);
+    color: var(--saffron);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.signin-helper-cta-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 2px;
+}
+
+.signin-helper-cta-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.signin-helper-cta-arrow {
+    color: var(--saffron);
+    opacity: 0.7;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+.signin-helper-cta:hover .signin-helper-cta-arrow {
+    transform: translateX(4px);
+    opacity: 1;
+}

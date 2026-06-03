@@ -1,0 +1,36 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://your-gateway.railway.app/api/$1"
+    },
+    {
+      "source": "/voice/(.*)",
+      "destination": "https://your-ai-hub.railway.app/voice/$1"
+    },
+    {
+      "source": "/ocr/(.*)",
+      "destination": "https://your-ai-hub.railway.app/ocr/$1"
+    },
+    {
+      "source": "/agent/(.*)",
+      "destination": "https://your-ai-hub.railway.app/agent/$1"
+    },
+    {
+      "source": "/status/(.*)",
+      "destination": "https://your-ai-hub.railway.app/status/$1"
+    },
+    {
+      "source": "/apply/(.*)",
+      "destination": "https://your-ai-hub.railway.app/apply/$1"
+    },
+    {
+      "source": "/sahayak/(.*)",
+      "destination": "https://your-ai-hub.railway.app/sahayak/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

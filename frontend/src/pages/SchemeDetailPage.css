@@ -1,0 +1,187 @@
+.detail-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: var(--text-subtle);
+}
+
+.detail-hero {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 22px;
+    margin-bottom: 16px;
+}
+
+.detail-hero-icon {
+    font-size: 40px;
+    width: 72px;
+    height: 72px;
+    flex-shrink: 0;
+    background: rgba(255, 107, 53, 0.1);
+    border: 1px solid rgba(255, 107, 53, 0.2);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.detail-title {
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1.3;
+    margin-bottom: 6px;
+}
+
+.detail-ministry {
+    font-size: 13px;
+}
+
+.detail-benefit-card {
+    padding: 16px 20px;
+    margin-bottom: 20px;
+}
+
+.detail-benefit-label {
+    font-size: 12px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.detail-benefit-text {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.detail-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+    scrollbar-width: none;
+}
+
+.detail-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.detail-tab-content {
+    padding: 22px;
+    margin-bottom: 20px;
+    min-height: 160px;
+}
+
+.detail-overview-text {
+    font-size: 14px;
+    line-height: 1.85;
+    color: var(--text-muted);
+}
+
+.detail-eligibility-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.detail-elig-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.detail-elig-text {
+    font-size: 14px;
+}
+
+.elig-unknown {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid var(--text-subtle);
+    color: var(--text-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.detail-elig-note {
+    font-size: 12px;
+    margin-top: 10px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-glass);
+}
+
+.detail-docs-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.detail-doc-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+}
+
+.detail-doc-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(255, 107, 53, 0.12);
+    color: var(--saffron);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.detail-apply-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.detail-apply-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.detail-step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255, 107, 53, 0.1);
+    border: 1.5px solid rgba(255, 107, 53, 0.3);
+    color: var(--saffron);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.detail-ctas {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+.detail-cta-btn {
+    flex: 1;
+    min-width: 180px;
+}

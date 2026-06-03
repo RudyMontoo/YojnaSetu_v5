@@ -1,0 +1,389 @@
+/* ══════════════════════════════════════════════════════════════
+   HelperFinderPage.css — Jan Sahayak Connect
+═══════════════════════════════════════════════════════════════ */
+
+.helper-page-header {
+    text-align: center;
+    padding: 8px 0 20px;
+}
+
+.helper-scheme-banner {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    padding: 5px 14px;
+    border-radius: var(--radius-full);
+    background: rgba(255,107,53,0.08);
+    border: 1px solid rgba(255,107,53,0.2);
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.helper-page-title {
+    font-size: clamp(24px, 6vw, 32px);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+}
+
+.helper-page-sub {
+    font-size: 14px;
+    max-width: 380px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* ── Register CTA strip ──────────────────────────────────────── */
+.helper-register-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    border-color: rgba(255,107,53,0.2) !important;
+    background: rgba(255,107,53,0.04) !important;
+}
+
+.helper-register-text {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.helper-register-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 2px;
+}
+
+/* ── Search ──────────────────────────────────────────────────── */
+.helper-search-row {
+    position: relative;
+    margin-bottom: 14px;
+}
+
+.helper-search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.helper-search-input {
+    width: 100%;
+    padding-left: 40px !important;
+}
+
+/* ── Tabs ────────────────────────────────────────────────────── */
+.helper-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+/* ── Loading / Empty ─────────────────────────────────────────── */
+.helper-loading, .helper-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 48px 24px;
+    text-align: center;
+}
+
+/* ── Grid ────────────────────────────────────────────────────── */
+.helper-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+
+@media (min-width: 700px) {
+    .helper-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1100px) {
+    .helper-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ── Helper Card ─────────────────────────────────────────────── */
+.helper-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 18px;
+    border-radius: var(--radius-xl) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.helper-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4) !important;
+}
+
+.helper-card.csc {
+    border-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+.helper-card.volunteer {
+    border-color: rgba(255, 107, 53, 0.2) !important;
+}
+
+.helper-card-top {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.helper-avatar {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.helper-avatar.csc {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+}
+
+.helper-avatar.volunteer {
+    background: rgba(255, 107, 53, 0.15);
+    color: var(--saffron);
+}
+
+.helper-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.helper-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 3px;
+}
+
+.helper-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 170px;
+}
+
+.helper-type-badge {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+}
+
+.helper-type-badge.csc {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.helper-type-badge.volunteer {
+    background: rgba(255, 107, 53, 0.12);
+    color: var(--saffron);
+    border: 1px solid rgba(255, 107, 53, 0.25);
+}
+
+.helper-location {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.helper-rating-row {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.helper-rating-text {
+    font-size: 12px;
+    color: #F59E0B;
+    font-weight: 600;
+    margin-left: 2px;
+}
+
+.helper-helped {
+    font-size: 11px;
+    color: var(--text-subtle);
+    margin-left: 6px;
+}
+
+.helper-hours, .helper-bio {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.helper-langs {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.helper-services {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.helper-service-badge {
+    font-size: 11px !important;
+}
+
+.helper-card-footer {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.helper-call-btn, .helper-book-btn {
+    flex: 1;
+    justify-content: center;
+    gap: 6px;
+}
+
+.helper-book-btn {
+    background: linear-gradient(135deg, var(--saffron), var(--saffron-dark)) !important;
+}
+
+/* ── Booking Modal ─────────────────────────────────────────── */
+.booking-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    animation: fadeInOverlay 0.2s ease;
+}
+
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.booking-card {
+    width: 100%;
+    max-width: 480px;
+    border-radius: var(--radius-xl) !important;
+    padding: 28px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUpModal 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideUpModal {
+    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.booking-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.booking-eyebrow {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-subtle);
+    margin-bottom: 3px;
+}
+
+.booking-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.booking-scheme {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 3px;
+}
+
+.booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.booking-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.booking-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.booking-error {
+    font-size: 13px;
+    color: #f87171;
+    background: rgba(239,68,68,0.08);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+}
+
+.booking-submit-btn {
+    width: 100%;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 4px;
+    padding: 14px !important;
+    font-size: 15px !important;
+}
+
+.booking-success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+    padding: 12px 0;
+}
+
+.booking-success h4 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.text-green { color: #4ade80; }

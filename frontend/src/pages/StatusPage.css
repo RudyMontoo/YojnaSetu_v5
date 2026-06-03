@@ -1,0 +1,108 @@
+.status-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.status-title {
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.status-search-card {
+    padding: 18px 20px;
+    margin-bottom: 20px;
+}
+
+.status-search-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+
+.status-search-row {
+    display: flex;
+    gap: 10px;
+}
+
+.status-search-row .input-glass {
+    flex: 1;
+}
+
+.status-active-card {
+    padding: 22px;
+    margin-bottom: 24px;
+}
+
+.status-active-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.status-scheme-name {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.status-alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: rgba(255, 107, 53, 0.08);
+    border: 1px solid rgba(255, 107, 53, 0.2);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.status-section-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.status-past-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.status-past-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 18px;
+}
+
+.status-past-info {
+    flex: 1;
+}
+
+.status-past-name {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+
+.status-past-right {
+    flex-shrink: 0;
+    text-align: right;
+}
+
+.status-sync-note {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    margin-top: 20px;
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
