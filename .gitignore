@@ -1,0 +1,78 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+
+# ── Virtual Environments ──────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+.env_folder/
+
+# ── Environment & Secrets (NEVER commit these) ────────────────────────────────
+.env
+.env.local
+.env.production
+*.env
+
+# ── ChromaDB (vector store — large, rebuilt via ingest.py) ───────────────────
+ai_service/chroma_db/
+
+# ── Model Weights (too large for git) ─────────────────────────────────────────
+*.pt
+*.pth
+*.bin
+*.onnx
+*.safetensors
+whisper_models/
+
+# ── IDE / OS ──────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.~lock.*
+
+# ── Logs & Temp ───────────────────────────────────────────────────────────────
+*.log
+*.tmp
+/tmp/
+logs/
+
+# ── Jupyter ───────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
+
+# ── Java / Spring Boot (for teammates) ───────────────────────────────────────
+target/
+*.class
+*.jar
+*.war
+application-local.properties
+deploy/backend/spring-gateway/keys/
+
+# ── Node / JS ─────────────────────────────────────────────────────────────────
+node_modules/
+
+# ── Scratch / marketplace skill dumps (local dev tooling, not project code) ──
+.agents/
+skills-lock.json
+.swarm/
+.claude/
+
+# ── Sensitive dev artifacts (never commit real uploads or local DBs) ─────────
+ai_service/secure_uploads/
+ai_service/sahayak.db
+ai_service/*.db
+ruvector.db
+
+testsprite_tests/tmp/config.json
