@@ -1,0 +1,77 @@
+{
+  "state_en": "Gujarat",
+  "state_hi": "गुजरात",
+  "schemes": [
+    {
+      "name_en": "Mukhyamantri Amrutam (MA) Yojana",
+      "name_hi": "मुख्यमंत्री अमृतम योजना",
+      "benefit_en": "Cashless health treatment up to Rs 5 lakh for serious diseases",
+      "benefit_hi": "गंभीर बीमारियों के लिए ₹5 लाख तक कैशलेस इलाज",
+      "eligibility": "Gujarat BPL families and lower-middle income groups",
+      "documents": [
+        "Aadhaar",
+        "MA/Vatsalya card",
+        "Income certificate"
+      ],
+      "apply_url": "https://www.magujarat.com",
+      "sector": "health"
+    },
+    {
+      "name_en": "Kisan Suryoday Yojana",
+      "name_hi": "किसान सूर्योदय योजना",
+      "benefit_en": "Daytime (5am-9pm) electricity supply to farmers for irrigation",
+      "benefit_hi": "किसानों को सिंचाई के लिए दिन में बिजली (5AM-9PM)",
+      "eligibility": "Gujarat farmers with agricultural connections",
+      "documents": [
+        "Aadhaar",
+        "Land records",
+        "Agriculture connection number"
+      ],
+      "apply_url": "https://www.geb.gov.in",
+      "sector": "energy"
+    },
+    {
+      "name_en": "IKHEDUT Portal (Agriculture Schemes)",
+      "name_hi": "आई-ખેદૂત (iKhedut) एकीकृत कृषि पोर्टल",
+      "benefit_en": "Single portal for 60+ agriculture schemes, subsidies on inputs",
+      "benefit_hi": "60+ कृषि योजनाओं का एक पोर्टल",
+      "eligibility": "All Gujarat farmers",
+      "documents": [
+        "Aadhaar",
+        "8-A land record",
+        "Bank account"
+      ],
+      "apply_url": "https://ikhedut.gujarat.gov.in",
+      "sector": "agriculture"
+    },
+    {
+      "name_en": "Pandit Deen Dayal Upadhyay Awas Yojana",
+      "name_hi": "पं. दीनदयाल उपाध्याय आवास योजना",
+      "benefit_en": "Housing for SC/ST/OBC families with Rs 1.2 lakh state grant",
+      "benefit_hi": "SC/ST/OBC परिवारों को ₹1.2 लाख राज्य अनुदान",
+      "eligibility": "SC/ST/OBC BPL families in Gujarat without pucca house",
+      "documents": [
+        "Aadhaar",
+        "Caste certificate",
+        "Income certificate",
+        "Land ownership"
+      ],
+      "apply_url": "https://gujarathousing.gov.in",
+      "sector": "housing"
+    },
+    {
+      "name_en": "Namo Shree (Pregnant Women Nutrition)",
+      "name_hi": "नमो श्री लक्ष्मी योजना",
+      "benefit_en": "Rs 12,000 in two installments for pregnant women's nutrition",
+      "benefit_hi": "गर्भवती महिलाओं को पोषण के लिए ₹12,000 दो किस्तों में",
+      "eligibility": "Pregnant women in Gujarat (1st and 2nd child)",
+      "documents": [
+        "Aadhaar",
+        "Pregnancy proof from government hospital",
+        "Bank account"
+      ],
+      "apply_url": "https://wcd.gujarat.gov.in",
+      "sector": "women_child"
+    }
+  ]
+}

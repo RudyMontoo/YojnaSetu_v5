@@ -1,0 +1,188 @@
+{
+  "sector": "energy",
+  "schemes": [
+    {
+      "name": "PM Ujjwala Yojana 2.0",
+      "ministry": "Petroleum",
+      "benefit": "Free LPG connection + 1st refill + regulator for BPL women",
+      "eligibility": "BPL women without any existing LPG connection",
+      "documents": [
+        "Aadhaar",
+        "BPL Ration Card",
+        "Bank account"
+      ],
+      "apply_url": "https://pmuy.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM Surya Ghar (Muft Bijli Yojana)",
+      "ministry": "New & Renewable Energy",
+      "benefit": "300 units free electricity/month via rooftop solar + subsidy up to Rs 78K",
+      "eligibility": "Residential household electricity consumers",
+      "documents": [
+        "Aadhaar",
+        "Electricity bill",
+        "Bank account",
+        "Roof ownership proof"
+      ],
+      "apply_url": "https://pmsuryagarh.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "KUSUM Scheme (Solar for Farmers)",
+      "ministry": "New & Renewable Energy",
+      "benefit": "60% subsidy on solar pump + 25 years income from solar power",
+      "eligibility": "Farmers with or without grid connectivity",
+      "documents": [
+        "Aadhaar",
+        "Land records",
+        "Bank account"
+      ],
+      "apply_url": "https://mnre.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Saubhagya (Household Electrification)",
+      "ministry": "Power",
+      "benefit": "Free electricity connection to BPL households",
+      "eligibility": "Un-electrified households (BPL: free, others: Rs 500 in installments)",
+      "documents": [
+        "Aadhaar",
+        "BPL card (for free)"
+      ],
+      "apply_url": "https://saubhagya.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Gram Ujala Programme",
+      "ministry": "Power",
+      "benefit": "LED bulbs at Rs 10/piece for rural homes",
+      "eligibility": "Rural electricity consumers against old incandescent bulbs",
+      "documents": [
+        "Aadhaar",
+        "Electricity consumer number"
+      ],
+      "apply_url": "https://ee.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM PAHAL (Direct Benefit for LPG)",
+      "ministry": "Petroleum",
+      "benefit": "LPG subsidy directly transferred to bank account (DBTL)",
+      "eligibility": "All LPG consumers who surrender subsidy eligibility voluntarily excluded",
+      "documents": [
+        "Aadhaar linked to LPG",
+        "Bank account"
+      ],
+      "apply_url": "https://petroleum.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "National Solar Mission (Grid-Connected)",
+      "ministry": "New & Renewable Energy",
+      "benefit": "Rooftop solar subsidy 20-40% for residential and institutional",
+      "eligibility": "Households, institutions installing rooftop solar",
+      "documents": [
+        "Aadhaar",
+        "Electricity bill",
+        "Roof ownership"
+      ],
+      "apply_url": "https://mnre.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Biogas Scheme (New National Biogas Programme)",
+      "ministry": "New & Renewable Energy",
+      "benefit": "Rs 7,000-20,000 subsidy for family-type biogas plants",
+      "eligibility": "Rural households with cattle/livestock",
+      "documents": [
+        "Aadhaar",
+        "Land documents",
+        "Bank account",
+        "Livestock ownership"
+      ],
+      "apply_url": "https://mnre.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM E-Bus Sewa",
+      "ministry": "Urban Development",
+      "benefit": "Electric bus connectivity for tier 2/3 cities",
+      "eligibility": "Commuters in participating cities (public benefit)",
+      "documents": [],
+      "apply_url": "https://mohua.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Energy Efficiency Scheme for MSMEs",
+      "ministry": "Power",
+      "benefit": "Subsidized energy audit + financing for energy efficiency upgrades",
+      "eligibility": "Small and medium enterprises",
+      "documents": [
+        "Aadhaar",
+        "Business registration",
+        "Energy bill"
+      ],
+      "apply_url": "https://beeindia.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "FAME India Phase II (EV Subsidy)",
+      "ministry": "Heavy Industries",
+      "benefit": "Subsidy on electric 2-wheelers, 3-wheelers, buses Rs 10K-20K",
+      "eligibility": "Buyers of FAME-approved electric vehicles",
+      "documents": [
+        "Aadhaar",
+        "Purchase invoice",
+        "Bank account"
+      ],
+      "apply_url": "https://heavyindustry.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "National Wind-Solar Hybrid Policy",
+      "ministry": "New & Renewable Energy",
+      "benefit": "Better grid access and PPAs for hybrid renewable energy projects",
+      "eligibility": "Renewable energy project developers and investors",
+      "documents": [
+        "Business registration",
+        "Project proposal"
+      ],
+      "apply_url": "https://mnre.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Solar Charkha Mission",
+      "ministry": "MSME",
+      "benefit": "Solar-powered charkha units + subsidy for handloom weavers",
+      "eligibility": "Handloom weavers, artisans in notified clusters",
+      "documents": [
+        "Aadhaar",
+        "Weaver card"
+      ],
+      "apply_url": "https://kviconline.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Pradhan Mantri JI-VAN Yojana (Biofuel)",
+      "ministry": "Petroleum",
+      "benefit": "Financial support for 2G ethanol bio-refineries (Rs 1969.50 crore total)",
+      "eligibility": "Entrepreneurs/companies in biofuel sector",
+      "documents": [
+        "Business registration",
+        "Project plan"
+      ],
+      "apply_url": "https://petroleum.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "National Clean Air Programme (NCAP)",
+      "ministry": "Environment",
+      "benefit": "Cleaner air initiatives, EV subsidies, clean fuel access in polluted cities",
+      "eligibility": "Residents of 122 non-attainment cities",
+      "documents": [],
+      "apply_url": "https://cpcb.nic.in",
+      "type": "Central"
+    }
+  ]
+}

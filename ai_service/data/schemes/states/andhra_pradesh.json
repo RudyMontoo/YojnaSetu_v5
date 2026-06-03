@@ -1,0 +1,77 @@
+{
+  "state_en": "Andhra Pradesh",
+  "state_hi": "आंध्र प्रदेश",
+  "schemes": [
+    {
+      "name_en": "YSR Arogyasri",
+      "name_hi": "वाईएसआर आरोग्यश्री",
+      "benefit_en": "Rs 5 lakh/year health cover + additional Rs 10 lakh for critical illnesses",
+      "benefit_hi": "₹5 लाख/वर्ष स्वास्थ्य बीमा + गंभीर बीमारियों में ₹10 लाख",
+      "eligibility": "All AP families with white/yellow ration card",
+      "documents": [
+        "Aadhaar",
+        "Ration card",
+        "Bank account"
+      ],
+      "apply_url": "https://ysrarogyasri.ap.gov.in",
+      "sector": "health"
+    },
+    {
+      "name_en": "YSR Rythu Bharosa",
+      "name_hi": "वाईएसआर रैतू भरोसा",
+      "benefit_en": "Rs 13,500/year investment support per farmer family (state + PM Kisan)",
+      "benefit_hi": "किसान परिवार को ₹13,500/वर्ष निवेश सहायता",
+      "eligibility": "All AP farmers (including tenant farmers with registered agreements)",
+      "documents": [
+        "Aadhaar",
+        "Land records or tenancy agreement",
+        "Bank account"
+      ],
+      "apply_url": "https://ysrrythubharosa.ap.gov.in",
+      "sector": "agriculture"
+    },
+    {
+      "name_en": "Jagananna Amma Vodi",
+      "name_hi": "जगनन्ना अम्मा वोडी",
+      "benefit_en": "Rs 15,000/year for mothers to keep children in school",
+      "benefit_hi": "बच्चों को स्कूल भेजने पर माँ को ₹15,000/वर्ष",
+      "eligibility": "AP mothers with children enrolled in Classes 1-12 (BPL)",
+      "documents": [
+        "Aadhaar",
+        "School enrollment",
+        "BPL status"
+      ],
+      "apply_url": "https://ammavodi.ap.gov.in",
+      "sector": "education"
+    },
+    {
+      "name_en": "YSR Cheyutha (Women Financial Support)",
+      "name_hi": "वाईएसआर चेयुथा",
+      "benefit_en": "Rs 18,750/year for 4 years for BC/OBC/EBC/Minority women entrepreneurs",
+      "benefit_hi": "BC/OBC/EBC/अल्पसंख्यक महिला उद्यमियों को 4 साल ₹18,750/वर्ष",
+      "eligibility": "AP women aged 45-60, BC/OBC/EBC/Minority",
+      "documents": [
+        "Aadhaar",
+        "Caste certificate",
+        "Age proof",
+        "Bank account"
+      ],
+      "apply_url": "https://navasakam.ap.gov.in",
+      "sector": "women_child"
+    },
+    {
+      "name_en": "Jagananna Housing (PMAY AP Extension)",
+      "name_hi": "जगनन्ना आवास योजना",
+      "benefit_en": "State-funded house with basic amenities for homeless AP families",
+      "benefit_hi": "बेघर AP परिवारों को बुनियादी सुविधाओं सहित घर",
+      "eligibility": "AP homeless families not covered under PMAY",
+      "documents": [
+        "Aadhaar",
+        "Income certificate",
+        "No-property certificate"
+      ],
+      "apply_url": "https://navasakam.ap.gov.in",
+      "sector": "housing"
+    }
+  ]
+}

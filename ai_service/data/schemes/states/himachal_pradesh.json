@@ -1,0 +1,49 @@
+{
+  "state_en": "Himachal Pradesh",
+  "state_hi": "हिमाचल प्रदेश",
+  "schemes": [
+    {
+      "name_en": "Himcare (HP Health Insurance)",
+      "name_hi": "हिमकेयर (HP स्वास्थ्य बीमा)",
+      "benefit_en": "Rs 5 lakh/year health insurance for HP residents not covered under PMJAY",
+      "benefit_hi": "PMJAY से बाहर HP निवासियों को ₹5 लाख/वर्ष स्वास्थ्य बीमा",
+      "eligibility": "HP residents not eligible for PMJAY, premium Rs 365-1000/year by category",
+      "documents": [
+        "Aadhaar",
+        "HP domicile",
+        "Bank account"
+      ],
+      "apply_url": "https://himcare.hp.gov.in",
+      "sector": "health"
+    },
+    {
+      "name_en": "Mukhyamantri Swavalamban Yojana",
+      "name_hi": "मुख्यमंत्री स्वावलंबन योजना",
+      "benefit_en": "25-35% subsidy on business loans for HP youth entrepreneurs",
+      "benefit_hi": "HP युवा उद्यमियों को व्यावसायिक ऋण पर 25-35% सब्सिडी",
+      "eligibility": "HP residents aged 18-45 starting new enterprises",
+      "documents": [
+        "Aadhaar",
+        "HP domicile",
+        "Business plan",
+        "Bank account"
+      ],
+      "apply_url": "https://emerginghimachal.hp.gov.in",
+      "sector": "employment"
+    },
+    {
+      "name_en": "Sahara Yojana (HP)",
+      "name_hi": "सहारा योजना (HP)",
+      "benefit_en": "Rs 3,000/month for home-based care of serious illness patients",
+      "benefit_hi": "गंभीर बीमारी के घरेलू देखभाल के लिए ₹3,000/माह",
+      "eligibility": "HP patients with cancer, paralysis, muscular dystrophy etc.",
+      "documents": [
+        "Aadhaar",
+        "Medical certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://sahara.hp.gov.in",
+      "sector": "health"
+    }
+  ]
+}

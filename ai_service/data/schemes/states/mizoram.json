@@ -1,0 +1,48 @@
+{
+  "state_en": "Mizoram",
+  "state_hi": "मिजोरम",
+  "schemes": [
+    {
+      "name_en": "New Land Use Policy (NLUP) Mizoram",
+      "name_hi": "नई भूमि उपयोग नीति मिजोरम",
+      "benefit_en": "Financial support for shifting cultivators to adopt settled farming livelihoods",
+      "benefit_hi": "झूम खेती करने वालों को स्थायी कृषि आजीविका अपनाने के लिए वित्तीय सहायता",
+      "eligibility": "Mizoram shifting cultivators (jhum farmers)",
+      "documents": [
+        "Aadhaar",
+        "Village membership",
+        "Land record"
+      ],
+      "apply_url": "https://mizoram.gov.in",
+      "sector": "agriculture"
+    },
+    {
+      "name_en": "Mizoram CM-Comprehensive Health Scheme (CM-CHS)",
+      "name_hi": "मिजोरम CM स्वास्थ्य योजना",
+      "benefit_en": "Rs 4 lakh/year cashless treatment for BPL Mizoram families",
+      "benefit_hi": "मिजोरम BPL परिवरों को ₹4 लाख/वर्ष कैशलेस इलाज",
+      "eligibility": "Mizoram BPL families",
+      "documents": [
+        "Aadhaar",
+        "Mizoram domicile",
+        "BPL card"
+      ],
+      "apply_url": "https://mizoram.gov.in",
+      "sector": "health"
+    },
+    {
+      "name_en": "Mizoram Rural Bank Credit for SHGs",
+      "name_hi": "मिजोरम ग्रामीण SHG ऋण योजना",
+      "benefit_en": "Subsidized credit via Mizoram Rural Bank for women SHGs in remote areas",
+      "benefit_hi": "दूरस्थ क्षेत्रों में महिला SHG को मिजोरम Rural Bank से रियायती ऋण",
+      "eligibility": "Women SHGs registered in Mizoram",
+      "documents": [
+        "SHG registration",
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://mizoram.gov.in",
+      "sector": "financial_inclusion"
+    }
+  ]
+}

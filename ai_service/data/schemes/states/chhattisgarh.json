@@ -1,0 +1,34 @@
+{
+  "state_en": "Chhattisgarh",
+  "state_hi": "छत्तीसगढ़",
+  "schemes": [
+    {
+      "name_en": "Dr. Khobragade Universal PDS (Rs 1-2/kg Rice)",
+      "name_hi": "सार्वजनिक वितरण प्रणाली (₹1-2/किलो चावल)",
+      "benefit_en": "Rice at Rs 1-2/kg to all CG ration card holders",
+      "benefit_hi": "सभी राशन कार्ड धारकों को ₹1-2/किलो चावल",
+      "eligibility": "All Chhattisgarh ration card holders",
+      "documents": [
+        "Ration card",
+        "Aadhaar"
+      ],
+      "apply_url": "https://khadya.cg.nic.in",
+      "sector": "social_security",
+      "status": "active"
+    },
+    {
+      "name_en": "Godhan Nyay Yojana",
+      "name_hi": "गोधन न्याय योजना",
+      "benefit_en": "Govt buys cattle dung at Rs 2/kg, converted to compost/biogas",
+      "benefit_hi": "सरकार गोबर ₹2/किलो खरीदती है; जैविक खाद/बायोगैस बनता है",
+      "eligibility": "Chhattisgarh cattle owners (farmers, SHGs, gaushalas)",
+      "documents": [
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://agriportal.cg.nic.in",
+      "sector": "agriculture",
+      "status": "active"
+    }
+  ]
+}

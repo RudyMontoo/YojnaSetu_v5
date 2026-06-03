@@ -1,0 +1,355 @@
+{
+  "sector": "women_child",
+  "type": "state",
+  "count": 19,
+  "schemes": [
+    {
+      "name_en": "Moovalur Ramamirtham Ammaiyar Ninaivu Marriage Assistance",
+      "name_hi": "विवाह सहायता योजना (तमिलनाडु)",
+      "benefit_en": "Rs 50,000 + 8g gold coin for marriage of SC/ST/BC girls",
+      "benefit_hi": "SC/ST/BC बालिकाओं के विवाह पर ₹50,000 + 8 ग्राम सोना",
+      "eligibility": "TN SC/ST/BC girls aged 18+, family income < Rs 72,000",
+      "documents": [
+        "Aadhaar",
+        "Caste certificate",
+        "Income certificate",
+        "Marriage proof"
+      ],
+      "apply_url": "https://www.tn.gov.in",
+      "sector": "women_child",
+      "state_en": "Tamil Nadu",
+      "state_hi": "तमिलनाडु",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Kalaignar Magalir Urimai Thittam",
+      "name_hi": "कलैञ्ञर महिला अधिकार योजना",
+      "benefit_en": "Rs 1,000/month financial support for women-headed households",
+      "benefit_hi": "महिला प्रधान परिवारों को ₹1,000/माह",
+      "eligibility": "TN women aged 21+, family income not in top 25%",
+      "documents": [
+        "Aadhaar",
+        "Ration card",
+        "Bank account"
+      ],
+      "apply_url": "https://www.tn.gov.in",
+      "sector": "women_child",
+      "state_en": "Tamil Nadu",
+      "state_hi": "तमिलनाडु",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Palanhar Yojana",
+      "name_hi": "पालनहार योजना",
+      "benefit_en": "Rs 1500/month for guardians raising orphan/destitute children",
+      "benefit_hi": "अनाथ/असहाय बच्चों के पालक को ₹1500/माह",
+      "eligibility": "Guardians raising orphan, destitute or disabled children",
+      "documents": [
+        "Aadhaar",
+        "Guardianship proof",
+        "Child's documents"
+      ],
+      "apply_url": "https://sje.rajasthan.gov.in",
+      "sector": "women_child",
+      "state_en": "Rajasthan",
+      "state_hi": "राजस्थान",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Delhi Mahila Samman Yojana",
+      "name_hi": "दिल्ली महिला सम्मान योजना",
+      "benefit_en": "Rs 2,100/month financial support for Delhi women",
+      "benefit_hi": "दिल्ली महिलाओं को ₹2,100/माह सहायता",
+      "eligibility": "Delhi women aged 18+, Delhi domicile, not income tax payer",
+      "documents": [
+        "Aadhaar",
+        "Delhi voter ID/domicile",
+        "Bank account"
+      ],
+      "apply_url": "https://delhi.gov.in",
+      "sector": "women_child",
+      "state_en": "Delhi",
+      "state_hi": "दिल्ली",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Gruha Lakshmi (Women Financial Support)",
+      "name_hi": "गृह लक्ष्मी योजना",
+      "benefit_en": "Rs 2,000/month to woman head of the household",
+      "benefit_hi": "परिवार की महिला मुखिया को ₹2,000/माह",
+      "eligibility": "Karnataka women who are head of their household (above 18)",
+      "documents": [
+        "Aadhaar",
+        "Ration card",
+        "Bank account"
+      ],
+      "apply_url": "https://sevasindhu.karnataka.gov.in",
+      "sector": "women_child",
+      "state_en": "Karnataka",
+      "state_hi": "कर्नाटक",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Mukhyamantri Kanya Utthan Yojana",
+      "name_hi": "मुख्यमंत्री कन्या उत्थान योजना",
+      "benefit_en": "Rs 50,000 for girl child from birth to graduation in 7 installments",
+      "benefit_hi": "जन्म से स्नातक तक बालिका को 7 किस्तों में ₹50,000",
+      "eligibility": "Bihar girl child (family: max 2 daughters eligible)",
+      "documents": [
+        "Birth certificate",
+        "Aadhaar",
+        "Bank account",
+        "School/college enrollment"
+      ],
+      "apply_url": "https://medhasoft.bih.nic.in",
+      "sector": "women_child",
+      "state_en": "Bihar",
+      "state_hi": "बिहार",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Kanya Sumangala Yojana",
+      "name_hi": "कन्या सुमंगला योजना",
+      "benefit_en": "Rs 15,000 in 6 installments for girl child education & welfare",
+      "benefit_hi": "बालिका शिक्षा व कल्याण हेतु 6 किस्तों में ₹15,000",
+      "eligibility": "UP families with annual income < Rs 3 lakh, girl child",
+      "documents": [
+        "Aadhaar",
+        "Income certificate",
+        "Birth certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://mksy.up.gov.in",
+      "sector": "women_child",
+      "state_en": "Uttar Pradesh",
+      "state_hi": "उत्तर प्रदेश",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Haryana Kanyadan Yojana",
+      "name_hi": "हरियाणा कन्यादान योजना",
+      "benefit_en": "Rs 51,000 grant for marriage of BPL girl, Rs 71,000 for SC/ST",
+      "benefit_hi": "BPL बेटी के विवाह पर ₹51,000, SC/ST को ₹71,000",
+      "eligibility": "Haryana BPL/SC/ST families; girl aged 18+, boy aged 21+",
+      "documents": [
+        "Aadhaar",
+        "BPL/caste certificate",
+        "Age proof",
+        "Marriage invitation"
+      ],
+      "apply_url": "https://saralharyana.gov.in",
+      "sector": "women_child",
+      "state_en": "Haryana",
+      "state_hi": "हरियाणा",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Orunodoi Scheme",
+      "name_hi": "অৰুণোদই / ओरुणोदोई योजना",
+      "benefit_en": "Rs 1,250/month to woman of economically poor families",
+      "benefit_hi": "गरीब परिवार की महिला को ₹1,250/माह",
+      "eligibility": "Assam women in BPL/low-income families (EWS)",
+      "documents": [
+        "Aadhaar",
+        "Income certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://orunodoi.assam.gov.in",
+      "sector": "women_child",
+      "state_en": "Assam",
+      "state_hi": "असम",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Subhadra Yojana",
+      "name_hi": "सुभद्रा योजना",
+      "benefit_en": "Rs 10,000/year (Rs 50,000 over 5 years) for Odisha women",
+      "benefit_hi": "ओडिशा महिलाओं को ₹10,000/वर्ष (5 साल में ₹50,000)",
+      "eligibility": "Odisha women aged 21-60, not income tax payer",
+      "documents": [
+        "Aadhaar",
+        "Ration card",
+        "Bank account"
+      ],
+      "apply_url": "https://subhadra.odisha.gov.in",
+      "sector": "women_child",
+      "state_en": "Odisha",
+      "state_hi": "ओडिशा",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Kanyashree Prakalpa",
+      "name_hi": "কন্যাশ্রী / कन्याश्री प्रकल्प",
+      "benefit_en": "Rs 1,000/year scholarship + Rs 25,000 one-time grant for girls",
+      "benefit_hi": "बालिकाओं को ₹1,000/वर्ष + ₹25,000 एकमुश्त अनुदान",
+      "eligibility": "WB girl students aged 13-18, family income < Rs 1.2 lakh",
+      "documents": [
+        "Aadhaar",
+        "School enrollment",
+        "Income certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://wbkanyashree.gov.in",
+      "sector": "women_child",
+      "state_en": "West Bengal",
+      "state_hi": "पश्चिम बंगाल",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Ladki Bahin Yojana",
+      "name_hi": "लाडकी बहिण योजना",
+      "benefit_en": "Rs 1,500/month financial assistance for women aged 21-65",
+      "benefit_hi": "21-65 वर्ष की महिलाओं को ₹1,500/माह आर्थिक सहायता",
+      "eligibility": "Maharashtra women aged 21-65, family income < Rs 2.5 lakh",
+      "documents": [
+        "Aadhaar",
+        "Income certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://ladakibahin.maharashtra.gov.in",
+      "sector": "women_child",
+      "state_en": "Maharashtra",
+      "state_hi": "महाराष्ट्र",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "KCR Kit Yojana",
+      "name_hi": "KCR किट योजना",
+      "benefit_en": "Free baby kit worth Rs 12,000 for mothers at government hospitals",
+      "benefit_hi": "सरकारी अस्पताल में प्रसव करने पर ₹12,000 की बेबी किट मुफ्त",
+      "eligibility": "All pregnant women delivering at government hospitals in Telangana",
+      "documents": [
+        "Aadhaar",
+        "Hospital delivery proof"
+      ],
+      "apply_url": "https://www.wdcw.telangana.gov.in",
+      "sector": "women_child",
+      "state_en": "Telangana",
+      "state_hi": "तेलंगाना",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Punjab Ashirwad Scheme",
+      "name_hi": "पंजाब आशीर्वाद योजना",
+      "benefit_en": "Rs 51,000 grant for marriage of BPL girl children",
+      "benefit_hi": "BPL परिवार की बेटी के विवाह पर ₹51,000 अनुदान",
+      "eligibility": "Punjab BPL/SC/BC families, girl aged 18+",
+      "documents": [
+        "Aadhaar",
+        "BPL/caste certificate",
+        "Marriage proof"
+      ],
+      "apply_url": "https://punjab.gov.in",
+      "sector": "women_child",
+      "state_en": "Punjab",
+      "state_hi": "पंजाब",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Namo Shree (Pregnant Women Nutrition)",
+      "name_hi": "नमो श्री लक्ष्मी योजना",
+      "benefit_en": "Rs 12,000 in two installments for pregnant women's nutrition",
+      "benefit_hi": "गर्भवती महिलाओं को पोषण के लिए ₹12,000 दो किस्तों में",
+      "eligibility": "Pregnant women in Gujarat (1st and 2nd child)",
+      "documents": [
+        "Aadhaar",
+        "Pregnancy proof from government hospital",
+        "Bank account"
+      ],
+      "apply_url": "https://wcd.gujarat.gov.in",
+      "sector": "women_child",
+      "state_en": "Gujarat",
+      "state_hi": "गुजरात",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "YSR Cheyutha (Women Financial Support)",
+      "name_hi": "वाईएसआर चेयुथा",
+      "benefit_en": "Rs 18,750/year for 4 years for BC/OBC/EBC/Minority women entrepreneurs",
+      "benefit_hi": "BC/OBC/EBC/अल्पसंख्यक महिला उद्यमियों को 4 साल ₹18,750/वर्ष",
+      "eligibility": "AP women aged 45-60, BC/OBC/EBC/Minority",
+      "documents": [
+        "Aadhaar",
+        "Caste certificate",
+        "Age proof",
+        "Bank account"
+      ],
+      "apply_url": "https://navasakam.ap.gov.in",
+      "sector": "women_child",
+      "state_en": "Andhra Pradesh",
+      "state_hi": "आंध्र प्रदेश",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Savitribai Phule Kishori Samridhi Yojana",
+      "name_hi": "सावित्रीबाई फुले किशोरी समृद्धि योजना",
+      "benefit_en": "Rs 40,000 total support for girl child education in 6 installments",
+      "benefit_hi": "बालिका शिक्षा के लिए 6 किस्तों में ₹40,000",
+      "eligibility": "Jharkhand BPL/SECC girl students (Class 8-12)",
+      "documents": [
+        "Aadhaar",
+        "School enrollment",
+        "BPL/SECC proof"
+      ],
+      "apply_url": "https://jharkhand.gov.in",
+      "sector": "women_child",
+      "state_en": "Jharkhand",
+      "state_hi": "झारखंड",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Kudumbashree Mission",
+      "name_hi": "कुदुम्बश्री मिशन",
+      "benefit_en": "Women SHG microfinance, skill training, enterprise support network",
+      "benefit_hi": "महिला SHG माइक्रोफाइनेंस, कौशल प्रशिक्षण, उद्यम सहायता",
+      "eligibility": "Kerala women from poor households (NHG membership)",
+      "documents": [
+        "Aadhaar",
+        "NHG membership",
+        "Bank account"
+      ],
+      "apply_url": "https://kudumbashree.org",
+      "sector": "women_child",
+      "state_en": "Kerala",
+      "state_hi": "केरल",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Ladli Laxmi Yojana 2.0",
+      "name_hi": "लाड़ली लक्ष्मी योजना 2.0",
+      "benefit_en": "Rs 1.43 lakh total benefit + college fee for girl child",
+      "benefit_hi": "बालिका को कुल ₹1.43 लाख + कॉलेज शुल्क सहायता",
+      "eligibility": "MP girl child born after Jan 1, 2006 in BPL/registered family",
+      "documents": [
+        "Birth certificate",
+        "Aadhaar",
+        "Income certificate",
+        "School enrollment"
+      ],
+      "apply_url": "https://ladlilaxmi.mp.gov.in",
+      "sector": "women_child",
+      "state_en": "Madhya Pradesh",
+      "state_hi": "मध्य प्रदेश",
+      "type": "State",
+      "status": "active"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+langchain>=0.3
+langchain-groq>=0.1
+langchain-community>=0.3
+langchain-core>=0.3
+chromadb>=0.5
+sentence-transformers>=2.2
+fastapi>=0.110
+uvicorn[standard]>=0.28
+pydantic>=2.0
+python-dotenv>=1.0
+requests>=2.31
+beautifulsoup4>=4.12
+lxml>=5.0
+openai-whisper>=20231117
+pypdf>=4.0
+pillow>=10.0
+
+# ── OCR + Document Scanning ────────────────────────────────────────────────────
+paddlepaddle>=2.6.0         # PaddleOCR deep learning backend (CPU)
+paddleocr>=2.7.0            # PaddleOCR engine (supports Devanagari + regional scripts)
+opencv-python-headless>=4.9 # OpenCV without GUI — lighter, server-safe
+numpy>=1.24                 # Array ops (likely already transitive)
+python-multipart>=0.0.9     # FastAPI file upload (multipart/form-data)
+pdf2image>=1.17             # PDF → image (requires poppler system package)
+# Install poppler separately: sudo apt install poppler-utils
+
+# ── v5.0 rebuild: LangGraph orchestrator + MongoDB Atlas ──────────────────────
+langgraph>=0.2
+langchain-google-genai>=2.0  # Gemini 2.5 Flash client
+motor>=3.5                   # async MongoDB driver
+pyjwt>=2.8                   # verifies Spring Boot's RS256 citizen JWT (cryptography backend already a transitive dep)

@@ -1,0 +1,122 @@
+{
+  "sector": "energy",
+  "type": "state",
+  "count": 7,
+  "schemes": [
+    {
+      "name_en": "Delhi EV Policy (EV Subsidy)",
+      "name_hi": "दिल्ली ईवी नीति (सब्सिडी)",
+      "benefit_en": "Rs 5,000-30,000 subsidy on electric 2-wheelers + scrapping incentive",
+      "benefit_hi": "इलेक्ट्रिक दोपहिया पर ₹5,000-30,000 सब्सिडी",
+      "eligibility": "Delhi residents buying FAME-approved EVs",
+      "documents": [
+        "Aadhaar",
+        "Delhi address proof",
+        "Vehicle purchase invoice"
+      ],
+      "apply_url": "https://ev.delhi.gov.in",
+      "sector": "energy",
+      "state_en": "Delhi",
+      "state_hi": "दिल्ली",
+      "type": "State"
+    },
+    {
+      "name_en": "Gruha Jyothi (Free Electricity)",
+      "name_hi": "गृह ज्योति योजना",
+      "benefit_en": "200 units free electricity per month for domestic consumers",
+      "benefit_hi": "घरेलू उपभोक्ताओं को 200 यूनिट मुफ्त बिजली प्रतिमाह",
+      "eligibility": "Karnataka domestic electricity consumers using ≤ 200 units/month",
+      "documents": [
+        "Aadhaar",
+        "Electricity consumer number"
+      ],
+      "apply_url": "https://escoms.karnataka.gov.in",
+      "sector": "energy",
+      "state_en": "Karnataka",
+      "state_hi": "कर्नाटक",
+      "type": "State"
+    },
+    {
+      "name_en": "Har Ghar Bijli Yojana (Bihar)",
+      "name_hi": "हर घर बिजली योजना (बिहार)",
+      "benefit_en": "Free electricity connection to all unelectrified households",
+      "benefit_hi": "सभी बिना बिजली घरों को मुफ्त कनेक्शन",
+      "eligibility": "Un-electrified households in Bihar",
+      "documents": [
+        "Aadhaar",
+        "Address proof"
+      ],
+      "apply_url": "https://hargharbijli.bsphcl.co.in",
+      "sector": "energy",
+      "state_en": "Bihar",
+      "state_hi": "बिहार",
+      "type": "State"
+    },
+    {
+      "name_en": "UP Muft Bijli Yojana (300 Units)",
+      "name_hi": "यूपी मुफ्त बिजली योजना",
+      "benefit_en": "300 units free electricity per month for domestic consumers",
+      "benefit_hi": "घरेलू उपभोक्ताओं को 300 यूनिट मुफ्त बिजली",
+      "eligibility": "UP domestic electricity consumers",
+      "documents": [
+        "Aadhaar",
+        "Electricity connection number"
+      ],
+      "apply_url": "https://uppcl.org",
+      "sector": "energy",
+      "state_en": "Uttar Pradesh",
+      "state_hi": "उत्तर प्रदेश",
+      "type": "State"
+    },
+    {
+      "name_en": "Haryana Solar Water Heater Scheme",
+      "name_hi": "हरियाणा सौर जल ताप योजना",
+      "benefit_en": "30% subsidy on solar water heaters for domestic use",
+      "benefit_hi": "घरेलू उपयोग के सौर वाटर हीटर पर 30% सब्सिडी",
+      "eligibility": "Haryana domestic consumers with electricity connection",
+      "documents": [
+        "Aadhaar",
+        "Electricity bill"
+      ],
+      "apply_url": "https://hareda.gov.in",
+      "sector": "energy",
+      "state_en": "Haryana",
+      "state_hi": "हरियाणा",
+      "type": "State"
+    },
+    {
+      "name_en": "Mukhyamantri Saur Krishi Pump Yojana",
+      "name_hi": "मुख्यमंत्री सौर कृषी पंप योजना",
+      "benefit_en": "95% subsidy on solar agriculture pumps (3HP/5HP/7.5HP)",
+      "benefit_hi": "सौर कृषि पंप पर 95% सब्सिडी",
+      "eligibility": "Maharashtra farmers with electricity-deprived fields",
+      "documents": [
+        "Aadhaar",
+        "7/12 extract",
+        "Bank account"
+      ],
+      "apply_url": "https://www.mahadiscom.in",
+      "sector": "energy",
+      "state_en": "Maharashtra",
+      "state_hi": "महाराष्ट्र",
+      "type": "State"
+    },
+    {
+      "name_en": "Kisan Suryoday Yojana",
+      "name_hi": "किसान सूर्योदय योजना",
+      "benefit_en": "Daytime (5am-9pm) electricity supply to farmers for irrigation",
+      "benefit_hi": "किसानों को सिंचाई के लिए दिन में बिजली (5AM-9PM)",
+      "eligibility": "Gujarat farmers with agricultural connections",
+      "documents": [
+        "Aadhaar",
+        "Land records",
+        "Agriculture connection number"
+      ],
+      "apply_url": "https://www.geb.gov.in",
+      "sector": "energy",
+      "state_en": "Gujarat",
+      "state_hi": "गुजरात",
+      "type": "State"
+    }
+  ]
+}

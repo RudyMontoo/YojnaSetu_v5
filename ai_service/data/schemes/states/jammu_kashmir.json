@@ -1,0 +1,89 @@
+{
+  "state_en": "Jammu & Kashmir",
+  "state_hi": "जम्मू & कश्मीर",
+  "schemes": [
+    {
+      "name_en": "PMDP — Prime Minister's Development Package for J&K",
+      "name_hi": "प्रधानमंत्री विकास पैकेज जम्मू-कश्मीर",
+      "benefit_en": "Rs 80,000 crore infrastructure + employment + industrial development package for J&K",
+      "benefit_hi": "J&K के लिए ₹80,000 करोड़ बुनियादी ढाँचा + रोजगार + औद्योगिक विकास",
+      "eligibility": "J&K domicile residents benefiting from public infrastructure works",
+      "documents": [
+        "Aadhaar",
+        "J&K domicile"
+      ],
+      "apply_url": "https://jkgov.gov.in",
+      "sector": "rural_development"
+    },
+    {
+      "name_en": "J&K Back to Village (B2V) Programme",
+      "name_hi": "बैक टू विलेज (B2V) कार्यक्रम",
+      "benefit_en": "Government officers visit villages to deliver 26 schemes at doorstep",
+      "benefit_hi": "सरकारी अधिकारी गाँव आकर 26 योजनाओं का लाभ पहुँचाते हैं",
+      "eligibility": "All J&K rural residents",
+      "documents": [
+        "Aadhaar",
+        "Relevant scheme-specific documents"
+      ],
+      "apply_url": "https://jkgov.gov.in",
+      "sector": "rural_development"
+    },
+    {
+      "name_en": "Apni Zameen Apna Makaan (J&K Housing)",
+      "name_hi": "अपनी जमीन अपना मकान",
+      "benefit_en": "Residential plots allocation at subsidized rates for West Pakistan refugees and landless",
+      "benefit_hi": "पश्चिमी पाकिस्तान शरणार्थियों और भूमिहीनों को सब्सिडी दर पर भूखंड",
+      "eligibility": "West Pakistan refugees settled in J&K, landless families",
+      "documents": [
+        "Refugee certificate",
+        "Aadhaar",
+        "Landless proof"
+      ],
+      "apply_url": "https://jkgov.gov.in",
+      "sector": "housing"
+    },
+    {
+      "name_en": "J&K Industrial Incentive Scheme (JKIIS)",
+      "name_hi": "J&K औद्योगिक प्रोत्साहन योजना",
+      "benefit_en": "Capital investment subsidy 30-50% + GST reimbursement for new industrial units in J&K",
+      "benefit_hi": "J&K में नई औद्योगिक इकाइयों को 30-50% पूंजी निवेश सब्सिडी + GST वापसी",
+      "eligibility": "Entrepreneurs setting up industries in J&K",
+      "documents": [
+        "Aadhaar",
+        "J&K domicile",
+        "Business plan",
+        "Bank account"
+      ],
+      "apply_url": "https://jkindustries.gov.in",
+      "sector": "employment"
+    },
+    {
+      "name_en": "HADP — Holistic Agriculture Development Plan (J&K)",
+      "name_hi": "कृषि समग्र विकास कार्यक्रम J&K",
+      "benefit_en": "Rs 5,000 crore for horticulture, organic farming, saffron + farmer income doubling in J&K",
+      "benefit_hi": "J&K में बागवानी, जैविक खेती, केसर + किसान आय दोगुनी करने के लिए ₹5,000 करोड़",
+      "eligibility": "J&K farmers especially in horticulture/saffron/organic segments",
+      "documents": [
+        "Aadhaar",
+        "Land records",
+        "Bank account"
+      ],
+      "apply_url": "https://jkagri.gov.in",
+      "sector": "agriculture"
+    },
+    {
+      "name_en": "Umbrella Scheme for SC/ST in J&K",
+      "name_hi": "J&K SC/ST छाता योजना",
+      "benefit_en": "Education, housing, economic support for SC/ST communities in J&K",
+      "benefit_hi": "J&K में SC/ST समुदायों को शिक्षा, आवास, आर्थिक सहायता",
+      "eligibility": "SC/ST communities in J&K",
+      "documents": [
+        "SC/ST certificate",
+        "Aadhaar",
+        "J&K domicile"
+      ],
+      "apply_url": "https://jkgov.gov.in",
+      "sector": "sc_welfare"
+    }
+  ]
+}

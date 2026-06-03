@@ -1,0 +1,62 @@
+{
+  "state_en": "Nagaland",
+  "state_hi": "नागालैंड",
+  "schemes": [
+    {
+      "name_en": "Nagaland Bamboo Mission",
+      "name_hi": "नागालैंड बाँस मिशन",
+      "benefit_en": "Bamboo cultivation support + value addition units + market linkage for tribal farmers",
+      "benefit_hi": "जनजातीय किसानों को बाँस खेती + मूल्य संवर्धन + बाजार संपर्क",
+      "eligibility": "Nagaland tribal farmers with land for bamboo",
+      "documents": [
+        "Aadhaar",
+        "ST certificate",
+        "Land records"
+      ],
+      "apply_url": "https://nagaland.gov.in",
+      "sector": "agriculture"
+    },
+    {
+      "name_en": "Nagaland State Youth Entrepreneurship Policy",
+      "name_hi": "नागालैंड युवा उद्यमिता नीति",
+      "benefit_en": "Seed grants Rs 5-10 lakh + mentoring for Nagaland youth startups",
+      "benefit_hi": "नागालैंड युवाओं को ₹5-10 लाख बीज अनुदान + मेंटरिंग",
+      "eligibility": "Nagaland youth aged 18-35 with innovative business idea",
+      "documents": [
+        "Aadhaar",
+        "Nagaland domicile",
+        "Business plan"
+      ],
+      "apply_url": "https://nagaland.gov.in",
+      "sector": "employment"
+    },
+    {
+      "name_en": "Nagaland Organic Mission",
+      "name_hi": "नागालैंड जैविक मिशन",
+      "benefit_en": "Full support for organic certification + access to premium markets for NE organic produce",
+      "benefit_hi": "जैविक प्रमाणन + NE जैविक उत्पाद के लिए प्रीमियम बाजार",
+      "eligibility": "Nagaland farmers practicing organic farming",
+      "documents": [
+        "Aadhaar",
+        "Land records",
+        "Organic practice declaration"
+      ],
+      "apply_url": "https://nagaland.gov.in",
+      "sector": "agriculture"
+    },
+    {
+      "name_en": "Nagaland Free Coaching for UPSC/State PSC",
+      "name_hi": "UPSC/राज्य PSC मुफ्त कोचिंग",
+      "benefit_en": "Free coaching in Kohima/Mumbai for Nagaland civil services aspirants",
+      "benefit_hi": "नागालैंड के UPSC/PSC उम्मीदवारों के लिए कोहिमा/मुंबई में मुफ्त कोचिंग",
+      "eligibility": "Nagaland domicile youth with graduation degree",
+      "documents": [
+        "Aadhaar",
+        "Nagaland domicile",
+        "Degree certificate"
+      ],
+      "apply_url": "https://nagaland.gov.in",
+      "sector": "education"
+    }
+  ]
+}

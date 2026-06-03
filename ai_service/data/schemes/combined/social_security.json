@@ -1,0 +1,301 @@
+{
+  "sector": "social_security",
+  "central_count": 15,
+  "state_count": 6,
+  "total": 21,
+  "central_schemes": [
+    {
+      "name": "PM Jeevan Jyoti Bima Yojana (PMJJBY)",
+      "ministry": "Finance",
+      "benefit": "Rs 2 lakh life insurance at just Rs 436/year",
+      "eligibility": "Bank account holders aged 18-50",
+      "documents": [
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://financialservices.gov.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "PM Suraksha Bima Yojana (PMSBY)",
+      "ministry": "Finance",
+      "benefit": "Rs 2 lakh accident insurance at Rs 20/year",
+      "eligibility": "Bank account holders aged 18-70",
+      "documents": [
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://financialservices.gov.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Atal Pension Yojana (APY)",
+      "ministry": "Finance",
+      "benefit": "Guaranteed pension Rs 1000-5000/month after age 60",
+      "eligibility": "Unorganized sector workers, bank account holders aged 18-40",
+      "documents": [
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://npscra.nsdl.co.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "National Social Assistance Programme (NSAP)",
+      "ministry": "Rural Development",
+      "benefit": "Monthly pension Rs 200-500 for elderly, widow, disabled BPL",
+      "eligibility": "BPL elderly (60+), widows (40+), disabled (18+)",
+      "documents": [
+        "Aadhaar",
+        "BPL card",
+        "Age/widow/disability proof"
+      ],
+      "apply_url": "https://nsap.nic.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Indira Gandhi National Old Age Pension",
+      "ministry": "Rural Development",
+      "benefit": "Rs 200-500/month pension for BPL elderly",
+      "eligibility": "BPL persons aged 60+",
+      "documents": [
+        "Aadhaar",
+        "BPL card",
+        "Age proof"
+      ],
+      "apply_url": "https://nsap.nic.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Indira Gandhi National Disability Pension",
+      "ministry": "Rural Development",
+      "benefit": "Rs 300/month for disabled BPL persons",
+      "eligibility": "BPL persons with 80%+ disability aged 18+",
+      "documents": [
+        "Aadhaar",
+        "BPL card",
+        "Disability certificate (80%+)"
+      ],
+      "apply_url": "https://nsap.nic.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "PM Jan Dhan Yojana (PMJDY)",
+      "ministry": "Finance",
+      "benefit": "Zero-balance account, Rs 2 lakh accident cover, overdraft Rs 10K",
+      "eligibility": "All unbanked Indian citizens",
+      "documents": [
+        "Aadhaar or any address proof"
+      ],
+      "apply_url": "https://pmjdy.gov.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Antyodaya Anna Yojana",
+      "ministry": "Food & Public Distribution",
+      "benefit": "35 kg food grain/month at Rs 1-3/kg for poorest families",
+      "eligibility": "Poorest of poor (identified by state), landless laborers",
+      "documents": [
+        "AAY Ration Card",
+        "Aadhaar"
+      ],
+      "apply_url": "State Food Department",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "PM Garib Kalyan Anna Yojana",
+      "ministry": "Food & Public Distribution",
+      "benefit": "Free 5 kg food grain per person per month",
+      "eligibility": "NFSA beneficiaries (PHH and AAY cardholders)",
+      "documents": [
+        "Ration card",
+        "Aadhaar"
+      ],
+      "apply_url": "State Food Department",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Niramaya Health Insurance (Disability)",
+      "ministry": "Social Justice",
+      "benefit": "Health insurance up to Rs 1 lakh for persons with disability",
+      "eligibility": "Persons with disability",
+      "documents": [
+        "Aadhaar",
+        "Disability certificate"
+      ],
+      "apply_url": "https://nhfdc.nic.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Viklang Saathi (Disability Pension)",
+      "ministry": "Social Justice",
+      "benefit": "Monthly pension + aids/appliances for severely disabled",
+      "eligibility": "Persons with 40%+ disability, income < Rs 2 lakh/year",
+      "documents": [
+        "Aadhaar",
+        "Disability certificate",
+        "Income certificate"
+      ],
+      "apply_url": "https://disabilityaffairs.gov.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Employees' Provident Fund (EPF)",
+      "ministry": "Labour",
+      "benefit": "Retirement corpus + pension (EPS) + insurance (EDLI)",
+      "eligibility": "Employees in organizations with 20+ workers",
+      "documents": [
+        "Aadhaar",
+        "UAN",
+        "Employment details"
+      ],
+      "apply_url": "https://epfindia.gov.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Pradhan Mantri Vaya Vandana Yojana",
+      "ministry": "Finance",
+      "benefit": "8% guaranteed pension for 10 years for senior citizens",
+      "eligibility": "Senior citizens aged 60+",
+      "documents": [
+        "Aadhaar",
+        "Age proof",
+        "Bank account"
+      ],
+      "apply_url": "https://licindia.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Post Office Monthly Income Scheme",
+      "ministry": "Finance",
+      "benefit": "Guaranteed 7.4% p.a. monthly income on deposit",
+      "eligibility": "All Indian citizens (single: Rs 9L max, joint: Rs 15L max)",
+      "documents": [
+        "Aadhaar",
+        "PAN",
+        "Post office KYC"
+      ],
+      "apply_url": "https://www.indiapost.gov.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Senior Citizens' Saving Scheme",
+      "ministry": "Finance",
+      "benefit": "8.2% interest quarterly deposit for 5 years, up to Rs 30 lakh",
+      "eligibility": "Citizens aged 60+ (55+ for VRS, 50+ for retired defence)",
+      "documents": [
+        "Aadhaar",
+        "Age proof",
+        "KYC documents"
+      ],
+      "apply_url": "https://www.indiapost.gov.in",
+      "type": "Central",
+      "status": "active"
+    }
+  ],
+  "state_schemes": [
+    {
+      "name_en": "Delhi Ration Card (AAY/PHH Free Ration)",
+      "name_hi": "दिल्ली राशन कार्ड (मुफ्त राशन)",
+      "benefit_en": "Free 5kg wheat + 1kg rice per person per month",
+      "benefit_hi": "प्रति व्यक्ति 5 किलो गेहूँ + 1 किलो चावल मुफ्त प्रतिमाह",
+      "eligibility": "Delhi BPL/EWS families with ration card",
+      "documents": [
+        "Aadhaar",
+        "Delhi domicile",
+        "Income proof"
+      ],
+      "apply_url": "https://edistrict.delhigovt.nic.in",
+      "sector": "social_security",
+      "state_en": "Delhi",
+      "state_hi": "दिल्ली",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Mukhyamantri Vridhjan Pension Yojana",
+      "name_hi": "मुख्यमंत्री वृद्धजन पेंशन योजना",
+      "benefit_en": "Rs 400/month (age 60-79) and Rs 500/month (80+) pension",
+      "benefit_hi": "60-79 वर्ष ₹400 और 80+ वर्ष ₹500 प्रतिमाह पेंशन",
+      "eligibility": "Bihar residents aged 60+, not receiving other government pension",
+      "documents": [
+        "Aadhaar",
+        "Age proof",
+        "Bank account"
+      ],
+      "apply_url": "https://sspmis.bihar.gov.in",
+      "sector": "social_security",
+      "state_en": "Bihar",
+      "state_hi": "बिहार",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Mukhyamantri Parivar Samridhi Yojana",
+      "name_hi": "मुख्यमंत्री परिवार समृद्धि योजना",
+      "benefit_en": "Rs 6,000/year benefit (pension/insurance/investment) per family",
+      "benefit_hi": "परिवार को ₹6,000/वर्ष (पेंशन/बीमा/निवेश)",
+      "eligibility": "Haryana families with income < Rs 1.8 lakh and land < 2 hectare",
+      "documents": [
+        "Parivar Pehchaan Patra",
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://cm-psy.haryana.gov.in",
+      "sector": "social_security",
+      "state_en": "Haryana",
+      "state_hi": "हरियाणा",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Dr. Khobragade Universal PDS (Rs 1-2/kg Rice)",
+      "name_hi": "सार्वजनिक वितरण प्रणाली (₹1-2/किलो चावल)",
+      "benefit_en": "Rice at Rs 1-2/kg to all CG ration card holders",
+      "benefit_hi": "सभी राशन कार्ड धारकों को ₹1-2/किलो चावल",
+      "eligibility": "All Chhattisgarh ration card holders",
+      "documents": [
+        "Ration card",
+        "Aadhaar"
+      ],
+      "apply_url": "https://khadya.cg.nic.in",
+      "sector": "social_security",
+      "state_en": "Chhattisgarh",
+      "state_hi": "छत्तीसगढ़",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Sambal Yojana (Mukhyamantri Jan Kalyan)",
+      "name_hi": "संबल योजना",
+      "benefit_en": "Rs 4 lakh death benefit + free electricity + education support for unorganized workers",
+      "benefit_hi": "असंगठित कामगारों को ₹4 लाख मृत्यु सहायता + मुफ्त बिजली",
+      "eligibility": "MP unorganized workers with Sambal card",
+      "documents": [
+        "Sambal card",
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://sambal.mp.gov.in",
+      "sector": "social_security",
+      "state_en": "Madhya Pradesh",
+      "state_hi": "मध्य प्रदेश",
+      "type": "State",
+      "status": "active"
+    }
+  ]
+}

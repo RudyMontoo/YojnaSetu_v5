@@ -1,0 +1,96 @@
+{
+  "sector": "social_security",
+  "type": "state",
+  "count": 5,
+  "schemes": [
+    {
+      "name_en": "Delhi Ration Card (AAY/PHH Free Ration)",
+      "name_hi": "दिल्ली राशन कार्ड (मुफ्त राशन)",
+      "benefit_en": "Free 5kg wheat + 1kg rice per person per month",
+      "benefit_hi": "प्रति व्यक्ति 5 किलो गेहूँ + 1 किलो चावल मुफ्त प्रतिमाह",
+      "eligibility": "Delhi BPL/EWS families with ration card",
+      "documents": [
+        "Aadhaar",
+        "Delhi domicile",
+        "Income proof"
+      ],
+      "apply_url": "https://edistrict.delhigovt.nic.in",
+      "sector": "social_security",
+      "state_en": "Delhi",
+      "state_hi": "दिल्ली",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Mukhyamantri Vridhjan Pension Yojana",
+      "name_hi": "मुख्यमंत्री वृद्धजन पेंशन योजना",
+      "benefit_en": "Rs 400/month (age 60-79) and Rs 500/month (80+) pension",
+      "benefit_hi": "60-79 वर्ष ₹400 और 80+ वर्ष ₹500 प्रतिमाह पेंशन",
+      "eligibility": "Bihar residents aged 60+, not receiving other government pension",
+      "documents": [
+        "Aadhaar",
+        "Age proof",
+        "Bank account"
+      ],
+      "apply_url": "https://sspmis.bihar.gov.in",
+      "sector": "social_security",
+      "state_en": "Bihar",
+      "state_hi": "बिहार",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Mukhyamantri Parivar Samridhi Yojana",
+      "name_hi": "मुख्यमंत्री परिवार समृद्धि योजना",
+      "benefit_en": "Rs 6,000/year benefit (pension/insurance/investment) per family",
+      "benefit_hi": "परिवार को ₹6,000/वर्ष (पेंशन/बीमा/निवेश)",
+      "eligibility": "Haryana families with income < Rs 1.8 lakh and land < 2 hectare",
+      "documents": [
+        "Parivar Pehchaan Patra",
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://cm-psy.haryana.gov.in",
+      "sector": "social_security",
+      "state_en": "Haryana",
+      "state_hi": "हरियाणा",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Dr. Khobragade Universal PDS (Rs 1-2/kg Rice)",
+      "name_hi": "सार्वजनिक वितरण प्रणाली (₹1-2/किलो चावल)",
+      "benefit_en": "Rice at Rs 1-2/kg to all CG ration card holders",
+      "benefit_hi": "सभी राशन कार्ड धारकों को ₹1-2/किलो चावल",
+      "eligibility": "All Chhattisgarh ration card holders",
+      "documents": [
+        "Ration card",
+        "Aadhaar"
+      ],
+      "apply_url": "https://khadya.cg.nic.in",
+      "sector": "social_security",
+      "state_en": "Chhattisgarh",
+      "state_hi": "छत्तीसगढ़",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Sambal Yojana (Mukhyamantri Jan Kalyan)",
+      "name_hi": "संबल योजना",
+      "benefit_en": "Rs 4 lakh death benefit + free electricity + education support for unorganized workers",
+      "benefit_hi": "असंगठित कामगारों को ₹4 लाख मृत्यु सहायता + मुफ्त बिजली",
+      "eligibility": "MP unorganized workers with Sambal card",
+      "documents": [
+        "Sambal card",
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://sambal.mp.gov.in",
+      "sector": "social_security",
+      "state_en": "Madhya Pradesh",
+      "state_hi": "मध्य प्रदेश",
+      "type": "State",
+      "status": "active"
+    }
+  ]
+}

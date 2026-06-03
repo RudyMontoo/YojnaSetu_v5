@@ -1,0 +1,155 @@
+{
+  "sector": "fisheries",
+  "schemes": [
+    {
+      "name": "PM Matsya Sampada Yojana (PMMSY)",
+      "ministry": "Fisheries",
+      "benefit": "Rs 20,050 crore investment — subsidies on boats, nets, ice plants, cold chains for fishers",
+      "benefit_hi": "मछुआरों को नाव, जाल, बर्फ संयंत्र, कोल्ड चेन पर सब्सिडी",
+      "eligibility": "Fishermen, fish farmers, SHGs, cooperatives, entrepreneurs in fisheries",
+      "documents": [
+        "Aadhaar",
+        "Fisherman ID",
+        "Bank account"
+      ],
+      "apply_url": "https://pmmsy.dof.gov.in",
+      "sector": "fisheries",
+      "type": "Central"
+    },
+    {
+      "name": "Kisan Credit Card for Fisheries",
+      "ministry": "Fisheries / Finance",
+      "benefit": "Short-term credit up to Rs 2 lakh at 4% interest for working capital in fishing",
+      "benefit_hi": "मत्स्य कार्यशील पूंजी के लिए 4% ब्याज पर ₹2 लाख ऋण",
+      "eligibility": "Fishermen, fish farmers, marine fishing boat owners",
+      "documents": [
+        "Aadhaar",
+        "Fishing license",
+        "Bank account"
+      ],
+      "apply_url": "https://www.nabard.org",
+      "sector": "fisheries",
+      "type": "Central"
+    },
+    {
+      "name": "Fishermen Accident & Life Insurance Scheme",
+      "ministry": "Fisheries",
+      "benefit": "Rs 5 lakh life cover + Rs 2.5 lakh disability cover at annual premium of Rs 19 only",
+      "benefit_hi": "मात्र ₹19 वार्षिक प्रीमियम पर ₹5 लakh जीवन + ₹2.5 लाख विकलांगता बीमा",
+      "eligibility": "Active fishermen aged 18-70 with fisherman ID card",
+      "documents": [
+        "Aadhaar",
+        "Fisherman ID card",
+        "Bank account"
+      ],
+      "apply_url": "https://dof.gov.in",
+      "sector": "fisheries",
+      "type": "Central"
+    },
+    {
+      "name": "Blue Revolution (Integrated Development of Fisheries)",
+      "ministry": "Fisheries",
+      "benefit": "Subsidies for aquaculture, inland fisheries, mariculture, seaweed, ornamental fish cultivation",
+      "benefit_hi": "जलकृषि, अंतर्देशीय मत्स्यपालन, समुद्री शैवाल, सजावटी मछली पर सब्सिडी",
+      "eligibility": "Fish farmers, coastal fishing communities",
+      "documents": [
+        "Aadhaar",
+        "Land/pond ownership",
+        "Fishing license"
+      ],
+      "apply_url": "https://dof.gov.in",
+      "sector": "fisheries",
+      "type": "Central"
+    },
+    {
+      "name": "Pradhan Mantri Matsya Kisan Samridhi Saha-Yojana (PM-MKSSY)",
+      "ministry": "Fisheries",
+      "benefit": "Formalization of fisheries sector — micro-enterprise credit + income + crop insurance for fish farmers",
+      "benefit_hi": "मछली कृषकों के लिए सूक्ष्म ऋण, आय सहायता, बीमा",
+      "eligibility": "Small-scale fish farmers, indigenous fishers, SHGs in fisheries",
+      "documents": [
+        "Aadhaar",
+        "Bank account",
+        "Fisheries registration"
+      ],
+      "apply_url": "https://pmmsy.dof.gov.in",
+      "sector": "fisheries",
+      "type": "Central"
+    },
+    {
+      "name": "Fisheries Development Revolving Fund",
+      "ministry": "Fisheries / NABARD",
+      "benefit": "Low-interest revolving loans for deep-sea fishing vessels, equipment upgradation",
+      "benefit_hi": "गहरे समुद्र में मछली पकड़ने के जहाजों, उपकरण उन्नयन के लिए कम ब्याज ऋण",
+      "eligibility": "Marine fishermen associations, vessel owners",
+      "documents": [
+        "Aadhaar",
+        "Vessel registration",
+        "Fishing license"
+      ],
+      "apply_url": "https://www.nabard.org",
+      "sector": "fisheries",
+      "type": "Central"
+    },
+    {
+      "name": "National Fisheries Development Board (NFDB) Grants",
+      "ministry": "Fisheries",
+      "benefit": "Grants for fish seed production, cold storage, processing plants, ornamental fisheries units",
+      "benefit_hi": "मत्स्य बीज, कोल्ड स्टोरेज, प्रसंस्करण संयंत्र, सजावटी मात्स्यिकी को अनुदान",
+      "eligibility": "Fish farmers, entrepreneurs, state fisheries departments",
+      "documents": [
+        "Aadhaar",
+        "Business/project plan",
+        "Land documents"
+      ],
+      "apply_url": "https://nfdb.gov.in",
+      "sector": "fisheries",
+      "type": "Central"
+    },
+    {
+      "name": "Ban Period Relief (Fishing Ban Compensation)",
+      "ministry": "Fisheries",
+      "benefit": "Rs 4,000-6,000/month financial relief to marine fishermen during 45-60 day fishing ban",
+      "benefit_hi": "मछली पकड़ने पर 45-60 दिन के प्रतिबंध के दौरान ₹4,000-6,000/माह राहत",
+      "eligibility": "Active marine fishermen in coastal states during monsoon ban period",
+      "documents": [
+        "Aadhaar",
+        "Fisherman ID",
+        "Bank account"
+      ],
+      "apply_url": "State fisheries department",
+      "sector": "fisheries",
+      "type": "Central"
+    },
+    {
+      "name": "Seaweed Cultivation Mission",
+      "ministry": "Fisheries",
+      "benefit": "Training + equipment support + buyback guarantee for seaweed farmers in coastal areas",
+      "benefit_hi": "तटीय क्षेत्रों में शैवाल किसानों को प्रशिक्षण + उपकरण + बायबैक गारंटी",
+      "eligibility": "Coastal fishermen willing to take up seaweed cultivation",
+      "documents": [
+        "Aadhaar",
+        "Fisherman ID",
+        "Bank account"
+      ],
+      "apply_url": "https://dof.gov.in",
+      "sector": "fisheries",
+      "type": "Central"
+    },
+    {
+      "name": "Cold Chain / Ice Plant Subsidy",
+      "ministry": "Fisheries",
+      "benefit": "40-60% subsidy on ice plants, refrigerated fish vans, cold storage for fishermen cooperatives",
+      "benefit_hi": "मछुआरा सहकारी समितियों को बर्फ संयंत्र, रेफ्रिजरेटेड वैन, कोल्ड स्टोरेज पर 40-60% सब्सिडी",
+      "eligibility": "Fishermen cooperatives, SHGs, entrepreneurs in fisheries supply chain",
+      "documents": [
+        "Cooperative registration",
+        "Aadhaar",
+        "Project proposal"
+      ],
+      "apply_url": "https://pmmsy.dof.gov.in",
+      "sector": "fisheries",
+      "type": "Central"
+    }
+  ]
+}

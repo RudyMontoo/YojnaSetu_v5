@@ -1,0 +1,77 @@
+{
+  "state_en": "Madhya Pradesh",
+  "state_hi": "मध्य प्रदेश",
+  "schemes": [
+    {
+      "name_en": "Ladli Laxmi Yojana 2.0",
+      "name_hi": "लाड़ली लक्ष्मी योजना 2.0",
+      "benefit_en": "Rs 1.43 lakh total benefit + college fee for girl child",
+      "benefit_hi": "बालिका को कुल ₹1.43 लाख + कॉलेज शुल्क सहायता",
+      "eligibility": "MP girl child born after Jan 1, 2006 in BPL/registered family",
+      "documents": [
+        "Birth certificate",
+        "Aadhaar",
+        "Income certificate",
+        "School enrollment"
+      ],
+      "apply_url": "https://ladlilaxmi.mp.gov.in",
+      "sector": "women_child"
+    },
+    {
+      "name_en": "Mukhyamantri Kisan Kalyan Yojana",
+      "name_hi": "मुख्यमंत्री किसान कल्याण योजना",
+      "benefit_en": "Additional Rs 4,000/year on top of PM Kisan (total Rs 10,000/year)",
+      "benefit_hi": "PM किसान के अतिरिक्त ₹4,000/वर्ष (कुल ₹10,000/वर्ष)",
+      "eligibility": "MP farmers already registered under PM Kisan",
+      "documents": [
+        "PM Kisan registration",
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://saara.mp.gov.in",
+      "sector": "agriculture"
+    },
+    {
+      "name_en": "Sambal Yojana (Mukhyamantri Jan Kalyan)",
+      "name_hi": "संबल योजना",
+      "benefit_en": "Rs 4 lakh death benefit + free electricity + education support for unorganized workers",
+      "benefit_hi": "असंगठित कामगारों को ₹4 लाख मृत्यु सहायता + मुफ्त बिजली",
+      "eligibility": "MP unorganized workers with Sambal card",
+      "documents": [
+        "Sambal card",
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://sambal.mp.gov.in",
+      "sector": "social_security"
+    },
+    {
+      "name_en": "Mukhyamantri Sikho-Kamao Yojana",
+      "name_hi": "मुख्यमंत्री सीखो-कमाओ योजना",
+      "benefit_en": "Rs 8,000-10,000/month stipend while learning skills at companies",
+      "benefit_hi": "कंपनियों में कौशल सीखते हुए ₹8,000-10,000/माह",
+      "eligibility": "MP youth aged 18-29, Class 12 to graduate",
+      "documents": [
+        "Aadhaar",
+        "Educational certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://mmsky.mp.gov.in",
+      "sector": "employment"
+    },
+    {
+      "name_en": "Mukhyamantri Awas Yojana MP",
+      "name_hi": "मुख्यमंत्री आवास योजना (एमपी)",
+      "benefit_en": "Housing for urban poor not covered under PMAY with state subsidy",
+      "benefit_hi": "PMAY से छूटे शहरी गरीबों को राज्य आवास सहायता",
+      "eligibility": "Urban MP BPL families without pucca house",
+      "documents": [
+        "Aadhaar",
+        "BPL card",
+        "Income certificate"
+      ],
+      "apply_url": "https://mphousing.nic.in",
+      "sector": "housing"
+    }
+  ]
+}

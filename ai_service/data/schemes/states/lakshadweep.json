@@ -1,0 +1,33 @@
+{
+  "state_en": "Lakshadweep",
+  "state_hi": "लक्षद्वीप",
+  "schemes": [
+    {
+      "name_en": "Integrated Island Development (Lakshadweep UT)",
+      "name_hi": "एकीकृत द्वीप विकास लक्षद्वीप",
+      "benefit_en": "Fisheries, tourism, coconut processing — livelihood support for Lakshadweep islanders",
+      "benefit_hi": "मत्स्य, पर्यटन, नारियल प्रसंस्करण — लक्षद्वीप द्वीपवासियों की आजीविका सहायता",
+      "eligibility": "Lakshadweep residents",
+      "documents": [
+        "Aadhaar",
+        "Lakshadweep domicile"
+      ],
+      "apply_url": "https://lakshadweep.gov.in",
+      "sector": "employment"
+    },
+    {
+      "name_en": "Lakshadweep Tuna Fisheries Development",
+      "name_hi": "लक्षद्वीप टूना मत्स्य विकास",
+      "benefit_en": "Deep-sea fishing vessel subsidy + cold chain + export facilitation for tuna fishers",
+      "benefit_hi": "टूना मछुआरों को गहरे समुद्र की नाव + कोल्ड चेन + निर्यात सुविधा",
+      "eligibility": "Lakshadweep fishing community",
+      "documents": [
+        "Aadhaar",
+        "Fishing license",
+        "Lakshadweep domicile"
+      ],
+      "apply_url": "https://lakshadweep.gov.in",
+      "sector": "fisheries"
+    }
+  ]
+}

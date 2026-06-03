@@ -1,0 +1,73 @@
+{
+  "state_en": "Punjab",
+  "state_hi": "पंजाब",
+  "schemes": [
+    {
+      "name_en": "Aam Aadmi Clinic",
+      "name_hi": "ਆਮ ਆਦਮੀ ਕਲੀਨਿਕ / आम आदमी क्लीनिक",
+      "benefit_en": "Free OPD, 43 tests and 80+ medicines at neighborhood clinics",
+      "benefit_hi": "नजदीकी क्लीनिक में मुफ्त OPD, 43 जांच और 80+ दवाइयाँ",
+      "eligibility": "All Punjab residents",
+      "documents": [
+        "Aadhaar (recommended)"
+      ],
+      "apply_url": "https://aamaadmiclinic.punjab.gov.in",
+      "sector": "health"
+    },
+    {
+      "name_en": "Bhagat Singh Rozgar Guarantee Yojana",
+      "name_hi": "भगत सिंह रोजगार गारंटी योजना",
+      "benefit_en": "Employment registration, skill training, Rs 2,500-5,000 support",
+      "benefit_hi": "रोजगार पंजीकरण, कौशल प्रशिक्षण, ₹2,500-5,000 सहायता",
+      "eligibility": "Punjab unemployed youth (18-35 years)",
+      "documents": [
+        "Aadhaar",
+        "Educational certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://pgrkam.com",
+      "sector": "employment"
+    },
+    {
+      "name_en": "Punjab Ashirwad Scheme",
+      "name_hi": "पंजाब आशीर्वाद योजना",
+      "benefit_en": "Rs 51,000 grant for marriage of BPL girl children",
+      "benefit_hi": "BPL परिवार की बेटी के विवाह पर ₹51,000 अनुदान",
+      "eligibility": "Punjab BPL/SC/BC families, girl aged 18+",
+      "documents": [
+        "Aadhaar",
+        "BPL/caste certificate",
+        "Marriage proof"
+      ],
+      "apply_url": "https://punjab.gov.in",
+      "sector": "women_child"
+    },
+    {
+      "name_en": "Zero Percent Interest Farm Loan (Punjab)",
+      "name_hi": "शून्य ब्याज कृषि ऋण योजना (पंजाब)",
+      "benefit_en": "Short-term crop loans up to Rs 3 lakh at 0% interest",
+      "benefit_hi": "₹3 लाख तक अल्पकालिक फसल ऋण 0% ब्याज पर",
+      "eligibility": "Punjab small/marginal farmers",
+      "documents": [
+        "Aadhaar",
+        "Land records",
+        "Bank account"
+      ],
+      "apply_url": "https://punjab.gov.in",
+      "sector": "agriculture"
+    },
+    {
+      "name_en": "Punjab Ghar Ghar Rozgar Portal",
+      "name_hi": "ਘਰ ਘਰ ਰੋਜ਼ਗਾਰ / घर घर रोजगार पोर्टल",
+      "benefit_en": "Job matching, career counselling, skill training for Punjab youth",
+      "benefit_hi": "पंजाब युवाओं के लिए नौकरी मेच, करियर परामर्श",
+      "eligibility": "All Punjab job seekers",
+      "documents": [
+        "Aadhaar",
+        "Educational certificates"
+      ],
+      "apply_url": "https://pgrkam.com",
+      "sector": "employment"
+    }
+  ]
+}

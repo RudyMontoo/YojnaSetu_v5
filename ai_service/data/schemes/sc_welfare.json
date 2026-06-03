@@ -1,0 +1,235 @@
+{
+  "sector": "sc_welfare",
+  "schemes": [
+    {
+      "name": "Post-Matric Scholarship for SC Students",
+      "ministry": "Social Justice",
+      "benefit": "Full fee + Rs 3,000-12,000/year maintenance for SC students in Class 11 to PhD",
+      "benefit_hi": "SC छात्रों को कक्षा 11 से PhD तक पूरी फीस + ₹3,000-12,000/वर्ष",
+      "eligibility": "SC students; income < Rs 2.5 lakh/year",
+      "documents": [
+        "SC certificate",
+        "Aadhaar",
+        "Income certificate",
+        "Admission proof"
+      ],
+      "apply_url": "https://scholarships.gov.in",
+      "sector": "sc_welfare",
+      "type": "Central"
+    },
+    {
+      "name": "Pre-Matric Scholarship for SC Students (Class 9-10)",
+      "ministry": "Social Justice",
+      "benefit": "Rs 150-350/month maintenance + Rs 500 book grant for SC students Class 9-10",
+      "benefit_hi": "SC छात्रों को ₹150-350/माह + ₹500 पुस्तक अनुदान",
+      "eligibility": "SC students in Class 9-10; income < Rs 2 lakh",
+      "documents": [
+        "SC certificate",
+        "Aadhaar",
+        "Income certificate",
+        "School enrollment"
+      ],
+      "apply_url": "https://scholarships.gov.in",
+      "sector": "sc_welfare",
+      "type": "Central"
+    },
+    {
+      "name": "National Overseas Scholarship for SC Students",
+      "ministry": "Social Justice",
+      "benefit": "Full scholarship for Master's/PhD at foreign universities (airfare + tuition + living)",
+      "benefit_hi": "विदेशी विश्वविद्यालय में Master's/PhD — हवाई भाड़ा + फीस + जीवन-यापन",
+      "eligibility": "SC students under 35; income < Rs 6 lakh/year; 60%+ marks",
+      "documents": [
+        "SC certificate",
+        "Aadhaar",
+        "Degree",
+        "Admission letter",
+        "Income certificate"
+      ],
+      "apply_url": "https://socialjustice.gov.in",
+      "sector": "sc_welfare",
+      "type": "Central"
+    },
+    {
+      "name": "National Fellowship for SC Students (UGC-NFSC)",
+      "ministry": "Social Justice",
+      "benefit": "Rs 25,000-28,000/month fellowship for SC PhD students",
+      "benefit_hi": "SC PhD छात्रों को ₹25,000-28,000/माह फेलोशिप",
+      "eligibility": "SC students admitted to PhD program in UGC-recognized university",
+      "documents": [
+        "SC certificate",
+        "Aadhaar",
+        "PhD admission letter"
+      ],
+      "apply_url": "https://scholarships.gov.in",
+      "sector": "sc_welfare",
+      "type": "Central"
+    },
+    {
+      "name": "PM Adarsh Gram Yojana (SC Majority Villages)",
+      "ministry": "Social Justice",
+      "benefit": "Integrated development of SC-majority villages — roads, sanitation, education, livelihood",
+      "benefit_hi": "SC बहुल गाँवों का एकीकृत विकास — सड़क, स्वच्छता, शिक्षा",
+      "eligibility": "SC community in villages with 50%+ SC population",
+      "documents": [
+        "SC certificate",
+        "Village residence"
+      ],
+      "apply_url": "https://socialjustice.gov.in",
+      "sector": "sc_welfare",
+      "type": "Central"
+    },
+    {
+      "name": "SC Sub-Plan (Dalit Component Plan)",
+      "ministry": "Social Justice",
+      "benefit": "Funds equivalent to SC population % earmarked in all ministry budgets for SC welfare",
+      "benefit_hi": "सभी मंत्रालयों के बजट में SC जनसंख्या अनुपात में धनराशि आरक्षित",
+      "eligibility": "All Scheduled Caste citizens",
+      "documents": [
+        "SC certificate",
+        "Aadhaar"
+      ],
+      "apply_url": "https://socialjustice.gov.in",
+      "sector": "sc_welfare",
+      "type": "Central"
+    },
+    {
+      "name": "PM Daksh Yojana (Skill Training for SC/OBC)",
+      "ministry": "Social Justice",
+      "benefit": "Free skill training with Rs 1,000-1,500/day stipend in 50+ trade courses",
+      "benefit_hi": "50+ व्यापार पाठ्यक्रमों में मुफ्त कौशल प्रशिक्षण + ₹1,000-1,500/दिन वजीफा",
+      "eligibility": "SC/OBC/EBC youth aged 18-45",
+      "documents": [
+        "SC/OBC certificate",
+        "Aadhaar",
+        "Educational proof"
+      ],
+      "apply_url": "https://pmdaksh.dosje.gov.in",
+      "sector": "sc_welfare",
+      "type": "Central"
+    },
+    {
+      "name": "National Safai Karamcharis Finance & Development Corporation (NSKFDC)",
+      "ministry": "Social Justice",
+      "benefit": "Concessional loans at 5% for Safai Karamcharis to start businesses or education",
+      "benefit_hi": "सफाई कर्मचारियों को 5% ब्याज पर व्यापार/शिक्षा ऋण",
+      "eligibility": "Safai Karamcharis and their dependents",
+      "documents": [
+        "Aadhaar",
+        "Occupation certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://nskfdc.nic.in",
+      "sector": "sc_welfare",
+      "type": "Central"
+    },
+    {
+      "name": "National SC Finance & Development Corporation (NSFDC) Loans",
+      "ministry": "Social Justice",
+      "benefit": "Loan up to Rs 15 lakh at 2% (women) to 6% interest for SC income-generating activities",
+      "benefit_hi": "SC वर्ग को 2% (महिला) से 6% ब्याज पर ₹15 लाख तक ऋण",
+      "eligibility": "SC individuals, income < poverty line × 3",
+      "documents": [
+        "SC certificate",
+        "Aadhaar",
+        "Income certificate",
+        "Business plan"
+      ],
+      "apply_url": "https://nsfdc.nic.in",
+      "sector": "sc_welfare",
+      "type": "Central"
+    },
+    {
+      "name": "Dr Ambedkar Foundation Scholarships & Awards",
+      "ministry": "Social Justice",
+      "benefit": "Merit-cum-means scholarship + Ambedkar Prerana Yatra for SC achievers",
+      "benefit_hi": "SC उत्कृष्ट छात्रों को मेरिट आधारित छात्रवृत्ति + अंबेडकर प्रेरणा यात्रा",
+      "eligibility": "SC students excelling academically",
+      "documents": [
+        "SC certificate",
+        "Aadhaar",
+        "Marks certificates"
+      ],
+      "apply_url": "https://ambedkarfoundation.nic.in",
+      "sector": "sc_welfare",
+      "type": "Central"
+    },
+    {
+      "name": "Stand Up India (SC/Women Entrepreneurs)",
+      "ministry": "Finance / Social Justice",
+      "benefit": "Bank loans Rs 10 lakh - Rs 1 crore for SC/Women greenfield enterprises",
+      "benefit_hi": "SC/महिला उद्यमियों को ₹10 लाख - ₹1 करोड़ ऋण",
+      "eligibility": "SC (and Women) starting first enterprise (18+ years)",
+      "documents": [
+        "SC certificate",
+        "Aadhaar",
+        "Business plan",
+        "Bank account"
+      ],
+      "apply_url": "https://www.standupmitra.in",
+      "sector": "sc_welfare",
+      "type": "Central"
+    },
+    {
+      "name": "Free Coaching for SC/OBC Students",
+      "ministry": "Social Justice",
+      "benefit": "Free coaching at empanelled institutes for UPSC/SSC/banking/JEE/NEET",
+      "benefit_hi": "UPSC/SSC/JEE/NEET के लिए मुफ्त कोचिंग",
+      "eligibility": "SC/OBC students; income < Rs 8 lakh/year; cleared screening",
+      "documents": [
+        "SC/OBC certificate",
+        "Aadhaar",
+        "Income certificate"
+      ],
+      "apply_url": "https://socialjustice.gov.in",
+      "sector": "sc_welfare",
+      "type": "Central"
+    },
+    {
+      "name": "Special Central Assistance to Scheduled Castes Sub Plan",
+      "ministry": "Social Justice",
+      "benefit": "100% central grant for economic development of BPL SC families across states",
+      "benefit_hi": "राज्यों में BPL SC परिवारों के आर्थिक विकास के लिए 100% केंद्रीय अनुदान",
+      "eligibility": "BPL SC families in states implementing SC Sub Plan",
+      "documents": [
+        "SC certificate",
+        "BPL card",
+        "Aadhaar"
+      ],
+      "apply_url": "https://socialjustice.gov.in",
+      "sector": "sc_welfare",
+      "type": "Central"
+    },
+    {
+      "name": "Hostels for SC Boys/Girls",
+      "ministry": "Social Justice",
+      "benefit": "Free hostel accommodation for SC students in educational hubs",
+      "benefit_hi": "शैक्षिक हब में SC छात्रों को मुफ्त छात्रावास आवास",
+      "eligibility": "SC students enrolled in recognized colleges/universities away from home",
+      "documents": [
+        "SC certificate",
+        "Aadhaar",
+        "College enrollment"
+      ],
+      "apply_url": "https://socialjustice.gov.in",
+      "sector": "sc_welfare",
+      "type": "Central"
+    },
+    {
+      "name": "Atrocities Prevention & Rehabilitation (SCA to PCR/PoA)",
+      "ministry": "Social Justice / Home",
+      "benefit": "Compensation Rs 1-8 lakh + rehabilitation support to SC/ST atrocity victims",
+      "benefit_hi": "SC/ST अत्याचार पीड़ितों को ₹1-8 लाख मुआवजा + पुनर्वास",
+      "eligibility": "SC/ST victims of violence/atrocities under PoA Act 1989",
+      "documents": [
+        "FIR",
+        "Medical report",
+        "SC/ST certificate",
+        "Aadhaar"
+      ],
+      "apply_url": "https://socialjustice.gov.in",
+      "sector": "sc_welfare",
+      "type": "Central"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "state_en": "Jharkhand",
+  "state_hi": "झारखंड",
+  "schemes": [
+    {
+      "name_en": "Mukhyamantri Sarthi Yojana",
+      "name_hi": "मुख्यमंत्री सारथी योजना",
+      "benefit_en": "Free coaching for competitive exams (UPSC, SSC, Banking) for Jharkhand youth",
+      "benefit_hi": "UPSC, SSC, बैंकिंग परीक्षाओं की मुफ्त कोचिंग",
+      "eligibility": "Jharkhand youth aged 18-35 from poor families",
+      "documents": [
+        "Aadhaar",
+        "Income certificate",
+        "Educational proof"
+      ],
+      "apply_url": "https://jharkhand.gov.in",
+      "sector": "education"
+    },
+    {
+      "name_en": "Savitribai Phule Kishori Samridhi Yojana",
+      "name_hi": "सावित्रीबाई फुले किशोरी समृद्धि योजना",
+      "benefit_en": "Rs 40,000 total support for girl child education in 6 installments",
+      "benefit_hi": "बालिका शिक्षा के लिए 6 किस्तों में ₹40,000",
+      "eligibility": "Jharkhand BPL/SECC girl students (Class 8-12)",
+      "documents": [
+        "Aadhaar",
+        "School enrollment",
+        "BPL/SECC proof"
+      ],
+      "apply_url": "https://jharkhand.gov.in",
+      "sector": "women_child"
+    },
+    {
+      "name_en": "Abua Awas Yojana",
+      "name_hi": "अबुआ आवास योजना",
+      "benefit_en": "3-room pucca house with Rs 2 lakh grant for homeless Jharkhand families",
+      "benefit_hi": "बेघर परिवारों को ₹2 लाख में 3 कमरों का पक्का घर",
+      "eligibility": "Jharkhand homeless families not covered under PMAY",
+      "documents": [
+        "Aadhaar",
+        "No-house proof",
+        "Bank account"
+      ],
+      "apply_url": "https://aay.jharkhand.gov.in",
+      "sector": "housing"
+    },
+    {
+      "name_en": "Mukhyamantri Pashudhan Vikas Yojana",
+      "name_hi": "मुख्यमंत्री पशुधन विकास योजना",
+      "benefit_en": "50-90% subsidy on cows, goats, poultry for tribal & BPL families",
+      "benefit_hi": "जनजातीय/BPL परिवारों को गाय, बकरी, मुर्गी पर 50-90% सब्सिडी",
+      "eligibility": "SC/ST/BPL Jharkhand families",
+      "documents": [
+        "Aadhaar",
+        "Caste/BPL certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://ahd.jharkhand.gov.in",
+      "sector": "agriculture"
+    }
+  ]
+}

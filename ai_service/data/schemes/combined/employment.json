@@ -1,0 +1,432 @@
+{
+  "sector": "employment",
+  "central_count": 15,
+  "state_count": 15,
+  "total": 30,
+  "central_schemes": [
+    {
+      "name": "MGNREGS (MNREGA)",
+      "ministry": "Rural Development",
+      "benefit": "100 days guaranteed wage employment per year (Rs 220-350/day)",
+      "eligibility": "Rural adult household members willing to do unskilled work",
+      "documents": [
+        "Aadhaar",
+        "Job card (apply at Gram Panchayat)",
+        "Bank account"
+      ],
+      "apply_url": "https://nrega.nic.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "PM Mudra Yojana",
+      "ministry": "Finance",
+      "benefit": "Collateral-free business loans: Shishu (Rs 50K), Kishore (Rs 5L), Tarun (Rs 10L)",
+      "eligibility": "Non-farm micro/small enterprises, individual entrepreneurs",
+      "documents": [
+        "Aadhaar",
+        "Business proof",
+        "Bank account"
+      ],
+      "apply_url": "https://mudra.org.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "PM SVANidhi",
+      "ministry": "Housing & Urban Affairs",
+      "benefit": "Working capital loans Rs 10K → Rs 20K → Rs 50K for street vendors",
+      "eligibility": "Street vendors with/without vending certificate",
+      "documents": [
+        "Aadhaar",
+        "Bank account",
+        "Vending certificate if available"
+      ],
+      "apply_url": "https://pmsvanidhi.mohua.gov.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Startup India Seed Fund",
+      "ministry": "DPIIT",
+      "benefit": "Up to Rs 50 lakh for proof of concept + Rs 5 crore for further scaling",
+      "eligibility": "DPIIT-recognized startups < 2 years old",
+      "documents": [
+        "DPIIT certificate",
+        "Business plan",
+        "Bank account"
+      ],
+      "apply_url": "https://seedfund.startupindia.gov.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "PM Kaushal Vikas Yojana 4.0",
+      "ministry": "Skill Development",
+      "benefit": "Free skill training + certification + Rs 8000 reward",
+      "eligibility": "Youth 15-45 years, minimum Class 5 pass",
+      "documents": [
+        "Aadhaar",
+        "Educational proof",
+        "Bank account"
+      ],
+      "apply_url": "https://pmkvyofficial.org",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "National Apprenticeship Promotion Scheme",
+      "ministry": "Skill Development",
+      "benefit": "Government pays 25% of stipend (max Rs 1500/month) to apprentices",
+      "eligibility": "Youth 14+ enrolled in apprenticeship programs",
+      "documents": [
+        "Aadhaar",
+        "Educational certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://apprenticeshipindia.org",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "PM Employment Generation Programme",
+      "ministry": "MSME",
+      "benefit": "35% (rural) / 25% (urban) subsidy on project cost for new units",
+      "eligibility": "Any individual 18+ with Class 8 pass for projects > Rs 10 lakh",
+      "documents": [
+        "Aadhaar",
+        "Business plan",
+        "Bank account"
+      ],
+      "apply_url": "https://www.kviconline.gov.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Rozgar Mela (PM's Employment Fair)",
+      "ministry": "PMO",
+      "benefit": "Government job appointment letters issued at mega fairs",
+      "eligibility": "Candidates selected through standard recruitment",
+      "documents": [
+        "Offer letter",
+        "Aadhaar",
+        "Educational certificates"
+      ],
+      "apply_url": "https://pmrozogar.gov.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Atal Beemit Vyakti Kalyan Yojana",
+      "ministry": "Labour",
+      "benefit": "50% of average daily wages for 90 days during unemployment",
+      "eligibility": "ESIC-insured workers who lost jobs involuntarily",
+      "documents": [
+        "Aadhaar",
+        "ESIC card",
+        "Termination proof"
+      ],
+      "apply_url": "https://esic.gov.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Nai Manzil Scheme",
+      "ministry": "Minority Affairs",
+      "benefit": "Skill training + bridge education for school-dropout minority youth",
+      "eligibility": "Minority community youth 17-35 years, school dropouts",
+      "documents": [
+        "Aadhaar",
+        "Minority certificate"
+      ],
+      "apply_url": "https://minorityaffairs.gov.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "USTTAD (Upgrading Skills)",
+      "ministry": "Minority Affairs",
+      "benefit": "Training in traditional arts/crafts for minority artisans",
+      "eligibility": "Minority community artisans",
+      "documents": [
+        "Aadhaar",
+        "Minority certificate"
+      ],
+      "apply_url": "https://minorityaffairs.gov.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "PMEGP for SC/ST/Women/Ex-Servicemen",
+      "ministry": "MSME",
+      "benefit": "Higher subsidy 25-35% for marginalized entrepreneurs",
+      "eligibility": "SC/ST/Women/Ex-servicemen/minorities starting enterprises",
+      "documents": [
+        "Aadhaar",
+        "Category certificate",
+        "Business plan"
+      ],
+      "apply_url": "https://www.kviconline.gov.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "National Career Service Portal",
+      "ministry": "Labour",
+      "benefit": "Free job matching, career counselling, internships",
+      "eligibility": "All job seekers",
+      "documents": [
+        "Aadhaar",
+        "Educational certificates"
+      ],
+      "apply_url": "https://www.ncs.gov.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "PM Daksh (Skill Training for SC/OBC)",
+      "ministry": "Social Justice",
+      "benefit": "Free skill training with stipend for SC/OBC/EBC youth",
+      "eligibility": "SC/OBC/EBC youth aged 18-45",
+      "documents": [
+        "Aadhaar",
+        "Caste certificate",
+        "Educational proof"
+      ],
+      "apply_url": "https://pmdaksh.dosje.gov.in",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Deen Dayal Upadhyaya Grameen Kaushalya Yojana",
+      "ministry": "Rural Development",
+      "benefit": "Free residential skill training + guaranteed placement",
+      "eligibility": "Rural youth 15-35 from poor families",
+      "documents": [
+        "Aadhaar",
+        "BPL card or SECC",
+        "Bank account"
+      ],
+      "apply_url": "https://ddugky.gov.in",
+      "type": "Central",
+      "status": "active"
+    }
+  ],
+  "state_schemes": [
+    {
+      "name_en": "Tamil Nadu Startup & Innovation Policy",
+      "name_hi": "तमिलनाडु स्टार्टअप नीति",
+      "benefit_en": "Rs 10 lakh seed fund + mentoring + co-working space for TN startups",
+      "benefit_hi": "TN स्टार्टअप को ₹10 लाख सीड फंड + मेंटरिंग",
+      "eligibility": "DPIIT-recognized startups operating in Tamil Nadu",
+      "documents": [
+        "DPIIT certificate",
+        "Aadhaar",
+        "Business plan"
+      ],
+      "apply_url": "https://startuptn.in",
+      "sector": "employment",
+      "state_en": "Tamil Nadu",
+      "state_hi": "तमिलनाडु",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Indira Gandhi Shehri Rojgar Guarantee Yojana",
+      "name_hi": "इंदिरा गांधी शहरी रोजगार गारंटी योजना",
+      "benefit_en": "100 days guaranteed employment per year for urban families",
+      "benefit_hi": "शहरी परिवारों को 100 दिन रोजगार की गारंटी",
+      "eligibility": "Urban Rajasthan families (18+ members)",
+      "documents": [
+        "Jan Aadhaar card",
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://irgy.rajasthan.gov.in",
+      "sector": "employment",
+      "state_en": "Rajasthan",
+      "state_hi": "राजस्थान",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Delhi Rozgar Bazaar",
+      "name_hi": "दिल्ली रोजगार बाजार",
+      "benefit_en": "Online job portal + skill centres + career guidance for Delhi youth",
+      "benefit_hi": "दिल्ली युवाओं के लिए ऑनलाइन जॉब पोर्टल + स्किल सेंटर",
+      "eligibility": "Delhi residents looking for employment",
+      "documents": [
+        "Aadhaar",
+        "Educational certificates"
+      ],
+      "apply_url": "https://jobsearch.delhi.gov.in",
+      "sector": "employment",
+      "state_en": "Delhi",
+      "state_hi": "दिल्ली",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Yuva Nidhi Scheme",
+      "name_hi": "युवा निधि योजना",
+      "benefit_en": "Rs 3,000/month (graduates) or Rs 1,500/month (diploma) for unemployed youth",
+      "benefit_hi": "बेरोजगार स्नातक ₹3,000/माह, डिप्लोमाधारी ₹1,500/माह",
+      "eligibility": "Karnataka unemployed youth (graduated within 2 years), age < 25",
+      "documents": [
+        "Aadhaar",
+        "Degree/diploma certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://sevasindhu.karnataka.gov.in",
+      "sector": "employment",
+      "state_en": "Karnataka",
+      "state_hi": "कर्नाटक",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Mukhyamantri Swavalamban Yojana",
+      "name_hi": "मुख्यमंत्री स्वावलंबन योजना",
+      "benefit_en": "25-35% subsidy on business loans for HP youth entrepreneurs",
+      "benefit_hi": "HP युवा उद्यमियों को व्यावसायिक ऋण पर 25-35% सब्सिडी",
+      "eligibility": "HP residents aged 18-45 starting new enterprises",
+      "documents": [
+        "Aadhaar",
+        "HP domicile",
+        "Business plan",
+        "Bank account"
+      ],
+      "apply_url": "https://emerginghimachal.hp.gov.in",
+      "sector": "employment",
+      "state_en": "Himachal Pradesh",
+      "state_hi": "हिमाचल प्रदेश",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Mukhyamantri Atmanirbhar Asom Abhiyan",
+      "name_hi": "मुख्यमंत्री आत्मनिर्भर असम अभियान",
+      "benefit_en": "1 lakh youth to get skill training + tool kit + Rs 30,000 support",
+      "benefit_hi": "1 लाख युवाओं को कौशल प्रशिक्षण + टूल किट + ₹30,000",
+      "eligibility": "Assam youth aged 18-40 from poor families",
+      "documents": [
+        "Aadhaar",
+        "Educational certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://slsa.assam.gov.in",
+      "sector": "employment",
+      "state_en": "Assam",
+      "state_hi": "असम",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Mukhyamantri Karma Tatpara Abhiyan (MUKТА)",
+      "name_hi": "मुख्यमंत्री कर्म तत्परा अभियान",
+      "benefit_en": "Employment guarantee + skill training for urban poor in Odisha",
+      "benefit_hi": "ओडिशा शहरी गरीबों को रोजगार गारंटी + कौशल प्रशिक्षण",
+      "eligibility": "Urban poor families in Odisha",
+      "documents": [
+        "Aadhaar",
+        "Urban residence proof",
+        "Bank account"
+      ],
+      "apply_url": "https://hud.odisha.gov.in",
+      "sector": "employment",
+      "state_en": "Odisha",
+      "state_hi": "ओडिशा",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Annasaheb Patil Arthik Magas Vikas Mahamandal Loan",
+      "name_hi": "आर्थिक मागास वर्ग कर्ज योजना",
+      "benefit_en": "Low-interest loans up to Rs 10 lakh for OBC entrepreneurs",
+      "benefit_hi": "OBC उद्यमियों को ₹10 लाख तक कम ब्याज ऋण",
+      "eligibility": "Maharashtra OBC individuals with viable business plan",
+      "documents": [
+        "Aadhaar",
+        "Caste certificate",
+        "Business plan"
+      ],
+      "apply_url": "https://mahasamrudhi.co.in",
+      "sector": "employment",
+      "state_en": "Maharashtra",
+      "state_hi": "महाराष्ट्र",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Bhagat Singh Rozgar Guarantee Yojana",
+      "name_hi": "भगत सिंह रोजगार गारंटी योजना",
+      "benefit_en": "Employment registration, skill training, Rs 2,500-5,000 support",
+      "benefit_hi": "रोजगार पंजीकरण, कौशल प्रशिक्षण, ₹2,500-5,000 सहायता",
+      "eligibility": "Punjab unemployed youth (18-35 years)",
+      "documents": [
+        "Aadhaar",
+        "Educational certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://pgrkam.com",
+      "sector": "employment",
+      "state_en": "Punjab",
+      "state_hi": "पंजाब",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Punjab Ghar Ghar Rozgar Portal",
+      "name_hi": "ਘਰ ਘਰ ਰੋਜ਼ਗਾਰ / घर घर रोजगार पोर्टल",
+      "benefit_en": "Job matching, career counselling, skill training for Punjab youth",
+      "benefit_hi": "पंजाब युवाओं के लिए नौकरी मेच, करियर परामर्श",
+      "eligibility": "All Punjab job seekers",
+      "documents": [
+        "Aadhaar",
+        "Educational certificates"
+      ],
+      "apply_url": "https://pgrkam.com",
+      "sector": "employment",
+      "state_en": "Punjab",
+      "state_hi": "पंजाब",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Kerala Startup Mission (KSUM)",
+      "name_hi": "केरल स्टार्टअप मिशन",
+      "benefit_en": "Incubation, seed fund up to Rs 10 lakh, mentoring for tech startups",
+      "benefit_hi": "टेक स्टार्टअप को ₹10 लाख सीड फंड + मेंटरिंग",
+      "eligibility": "Kerala-based startups in tech/innovation sectors",
+      "documents": [
+        "DPIIT certificate",
+        "Aadhaar",
+        "Business plan"
+      ],
+      "apply_url": "https://startupmission.kerala.gov.in",
+      "sector": "employment",
+      "state_en": "Kerala",
+      "state_hi": "केरल",
+      "type": "State",
+      "status": "active"
+    },
+    {
+      "name_en": "Mukhyamantri Sikho-Kamao Yojana",
+      "name_hi": "मुख्यमंत्री सीखो-कमाओ योजना",
+      "benefit_en": "Rs 8,000-10,000/month stipend while learning skills at companies",
+      "benefit_hi": "कंपनियों में कौशल सीखते हुए ₹8,000-10,000/माह",
+      "eligibility": "MP youth aged 18-29, Class 12 to graduate",
+      "documents": [
+        "Aadhaar",
+        "Educational certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://mmsky.mp.gov.in",
+      "sector": "employment",
+      "state_en": "Madhya Pradesh",
+      "state_hi": "मध्य प्रदेश",
+      "type": "State",
+      "status": "active"
+    }
+  ]
+}

@@ -1,0 +1,184 @@
+{
+  "sector": "rural_development",
+  "schemes": [
+    {
+      "name": "MGNREGS (MNREGA)",
+      "ministry": "Rural Development",
+      "benefit": "100 days guaranteed wage employment at Rs 220-350/day + assets creation",
+      "eligibility": "All rural adult household willing to do unskilled manual work",
+      "documents": [
+        "Job Card (from Gram Panchayat)",
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://nrega.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM Gram Sadak Yojana (PMGSY)",
+      "ministry": "Rural Development",
+      "benefit": "All-weather road connectivity to villages (public infrastructure)",
+      "eligibility": "Unconnected villages > 500 population (250 in hilly areas)",
+      "documents": [
+        "Village application via Gram Panchayat"
+      ],
+      "apply_url": "https://pmgsy.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "Deen Dayal Upadhyaya Grameen Kaushalya Yojana",
+      "ministry": "Rural Development",
+      "benefit": "Free residential skill training + guaranteed placement with Rs 1.5-3L salary",
+      "eligibility": "Rural youth aged 15-35 from poor/MGNREGA families",
+      "documents": [
+        "Aadhaar",
+        "Educational proof",
+        "Bank account"
+      ],
+      "apply_url": "https://ddugky.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "National Rural Livelihoods Mission (NRLM-Aajeevika)",
+      "ministry": "Rural Development",
+      "benefit": "SHG formation, credit linkage, skill training, marketing support",
+      "eligibility": "Rural poor women (priority: SC/ST/BPL)",
+      "documents": [
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://aajeevika.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Shyama Prasad Mukherji Rurban Mission",
+      "ministry": "Rural Development",
+      "benefit": "Urban facilities (roads, sanitation, digital) in rural clusters",
+      "eligibility": "Residents of selected Rurban clusters",
+      "documents": [
+        "Aadhaar",
+        "Village residence proof"
+      ],
+      "apply_url": "https://rurban.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Pradhan Mantri Gram Awaas Yojana – Gramin",
+      "ministry": "Rural Development",
+      "benefit": "Rs 1.20-1.30 lakh grant for building pucca house + MGNREGA labour wages",
+      "eligibility": "Houseless/kutcha house families in SECC 2011 list",
+      "documents": [
+        "Aadhaar",
+        "Bank account",
+        "SECC name",
+        "Land ownership"
+      ],
+      "apply_url": "https://pmayg.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM Jal Jeevan Mission",
+      "ministry": "Jal Shakti",
+      "benefit": "Tap water connection to every rural household",
+      "eligibility": "All rural households without functional tap water",
+      "documents": [
+        "Aadhaar",
+        "Gram Panchayat verification"
+      ],
+      "apply_url": "https://jaljeevanmission.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Saansad Adarsh Gram Yojana",
+      "ministry": "Rural Development",
+      "benefit": "Comprehensive village development (roads, toilets, connectivity)",
+      "eligibility": "Residents of MP-adopted villages",
+      "documents": [
+        "Village residence proof"
+      ],
+      "apply_url": "https://saanjhi.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Watershed Development Fund (NABARD)",
+      "ministry": "Agriculture",
+      "benefit": "Participatory watershed management to address water scarcity",
+      "eligibility": "Farmers in water-stressed districts",
+      "documents": [
+        "Land records",
+        "Aadhaar"
+      ],
+      "apply_url": "https://www.nabard.org",
+      "type": "Central"
+    },
+    {
+      "name": "PM Electricity to Villages (Saubhagya)",
+      "ministry": "Power",
+      "benefit": "Free household electrification for BPL rural households",
+      "eligibility": "Un-electrified households in rural India",
+      "documents": [
+        "Aadhaar",
+        "BPL card or self-declaration"
+      ],
+      "apply_url": "https://saubhagya.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Gram Ujala Programme",
+      "ministry": "Power",
+      "benefit": "LED bulbs at Rs 10/bulb for rural households",
+      "eligibility": "Rural household electricity consumers",
+      "documents": [
+        "Aadhaar",
+        "Electricity bill"
+      ],
+      "apply_url": "https://ee.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "BharatNet (Rural Broadband)",
+      "ministry": "Telecom",
+      "benefit": "High-speed internet connectivity to gram panchayats",
+      "eligibility": "All gram panchayat residents",
+      "documents": [],
+      "apply_url": "https://bbnl.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "Common Service Centres (CSC) Scheme",
+      "ministry": "Electronics & IT",
+      "benefit": "Digital services (certificates, banking, e-governance) at village level",
+      "eligibility": "All rural citizens needing government services",
+      "documents": [
+        "Aadhaar",
+        "Purpose-specific documents"
+      ],
+      "apply_url": "https://csc.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM SVANidhi for Rural Vendors",
+      "ministry": "Housing",
+      "benefit": "Micro-credit for rural peri-urban vendors",
+      "eligibility": "Peri-urban/semi-urban street vendors",
+      "documents": [
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://pmsvanidhi.mohua.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Integrated Tribal Development Programme",
+      "ministry": "Tribal Affairs",
+      "benefit": "Infrastructure + welfare convergence for tribal areas",
+      "eligibility": "ST residents in scheduled tribal areas",
+      "documents": [
+        "Aadhaar",
+        "ST certificate"
+      ],
+      "apply_url": "https://tribal.nic.in",
+      "type": "Central"
+    }
+  ]
+}

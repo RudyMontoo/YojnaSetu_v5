@@ -1,0 +1,182 @@
+{
+  "sector": "health",
+  "schemes": [
+    {
+      "name": "Ayushman Bharat PM-JAY",
+      "ministry": "Health",
+      "benefit": "Rs 5 lakh/year health insurance per family",
+      "eligibility": "SECC-listed poor and vulnerable families",
+      "documents": [
+        "Aadhaar",
+        "Ration card",
+        "PM-JAY letter"
+      ],
+      "apply_url": "https://pmjay.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Janani Suraksha Yojana",
+      "ministry": "Health",
+      "benefit": "Rs 1400 (rural) / Rs 1000 (urban) cash for institutional delivery",
+      "eligibility": "Below poverty line pregnant women",
+      "documents": [
+        "Aadhaar",
+        "BPL card",
+        "Ante-natal card"
+      ],
+      "apply_url": "https://nhm.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM Surakshit Matritva Abhiyan",
+      "ministry": "Health",
+      "benefit": "Free ante-natal checkup on 9th of every month",
+      "eligibility": "All pregnant women in 2nd/3rd trimester",
+      "documents": [
+        "Aadhaar",
+        "Mother & Child Protection card"
+      ],
+      "apply_url": "https://pmsma.nhp.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "National Health Mission",
+      "ministry": "Health",
+      "benefit": "Free essential medicines, diagnostics, and primary health care",
+      "eligibility": "All citizens, priority to rural/BPL",
+      "documents": [
+        "Aadhaar (recommended)",
+        "No strict requirement for primary care"
+      ],
+      "apply_url": "https://nhm.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Pradhan Mantri National Dialysis Programme",
+      "ministry": "Health",
+      "benefit": "Free dialysis for BPL kidney patients",
+      "eligibility": "BPL patients with kidney failure",
+      "documents": [
+        "Aadhaar",
+        "BPL card",
+        "Referral from government doctor"
+      ],
+      "apply_url": "https://nhm.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Rashtriya Bal Swasthya Karyakram",
+      "ministry": "Health",
+      "benefit": "Free health screening and treatment for children 0-18",
+      "eligibility": "All children from birth to 18 years",
+      "documents": [
+        "Birth certificate or Aadhaar"
+      ],
+      "apply_url": "https://nhm.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM Atmanirbhar Swasth Bharat Yojana",
+      "ministry": "Health",
+      "benefit": "Funding for health infrastructure across urban/rural areas",
+      "eligibility": "Citizens benefiting from upgraded health facilities",
+      "documents": [],
+      "apply_url": "https://nhm.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Mission Indradhanush",
+      "ministry": "Health",
+      "benefit": "Free vaccination for 12 vaccine-preventable diseases",
+      "eligibility": "Children up to 2 years and pregnant women",
+      "documents": [
+        "Birth certificate",
+        "Mother & Child Protection card"
+      ],
+      "apply_url": "https://nhm.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Jan Aushadhi Scheme",
+      "ministry": "Chemicals & Fertilizers",
+      "benefit": "Generic medicines at 50-90% lower cost at Jan Aushadhi stores",
+      "eligibility": "All citizens",
+      "documents": [
+        "Doctor's prescription"
+      ],
+      "apply_url": "https://janaushadhi.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Ayushman Bharat Digital Mission",
+      "ministry": "Health",
+      "benefit": "Digital health ID (ABHA), linked health records",
+      "eligibility": "All Indian citizens",
+      "documents": [
+        "Aadhaar or mobile number"
+      ],
+      "apply_url": "https://healthid.ndhm.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM Mental Health Care Scheme (NIMHANS)",
+      "ministry": "Health",
+      "benefit": "Free mental health services via government hospitals",
+      "eligibility": "All citizens, priority to BPL",
+      "documents": [
+        "Aadhaar",
+        "Referral letter",
+        "BPL card if applicable"
+      ],
+      "apply_url": "https://nimhans.ac.in",
+      "type": "Central"
+    },
+    {
+      "name": "National Tobacco Control Programme",
+      "ministry": "Health",
+      "benefit": "Free de-addiction counselling and treatment",
+      "eligibility": "All citizens who use tobacco",
+      "documents": [
+        "None required"
+      ],
+      "apply_url": "https://ntcp.nhp.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Niramaya (Disability Health Insurance)",
+      "ministry": "Social Justice",
+      "benefit": "Health insurance up to Rs 1 lakh for persons with disability",
+      "eligibility": "Divyangjan (persons with disability)",
+      "documents": [
+        "Aadhaar",
+        "Disability certificate"
+      ],
+      "apply_url": "https://nhfdc.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "Nutritional Support to Cancer Patients",
+      "ministry": "Health",
+      "benefit": "Free nutritional supplements at AIIMS and government cancer centers",
+      "eligibility": "Cancer patients at government hospitals",
+      "documents": [
+        "Hospital ID",
+        "Cancer diagnosis report"
+      ],
+      "apply_url": "https://mohfw.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Pradhan Mantri Swasthya Suraksha Yojana",
+      "ministry": "Health",
+      "benefit": "Improved tertiary healthcare via AIIMS and upgraded hospitals",
+      "eligibility": "All citizens accessing government tertiary hospitals",
+      "documents": [
+        "Aadhaar",
+        "Referral letter"
+      ],
+      "apply_url": "https://mohfw.gov.in",
+      "type": "Central"
+    }
+  ]
+}

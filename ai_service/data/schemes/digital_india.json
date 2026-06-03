@@ -1,0 +1,162 @@
+{
+  "sector": "digital_india",
+  "schemes": [
+    {
+      "name": "PM Gramin Digital Saksharta Abhiyan (PMGDISHA)",
+      "ministry": "Electronics & IT",
+      "benefit": "Free digital literacy training (basic computer, internet, mobile payments) for rural citizens",
+      "benefit_hi": "ग्रामीण नागरिकों को मुफ्त डिजिटल साक्षरता प्रशिक्षण",
+      "eligibility": "Rural households (one member) who are digital-illiterate",
+      "documents": [
+        "Aadhaar",
+        "Age proof (14-60 years)"
+      ],
+      "apply_url": "https://pmgdisha.in",
+      "sector": "digital_india",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Free Wi-Fi via PM-WANI (Wi-Fi Access Network Interface)",
+      "ministry": "Telecom",
+      "benefit": "Affordable public Wi-Fi at kirana shops, CSCs — near-free for poor users",
+      "benefit_hi": "किराना दुकानों/CSC पर किफायती सार्वजनिक Wi-Fi — गरीबों के लिए लगभग मुफ्त",
+      "eligibility": "All citizens near PM-WANI access points",
+      "documents": [
+        "Mobile number for OTP"
+      ],
+      "apply_url": "https://dot.gov.in",
+      "sector": "digital_india",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "BharatNet (Rural Broadband Connectivity)",
+      "ministry": "Telecom",
+      "benefit": "High-speed broadband (100 Mbps) at all Gram Panchayats (2.5 lakh GPs)",
+      "benefit_hi": "2.5 लाख ग्राम पंचायतों में 100 Mbps हाई-स्पीड इंटरनेट",
+      "eligibility": "All citizens in Gram Panchayat areas covered by BharatNet",
+      "documents": [],
+      "apply_url": "https://bbnl.nic.in",
+      "sector": "digital_india",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Aadhaar-Enabled Payment System (AEPS)",
+      "ministry": "Electronics & IT / UIDAI",
+      "benefit": "Cash withdrawal, balance enquiry, fund transfer using fingerprint at micro-ATMs — no card needed",
+      "benefit_hi": "माइक्रो-ATM पर उंगली की छाप से पैसे निकालें — बिना बैंक जाए",
+      "eligibility": "All Aadhaar-linked bank account holders",
+      "documents": [
+        "Aadhaar linked to bank account"
+      ],
+      "apply_url": "https://uidai.gov.in",
+      "sector": "digital_india",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Common Service Centres (CSC) — 5 Lakh Villages",
+      "ministry": "Electronics & IT",
+      "benefit": "40+ government services (certificates, PAN, passport, insurance, banking) at doorstep",
+      "benefit_hi": "गाँव में 40+ सरकारी सेवाएं (प्रमाण पत्र, PAN, बीमा, बैंकिंग)",
+      "eligibility": "All rural/semi-urban citizens",
+      "documents": [
+        "Aadhaar (purpose-specific documents)"
+      ],
+      "apply_url": "https://csc.gov.in",
+      "sector": "digital_india",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Digital Locker (DigiLocker)",
+      "ministry": "Electronics & IT",
+      "benefit": "Officially valid digital storage of documents (Aadhaar, degree, driving license, etc.)",
+      "benefit_hi": "आधार, डिग्री, लाइसेंस आदि का आधिकारिक डिजिटल भंडारण",
+      "eligibility": "All Indian citizens with Aadhaar-linked mobile number",
+      "documents": [
+        "Aadhaar-linked mobile number"
+      ],
+      "apply_url": "https://digilocker.gov.in",
+      "sector": "digital_india",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "e-Shram Portal (Unorganized Worker Registry)",
+      "ministry": "Labour",
+      "benefit": "Universal account number for unorganized workers + Rs 2 lakh accident insurance",
+      "benefit_hi": "असंगठित कामगारों को UAN + ₹2 लाख दुर्घटना बीमा",
+      "eligibility": "Unorganized sector workers (domestic, construction, agriculture, street vendors)",
+      "documents": [
+        "Aadhaar",
+        "Bank account",
+        "Mobile number"
+      ],
+      "apply_url": "https://eshram.gov.in",
+      "sector": "digital_india",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "DIKSHA — Digital Content for Teachers & Students",
+      "ministry": "Education",
+      "benefit": "Free digital learning content in 30+ Indian languages, NCERT-aligned for all grades",
+      "benefit_hi": "30+ भाषाओं में NCERT-संरेखित मुफ्त डिजिटल शिक्षण सामग्री",
+      "eligibility": "All students and teachers across India",
+      "documents": [],
+      "apply_url": "https://diksha.gov.in",
+      "sector": "digital_india",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Government e-Marketplace (GeM) for Small Sellers",
+      "ministry": "Commerce",
+      "benefit": "Direct access to sell products/services to government agencies — no middlemen",
+      "benefit_hi": "बिना बिचौलियों के सरकारी एजेंसियों को सीधे बिक्री",
+      "eligibility": "Small businesses, artisans, SHGs, startups registered on GeM",
+      "documents": [
+        "GST registration",
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://gem.gov.in",
+      "sector": "digital_india",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Startup India Recognition (DPIIT)",
+      "ministry": "DPIIT",
+      "benefit": "Tax exemption (3 years), faster IP filing, relaxed procurement norms for DPIIT-recognized startups",
+      "benefit_hi": "3 साल टैक्स छूट, तेज IP फाइलिंग, खरीद में छूट",
+      "eligibility": "Entities registered < 10 years, turnover < Rs 100 crore, with innovation focus",
+      "documents": [
+        "Incorporation certificate",
+        "Business plan",
+        "Aadhaar"
+      ],
+      "apply_url": "https://startupindia.gov.in",
+      "sector": "digital_india",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "UMANG App (Unified Mobile Application for New-age Governance)",
+      "ministry": "Electronics & IT",
+      "benefit": "1,200+ government services on single mobile app (EPFO, Aadhaar, CBSE, PMAY status etc.)",
+      "benefit_hi": "एक मोबाइल ऐप में 1,200+ सरकारी सेवाएं",
+      "eligibility": "All Indian citizens with a smartphone",
+      "documents": [
+        "Aadhaar or mobile number as applicable per service"
+      ],
+      "apply_url": "https://web.umang.gov.in",
+      "sector": "digital_india",
+      "type": "Central",
+      "status": "active"
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "state_en": "Uttar Pradesh",
+  "state_hi": "उत्तर प्रदेश",
+  "schemes": [
+    {
+      "name_en": "Kanya Sumangala Yojana",
+      "name_hi": "कन्या सुमंगला योजना",
+      "benefit_en": "Rs 15,000 in 6 installments for girl child education & welfare",
+      "benefit_hi": "बालिका शिक्षा व कल्याण हेतु 6 किस्तों में ₹15,000",
+      "eligibility": "UP families with annual income < Rs 3 lakh, girl child",
+      "documents": [
+        "Aadhaar",
+        "Income certificate",
+        "Birth certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://mksy.up.gov.in",
+      "sector": "women_child",
+      "status": "active"
+    },
+    {
+      "name_en": "Mukhyamantri Krishak Durghatna Kalyan Yojana",
+      "name_hi": "मुख्यमंत्री कृषक दुर्घटना कल्याण योजना",
+      "benefit_en": "Rs 5 lakh compensation for farmer accidental death/disability",
+      "benefit_hi": "किसान दुर्घटना मृत्यु/अपंगता पर ₹5 लाख मुआवजा",
+      "eligibility": "UP farmers aged 18-70, accidental death or disability",
+      "documents": [
+        "Aadhaar",
+        "Khasra-Khatauni",
+        "FIR/Post-mortem",
+        "Bank account"
+      ],
+      "apply_url": "https://upagripardarshi.gov.in",
+      "sector": "agriculture",
+      "status": "active"
+    },
+    {
+      "name_en": "UP Muft Bijli Yojana (300 Units)",
+      "name_hi": "यूपी मुफ्त बिजली योजना",
+      "benefit_en": "300 units free electricity per month for domestic consumers",
+      "benefit_hi": "घरेलू उपभोक्ताओं को 300 यूनिट मुफ्त बिजली",
+      "eligibility": "UP domestic electricity consumers",
+      "documents": [
+        "Aadhaar",
+        "Electricity connection number"
+      ],
+      "apply_url": "https://uppcl.org",
+      "sector": "energy",
+      "status": "active"
+    },
+    {
+      "name_en": "UP Mukhyamantri Awas Yojana",
+      "name_hi": "मुख्यमंत्री आवास योजना",
+      "benefit_en": "Additional housing grant for urban slum dwellers not covered under PMAY",
+      "benefit_hi": "PMAY से वंचित शहरी गरीबों को आवास सहायता",
+      "eligibility": "Urban BPL families without own home in UP",
+      "documents": [
+        "Aadhaar",
+        "Income certificate",
+        "BPL card"
+      ],
+      "apply_url": "https://updesco.com",
+      "sector": "housing",
+      "status": "active"
+    },
+    {
+      "name_en": "Bhu-Lekh (Land Record Digitisation)",
+      "name_hi": "भू-लेख योजना",
+      "benefit_en": "Online land records, Khatauni, Khasra accessible free",
+      "benefit_hi": "ऑनलाइन खसरा-खतौनी निःशुल्क देखें",
+      "eligibility": "All UP landowners",
+      "documents": [
+        "Khasra number",
+        "Village name"
+      ],
+      "apply_url": "https://upbhulekh.gov.in",
+      "sector": "rural_development",
+      "status": "active"
+    }
+  ]
+}

@@ -1,0 +1,180 @@
+{
+  "sector": "sports",
+  "schemes": [
+    {
+      "name": "Khelo India Programme",
+      "ministry": "Sports",
+      "benefit": "Annual scholarship Rs 6.4 lakh/year for 1,000 talented athletes (Under-18 & Under-23)",
+      "benefit_hi": "1,000 प्रतिभाशाली एथलीट (U18 & U23) को ₹6.4 लाख/वर्ष छात्रवृत्ति",
+      "eligibility": "Young athletes identified through Khelo India Games, age < 18 or < 23",
+      "documents": [
+        "Aadhaar",
+        "Date of birth proof",
+        "Game certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://kheloindia.gov.in",
+      "sector": "sports",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Target Olympic Podium Scheme (TOPS)",
+      "ministry": "Sports",
+      "benefit": "Rs 50,000/month cash support + international training + equipment for Olympic hopefuls",
+      "benefit_hi": "ओलंपिक संभावित खिलाड़ियों को ₹50,000/माह + विदेश प्रशिक्षण + उपकरण",
+      "eligibility": "Elite Indian athletes shortlisted by Mission Olympic Cell",
+      "documents": [
+        "Sports achievement record",
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://sportsauthorityofindia.nic.in",
+      "sector": "sports",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "National Sports Development Fund (NSDF)",
+      "ministry": "Sports",
+      "benefit": "Financial grants for sports infrastructure, athlete training, and sports excellence",
+      "benefit_hi": "खेल बुनियादी ढाँचे, प्रशिक्षण और उत्कृष्टता के लिए अनुदान",
+      "eligibility": "National sports federations, state sports bodies, exceptional athletes",
+      "documents": [
+        "Organization registration",
+        "Aadhaar",
+        "Achievement proof"
+      ],
+      "apply_url": "https://sportsauthorityofindia.nic.in",
+      "sector": "sports",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Pension to Meritorious Sportspersons",
+      "ministry": "Sports",
+      "benefit": "Monthly pension Rs 12,000-25,000 for Olympic/CWG/Asian Games medalists in financial need",
+      "benefit_hi": "ओलंपिक/CWG/एशियाई खेल पदक विजेता जरूरतमंद खिलाड़ियों को ₹12,000-25,000/माह",
+      "eligibility": "Indian sportspersons who won medals at Olympics/CWG/Asian Games",
+      "documents": [
+        "Medal certificate",
+        "Aadhaar",
+        "Income certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://sportsauthorityofindia.nic.in",
+      "sector": "sports",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "SAI National Coaching Scheme",
+      "ministry": "Sports",
+      "benefit": "Free national-level coaching at SAI centres across India + boarding",
+      "benefit_hi": "SAI केंद्रों में मुफ्त राष्ट्रीय स्तरीय कोचिंग + आवास",
+      "eligibility": "Athletes selected through SAI talent identification (age 8-25)",
+      "documents": [
+        "Aadhaar/birth certificate",
+        "State/district selection letter"
+      ],
+      "apply_url": "https://sportsauthorityofindia.nic.in",
+      "sector": "sports",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Sports Injury Fund",
+      "ministry": "Sports",
+      "benefit": "Medical assistance up to Rs 20 lakh for sportspersons injured during national/international events",
+      "benefit_hi": "राष्ट्रीय/अंतरराष्ट्रीय स्पर्धा में घायल खिलाड़ियों को ₹20 लाख तक चिकित्सा सहायता",
+      "eligibility": "Sportspersons representing India at national/international level",
+      "documents": [
+        "Aadhaar",
+        "Event participation proof",
+        "Medical report"
+      ],
+      "apply_url": "https://sportsauthorityofindia.nic.in",
+      "sector": "sports",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Rajiv Gandhi Khel Ratna (Major Dhyan Chand)",
+      "ministry": "Sports",
+      "benefit": "Cash award Rs 25 lakh + citation for highest sporting honour in India",
+      "benefit_hi": "भारत का सर्वोच्च खेल सम्मान — ₹25 लाख + प्रमाण पत्र",
+      "eligibility": "Sportspersons with spectacular performance over 4 years",
+      "documents": [
+        "Achievement record",
+        "Nomination by federation"
+      ],
+      "apply_url": "https://sportsauthorityofindia.nic.in",
+      "sector": "sports",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Arjuna Award",
+      "ministry": "Sports",
+      "benefit": "Cash award Rs 15 lakh + bronze statue + citation for consistent sporting excellence",
+      "benefit_hi": "सतत खेल उत्कृष्टता के लिए ₹15 लाख + कांस्य प्रतिमा",
+      "eligibility": "Sportspersons with 4 years of consistent international performance",
+      "documents": [
+        "Achievement record",
+        "Federation nomination"
+      ],
+      "apply_url": "https://sportsauthorityofindia.nic.in",
+      "sector": "sports",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Dronacharya Award (Sports Coaches)",
+      "ministry": "Sports",
+      "benefit": "Rs 15 lakh + bronze statue for coaches who produce international medal winners",
+      "benefit_hi": "अंतरराष्ट्रीय पदक विजेता तैयार करने वाले कोच को ₹15 लाख + कांस्य प्रतिमा",
+      "eligibility": "Coaches who produced medallists at Olympics/CWG/Asian Games",
+      "documents": [
+        "Coaching record",
+        "Federation nomination"
+      ],
+      "apply_url": "https://sportsauthorityofindia.nic.in",
+      "sector": "sports",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Khelo India University Games Scholarship",
+      "ministry": "Sports",
+      "benefit": "Rs 6.4 lakh/year scholarship to outstanding performers at Khelo India University Games",
+      "benefit_hi": "Khelo India University Games के शीर्ष खिलाड़ियों को ₹6.4 लाख/वर्ष छात्रवृत्ति",
+      "eligibility": "Students competing at Khelo India University Games (degree enrolled)",
+      "documents": [
+        "Aadhaar",
+        "University enrollment",
+        "Bank account"
+      ],
+      "apply_url": "https://kheloindia.gov.in",
+      "sector": "sports",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Paralympic Sports Scheme",
+      "ministry": "Sports",
+      "benefit": "Rs 6.4 lakh/year for para-athletes + specialized equipment + coaching support",
+      "benefit_hi": "पैरा-एथलीटों को ₹6.4 लाख/वर्ष + विशेष उपकरण + कोचिंग",
+      "eligibility": "Para-athletes selected for national level competition",
+      "documents": [
+        "Disability certificate",
+        "Aadhaar",
+        "Selection letter",
+        "Bank account"
+      ],
+      "apply_url": "https://sportsauthorityofindia.nic.in",
+      "sector": "sports",
+      "type": "Central",
+      "status": "active"
+    }
+  ]
+}

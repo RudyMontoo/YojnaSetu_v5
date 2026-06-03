@@ -1,0 +1,34 @@
+{
+  "state_en": "Chandigarh (UT)",
+  "state_hi": "चंडीगढ़ (UT)",
+  "schemes": [
+    {
+      "name_en": "Chandigarh EV Policy 2022",
+      "name_hi": "चंडीगढ़ EV नीति",
+      "benefit_en": "Rs 10,000-30,000 subsidy on electric 2/3-wheelers + free charging infrastructure",
+      "benefit_hi": "चंडीगढ़ में EV दोपहिया/तिपहिया पर ₹10,000-30,000 सब्सिडी + मुफ्त चार्जिंग",
+      "eligibility": "Chandigarh residents buying approved EVs",
+      "documents": [
+        "Aadhaar",
+        "Chandigarh address proof",
+        "Purchase invoice"
+      ],
+      "apply_url": "https://chandigarh.gov.in",
+      "sector": "energy"
+    },
+    {
+      "name_en": "Chandigarh Shehri Awas Sahayata Yojana",
+      "name_hi": "चंडीगढ़ शहरी आवास सहायता योजना",
+      "benefit_en": "Affordable housing units under PMAY for EWS/LIG in Chandigarh UT",
+      "benefit_hi": "चंडीगढ़ UT में EWS/LIG के लिए PMAY के तहत किफायती आवास",
+      "eligibility": "Chandigarh UT EWS/LIG families without own home",
+      "documents": [
+        "Aadhaar",
+        "Income proof",
+        "Chandigarh residence"
+      ],
+      "apply_url": "https://chandigarh.gov.in",
+      "sector": "housing"
+    }
+  ]
+}

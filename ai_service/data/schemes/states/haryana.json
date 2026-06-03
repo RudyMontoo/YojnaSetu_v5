@@ -1,0 +1,62 @@
+{
+  "state_en": "Haryana",
+  "state_hi": "हरियाणा",
+  "schemes": [
+    {
+      "name_en": "Chirayu Haryana (AYUSH Health)",
+      "name_hi": "चिरायु हरियाणा",
+      "benefit_en": "Rs 5 lakh/year health insurance for families with income < Rs 1.8 lakh",
+      "benefit_hi": "₹1.8 लाख से कम आय वाले परिवारों को ₹5 लाख/वर्ष बीमा",
+      "eligibility": "Haryana families with annual income < Rs 1.8 lakh",
+      "documents": [
+        "Aadhaar",
+        "Family ID (Parivar Pehchaan Patra)",
+        "Income certificate"
+      ],
+      "apply_url": "https://chirayu.haryana.gov.in",
+      "sector": "health"
+    },
+    {
+      "name_en": "Mukhyamantri Parivar Samridhi Yojana",
+      "name_hi": "मुख्यमंत्री परिवार समृद्धि योजना",
+      "benefit_en": "Rs 6,000/year benefit (pension/insurance/investment) per family",
+      "benefit_hi": "परिवार को ₹6,000/वर्ष (पेंशन/बीमा/निवेश)",
+      "eligibility": "Haryana families with income < Rs 1.8 lakh and land < 2 hectare",
+      "documents": [
+        "Parivar Pehchaan Patra",
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://cm-psy.haryana.gov.in",
+      "sector": "social_security"
+    },
+    {
+      "name_en": "Haryana Kanyadan Yojana",
+      "name_hi": "हरियाणा कन्यादान योजना",
+      "benefit_en": "Rs 51,000 grant for marriage of BPL girl, Rs 71,000 for SC/ST",
+      "benefit_hi": "BPL बेटी के विवाह पर ₹51,000, SC/ST को ₹71,000",
+      "eligibility": "Haryana BPL/SC/ST families; girl aged 18+, boy aged 21+",
+      "documents": [
+        "Aadhaar",
+        "BPL/caste certificate",
+        "Age proof",
+        "Marriage invitation"
+      ],
+      "apply_url": "https://saralharyana.gov.in",
+      "sector": "women_child"
+    },
+    {
+      "name_en": "Haryana Solar Water Heater Scheme",
+      "name_hi": "हरियाणा सौर जल ताप योजना",
+      "benefit_en": "30% subsidy on solar water heaters for domestic use",
+      "benefit_hi": "घरेलू उपयोग के सौर वाटर हीटर पर 30% सब्सिडी",
+      "eligibility": "Haryana domestic consumers with electricity connection",
+      "documents": [
+        "Aadhaar",
+        "Electricity bill"
+      ],
+      "apply_url": "https://hareda.gov.in",
+      "sector": "energy"
+    }
+  ]
+}

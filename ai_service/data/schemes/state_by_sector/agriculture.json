@@ -1,0 +1,263 @@
+{
+  "sector": "agriculture",
+  "type": "state",
+  "count": 15,
+  "schemes": [
+    {
+      "name_en": "Uzhavar Sandhai (Farmers Market)",
+      "name_hi": "उझवर संठई – किसान बाजार",
+      "benefit_en": "Direct-to-consumer sale stalls for farmers eliminating middlemen",
+      "benefit_hi": "किसानों को सीधे उपभोक्ताओं तक बिक्री, बिचौलियों से मुक्ति",
+      "eligibility": "All TN farmers",
+      "documents": [
+        "Aadhaar",
+        "Land records",
+        "Farmer ID"
+      ],
+      "apply_url": "https://www.tn.gov.in/agriculture",
+      "sector": "agriculture",
+      "state_en": "Tamil Nadu",
+      "state_hi": "तमिलनाडु",
+      "type": "State"
+    },
+    {
+      "name_en": "Rajasthan Tarbandi Yojana",
+      "name_hi": "राजस्थान तारबंदी योजना",
+      "benefit_en": "50% subsidy (up to Rs 40,000) on fencing to protect farmland",
+      "benefit_hi": "खेत की तारबंदी पर 50% सब्सिडी (अधिकतम ₹40,000)",
+      "eligibility": "Rajasthan farmers with minimum 0.5 hectare land",
+      "documents": [
+        "Aadhaar",
+        "Khasra",
+        "Bank account"
+      ],
+      "apply_url": "https://rajkisan.rajasthan.gov.in",
+      "sector": "agriculture",
+      "state_en": "Rajasthan",
+      "state_hi": "राजस्थान",
+      "type": "State"
+    },
+    {
+      "name_en": "Bihar Krishi Input Subsidy Yojana",
+      "name_hi": "कृषि इनपुट अनुदान योजना",
+      "benefit_en": "Rs 13,500/hectare subsidy for flood/drought-affected crops",
+      "benefit_hi": "बाढ़/सूखा प्रभावित फसल पर ₹13,500/हेक्टेयर अनुदान",
+      "eligibility": "Bihar farmers affected by natural calamity (in notified districts)",
+      "documents": [
+        "Aadhaar",
+        "Land records",
+        "Bank account"
+      ],
+      "apply_url": "https://dbtagriculture.bihar.gov.in",
+      "sector": "agriculture",
+      "state_en": "Bihar",
+      "state_hi": "बिहार",
+      "type": "State"
+    },
+    {
+      "name_en": "Mukhyamantri Krishak Durghatna Kalyan Yojana",
+      "name_hi": "मुख्यमंत्री कृषक दुर्घटना कल्याण योजना",
+      "benefit_en": "Rs 5 lakh compensation for farmer accidental death/disability",
+      "benefit_hi": "किसान दुर्घटना मृत्यु/अपंगता पर ₹5 लाख मुआवजा",
+      "eligibility": "UP farmers aged 18-70, accidental death or disability",
+      "documents": [
+        "Aadhaar",
+        "Khasra-Khatauni",
+        "FIR/Post-mortem",
+        "Bank account"
+      ],
+      "apply_url": "https://upagripardarshi.gov.in",
+      "sector": "agriculture",
+      "state_en": "Uttar Pradesh",
+      "state_hi": "उत्तर प्रदेश",
+      "type": "State"
+    },
+    {
+      "name_en": "KALIA Scheme",
+      "name_hi": "KALIA योजना",
+      "benefit_en": "Rs 10,000/season financial assistance to small/marginal farmers",
+      "benefit_hi": "लघु/सीमांत किसानों को ₹10,000/सीजन सहायता",
+      "eligibility": "Odisha small/marginal farmers and landless agricultural laborers",
+      "documents": [
+        "Aadhaar",
+        "Land records or LPC",
+        "Bank account"
+      ],
+      "apply_url": "https://kalia.odisha.gov.in",
+      "sector": "agriculture",
+      "state_en": "Odisha",
+      "state_hi": "ओडिशा",
+      "type": "State"
+    },
+    {
+      "name_en": "Krishak Bandhu",
+      "name_hi": "কৃষকবন্ধু / कृषक बंधु",
+      "benefit_en": "Rs 10,000/acre/year crop support + Rs 2 lakh death benefit",
+      "benefit_hi": "₹10,000/एकड़/वर्ष फसल सहायता + ₹2 लाख मृत्यु सहायता",
+      "eligibility": "WB farmers with minimum 0.01 acre land",
+      "documents": [
+        "Aadhaar",
+        "Land records",
+        "Bank account"
+      ],
+      "apply_url": "https://krishakbandhu.net",
+      "sector": "agriculture",
+      "state_en": "West Bengal",
+      "state_hi": "पश्चिम बंगाल",
+      "type": "State"
+    },
+    {
+      "name_en": "Shetmal Taran Karj Yojana (Farm Loan Waiver)",
+      "name_hi": "शेतमाल तारण कर्ज योजना",
+      "benefit_en": "Short-term post-harvest loan at 0% interest for 6 months",
+      "benefit_hi": "फसल के बाद 6 महीने के लिए 0% ब्याज पर ऋण",
+      "eligibility": "Farmers who store produce in NWRA-registered warehouses",
+      "documents": [
+        "Aadhaar",
+        "7/12",
+        "Warehouse receipt"
+      ],
+      "apply_url": "https://mahapocra.gov.in",
+      "sector": "agriculture",
+      "state_en": "Maharashtra",
+      "state_hi": "महाराष्ट्र",
+      "type": "State"
+    },
+    {
+      "name_en": "Rythu Bandhu",
+      "name_hi": "रैतू बंधु",
+      "benefit_en": "Rs 10,000/acre/season (Rs 20,000/year) investment support to farmers",
+      "benefit_hi": "किसानों को ₹10,000/एकड़/सीजन (₹20,000/वर्ष) सहायता",
+      "eligibility": "All Telangana farmers who own agricultural land",
+      "documents": [
+        "Aadhaar",
+        "Pattadar passbook",
+        "Bank account"
+      ],
+      "apply_url": "https://rythubandhu.telangana.gov.in",
+      "sector": "agriculture",
+      "state_en": "Telangana",
+      "state_hi": "तेलंगाना",
+      "type": "State"
+    },
+    {
+      "name_en": "Zero Percent Interest Farm Loan (Punjab)",
+      "name_hi": "शून्य ब्याज कृषि ऋण योजना (पंजाब)",
+      "benefit_en": "Short-term crop loans up to Rs 3 lakh at 0% interest",
+      "benefit_hi": "₹3 लाख तक अल्पकालिक फसल ऋण 0% ब्याज पर",
+      "eligibility": "Punjab small/marginal farmers",
+      "documents": [
+        "Aadhaar",
+        "Land records",
+        "Bank account"
+      ],
+      "apply_url": "https://punjab.gov.in",
+      "sector": "agriculture",
+      "state_en": "Punjab",
+      "state_hi": "पंजाब",
+      "type": "State"
+    },
+    {
+      "name_en": "Godhan Nyay Yojana",
+      "name_hi": "गोधन न्याय योजना",
+      "benefit_en": "Govt buys cattle dung at Rs 2/kg, converted to compost/biogas",
+      "benefit_hi": "सरकार गोबर ₹2/किलो खरीदती है; जैविक खाद/बायोगैस बनता है",
+      "eligibility": "Chhattisgarh cattle owners (farmers, SHGs, gaushalas)",
+      "documents": [
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://agriportal.cg.nic.in",
+      "sector": "agriculture",
+      "state_en": "Chhattisgarh",
+      "state_hi": "छत्तीसगढ़",
+      "type": "State"
+    },
+    {
+      "name_en": "IKHEDUT Portal (Agriculture Schemes)",
+      "name_hi": "आई-ખેદૂત (iKhedut) एकीकृत कृषि पोर्टल",
+      "benefit_en": "Single portal for 60+ agriculture schemes, subsidies on inputs",
+      "benefit_hi": "60+ कृषि योजनाओं का एक पोर्टल",
+      "eligibility": "All Gujarat farmers",
+      "documents": [
+        "Aadhaar",
+        "8-A land record",
+        "Bank account"
+      ],
+      "apply_url": "https://ikhedut.gujarat.gov.in",
+      "sector": "agriculture",
+      "state_en": "Gujarat",
+      "state_hi": "गुजरात",
+      "type": "State"
+    },
+    {
+      "name_en": "YSR Rythu Bharosa",
+      "name_hi": "वाईएसआर रैतू भरोसा",
+      "benefit_en": "Rs 13,500/year investment support per farmer family (state + PM Kisan)",
+      "benefit_hi": "किसान परिवार को ₹13,500/वर्ष निवेश सहायता",
+      "eligibility": "All AP farmers (including tenant farmers with registered agreements)",
+      "documents": [
+        "Aadhaar",
+        "Land records or tenancy agreement",
+        "Bank account"
+      ],
+      "apply_url": "https://ysrrythubharosa.ap.gov.in",
+      "sector": "agriculture",
+      "state_en": "Andhra Pradesh",
+      "state_hi": "आंध्र प्रदेश",
+      "type": "State"
+    },
+    {
+      "name_en": "Mukhyamantri Pashudhan Vikas Yojana",
+      "name_hi": "मुख्यमंत्री पशुधन विकास योजना",
+      "benefit_en": "50-90% subsidy on cows, goats, poultry for tribal & BPL families",
+      "benefit_hi": "जनजातीय/BPL परिवारों को गाय, बकरी, मुर्गी पर 50-90% सब्सिडी",
+      "eligibility": "SC/ST/BPL Jharkhand families",
+      "documents": [
+        "Aadhaar",
+        "Caste/BPL certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://ahd.jharkhand.gov.in",
+      "sector": "agriculture",
+      "state_en": "Jharkhand",
+      "state_hi": "झारखंड",
+      "type": "State"
+    },
+    {
+      "name_en": "Kerala Karshaka Kshemanidhi (Farmer Pension)",
+      "name_hi": "केरल किसान पेंशन योजना",
+      "benefit_en": "Rs 1,100/month pension for farmers after age 60",
+      "benefit_hi": "60 वर्ष बाद किसानों को ₹1,100/माह पेंशन",
+      "eligibility": "Kerala farmers aged 60+, land ownership minimum 10 cents",
+      "documents": [
+        "Aadhaar",
+        "Land records",
+        "Age proof",
+        "Bank account"
+      ],
+      "apply_url": "https://keralaagriculture.gov.in",
+      "sector": "agriculture",
+      "state_en": "Kerala",
+      "state_hi": "केरल",
+      "type": "State"
+    },
+    {
+      "name_en": "Mukhyamantri Kisan Kalyan Yojana",
+      "name_hi": "मुख्यमंत्री किसान कल्याण योजना",
+      "benefit_en": "Additional Rs 4,000/year on top of PM Kisan (total Rs 10,000/year)",
+      "benefit_hi": "PM किसान के अतिरिक्त ₹4,000/वर्ष (कुल ₹10,000/वर्ष)",
+      "eligibility": "MP farmers already registered under PM Kisan",
+      "documents": [
+        "PM Kisan registration",
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://saara.mp.gov.in",
+      "sector": "agriculture",
+      "state_en": "Madhya Pradesh",
+      "state_hi": "मध्य प्रदेश",
+      "type": "State"
+    }
+  ]
+}

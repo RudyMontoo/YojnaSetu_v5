@@ -1,0 +1,70 @@
+{
+  "state_en": "Goa",
+  "state_hi": "गोवा",
+  "schemes": [
+    {
+      "name_en": "Dayanand Social Security Scheme (DSSS)",
+      "name_hi": "दयानंद सामाजिक सुरक्षा योजना",
+      "benefit_en": "Rs 2,500/month pension for all Goa residents aged 18+ below poverty line",
+      "benefit_hi": "गोवा BPL निवासियों को ₹2,500/माह पेंशन",
+      "eligibility": "Goa domicile, BPL, aged 18+, not receiving other pension",
+      "documents": [
+        "Aadhaar",
+        "Goa domicile",
+        "BPL card",
+        "Bank account"
+      ],
+      "apply_url": "https://goaonline.gov.in",
+      "sector": "social_security",
+      "status": "active"
+    },
+    {
+      "name_en": "Griha Aadhar (Goa Housing Support)",
+      "name_hi": "गृह आधार (गोवा)",
+      "benefit_en": "Rs 2,500/month to housewife of Goa domicile family for household support",
+      "benefit_hi": "गोवा डोमिसाइल परिवार की गृहिणी को ₹2,500/माह घरेलू सहायता",
+      "eligibility": "Married women with Goa domicile, family income < Rs 3 lakh/month",
+      "documents": [
+        "Aadhaar",
+        "Goa domicile",
+        "Marriage certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://goaonline.gov.in",
+      "sector": "women_child",
+      "status": "active"
+    },
+    {
+      "name_en": "Mukhyamantri Shetkari Sahay Nidhi (Goa)",
+      "name_hi": "मुख्यमंत्री शेतकरी सहाय निधि (गोवा)",
+      "benefit_en": "Financial support for Goa farmers affected by weather/crop failure",
+      "benefit_hi": "गोवा किसानों को मौसम/फसल नुकसान पर वित्तीय सहायता",
+      "eligibility": "Registered Goa farmers with verifiable crop loss",
+      "documents": [
+        "Aadhaar",
+        "Land records",
+        "Crop loss report",
+        "Bank account"
+      ],
+      "apply_url": "https://agri.goa.gov.in",
+      "sector": "agriculture",
+      "status": "active"
+    },
+    {
+      "name_en": "Kali Mata Scheme (Marriage Assistance Goa)",
+      "name_hi": "काली माता योजना (विवाह सहायता गोवा)",
+      "benefit_en": "Rs 5,000 grant for marriage of BPL girl child in Goa",
+      "benefit_hi": "गोवा BPL बालिका के विवाह पर ₹5,000 अनुदान",
+      "eligibility": "Goa BPL families, bride aged 18+",
+      "documents": [
+        "Aadhaar",
+        "BPL card",
+        "Marriage proof",
+        "Bank account"
+      ],
+      "apply_url": "https://goaonline.gov.in",
+      "sector": "women_child",
+      "status": "active"
+    }
+  ]
+}

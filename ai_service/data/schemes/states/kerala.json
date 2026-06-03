@@ -1,0 +1,78 @@
+{
+  "state_en": "Kerala",
+  "state_hi": "केरल",
+  "schemes": [
+    {
+      "name_en": "Karunya Health Scheme",
+      "name_hi": "करुण्य स्वास्थ्य योजना",
+      "benefit_en": "Financial assistance up to Rs 2 lakh for cancer and major illness treatment",
+      "benefit_hi": "कैंसर और गंभीर बीमारियों के इलाज में ₹2 लाख तक सहायता",
+      "eligibility": "Kerala BPL/APL families with income < Rs 1 lakh/year",
+      "documents": [
+        "Aadhaar",
+        "Ration card",
+        "Income certificate",
+        "Medical report"
+      ],
+      "apply_url": "https://karunyakerala.org",
+      "sector": "health"
+    },
+    {
+      "name_en": "Kudumbashree Mission",
+      "name_hi": "कुदुम्बश्री मिशन",
+      "benefit_en": "Women SHG microfinance, skill training, enterprise support network",
+      "benefit_hi": "महिला SHG माइक्रोफाइनेंस, कौशल प्रशिक्षण, उद्यम सहायता",
+      "eligibility": "Kerala women from poor households (NHG membership)",
+      "documents": [
+        "Aadhaar",
+        "NHG membership",
+        "Bank account"
+      ],
+      "apply_url": "https://kudumbashree.org",
+      "sector": "women_child"
+    },
+    {
+      "name_en": "Kerala Karshaka Kshemanidhi (Farmer Pension)",
+      "name_hi": "केरल किसान पेंशन योजना",
+      "benefit_en": "Rs 1,100/month pension for farmers after age 60",
+      "benefit_hi": "60 वर्ष बाद किसानों को ₹1,100/माह पेंशन",
+      "eligibility": "Kerala farmers aged 60+, land ownership minimum 10 cents",
+      "documents": [
+        "Aadhaar",
+        "Land records",
+        "Age proof",
+        "Bank account"
+      ],
+      "apply_url": "https://keralaagriculture.gov.in",
+      "sector": "agriculture"
+    },
+    {
+      "name_en": "LIFE Mission Housing (Kerala)",
+      "name_hi": "LIFE मिशन आवास (केरल)",
+      "benefit_en": "Fully constructed house for homeless/landless families in Kerala",
+      "benefit_hi": "बेघर/भूमिहीन परिवारों को बना-बनाया घर",
+      "eligibility": "Homeless/landless Kerala families (especially returned migrants)",
+      "documents": [
+        "Aadhaar",
+        "No-land/no-house certificate",
+        "Income proof"
+      ],
+      "apply_url": "https://lifemission.kerala.gov.in",
+      "sector": "housing"
+    },
+    {
+      "name_en": "Kerala Startup Mission (KSUM)",
+      "name_hi": "केरल स्टार्टअप मिशन",
+      "benefit_en": "Incubation, seed fund up to Rs 10 lakh, mentoring for tech startups",
+      "benefit_hi": "टेक स्टार्टअप को ₹10 लाख सीड फंड + मेंटरिंग",
+      "eligibility": "Kerala-based startups in tech/innovation sectors",
+      "documents": [
+        "DPIIT certificate",
+        "Aadhaar",
+        "Business plan"
+      ],
+      "apply_url": "https://startupmission.kerala.gov.in",
+      "sector": "employment"
+    }
+  ]
+}

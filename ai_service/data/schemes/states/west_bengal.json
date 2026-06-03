@@ -1,0 +1,66 @@
+{
+  "state_en": "West Bengal",
+  "state_hi": "पश्चिम बंगाल",
+  "schemes": [
+    {
+      "name_en": "Swasthya Sathi",
+      "name_hi": "স্বাস্থ্য সাথী / स्वास्थ्य साथी",
+      "benefit_en": "Rs 5 lakh/year cashless health coverage for all WB families",
+      "benefit_hi": "पश्चिम बंगाल के सभी परिवारों को ₹5 लाख/वर्ष स्वास्थ्य बीमा",
+      "eligibility": "All West Bengal families (smart card issued)",
+      "documents": [
+        "Aadhaar",
+        "Ration card or voter ID"
+      ],
+      "apply_url": "https://swasthyasathi.gov.in",
+      "sector": "health",
+      "status": "active"
+    },
+    {
+      "name_en": "Kanyashree Prakalpa",
+      "name_hi": "কন্যাশ্রী / कन्याश्री प्रकल्प",
+      "benefit_en": "Rs 1,000/year scholarship + Rs 25,000 one-time grant for girls",
+      "benefit_hi": "बालिकाओं को ₹1,000/वर्ष + ₹25,000 एकमुश्त अनुदान",
+      "eligibility": "WB girl students aged 13-18, family income < Rs 1.2 lakh",
+      "documents": [
+        "Aadhaar",
+        "School enrollment",
+        "Income certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://wbkanyashree.gov.in",
+      "sector": "women_child",
+      "status": "active"
+    },
+    {
+      "name_en": "Krishak Bandhu",
+      "name_hi": "কৃষকবন্ধু / कृषक बंधु",
+      "benefit_en": "Rs 10,000/acre/year crop support + Rs 2 lakh death benefit",
+      "benefit_hi": "₹10,000/एकड़/वर्ष फसल सहायता + ₹2 लाख मृत्यु सहायता",
+      "eligibility": "WB farmers with minimum 0.01 acre land",
+      "documents": [
+        "Aadhaar",
+        "Land records",
+        "Bank account"
+      ],
+      "apply_url": "https://krishakbandhu.net",
+      "sector": "agriculture",
+      "status": "active"
+    },
+    {
+      "name_en": "Nijashree / Gitanjali Housing",
+      "name_hi": "निजश्री / गीतांजलि आवास योजना",
+      "benefit_en": "Affordable flats and houses for EWS/LIG groups in WB",
+      "benefit_hi": "EWS/LIG समूह के लिए किफायती फ्लैट",
+      "eligibility": "WB EWS/LIG families without own house",
+      "documents": [
+        "Aadhaar",
+        "Income proof",
+        "Application form"
+      ],
+      "apply_url": "https://wbhidco.in",
+      "sector": "housing",
+      "status": "active"
+    }
+  ]
+}

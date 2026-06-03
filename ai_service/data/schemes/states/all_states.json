@@ -1,0 +1,1420 @@
+{
+  "uttar_pradesh": {
+    "state_en": "Uttar Pradesh",
+    "state_hi": "उत्तर प्रदेश",
+    "schemes": [
+      {
+        "name_en": "Kanya Sumangala Yojana",
+        "name_hi": "कन्या सुमंगला योजना",
+        "benefit_en": "Rs 15,000 in 6 installments for girl child education & welfare",
+        "benefit_hi": "बालिका शिक्षा व कल्याण हेतु 6 किस्तों में ₹15,000",
+        "eligibility": "UP families with annual income < Rs 3 lakh, girl child",
+        "documents": [
+          "Aadhaar",
+          "Income certificate",
+          "Birth certificate",
+          "Bank account"
+        ],
+        "apply_url": "https://mksy.up.gov.in",
+        "sector": "women_child"
+      },
+      {
+        "name_en": "Mukhyamantri Krishak Durghatna Kalyan Yojana",
+        "name_hi": "मुख्यमंत्री कृषक दुर्घटना कल्याण योजना",
+        "benefit_en": "Rs 5 lakh compensation for farmer accidental death/disability",
+        "benefit_hi": "किसान दुर्घटना मृत्यु/अपंगता पर ₹5 लाख मुआवजा",
+        "eligibility": "UP farmers aged 18-70, accidental death or disability",
+        "documents": [
+          "Aadhaar",
+          "Khasra-Khatauni",
+          "FIR/Post-mortem",
+          "Bank account"
+        ],
+        "apply_url": "https://upagripardarshi.gov.in",
+        "sector": "agriculture"
+      },
+      {
+        "name_en": "UP Muft Bijli Yojana (300 Units)",
+        "name_hi": "यूपी मुफ्त बिजली योजना",
+        "benefit_en": "300 units free electricity per month for domestic consumers",
+        "benefit_hi": "घरेलू उपभोक्ताओं को 300 यूनिट मुफ्त बिजली",
+        "eligibility": "UP domestic electricity consumers",
+        "documents": [
+          "Aadhaar",
+          "Electricity connection number"
+        ],
+        "apply_url": "https://uppcl.org",
+        "sector": "energy"
+      },
+      {
+        "name_en": "Pravasi Rahat Mitra Yojana",
+        "name_hi": "प्रवासी राहत मित्र योजना",
+        "benefit_en": "Financial & skill support for migrant laborers returning to UP",
+        "benefit_hi": "वापस आए प्रवासी मजदूरों को आर्थिक व कौशल सहायता",
+        "eligibility": "UP migrant workers who returned from other states",
+        "documents": [
+          "Aadhaar",
+          "Migration proof",
+          "Bank account"
+        ],
+        "apply_url": "https://sewayojan.up.nic.in",
+        "sector": "employment"
+      },
+      {
+        "name_en": "UP Mukhyamantri Awas Yojana",
+        "name_hi": "मुख्यमंत्री आवास योजना",
+        "benefit_en": "Additional housing grant for urban slum dwellers not covered under PMAY",
+        "benefit_hi": "PMAY से वंचित शहरी गरीबों को आवास सहायता",
+        "eligibility": "Urban BPL families without own home in UP",
+        "documents": [
+          "Aadhaar",
+          "Income certificate",
+          "BPL card"
+        ],
+        "apply_url": "https://updesco.com",
+        "sector": "housing"
+      },
+      {
+        "name_en": "Bhu-Lekh (Land Record Digitisation)",
+        "name_hi": "भू-लेख योजना",
+        "benefit_en": "Online land records, Khatauni, Khasra accessible free",
+        "benefit_hi": "ऑनलाइन खसरा-खतौनी निःशुल्क देखें",
+        "eligibility": "All UP landowners",
+        "documents": [
+          "Khasra number",
+          "Village name"
+        ],
+        "apply_url": "https://upbhulekh.gov.in",
+        "sector": "rural_development"
+      }
+    ]
+  },
+  "maharashtra": {
+    "state_en": "Maharashtra",
+    "state_hi": "महाराष्ट्र",
+    "schemes": [
+      {
+        "name_en": "Mahatma Jyotirao Phule Jan Arogya Yojana",
+        "name_hi": "महात्मा ज्योतिराव फुले जन आरोग्य योजना",
+        "benefit_en": "Health insurance up to Rs 1.5 lakh/year (Rs 2.5 lakh for special diseases)",
+        "benefit_hi": "₹1.5 लाख/वर्ष स्वास्थ्य बीमा (विशेष बीमारियों में ₹2.5 लाख)",
+        "eligibility": "Yellow/Orange/White ration card holders in Maharashtra",
+        "documents": [
+          "Aadhaar",
+          "Ration card",
+          "Yellow/orange card"
+        ],
+        "apply_url": "https://www.jeevandayee.gov.in",
+        "sector": "health"
+      },
+      {
+        "name_en": "Mukhyamantri Saur Krishi Pump Yojana",
+        "name_hi": "मुख्यमंत्री सौर कृषी पंप योजना",
+        "benefit_en": "95% subsidy on solar agriculture pumps (3HP/5HP/7.5HP)",
+        "benefit_hi": "सौर कृषि पंप पर 95% सब्सिडी",
+        "eligibility": "Maharashtra farmers with electricity-deprived fields",
+        "documents": [
+          "Aadhaar",
+          "7/12 extract",
+          "Bank account"
+        ],
+        "apply_url": "https://www.mahadiscom.in",
+        "sector": "energy"
+      },
+      {
+        "name_en": "Gharkul Yojana (PMAY top-up)",
+        "name_hi": "घरकुल योजना",
+        "benefit_en": "State top-up of Rs 30,000-50,000 over PMAY for SC/ST/NT/OBC",
+        "benefit_hi": "SC/ST/NT/OBC के लिए PMAY के अतिरिक्त ₹30,000-50,000",
+        "eligibility": "SC/ST/NT/OBC PMAY beneficiaries in Maharashtra",
+        "documents": [
+          "PMAY sanction",
+          "Caste certificate",
+          "Aadhaar"
+        ],
+        "apply_url": "https://mhada.gov.in",
+        "sector": "housing"
+      },
+      {
+        "name_en": "Shetmal Taran Karj Yojana (Farm Loan Waiver)",
+        "name_hi": "शेतमाल तारण कर्ज योजना",
+        "benefit_en": "Short-term post-harvest loan at 0% interest for 6 months",
+        "benefit_hi": "फसल के बाद 6 महीने के लिए 0% ब्याज पर ऋण",
+        "eligibility": "Farmers who store produce in NWRA-registered warehouses",
+        "documents": [
+          "Aadhaar",
+          "7/12",
+          "Warehouse receipt"
+        ],
+        "apply_url": "https://mahapocra.gov.in",
+        "sector": "agriculture"
+      },
+      {
+        "name_en": "Ladki Bahin Yojana",
+        "name_hi": "लाडकी बहिण योजना",
+        "benefit_en": "Rs 1,500/month financial assistance for women aged 21-65",
+        "benefit_hi": "21-65 वर्ष की महिलाओं को ₹1,500/माह आर्थिक सहायता",
+        "eligibility": "Maharashtra women aged 21-65, family income < Rs 2.5 lakh",
+        "documents": [
+          "Aadhaar",
+          "Income certificate",
+          "Bank account"
+        ],
+        "apply_url": "https://ladakibahin.maharashtra.gov.in",
+        "sector": "women_child"
+      },
+      {
+        "name_en": "Annasaheb Patil Arthik Magas Vikas Mahamandal Loan",
+        "name_hi": "आर्थिक मागास वर्ग कर्ज योजना",
+        "benefit_en": "Low-interest loans up to Rs 10 lakh for OBC entrepreneurs",
+        "benefit_hi": "OBC उद्यमियों को ₹10 लाख तक कम ब्याज ऋण",
+        "eligibility": "Maharashtra OBC individuals with viable business plan",
+        "documents": [
+          "Aadhaar",
+          "Caste certificate",
+          "Business plan"
+        ],
+        "apply_url": "https://mahasamrudhi.co.in",
+        "sector": "employment"
+      }
+    ]
+  },
+  "bihar": {
+    "state_en": "Bihar",
+    "state_hi": "बिहार",
+    "schemes": [
+      {
+        "name_en": "Bihar Student Credit Card Yojana",
+        "name_hi": "बिहार स्टूडेंट क्रेडिट कार्ड योजना",
+        "benefit_en": "Education loan up to Rs 4 lakh at 4% interest (1% for girls/disabled)",
+        "benefit_hi": "₹4 लाख तक शिक्षा ऋण 4% ब्याज (महिला/दिव्यांग: 1%)",
+        "eligibility": "Bihar students who passed Class 12, admitted to recognized institutions",
+        "documents": [
+          "Aadhaar",
+          "Class 12 marksheet",
+          "Admission letter",
+          "Bank account"
+        ],
+        "apply_url": "https://www.7nishchay-yuvaupmission.bihar.gov.in",
+        "sector": "education"
+      },
+      {
+        "name_en": "Mukhyamantri Kanya Utthan Yojana",
+        "name_hi": "मुख्यमंत्री कन्या उत्थान योजना",
+        "benefit_en": "Rs 50,000 for girl child from birth to graduation in 7 installments",
+        "benefit_hi": "जन्म से स्नातक तक बालिका को 7 किस्तों में ₹50,000",
+        "eligibility": "Bihar girl child (family: max 2 daughters eligible)",
+        "documents": [
+          "Birth certificate",
+          "Aadhaar",
+          "Bank account",
+          "School/college enrollment"
+        ],
+        "apply_url": "https://medhasoft.bih.nic.in",
+        "sector": "women_child"
+      },
+      {
+        "name_en": "Har Ghar Bijli Yojana (Bihar)",
+        "name_hi": "हर घर बिजली योजना (बिहार)",
+        "benefit_en": "Free electricity connection to all unelectrified households",
+        "benefit_hi": "सभी बिना बिजली घरों को मुफ्त कनेक्शन",
+        "eligibility": "Un-electrified households in Bihar",
+        "documents": [
+          "Aadhaar",
+          "Address proof"
+        ],
+        "apply_url": "https://hargharbijli.bsphcl.co.in",
+        "sector": "energy"
+      },
+      {
+        "name_en": "Mukhyamantri Vridhjan Pension Yojana",
+        "name_hi": "मुख्यमंत्री वृद्धजन पेंशन योजना",
+        "benefit_en": "Rs 400/month (age 60-79) and Rs 500/month (80+) pension",
+        "benefit_hi": "60-79 वर्ष ₹400 और 80+ वर्ष ₹500 प्रतिमाह पेंशन",
+        "eligibility": "Bihar residents aged 60+, not receiving other government pension",
+        "documents": [
+          "Aadhaar",
+          "Age proof",
+          "Bank account"
+        ],
+        "apply_url": "https://sspmis.bihar.gov.in",
+        "sector": "social_security"
+      },
+      {
+        "name_en": "Bihar Krishi Input Subsidy Yojana",
+        "name_hi": "कृषि इनपुट अनुदान योजना",
+        "benefit_en": "Rs 13,500/hectare subsidy for flood/drought-affected crops",
+        "benefit_hi": "बाढ़/सूखा प्रभावित फसल पर ₹13,500/हेक्टेयर अनुदान",
+        "eligibility": "Bihar farmers affected by natural calamity (in notified districts)",
+        "documents": [
+          "Aadhaar",
+          "Land records",
+          "Bank account"
+        ],
+        "apply_url": "https://dbtagriculture.bihar.gov.in",
+        "sector": "agriculture"
+      }
+    ]
+  },
+  "rajasthan": {
+    "state_en": "Rajasthan",
+    "state_hi": "राजस्थान",
+    "schemes": [
+      {
+        "name_en": "Chiranjeevi Swasthya Bima Yojana",
+        "name_hi": "मुख्यमंत्री चिरंजीवी स्वास्थ्य बीमा योजना",
+        "benefit_en": "Rs 25 lakh/year health insurance for every family in Rajasthan",
+        "benefit_hi": "राजस्थान के प्रत्येक परिवार को ₹25 लाख/वर्ष स्वास्थ्य बीमा",
+        "eligibility": "All Rajasthan residents (BPL: free; others: Rs 850/year premium)",
+        "documents": [
+          "Aadhaar",
+          "Jan Aadhaar card",
+          "Bank account"
+        ],
+        "apply_url": "https://chiranjeevi.rajasthan.gov.in",
+        "sector": "health"
+      },
+      {
+        "name_en": "Indira Gandhi Shehri Rojgar Guarantee Yojana",
+        "name_hi": "इंदिरा गांधी शहरी रोजगार गारंटी योजना",
+        "benefit_en": "100 days guaranteed employment per year for urban families",
+        "benefit_hi": "शहरी परिवारों को 100 दिन रोजगार की गारंटी",
+        "eligibility": "Urban Rajasthan families (18+ members)",
+        "documents": [
+          "Jan Aadhaar card",
+          "Aadhaar",
+          "Bank account"
+        ],
+        "apply_url": "https://irgy.rajasthan.gov.in",
+        "sector": "employment"
+      },
+      {
+        "name_en": "Rajasthan Tarbandi Yojana",
+        "name_hi": "राजस्थान तारबंदी योजना",
+        "benefit_en": "50% subsidy (up to Rs 40,000) on fencing to protect farmland",
+        "benefit_hi": "खेत की तारबंदी पर 50% सब्सिडी (अधिकतम ₹40,000)",
+        "eligibility": "Rajasthan farmers with minimum 0.5 hectare land",
+        "documents": [
+          "Aadhaar",
+          "Khasra",
+          "Bank account"
+        ],
+        "apply_url": "https://rajkisan.rajasthan.gov.in",
+        "sector": "agriculture"
+      },
+      {
+        "name_en": "Indira Mahila Shakti Udyam Protsahan Yojana",
+        "name_hi": "इंदिरा महिला शक्ति उद्यम प्रोत्साहन योजना",
+        "benefit_en": "Business loan up to Rs 1 crore with 25% subsidy for women entrepreneurs",
+        "benefit_hi": "महिला उद्यमियों को ₹1 करोड़ तक ऋण + 25% सब्सिडी",
+        "eligibility": "Rajasthan women 18+ planning to start/expand business",
+        "documents": [
+          "Aadhaar",
+          "Business plan",
+          "Bank account"
+        ],
+        "apply_url": "https://wcd.rajasthan.gov.in",
+        "sector": "women_child"
+      },
+      {
+        "name_en": "Palanhar Yojana",
+        "name_hi": "पालनहार योजना",
+        "benefit_en": "Rs 1500/month for guardians raising orphan/destitute children",
+        "benefit_hi": "अनाथ/असहाय बच्चों के पालक को ₹1500/माह",
+        "eligibility": "Guardians raising orphan, destitute or disabled children",
+        "documents": [
+          "Aadhaar",
+          "Guardianship proof",
+          "Child's documents"
+        ],
+        "apply_url": "https://sje.rajasthan.gov.in",
+        "sector": "women_child"
+      }
+    ]
+  },
+  "madhya_pradesh": {
+    "state_en": "Madhya Pradesh",
+    "state_hi": "मध्य प्रदेश",
+    "schemes": [
+      {
+        "name_en": "Ladli Laxmi Yojana 2.0",
+        "name_hi": "लाड़ली लक्ष्मी योजना 2.0",
+        "benefit_en": "Rs 1.43 lakh total benefit + college fee for girl child",
+        "benefit_hi": "बालिका को कुल ₹1.43 लाख + कॉलेज शुल्क सहायता",
+        "eligibility": "MP girl child born after Jan 1, 2006 in BPL/registered family",
+        "documents": [
+          "Birth certificate",
+          "Aadhaar",
+          "Income certificate",
+          "School enrollment"
+        ],
+        "apply_url": "https://ladlilaxmi.mp.gov.in",
+        "sector": "women_child"
+      },
+      {
+        "name_en": "Mukhyamantri Kisan Kalyan Yojana",
+        "name_hi": "मुख्यमंत्री किसान कल्याण योजना",
+        "benefit_en": "Additional Rs 4,000/year on top of PM Kisan (total Rs 10,000/year)",
+        "benefit_hi": "PM किसान के अतिरिक्त ₹4,000/वर्ष (कुल ₹10,000/वर्ष)",
+        "eligibility": "MP farmers already registered under PM Kisan",
+        "documents": [
+          "PM Kisan registration",
+          "Aadhaar",
+          "Bank account"
+        ],
+        "apply_url": "https://saara.mp.gov.in",
+        "sector": "agriculture"
+      },
+      {
+        "name_en": "Sambal Yojana (Mukhyamantri Jan Kalyan)",
+        "name_hi": "संबल योजना",
+        "benefit_en": "Rs 4 lakh death benefit + free electricity + education support for unorganized workers",
+        "benefit_hi": "असंगठित कामगारों को ₹4 लाख मृत्यु सहायता + मुफ्त बिजली",
+        "eligibility": "MP unorganized workers with Sambal card",
+        "documents": [
+          "Sambal card",
+          "Aadhaar",
+          "Bank account"
+        ],
+        "apply_url": "https://sambal.mp.gov.in",
+        "sector": "social_security"
+      },
+      {
+        "name_en": "Mukhyamantri Sikho-Kamao Yojana",
+        "name_hi": "मुख्यमंत्री सीखो-कमाओ योजना",
+        "benefit_en": "Rs 8,000-10,000/month stipend while learning skills at companies",
+        "benefit_hi": "कंपनियों में कौशल सीखते हुए ₹8,000-10,000/माह",
+        "eligibility": "MP youth aged 18-29, Class 12 to graduate",
+        "documents": [
+          "Aadhaar",
+          "Educational certificate",
+          "Bank account"
+        ],
+        "apply_url": "https://mmsky.mp.gov.in",
+        "sector": "employment"
+      },
+      {
+        "name_en": "Mukhyamantri Awas Yojana MP",
+        "name_hi": "मुख्यमंत्री आवास योजना (एमपी)",
+        "benefit_en": "Housing for urban poor not covered under PMAY with state subsidy",
+        "benefit_hi": "PMAY से छूटे शहरी गरीबों को राज्य आवास सहायता",
+        "eligibility": "Urban MP BPL families without pucca house",
+        "documents": [
+          "Aadhaar",
+          "BPL card",
+          "Income certificate"
+        ],
+        "apply_url": "https://mphousing.nic.in",
+        "sector": "housing"
+      }
+    ]
+  },
+  "gujarat": {
+    "state_en": "Gujarat",
+    "state_hi": "गुजरात",
+    "schemes": [
+      {
+        "name_en": "Mukhyamantri Amrutam (MA) Yojana",
+        "name_hi": "मुख्यमंत्री अमृतम योजना",
+        "benefit_en": "Cashless health treatment up to Rs 5 lakh for serious diseases",
+        "benefit_hi": "गंभीर बीमारियों के लिए ₹5 लाख तक कैशलेस इलाज",
+        "eligibility": "Gujarat BPL families and lower-middle income groups",
+        "documents": [
+          "Aadhaar",
+          "MA/Vatsalya card",
+          "Income certificate"
+        ],
+        "apply_url": "https://www.magujarat.com",
+        "sector": "health"
+      },
+      {
+        "name_en": "Kisan Suryoday Yojana",
+        "name_hi": "किसान सूर्योदय योजना",
+        "benefit_en": "Daytime (5am-9pm) electricity supply to farmers for irrigation",
+        "benefit_hi": "किसानों को सिंचाई के लिए दिन में बिजली (5AM-9PM)",
+        "eligibility": "Gujarat farmers with agricultural connections",
+        "documents": [
+          "Aadhaar",
+          "Land records",
+          "Agriculture connection number"
+        ],
+        "apply_url": "https://www.geb.gov.in",
+        "sector": "energy"
+      },
+      {
+        "name_en": "IKHEDUT Portal (Agriculture Schemes)",
+        "name_hi": "आई-ખેદૂત (iKhedut) एकीकृत कृषि पोर्टल",
+        "benefit_en": "Single portal for 60+ agriculture schemes, subsidies on inputs",
+        "benefit_hi": "60+ कृषि योजनाओं का एक पोर्टल",
+        "eligibility": "All Gujarat farmers",
+        "documents": [
+          "Aadhaar",
+          "8-A land record",
+          "Bank account"
+        ],
+        "apply_url": "https://ikhedut.gujarat.gov.in",
+        "sector": "agriculture"
+      },
+      {
+        "name_en": "Pandit Deen Dayal Upadhyay Awas Yojana",
+        "name_hi": "पं. दीनदयाल उपाध्याय आवास योजना",
+        "benefit_en": "Housing for SC/ST/OBC families with Rs 1.2 lakh state grant",
+        "benefit_hi": "SC/ST/OBC परिवारों को ₹1.2 लाख राज्य अनुदान",
+        "eligibility": "SC/ST/OBC BPL families in Gujarat without pucca house",
+        "documents": [
+          "Aadhaar",
+          "Caste certificate",
+          "Income certificate",
+          "Land ownership"
+        ],
+        "apply_url": "https://gujarathousing.gov.in",
+        "sector": "housing"
+      },
+      {
+        "name_en": "Namo Shree (Pregnant Women Nutrition)",
+        "name_hi": "नमो श्री लक्ष्मी योजना",
+        "benefit_en": "Rs 12,000 in two installments for pregnant women's nutrition",
+        "benefit_hi": "गर्भवती महिलाओं को पोषण के लिए ₹12,000 दो किस्तों में",
+        "eligibility": "Pregnant women in Gujarat (1st and 2nd child)",
+        "documents": [
+          "Aadhaar",
+          "Pregnancy proof from government hospital",
+          "Bank account"
+        ],
+        "apply_url": "https://wcd.gujarat.gov.in",
+        "sector": "women_child"
+      }
+    ]
+  },
+  "west_bengal": {
+    "state_en": "West Bengal",
+    "state_hi": "पश्चिम बंगाल",
+    "schemes": [
+      {
+        "name_en": "Swasthya Sathi",
+        "name_hi": "স্বাস্থ্য সাথী / स्वास्थ्य साथी",
+        "benefit_en": "Rs 5 lakh/year cashless health coverage for all WB families",
+        "benefit_hi": "पश्चिम बंगाल के सभी परिवारों को ₹5 लाख/वर्ष स्वास्थ्य बीमा",
+        "eligibility": "All West Bengal families (smart card issued)",
+        "documents": [
+          "Aadhaar",
+          "Ration card or voter ID"
+        ],
+        "apply_url": "https://swasthyasathi.gov.in",
+        "sector": "health"
+      },
+      {
+        "name_en": "Kanyashree Prakalpa",
+        "name_hi": "কন্যাশ্রী / कन्याश्री प्रकल्प",
+        "benefit_en": "Rs 1,000/year scholarship + Rs 25,000 one-time grant for girls",
+        "benefit_hi": "बालिकाओं को ₹1,000/वर्ष + ₹25,000 एकमुश्त अनुदान",
+        "eligibility": "WB girl students aged 13-18, family income < Rs 1.2 lakh",
+        "documents": [
+          "Aadhaar",
+          "School enrollment",
+          "Income certificate",
+          "Bank account"
+        ],
+        "apply_url": "https://wbkanyashree.gov.in",
+        "sector": "women_child"
+      },
+      {
+        "name_en": "Krishak Bandhu",
+        "name_hi": "কৃষকবন্ধু / कृषक बंधु",
+        "benefit_en": "Rs 10,000/acre/year crop support + Rs 2 lakh death benefit",
+        "benefit_hi": "₹10,000/एकड़/वर्ष फसल सहायता + ₹2 लाख मृत्यु सहायता",
+        "eligibility": "WB farmers with minimum 0.01 acre land",
+        "documents": [
+          "Aadhaar",
+          "Land records",
+          "Bank account"
+        ],
+        "apply_url": "https://krishakbandhu.net",
+        "sector": "agriculture"
+      },
+      {
+        "name_en": "Gatidhara Scheme (WB)",
+        "name_hi": "গতিধারা / गतिधारा योजना",
+        "benefit_en": "Subsidized auto-rickshaw/taxi loans for unemployed youth",
+        "benefit_hi": "बेरोजगार युवाओं को ऑटो/टैक्सी ऋण पर सब्सिडी",
+        "eligibility": "WB unemployed youth aged 18-45",
+        "documents": [
+          "Aadhaar",
+          "Driving license",
+          "Bank account"
+        ],
+        "apply_url": "https://wbtransport.gov.in",
+        "sector": "employment"
+      },
+      {
+        "name_en": "Nijashree / Gitanjali Housing",
+        "name_hi": "निजश्री / गीतांजलि आवास योजना",
+        "benefit_en": "Affordable flats and houses for EWS/LIG groups in WB",
+        "benefit_hi": "EWS/LIG समूह के लिए किफायती फ्लैट",
+        "eligibility": "WB EWS/LIG families without own house",
+        "documents": [
+          "Aadhaar",
+          "Income proof",
+          "Application form"
+        ],
+        "apply_url": "https://wbhidco.in",
+        "sector": "housing"
+      }
+    ]
+  },
+  "punjab": {
+    "state_en": "Punjab",
+    "state_hi": "पंजाब",
+    "schemes": [
+      {
+        "name_en": "Aam Aadmi Clinic",
+        "name_hi": "ਆਮ ਆਦਮੀ ਕਲੀਨਿਕ / आम आदमी क्लीनिक",
+        "benefit_en": "Free OPD, 43 tests and 80+ medicines at neighborhood clinics",
+        "benefit_hi": "नजदीकी क्लीनिक में मुफ्त OPD, 43 जांच और 80+ दवाइयाँ",
+        "eligibility": "All Punjab residents",
+        "documents": [
+          "Aadhaar (recommended)"
+        ],
+        "apply_url": "https://aamaadmiclinic.punjab.gov.in",
+        "sector": "health"
+      },
+      {
+        "name_en": "Bhagat Singh Rozgar Guarantee Yojana",
+        "name_hi": "भगत सिंह रोजगार गारंटी योजना",
+        "benefit_en": "Employment registration, skill training, Rs 2,500-5,000 support",
+        "benefit_hi": "रोजगार पंजीकरण, कौशल प्रशिक्षण, ₹2,500-5,000 सहायता",
+        "eligibility": "Punjab unemployed youth (18-35 years)",
+        "documents": [
+          "Aadhaar",
+          "Educational certificate",
+          "Bank account"
+        ],
+        "apply_url": "https://pgrkam.com",
+        "sector": "employment"
+      },
+      {
+        "name_en": "Punjab Ashirwad Scheme",
+        "name_hi": "पंजाब आशीर्वाद योजना",
+        "benefit_en": "Rs 51,000 grant for marriage of BPL girl children",
+        "benefit_hi": "BPL परिवार की बेटी के विवाह पर ₹51,000 अनुदान",
+        "eligibility": "Punjab BPL/SC/BC families, girl aged 18+",
+        "documents": [
+          "Aadhaar",
+          "BPL/caste certificate",
+          "Marriage proof"
+        ],
+        "apply_url": "https://punjab.gov.in",
+        "sector": "women_child"
+      },
+      {
+        "name_en": "Zero Percent Interest Farm Loan (Punjab)",
+        "name_hi": "शून्य ब्याज कृषि ऋण योजना (पंजाब)",
+        "benefit_en": "Short-term crop loans up to Rs 3 lakh at 0% interest",
+        "benefit_hi": "₹3 लाख तक अल्पकालिक फसल ऋण 0% ब्याज पर",
+        "eligibility": "Punjab small/marginal farmers",
+        "documents": [
+          "Aadhaar",
+          "Land records",
+          "Bank account"
+        ],
+        "apply_url": "https://punjab.gov.in",
+        "sector": "agriculture"
+      },
+      {
+        "name_en": "Punjab Ghar Ghar Rozgar Portal",
+        "name_hi": "ਘਰ ਘਰ ਰੋਜ਼ਗਾਰ / घर घर रोजगार पोर्टल",
+        "benefit_en": "Job matching, career counselling, skill training for Punjab youth",
+        "benefit_hi": "पंजाब युवाओं के लिए नौकरी मेच, करियर परामर्श",
+        "eligibility": "All Punjab job seekers",
+        "documents": [
+          "Aadhaar",
+          "Educational certificates"
+        ],
+        "apply_url": "https://pgrkam.com",
+        "sector": "employment"
+      }
+    ]
+  },
+  "tamil_nadu": {
+    "state_en": "Tamil Nadu",
+    "state_hi": "तमिलनाडु",
+    "schemes": [
+      {
+        "name_en": "Chief Minister's Comprehensive Health Insurance (CMCHIS)",
+        "name_hi": "मुख्यमंत्री व्यापक स्वास्थ्य बीमा योजना",
+        "benefit_en": "Up to Rs 5 lakh/year free surgical treatment at government and private hospitals",
+        "benefit_hi": "₹5 लाख/वर्ष तक मुफ्त शल्य चिकित्सा",
+        "eligibility": "TN families with annual income < Rs 72,000/year",
+        "documents": [
+          "Aadhaar",
+          "Income certificate",
+          "Ration card"
+        ],
+        "apply_url": "https://www.cmchistn.com",
+        "sector": "health"
+      },
+      {
+        "name_en": "Moovalur Ramamirtham Ammaiyar Ninaivu Marriage Assistance",
+        "name_hi": "विवाह सहायता योजना (तमिलनाडु)",
+        "benefit_en": "Rs 50,000 + 8g gold coin for marriage of SC/ST/BC girls",
+        "benefit_hi": "SC/ST/BC बालिकाओं के विवाह पर ₹50,000 + 8 ग्राम सोना",
+        "eligibility": "TN SC/ST/BC girls aged 18+, family income < Rs 72,000",
+        "documents": [
+          "Aadhaar",
+          "Caste certificate",
+          "Income certificate",
+          "Marriage proof"
+        ],
+        "apply_url": "https://www.tn.gov.in",
+        "sector": "women_child"
+      },
+      {
+        "name_en": "Kalaignar Magalir Urimai Thittam",
+        "name_hi": "कलैञ्ञर महिला अधिकार योजना",
+        "benefit_en": "Rs 1,000/month financial support for women-headed households",
+        "benefit_hi": "महिला प्रधान परिवारों को ₹1,000/माह",
+        "eligibility": "TN women aged 21+, family income not in top 25%",
+        "documents": [
+          "Aadhaar",
+          "Ration card",
+          "Bank account"
+        ],
+        "apply_url": "https://www.tn.gov.in",
+        "sector": "women_child"
+      },
+      {
+        "name_en": "Uzhavar Sandhai (Farmers Market)",
+        "name_hi": "उझवर संठई – किसान बाजार",
+        "benefit_en": "Direct-to-consumer sale stalls for farmers eliminating middlemen",
+        "benefit_hi": "किसानों को सीधे उपभोक्ताओं तक बिक्री, बिचौलियों से मुक्ति",
+        "eligibility": "All TN farmers",
+        "documents": [
+          "Aadhaar",
+          "Land records",
+          "Farmer ID"
+        ],
+        "apply_url": "https://www.tn.gov.in/agriculture",
+        "sector": "agriculture"
+      },
+      {
+        "name_en": "Tamil Nadu Startup & Innovation Policy",
+        "name_hi": "तमिलनाडु स्टार्टअप नीति",
+        "benefit_en": "Rs 10 lakh seed fund + mentoring + co-working space for TN startups",
+        "benefit_hi": "TN स्टार्टअप को ₹10 लाख सीड फंड + मेंटरिंग",
+        "eligibility": "DPIIT-recognized startups operating in Tamil Nadu",
+        "documents": [
+          "DPIIT certificate",
+          "Aadhaar",
+          "Business plan"
+        ],
+        "apply_url": "https://startuptn.in",
+        "sector": "employment"
+      }
+    ]
+  },
+  "karnataka": {
+    "state_en": "Karnataka",
+    "state_hi": "कर्नाटक",
+    "schemes": [
+      {
+        "name_en": "Arogya Karnataka (Universal Health Coverage)",
+        "name_hi": "आरोग्य कर्नाटक",
+        "benefit_en": "Free/subsidized treatment in government hospitals across Karnataka",
+        "benefit_hi": "कर्नाटक के सरकारी अस्पतालों में मुफ्त/रियायती इलाज",
+        "eligibility": "Karnataka residents (BPL: fully free, APL: subsidized)",
+        "documents": [
+          "Aadhaar",
+          "Ration card or income certificate"
+        ],
+        "apply_url": "https://arogyakarnataka.karnataka.gov.in",
+        "sector": "health"
+      },
+      {
+        "name_en": "Gruha Jyothi (Free Electricity)",
+        "name_hi": "गृह ज्योति योजना",
+        "benefit_en": "200 units free electricity per month for domestic consumers",
+        "benefit_hi": "घरेलू उपभोक्ताओं को 200 यूनिट मुफ्त बिजली प्रतिमाह",
+        "eligibility": "Karnataka domestic electricity consumers using ≤ 200 units/month",
+        "documents": [
+          "Aadhaar",
+          "Electricity consumer number"
+        ],
+        "apply_url": "https://escoms.karnataka.gov.in",
+        "sector": "energy"
+      },
+      {
+        "name_en": "Gruha Lakshmi (Women Financial Support)",
+        "name_hi": "गृह लक्ष्मी योजना",
+        "benefit_en": "Rs 2,000/month to woman head of the household",
+        "benefit_hi": "परिवार की महिला मुखिया को ₹2,000/माह",
+        "eligibility": "Karnataka women who are head of their household (above 18)",
+        "documents": [
+          "Aadhaar",
+          "Ration card",
+          "Bank account"
+        ],
+        "apply_url": "https://sevasindhu.karnataka.gov.in",
+        "sector": "women_child"
+      },
+      {
+        "name_en": "Yuva Nidhi Scheme",
+        "name_hi": "युवा निधि योजना",
+        "benefit_en": "Rs 3,000/month (graduates) or Rs 1,500/month (diploma) for unemployed youth",
+        "benefit_hi": "बेरोजगार स्नातक ₹3,000/माह, डिप्लोमाधारी ₹1,500/माह",
+        "eligibility": "Karnataka unemployed youth (graduated within 2 years), age < 25",
+        "documents": [
+          "Aadhaar",
+          "Degree/diploma certificate",
+          "Bank account"
+        ],
+        "apply_url": "https://sevasindhu.karnataka.gov.in",
+        "sector": "employment"
+      },
+      {
+        "name_en": "Raitha Vidyanidhi (Farmer Children Scholarship)",
+        "name_hi": "रायत विद्यानिधि छात्रवृत्ति",
+        "benefit_en": "Rs 2,000-10,000 scholarship for children of farmers",
+        "benefit_hi": "किसानों के बच्चों को ₹2,000-10,000 छात्रवृत्ति",
+        "eligibility": "Children of Karnataka farmers enrolled in Class 10 to degree",
+        "documents": [
+          "Aadhaar",
+          "Parent's land records",
+          "School/college enrollment"
+        ],
+        "apply_url": "https://farmers.karnataka.gov.in",
+        "sector": "education"
+      }
+    ]
+  },
+  "andhra_pradesh": {
+    "state_en": "Andhra Pradesh",
+    "state_hi": "आंध्र प्रदेश",
+    "schemes": [
+      {
+        "name_en": "YSR Arogyasri",
+        "name_hi": "वाईएसआर आरोग्यश्री",
+        "benefit_en": "Rs 5 lakh/year health cover + additional Rs 10 lakh for critical illnesses",
+        "benefit_hi": "₹5 लाख/वर्ष स्वास्थ्य बीमा + गंभीर बीमारियों में ₹10 लाख",
+        "eligibility": "All AP families with white/yellow ration card",
+        "documents": [
+          "Aadhaar",
+          "Ration card",
+          "Bank account"
+        ],
+        "apply_url": "https://ysrarogyasri.ap.gov.in",
+        "sector": "health"
+      },
+      {
+        "name_en": "YSR Rythu Bharosa",
+        "name_hi": "वाईएसआर रैतू भरोसा",
+        "benefit_en": "Rs 13,500/year investment support per farmer family (state + PM Kisan)",
+        "benefit_hi": "किसान परिवार को ₹13,500/वर्ष निवेश सहायता",
+        "eligibility": "All AP farmers (including tenant farmers with registered agreements)",
+        "documents": [
+          "Aadhaar",
+          "Land records or tenancy agreement",
+          "Bank account"
+        ],
+        "apply_url": "https://ysrrythubharosa.ap.gov.in",
+        "sector": "agriculture"
+      },
+      {
+        "name_en": "Jagananna Amma Vodi",
+        "name_hi": "जगनन्ना अम्मा वोडी",
+        "benefit_en": "Rs 15,000/year for mothers to keep children in school",
+        "benefit_hi": "बच्चों को स्कूल भेजने पर माँ को ₹15,000/वर्ष",
+        "eligibility": "AP mothers with children enrolled in Classes 1-12 (BPL)",
+        "documents": [
+          "Aadhaar",
+          "School enrollment",
+          "BPL status"
+        ],
+        "apply_url": "https://ammavodi.ap.gov.in",
+        "sector": "education"
+      },
+      {
+        "name_en": "YSR Cheyutha (Women Financial Support)",
+        "name_hi": "वाईएसआर चेयुथा",
+        "benefit_en": "Rs 18,750/year for 4 years for BC/OBC/EBC/Minority women entrepreneurs",
+        "benefit_hi": "BC/OBC/EBC/अल्पसंख्यक महिला उद्यमियों को 4 साल ₹18,750/वर्ष",
+        "eligibility": "AP women aged 45-60, BC/OBC/EBC/Minority",
+        "documents": [
+          "Aadhaar",
+          "Caste certificate",
+          "Age proof",
+          "Bank account"
+        ],
+        "apply_url": "https://navasakam.ap.gov.in",
+        "sector": "women_child"
+      },
+      {
+        "name_en": "Jagananna Housing (PMAY AP Extension)",
+        "name_hi": "जगनन्ना आवास योजना",
+        "benefit_en": "State-funded house with basic amenities for homeless AP families",
+        "benefit_hi": "बेघर AP परिवारों को बुनियादी सुविधाओं सहित घर",
+        "eligibility": "AP homeless families not covered under PMAY",
+        "documents": [
+          "Aadhaar",
+          "Income certificate",
+          "No-property certificate"
+        ],
+        "apply_url": "https://navasakam.ap.gov.in",
+        "sector": "housing"
+      }
+    ]
+  },
+  "telangana": {
+    "state_en": "Telangana",
+    "state_hi": "तेलंगाना",
+    "schemes": [
+      {
+        "name_en": "Aarogyasri (Telangana)",
+        "name_hi": "आरोग्यश्री (तेलंगाना)",
+        "benefit_en": "Rs 5 lakh/year cashless treatment for poor families at 460+ hospitals",
+        "benefit_hi": "₹5 लाख/वर्ष कैशलेस इलाज 460+ अस्पतालों में",
+        "eligibility": "Telangana BPL families with white ration card",
+        "documents": [
+          "Aadhaar",
+          "White ration card"
+        ],
+        "apply_url": "https://aarogyasri.telangana.gov.in",
+        "sector": "health"
+      },
+      {
+        "name_en": "Rythu Bandhu",
+        "name_hi": "रैतू बंधु",
+        "benefit_en": "Rs 10,000/acre/season (Rs 20,000/year) investment support to farmers",
+        "benefit_hi": "किसानों को ₹10,000/एकड़/सीजन (₹20,000/वर्ष) सहायता",
+        "eligibility": "All Telangana farmers who own agricultural land",
+        "documents": [
+          "Aadhaar",
+          "Pattadar passbook",
+          "Bank account"
+        ],
+        "apply_url": "https://rythubandhu.telangana.gov.in",
+        "sector": "agriculture"
+      },
+      {
+        "name_en": "KCR Kit Yojana",
+        "name_hi": "KCR किट योजना",
+        "benefit_en": "Free baby kit worth Rs 12,000 for mothers at government hospitals",
+        "benefit_hi": "सरकारी अस्पताल में प्रसव करने पर ₹12,000 की बेबी किट मुफ्त",
+        "eligibility": "All pregnant women delivering at government hospitals in Telangana",
+        "documents": [
+          "Aadhaar",
+          "Hospital delivery proof"
+        ],
+        "apply_url": "https://www.wdcw.telangana.gov.in",
+        "sector": "women_child"
+      },
+      {
+        "name_en": "Telangana Mission Bhagiratha",
+        "name_hi": "मिशन भागीरथ",
+        "benefit_en": "Safe tap water connection to every rural/urban household",
+        "benefit_hi": "हर घर तक सुरक्षित पेयजल कनेक्शन",
+        "eligibility": "All Telangana households without safe water connection",
+        "documents": [
+          "Aadhaar",
+          "House address proof"
+        ],
+        "apply_url": "https://missionbhagiratha.telangana.gov.in",
+        "sector": "rural_development"
+      },
+      {
+        "name_en": "TS ePass Scholarship",
+        "name_hi": "TS ई-पास छात्रवृत्ति",
+        "benefit_en": "Full tuition fee + maintenance for SC/ST/BC/EBC/Minority students",
+        "benefit_hi": "SC/ST/BC/EBC/अल्पसंख्यक छात्रों की पूरी फीस + रखरखाव",
+        "eligibility": "Telangana SC/ST/BC/EBC/Minority students in recognized colleges",
+        "documents": [
+          "Aadhaar",
+          "Caste/income certificate",
+          "Admission proof"
+        ],
+        "apply_url": "https://telanganaepass.cgg.gov.in",
+        "sector": "education"
+      }
+    ]
+  },
+  "kerala": {
+    "state_en": "Kerala",
+    "state_hi": "केरल",
+    "schemes": [
+      {
+        "name_en": "Karunya Health Scheme",
+        "name_hi": "करुण्य स्वास्थ्य योजना",
+        "benefit_en": "Financial assistance up to Rs 2 lakh for cancer and major illness treatment",
+        "benefit_hi": "कैंसर और गंभीर बीमारियों के इलाज में ₹2 लाख तक सहायता",
+        "eligibility": "Kerala BPL/APL families with income < Rs 1 lakh/year",
+        "documents": [
+          "Aadhaar",
+          "Ration card",
+          "Income certificate",
+          "Medical report"
+        ],
+        "apply_url": "https://karunyakerala.org",
+        "sector": "health"
+      },
+      {
+        "name_en": "Kudumbashree Mission",
+        "name_hi": "कुदुम्बश्री मिशन",
+        "benefit_en": "Women SHG microfinance, skill training, enterprise support network",
+        "benefit_hi": "महिला SHG माइक्रोफाइनेंस, कौशल प्रशिक्षण, उद्यम सहायता",
+        "eligibility": "Kerala women from poor households (NHG membership)",
+        "documents": [
+          "Aadhaar",
+          "NHG membership",
+          "Bank account"
+        ],
+        "apply_url": "https://kudumbashree.org",
+        "sector": "women_child"
+      },
+      {
+        "name_en": "Kerala Karshaka Kshemanidhi (Farmer Pension)",
+        "name_hi": "केरल किसान पेंशन योजना",
+        "benefit_en": "Rs 1,100/month pension for farmers after age 60",
+        "benefit_hi": "60 वर्ष बाद किसानों को ₹1,100/माह पेंशन",
+        "eligibility": "Kerala farmers aged 60+, land ownership minimum 10 cents",
+        "documents": [
+          "Aadhaar",
+          "Land records",
+          "Age proof",
+          "Bank account"
+        ],
+        "apply_url": "https://keralaagriculture.gov.in",
+        "sector": "agriculture"
+      },
+      {
+        "name_en": "LIFE Mission Housing (Kerala)",
+        "name_hi": "LIFE मिशन आवास (केरल)",
+        "benefit_en": "Fully constructed house for homeless/landless families in Kerala",
+        "benefit_hi": "बेघर/भूमिहीन परिवारों को बना-बनाया घर",
+        "eligibility": "Homeless/landless Kerala families (especially returned migrants)",
+        "documents": [
+          "Aadhaar",
+          "No-land/no-house certificate",
+          "Income proof"
+        ],
+        "apply_url": "https://lifemission.kerala.gov.in",
+        "sector": "housing"
+      },
+      {
+        "name_en": "Kerala Startup Mission (KSUM)",
+        "name_hi": "केरल स्टार्टअप मिशन",
+        "benefit_en": "Incubation, seed fund up to Rs 10 lakh, mentoring for tech startups",
+        "benefit_hi": "टेक स्टार्टअप को ₹10 लाख सीड फंड + मेंटरिंग",
+        "eligibility": "Kerala-based startups in tech/innovation sectors",
+        "documents": [
+          "DPIIT certificate",
+          "Aadhaar",
+          "Business plan"
+        ],
+        "apply_url": "https://startupmission.kerala.gov.in",
+        "sector": "employment"
+      }
+    ]
+  },
+  "odisha": {
+    "state_en": "Odisha",
+    "state_hi": "ओडिशा",
+    "schemes": [
+      {
+        "name_en": "Biju Swasthya Kalyan Yojana",
+        "name_hi": "बीजू स्वास्थ्य कल्याण योजना",
+        "benefit_en": "Rs 5 lakh (women: Rs 10 lakh)/year free health cover for BPL families",
+        "benefit_hi": "BPL परिवारों को ₹5 लाख (महिला: ₹10 लाख)/वर्ष मुफ्त इलाज",
+        "eligibility": "Odisha BPL families (NFSA eligible)",
+        "documents": [
+          "Aadhaar",
+          "NFSA/Ration card"
+        ],
+        "apply_url": "https://bskyodisha.co.in",
+        "sector": "health"
+      },
+      {
+        "name_en": "KALIA Scheme",
+        "name_hi": "KALIA योजना",
+        "benefit_en": "Rs 10,000/season financial assistance to small/marginal farmers",
+        "benefit_hi": "लघु/सीमांत किसानों को ₹10,000/सीजन सहायता",
+        "eligibility": "Odisha small/marginal farmers and landless agricultural laborers",
+        "documents": [
+          "Aadhaar",
+          "Land records or LPC",
+          "Bank account"
+        ],
+        "apply_url": "https://kalia.odisha.gov.in",
+        "sector": "agriculture"
+      },
+      {
+        "name_en": "Subhadra Yojana",
+        "name_hi": "सुभद्रा योजना",
+        "benefit_en": "Rs 10,000/year (Rs 50,000 over 5 years) for Odisha women",
+        "benefit_hi": "ओडिशा महिलाओं को ₹10,000/वर्ष (5 साल में ₹50,000)",
+        "eligibility": "Odisha women aged 21-60, not income tax payer",
+        "documents": [
+          "Aadhaar",
+          "Ration card",
+          "Bank account"
+        ],
+        "apply_url": "https://subhadra.odisha.gov.in",
+        "sector": "women_child"
+      },
+      {
+        "name_en": "Mukhyamantri Karma Tatpara Abhiyan (MUKТА)",
+        "name_hi": "मुख्यमंत्री कर्म तत्परा अभियान",
+        "benefit_en": "Employment guarantee + skill training for urban poor in Odisha",
+        "benefit_hi": "ओडिशा शहरी गरीबों को रोजगार गारंटी + कौशल प्रशिक्षण",
+        "eligibility": "Urban poor families in Odisha",
+        "documents": [
+          "Aadhaar",
+          "Urban residence proof",
+          "Bank account"
+        ],
+        "apply_url": "https://hud.odisha.gov.in",
+        "sector": "employment"
+      }
+    ]
+  },
+  "jharkhand": {
+    "state_en": "Jharkhand",
+    "state_hi": "झारखंड",
+    "schemes": [
+      {
+        "name_en": "Mukhyamantri Sarthi Yojana",
+        "name_hi": "मुख्यमंत्री सारथी योजना",
+        "benefit_en": "Free coaching for competitive exams (UPSC, SSC, Banking) for Jharkhand youth",
+        "benefit_hi": "UPSC, SSC, बैंकिंग परीक्षाओं की मुफ्त कोचिंग",
+        "eligibility": "Jharkhand youth aged 18-35 from poor families",
+        "documents": [
+          "Aadhaar",
+          "Income certificate",
+          "Educational proof"
+        ],
+        "apply_url": "https://jharkhand.gov.in",
+        "sector": "education"
+      },
+      {
+        "name_en": "Savitribai Phule Kishori Samridhi Yojana",
+        "name_hi": "सावित्रीबाई फुले किशोरी समृद्धि योजना",
+        "benefit_en": "Rs 40,000 total support for girl child education in 6 installments",
+        "benefit_hi": "बालिका शिक्षा के लिए 6 किस्तों में ₹40,000",
+        "eligibility": "Jharkhand BPL/SECC girl students (Class 8-12)",
+        "documents": [
+          "Aadhaar",
+          "School enrollment",
+          "BPL/SECC proof"
+        ],
+        "apply_url": "https://jharkhand.gov.in",
+        "sector": "women_child"
+      },
+      {
+        "name_en": "Abua Awas Yojana",
+        "name_hi": "अबुआ आवास योजना",
+        "benefit_en": "3-room pucca house with Rs 2 lakh grant for homeless Jharkhand families",
+        "benefit_hi": "बेघर परिवारों को ₹2 लाख में 3 कमरों का पक्का घर",
+        "eligibility": "Jharkhand homeless families not covered under PMAY",
+        "documents": [
+          "Aadhaar",
+          "No-house proof",
+          "Bank account"
+        ],
+        "apply_url": "https://aay.jharkhand.gov.in",
+        "sector": "housing"
+      },
+      {
+        "name_en": "Mukhyamantri Pashudhan Vikas Yojana",
+        "name_hi": "मुख्यमंत्री पशुधन विकास योजना",
+        "benefit_en": "50-90% subsidy on cows, goats, poultry for tribal & BPL families",
+        "benefit_hi": "जनजातीय/BPL परिवारों को गाय, बकरी, मुर्गी पर 50-90% सब्सिडी",
+        "eligibility": "SC/ST/BPL Jharkhand families",
+        "documents": [
+          "Aadhaar",
+          "Caste/BPL certificate",
+          "Bank account"
+        ],
+        "apply_url": "https://ahd.jharkhand.gov.in",
+        "sector": "agriculture"
+      }
+    ]
+  },
+  "assam": {
+    "state_en": "Assam",
+    "state_hi": "असम",
+    "schemes": [
+      {
+        "name_en": "Atal Amrit Abhiyan (Assam Health)",
+        "name_hi": "अटल अमृत अभियान",
+        "benefit_en": "Rs 2 lakh/year free treatment for 5 disease categories",
+        "benefit_hi": "5 रोग श्रेणियों के लिए ₹2 लाख/वर्ष मुफ्त इलाज",
+        "eligibility": "Assam families (BPL: free, APL: income < Rs 5 lakh)",
+        "documents": [
+          "Aadhaar",
+          "Family enrollment certificate"
+        ],
+        "apply_url": "https://atalamrit.assam.gov.in",
+        "sector": "health"
+      },
+      {
+        "name_en": "Orunodoi Scheme",
+        "name_hi": "অৰুণোদই / ओरुणोदोई योजना",
+        "benefit_en": "Rs 1,250/month to woman of economically poor families",
+        "benefit_hi": "गरीब परिवार की महिला को ₹1,250/माह",
+        "eligibility": "Assam women in BPL/low-income families (EWS)",
+        "documents": [
+          "Aadhaar",
+          "Income certificate",
+          "Bank account"
+        ],
+        "apply_url": "https://orunodoi.assam.gov.in",
+        "sector": "women_child"
+      },
+      {
+        "name_en": "Mukhyamantri Atmanirbhar Asom Abhiyan",
+        "name_hi": "मुख्यमंत्री आत्मनिर्भर असम अभियान",
+        "benefit_en": "1 lakh youth to get skill training + tool kit + Rs 30,000 support",
+        "benefit_hi": "1 लाख युवाओं को कौशल प्रशिक्षण + टूल किट + ₹30,000",
+        "eligibility": "Assam youth aged 18-40 from poor families",
+        "documents": [
+          "Aadhaar",
+          "Educational certificate",
+          "Bank account"
+        ],
+        "apply_url": "https://slsa.assam.gov.in",
+        "sector": "employment"
+      }
+    ]
+  },
+  "delhi": {
+    "state_en": "Delhi",
+    "state_hi": "दिल्ली",
+    "schemes": [
+      {
+        "name_en": "Delhi Ration Card (AAY/PHH Free Ration)",
+        "name_hi": "दिल्ली राशन कार्ड (मुफ्त राशन)",
+        "benefit_en": "Free 5kg wheat + 1kg rice per person per month",
+        "benefit_hi": "प्रति व्यक्ति 5 किलो गेहूँ + 1 किलो चावल मुफ्त प्रतिमाह",
+        "eligibility": "Delhi BPL/EWS families with ration card",
+        "documents": [
+          "Aadhaar",
+          "Delhi domicile",
+          "Income proof"
+        ],
+        "apply_url": "https://edistrict.delhigovt.nic.in",
+        "sector": "social_security"
+      },
+      {
+        "name_en": "Mukhyamantri Tirth Yatra Yojana",
+        "name_hi": "मुख्यमंत्री तीर्थ यात्रा योजना",
+        "benefit_en": "Free pilgrimage trip for senior citizens to religious sites",
+        "benefit_hi": "बुजुर्गों को धार्मिक स्थलों की मुफ्त तीर्थ यात्रा",
+        "eligibility": "Delhi residents aged 60+, annual income < Rs 1 lakh",
+        "documents": [
+          "Aadhaar",
+          "Age proof",
+          "Delhi residence",
+          "Income certificate"
+        ],
+        "apply_url": "https://edistrict.delhigovt.nic.in",
+        "sector": "social_security"
+      },
+      {
+        "name_en": "Delhi Mahila Samman Yojana",
+        "name_hi": "दिल्ली महिला सम्मान योजना",
+        "benefit_en": "Rs 2,100/month financial support for Delhi women",
+        "benefit_hi": "दिल्ली महिलाओं को ₹2,100/माह सहायता",
+        "eligibility": "Delhi women aged 18+, Delhi domicile, not income tax payer",
+        "documents": [
+          "Aadhaar",
+          "Delhi voter ID/domicile",
+          "Bank account"
+        ],
+        "apply_url": "https://delhi.gov.in",
+        "sector": "women_child"
+      },
+      {
+        "name_en": "Delhi Rozgar Bazaar",
+        "name_hi": "दिल्ली रोजगार बाजार",
+        "benefit_en": "Online job portal + skill centres + career guidance for Delhi youth",
+        "benefit_hi": "दिल्ली युवाओं के लिए ऑनलाइन जॉब पोर्टल + स्किल सेंटर",
+        "eligibility": "Delhi residents looking for employment",
+        "documents": [
+          "Aadhaar",
+          "Educational certificates"
+        ],
+        "apply_url": "https://jobsearch.delhi.gov.in",
+        "sector": "employment"
+      },
+      {
+        "name_en": "Delhi EV Policy (EV Subsidy)",
+        "name_hi": "दिल्ली ईवी नीति (सब्सिडी)",
+        "benefit_en": "Rs 5,000-30,000 subsidy on electric 2-wheelers + scrapping incentive",
+        "benefit_hi": "इलेक्ट्रिक दोपहिया पर ₹5,000-30,000 सब्सिडी",
+        "eligibility": "Delhi residents buying FAME-approved EVs",
+        "documents": [
+          "Aadhaar",
+          "Delhi address proof",
+          "Vehicle purchase invoice"
+        ],
+        "apply_url": "https://ev.delhi.gov.in",
+        "sector": "energy"
+      }
+    ]
+  },
+  "haryana": {
+    "state_en": "Haryana",
+    "state_hi": "हरियाणा",
+    "schemes": [
+      {
+        "name_en": "Chirayu Haryana (AYUSH Health)",
+        "name_hi": "चिरायु हरियाणा",
+        "benefit_en": "Rs 5 lakh/year health insurance for families with income < Rs 1.8 lakh",
+        "benefit_hi": "₹1.8 लाख से कम आय वाले परिवारों को ₹5 लाख/वर्ष बीमा",
+        "eligibility": "Haryana families with annual income < Rs 1.8 lakh",
+        "documents": [
+          "Aadhaar",
+          "Family ID (Parivar Pehchaan Patra)",
+          "Income certificate"
+        ],
+        "apply_url": "https://chirayu.haryana.gov.in",
+        "sector": "health"
+      },
+      {
+        "name_en": "Mukhyamantri Parivar Samridhi Yojana",
+        "name_hi": "मुख्यमंत्री परिवार समृद्धि योजना",
+        "benefit_en": "Rs 6,000/year benefit (pension/insurance/investment) per family",
+        "benefit_hi": "परिवार को ₹6,000/वर्ष (पेंशन/बीमा/निवेश)",
+        "eligibility": "Haryana families with income < Rs 1.8 lakh and land < 2 hectare",
+        "documents": [
+          "Parivar Pehchaan Patra",
+          "Aadhaar",
+          "Bank account"
+        ],
+        "apply_url": "https://cm-psy.haryana.gov.in",
+        "sector": "social_security"
+      },
+      {
+        "name_en": "Haryana Kanyadan Yojana",
+        "name_hi": "हरियाणा कन्यादान योजना",
+        "benefit_en": "Rs 51,000 grant for marriage of BPL girl, Rs 71,000 for SC/ST",
+        "benefit_hi": "BPL बेटी के विवाह पर ₹51,000, SC/ST को ₹71,000",
+        "eligibility": "Haryana BPL/SC/ST families; girl aged 18+, boy aged 21+",
+        "documents": [
+          "Aadhaar",
+          "BPL/caste certificate",
+          "Age proof",
+          "Marriage invitation"
+        ],
+        "apply_url": "https://saralharyana.gov.in",
+        "sector": "women_child"
+      },
+      {
+        "name_en": "Haryana Solar Water Heater Scheme",
+        "name_hi": "हरियाणा सौर जल ताप योजना",
+        "benefit_en": "30% subsidy on solar water heaters for domestic use",
+        "benefit_hi": "घरेलू उपयोग के सौर वाटर हीटर पर 30% सब्सिडी",
+        "eligibility": "Haryana domestic consumers with electricity connection",
+        "documents": [
+          "Aadhaar",
+          "Electricity bill"
+        ],
+        "apply_url": "https://hareda.gov.in",
+        "sector": "energy"
+      }
+    ]
+  },
+  "chhattisgarh": {
+    "state_en": "Chhattisgarh",
+    "state_hi": "छत्तीसगढ़",
+    "schemes": [
+      {
+        "name_en": "Dr. Khobragade Universal PDS (Rs 1-2/kg Rice)",
+        "name_hi": "सार्वजनिक वितरण प्रणाली (₹1-2/किलो चावल)",
+        "benefit_en": "Rice at Rs 1-2/kg to all CG ration card holders",
+        "benefit_hi": "सभी राशन कार्ड धारकों को ₹1-2/किलो चावल",
+        "eligibility": "All Chhattisgarh ration card holders",
+        "documents": [
+          "Ration card",
+          "Aadhaar"
+        ],
+        "apply_url": "https://khadya.cg.nic.in",
+        "sector": "social_security"
+      },
+      {
+        "name_en": "Godhan Nyay Yojana",
+        "name_hi": "गोधन न्याय योजना",
+        "benefit_en": "Govt buys cattle dung at Rs 2/kg, converted to compost/biogas",
+        "benefit_hi": "सरकार गोबर ₹2/किलो खरीदती है; जैविक खाद/बायोगैस बनता है",
+        "eligibility": "Chhattisgarh cattle owners (farmers, SHGs, gaushalas)",
+        "documents": [
+          "Aadhaar",
+          "Bank account"
+        ],
+        "apply_url": "https://agriportal.cg.nic.in",
+        "sector": "agriculture"
+      },
+      {
+        "name_en": "Rajiv Gandhi Gramin Bhumihin Krishi Mazdoor Nyay Yojana",
+        "name_hi": "राजीव गांधी ग्रामीण भूमिहीन कृषि मजदूर न्याय योजना",
+        "benefit_en": "Rs 7,000/year to landless agricultural laborer households",
+        "benefit_hi": "भूमिहीन कृषि मजदूर परिवारों को ₹7,000/वर्ष",
+        "eligibility": "CG rural landless agricultural laborers",
+        "documents": [
+          "Aadhaar",
+          "Landless certificate from Gram Panchayat",
+          "Bank account"
+        ],
+        "apply_url": "https://rggbkmny.cg.nic.in",
+        "sector": "employment"
+      }
+    ]
+  },
+  "himachal_pradesh": {
+    "state_en": "Himachal Pradesh",
+    "state_hi": "हिमाचल प्रदेश",
+    "schemes": [
+      {
+        "name_en": "Himcare (HP Health Insurance)",
+        "name_hi": "हिमकेयर (HP स्वास्थ्य बीमा)",
+        "benefit_en": "Rs 5 lakh/year health insurance for HP residents not covered under PMJAY",
+        "benefit_hi": "PMJAY से बाहर HP निवासियों को ₹5 लाख/वर्ष स्वास्थ्य बीमा",
+        "eligibility": "HP residents not eligible for PMJAY, premium Rs 365-1000/year by category",
+        "documents": [
+          "Aadhaar",
+          "HP domicile",
+          "Bank account"
+        ],
+        "apply_url": "https://himcare.hp.gov.in",
+        "sector": "health"
+      },
+      {
+        "name_en": "Mukhyamantri Swavalamban Yojana",
+        "name_hi": "मुख्यमंत्री स्वावलंबन योजना",
+        "benefit_en": "25-35% subsidy on business loans for HP youth entrepreneurs",
+        "benefit_hi": "HP युवा उद्यमियों को व्यावसायिक ऋण पर 25-35% सब्सिडी",
+        "eligibility": "HP residents aged 18-45 starting new enterprises",
+        "documents": [
+          "Aadhaar",
+          "HP domicile",
+          "Business plan",
+          "Bank account"
+        ],
+        "apply_url": "https://emerginghimachal.hp.gov.in",
+        "sector": "employment"
+      },
+      {
+        "name_en": "Sahara Yojana (HP)",
+        "name_hi": "सहारा योजना (HP)",
+        "benefit_en": "Rs 3,000/month for home-based care of serious illness patients",
+        "benefit_hi": "गंभीर बीमारी के घरेलू देखभाल के लिए ₹3,000/माह",
+        "eligibility": "HP patients with cancer, paralysis, muscular dystrophy etc.",
+        "documents": [
+          "Aadhaar",
+          "Medical certificate",
+          "Bank account"
+        ],
+        "apply_url": "https://sahara.hp.gov.in",
+        "sector": "health"
+      }
+    ]
+  }
+}

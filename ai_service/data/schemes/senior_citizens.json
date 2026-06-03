@@ -1,0 +1,196 @@
+{
+  "sector": "senior_citizens",
+  "schemes": [
+    {
+      "name": "Pradhan Mantri Vaya Vandana Yojana (PMVVY)",
+      "ministry": "Finance / LIC",
+      "benefit": "Guaranteed 7.4% pension for 10 years on lump-sum deposit up to Rs 15 lakh",
+      "benefit_hi": "₹15 लाख तक की जमा पर 10 साल तक 7.4% गारंटीड पेंशन",
+      "eligibility": "Senior citizens aged 60+",
+      "documents": [
+        "Age proof",
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://licindia.in",
+      "sector": "senior_citizens",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Senior Citizens' Savings Scheme (SCSS)",
+      "ministry": "Finance",
+      "benefit": "8.2% interest per quarter, up to Rs 30 lakh deposit, 5-year tenure",
+      "benefit_hi": "₹30 लाख तक 8.2% ब्याज/तिमाही, 5 साल",
+      "eligibility": "Citizens aged 60+ (55+ for VRS; 50+ for retired defence)",
+      "documents": [
+        "Age proof",
+        "Aadhaar",
+        "PAN",
+        "Bank account"
+      ],
+      "apply_url": "https://indiapost.gov.in",
+      "sector": "senior_citizens",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Indira Gandhi National Old Age Pension (IGNOAPS)",
+      "ministry": "Rural Development",
+      "benefit": "Rs 200-500/month pension for BPL elderly above 60 years",
+      "benefit_hi": "BPL वृद्धों को ₹200-500/माह पेंशन",
+      "eligibility": "BPL persons aged 60+ not receiving other government pension",
+      "documents": [
+        "BPL card",
+        "Aadhaar",
+        "Age proof",
+        "Bank account"
+      ],
+      "apply_url": "https://nsap.nic.in",
+      "sector": "senior_citizens",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Integrated Programme for Senior Citizens (IPSrC)",
+      "ministry": "Social Justice",
+      "benefit": "Old age homes, day care centres, mobile medicare units for destitute elderly",
+      "benefit_hi": "निराश्रित वृद्धों के लिए वृद्धाश्रम, डे केयर, मोबाइल चिकित्सा",
+      "eligibility": "Destitute/poor senior citizens with no family support",
+      "documents": [
+        "Age proof",
+        "Aadhaar",
+        "Income/destitution proof"
+      ],
+      "apply_url": "https://socialjustice.gov.in",
+      "sector": "senior_citizens",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "ECHS (Ex-Servicemen) / CGHS for Retired Govt Employees",
+      "ministry": "Health / Defence",
+      "benefit": "Cashless medical care at empanelled hospitals for retired government/defence employees",
+      "benefit_hi": "सेवानिवृत्त सरकारी/रक्षा कर्मियों को कैशलेस चिकित्सा",
+      "eligibility": "Retired central government employees (CGHS) or ex-servicemen (ECHS)",
+      "documents": [
+        "Service record",
+        "CGHS/ECHS card",
+        "Age proof"
+      ],
+      "apply_url": "https://echs.gov.in",
+      "sector": "senior_citizens",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Senior Citizen Health Insurance Tax Deduction (80D)",
+      "ministry": "Finance / CBDT",
+      "benefit": "Rs 50,000 tax deduction on health insurance premium for senior citizens (vs Rs 25,000 for others)",
+      "benefit_hi": "वरिष्ठ नागरिकों के स्वास्थ्य बीमा प्रीमियम पर ₹50,000 कर कटौती",
+      "eligibility": "Senior citizens aged 60+ paying health insurance premiums",
+      "documents": [
+        "Age proof",
+        "Insurance policy",
+        "PAN",
+        "Aadhaar"
+      ],
+      "apply_url": "https://incometax.gov.in",
+      "sector": "senior_citizens",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Elder Line (National Helpline for Senior Citizens 14567)",
+      "ministry": "Social Justice",
+      "benefit": "Free helpline for information, emotional support, legal aid, crisis response for seniors",
+      "benefit_hi": "वरिष्ठ नागरिकों के लिए मुफ्त जानकारी, भावनात्मक सहायता, कानूनी मदद",
+      "eligibility": "All senior citizens aged 60+ across India",
+      "documents": [
+        "None required — call 14567"
+      ],
+      "apply_url": "Helpline: 14567",
+      "sector": "senior_citizens",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Maintenance and Welfare of Parents and Senior Citizens Act",
+      "ministry": "Social Justice",
+      "benefit": "Legal right to claim maintenance from children/relatives; Maintenance Tribunal for quick resolution",
+      "benefit_hi": "बच्चों/रिश्तेदारों से भरण-पोषण का कानूनी अधिकार",
+      "eligibility": "Senior citizens not maintained by their children",
+      "documents": [
+        "Age proof",
+        "Aadhaar",
+        "Application to Maintenance Tribunal"
+      ],
+      "apply_url": "https://socialjustice.gov.in",
+      "sector": "senior_citizens",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Pradhan Mantri Vaya Mitra Scheme (Proposed)",
+      "ministry": "Social Justice",
+      "benefit": "Home care workers trained by government for elderly at nominal cost",
+      "benefit_hi": "वृद्धों की घरेलू देखभाल के लिए सरकार प्रशिक्षित केयरवर्कर",
+      "eligibility": "Senior citizens aged 70+ needing daily assistance",
+      "documents": [
+        "Age proof",
+        "Aadhaar"
+      ],
+      "apply_url": "https://socialjustice.gov.in",
+      "sector": "senior_citizens",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Atal Pension Yojana (Retirement Phase)",
+      "ministry": "Finance / PFRDA",
+      "benefit": "Guaranteed pension Rs 1,000-5,000/month from age 60 for life + spouse",
+      "benefit_hi": "60 वर्ष बाद आजीवन ₹1,000-5,000/माह पेंशन + जीवनसाथी को भी",
+      "eligibility": "APY subscribers reaching age 60",
+      "documents": [
+        "Aadhaar",
+        "Bank account",
+        "APY account details"
+      ],
+      "apply_url": "https://npscra.nsdl.co.in",
+      "sector": "senior_citizens",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Income Tax Exemption for Senior Citizens (Section 87A + SCSS)",
+      "ministry": "Finance",
+      "benefit": "No tax up to Rs 5 lakh income; no estimated advance tax payment needed for seniors 75+",
+      "benefit_hi": "₹5 लाख आय तक कोई टैक्स नहीं; 75+ को एडवांस टैक्स से छूट",
+      "eligibility": "Senior citizens (60-80: Rs 3L exemption; 80+: Rs 5L exemption)",
+      "documents": [
+        "PAN",
+        "Aadhaar",
+        "Income proof"
+      ],
+      "apply_url": "https://incometax.gov.in",
+      "sector": "senior_citizens",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "SAGE (Seniorcare Ageing Growth Engine)",
+      "ministry": "Social Justice",
+      "benefit": "Marketplace listing + government certification for senior-care startups and products",
+      "benefit_hi": "वरिष्ठ देखभाल स्टार्टअप के लिए सरकारी प्रमाणन + मार्केटप्लेस",
+      "eligibility": "Startups providing senior-care products/services",
+      "documents": [
+        "DPIIT certificate",
+        "Product/service proof"
+      ],
+      "apply_url": "https://sagecareservice.in",
+      "sector": "senior_citizens",
+      "type": "Central",
+      "status": "active"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "state_en": "Dadra, Daman & Diu",
+  "state_hi": "दादरा, दमन व दीव",
+  "schemes": [
+    {
+      "name_en": "DPIIT Industrial Policy — Dadra Nagar Haveli",
+      "name_hi": "DPIIT औद्योगिक नीति – दादरा नगर हवेली",
+      "benefit_en": "Income tax & excise benefits + cheap industrial land for factories in DNH",
+      "benefit_hi": "DNH में कारखानों को आयकर/उत्पाद शुल्क लाभ + सस्ती औद्योगिक भूमि",
+      "eligibility": "Entrepreneurs setting up manufacturing in DNH",
+      "documents": [
+        "Aadhaar",
+        "Business registration",
+        "Project report"
+      ],
+      "apply_url": "https://dnh.nic.in",
+      "sector": "employment"
+    },
+    {
+      "name_en": "DNH & DD Housing for Fishermen",
+      "name_hi": "DNH & DD मछुआरा आवास योजना",
+      "benefit_en": "Subsidized housing for fishing community in coastal areas of Daman, Diu, DNH",
+      "benefit_hi": "दमन, दीव, DNH के तटीय क्षेत्रों में मछुआरा समुदाय को सब्सिडी आवास",
+      "eligibility": "Fishing community residents of DNH & DD",
+      "documents": [
+        "Aadhaar",
+        "Fisherman ID",
+        "UT domicile"
+      ],
+      "apply_url": "https://daman.nic.in",
+      "sector": "housing"
+    }
+  ]
+}

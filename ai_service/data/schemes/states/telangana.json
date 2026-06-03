@@ -1,0 +1,73 @@
+{
+  "state_en": "Telangana",
+  "state_hi": "तेलंगाना",
+  "schemes": [
+    {
+      "name_en": "Aarogyasri (Telangana)",
+      "name_hi": "आरोग्यश्री (तेलंगाना)",
+      "benefit_en": "Rs 5 lakh/year cashless treatment for poor families at 460+ hospitals",
+      "benefit_hi": "₹5 लाख/वर्ष कैशलेस इलाज 460+ अस्पतालों में",
+      "eligibility": "Telangana BPL families with white ration card",
+      "documents": [
+        "Aadhaar",
+        "White ration card"
+      ],
+      "apply_url": "https://aarogyasri.telangana.gov.in",
+      "sector": "health"
+    },
+    {
+      "name_en": "Rythu Bandhu",
+      "name_hi": "रैतू बंधु",
+      "benefit_en": "Rs 10,000/acre/season (Rs 20,000/year) investment support to farmers",
+      "benefit_hi": "किसानों को ₹10,000/एकड़/सीजन (₹20,000/वर्ष) सहायता",
+      "eligibility": "All Telangana farmers who own agricultural land",
+      "documents": [
+        "Aadhaar",
+        "Pattadar passbook",
+        "Bank account"
+      ],
+      "apply_url": "https://rythubandhu.telangana.gov.in",
+      "sector": "agriculture"
+    },
+    {
+      "name_en": "KCR Kit Yojana",
+      "name_hi": "KCR किट योजना",
+      "benefit_en": "Free baby kit worth Rs 12,000 for mothers at government hospitals",
+      "benefit_hi": "सरकारी अस्पताल में प्रसव करने पर ₹12,000 की बेबी किट मुफ्त",
+      "eligibility": "All pregnant women delivering at government hospitals in Telangana",
+      "documents": [
+        "Aadhaar",
+        "Hospital delivery proof"
+      ],
+      "apply_url": "https://www.wdcw.telangana.gov.in",
+      "sector": "women_child"
+    },
+    {
+      "name_en": "Telangana Mission Bhagiratha",
+      "name_hi": "मिशन भागीरथ",
+      "benefit_en": "Safe tap water connection to every rural/urban household",
+      "benefit_hi": "हर घर तक सुरक्षित पेयजल कनेक्शन",
+      "eligibility": "All Telangana households without safe water connection",
+      "documents": [
+        "Aadhaar",
+        "House address proof"
+      ],
+      "apply_url": "https://missionbhagiratha.telangana.gov.in",
+      "sector": "rural_development"
+    },
+    {
+      "name_en": "TS ePass Scholarship",
+      "name_hi": "TS ई-पास छात्रवृत्ति",
+      "benefit_en": "Full tuition fee + maintenance for SC/ST/BC/EBC/Minority students",
+      "benefit_hi": "SC/ST/BC/EBC/अल्पसंख्यक छात्रों की पूरी फीस + रखरखाव",
+      "eligibility": "Telangana SC/ST/BC/EBC/Minority students in recognized colleges",
+      "documents": [
+        "Aadhaar",
+        "Caste/income certificate",
+        "Admission proof"
+      ],
+      "apply_url": "https://telanganaepass.cgg.gov.in",
+      "sector": "education"
+    }
+  ]
+}

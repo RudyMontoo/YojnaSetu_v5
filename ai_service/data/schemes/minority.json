@@ -1,0 +1,246 @@
+{
+  "sector": "minority",
+  "schemes": [
+    {
+      "name": "Pradhan Mantri Jan Vikas Karyakram (PMJVK)",
+      "ministry": "Minority Affairs",
+      "benefit": "Physical infrastructure (schools, anganwadis, hospitals) in minority-concentrated areas",
+      "benefit_hi": "अल्पसंख्यक बहुल क्षेत्रों में स्कूल, आँगनवाड़ी, अस्पताल बुनियादी ढाँचा",
+      "eligibility": "Residents of Minority Concentration Blocks/Clusters",
+      "documents": [
+        "Aadhaar",
+        "Minority certificate",
+        "Residence proof"
+      ],
+      "apply_url": "https://minorityaffairs.gov.in",
+      "sector": "minority",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Pre-Matric Scholarship for Minority Students",
+      "ministry": "Minority Affairs",
+      "benefit": "Rs 1,000-1,100/month maintenance + Rs 500 book grant for Class 1-10",
+      "benefit_hi": "कक्षा 1-10 के अल्पसंख्यक छात्रों को ₹1,000-1,100/माह + ₹500 पुस्तक अनुदान",
+      "eligibility": "Muslim, Christian, Sikh, Buddhist, Jain, Parsi students; income < Rs 1 lakh",
+      "documents": [
+        "Minority certificate",
+        "Aadhaar",
+        "Income certificate",
+        "School enrollment"
+      ],
+      "apply_url": "https://scholarships.gov.in",
+      "sector": "minority",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Post-Matric Scholarship for Minority Students",
+      "ministry": "Minority Affairs",
+      "benefit": "Full fee + maintenance Rs 5,000-12,000/year for Class 11 to PhD",
+      "benefit_hi": "कक्षा 11 से PhD तक पूरी फीस + ₹5,000-12,000/वर्ष रखरखाव",
+      "eligibility": "6 minority communities; income < Rs 2 lakh/year",
+      "documents": [
+        "Minority certificate",
+        "Aadhaar",
+        "Income certificate",
+        "Admission proof"
+      ],
+      "apply_url": "https://scholarships.gov.in",
+      "sector": "minority",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Merit-cum-Means Scholarship for Professional Courses",
+      "ministry": "Minority Affairs",
+      "benefit": "100% course fee + Rs 10,000/year maintenance for technical/professional courses",
+      "benefit_hi": "तकनीकी/व्यावसायिक पाठ्यक्रम में 100% फीस + ₹10,000/वर्ष",
+      "eligibility": "6 minorities; income < Rs 2.5 lakh; scored 50%+ in qualifying exam",
+      "documents": [
+        "Minority certificate",
+        "Aadhaar",
+        "Income certificate",
+        "Marksheet"
+      ],
+      "apply_url": "https://scholarships.gov.in",
+      "sector": "minority",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Nai Manzil Scheme",
+      "ministry": "Minority Affairs",
+      "benefit": "Bridge education (Class 8/10 certificate) + skill training for minority dropouts",
+      "benefit_hi": "अल्पसंख्यक ड्रॉपआउट को कक्षा 8/10 प्रमाण + कौशल प्रशिक्षण",
+      "eligibility": "Minority youth 17-35 years without Class 8 or 10 certificate",
+      "documents": [
+        "Aadhaar",
+        "Minority certificate"
+      ],
+      "apply_url": "https://minorityaffairs.gov.in",
+      "sector": "minority",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "USTTAD — Upgrading Skills & Training in Traditional Arts",
+      "ministry": "Minority Affairs",
+      "benefit": "Skill training + certification in 20+ traditional crafts for minority artisans",
+      "benefit_hi": "अल्पसंख्यक कारीगरों को 20+ पारंपरिक शिल्पों में कौशल प्रशिक्षण",
+      "eligibility": "Minority community artisans (Muslim, Christian, Sikh, Buddhist, Parsi, Jain)",
+      "documents": [
+        "Aadhaar",
+        "Minority certificate",
+        "Artisan proof"
+      ],
+      "apply_url": "https://minorityaffairs.gov.in",
+      "sector": "minority",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Hamari Dharohar (Cultural Heritage)",
+      "ministry": "Minority Affairs",
+      "benefit": "Preservation/documentation of rich minority cultural heritage, museums, libraries",
+      "benefit_hi": "अल्पसंख्यक सांस्कृतिक धरोहर संरक्षण, संग्रहालय, पुस्तकालय",
+      "eligibility": "Minority cultural institutions and community organisations",
+      "documents": [
+        "Minority certificate",
+        "Organization registration",
+        "Proposal"
+      ],
+      "apply_url": "https://minorityaffairs.gov.in",
+      "sector": "minority",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Seekho aur Kamao (Learn & Earn)",
+      "ministry": "Minority Affairs",
+      "benefit": "Free market-relevant skill training + Rs 6,500-10,000/month stipend during training",
+      "benefit_hi": "मुफ्त कौशल प्रशिक्षण + ₹6,500-10,000/माह वजीफा",
+      "eligibility": "Minority youth aged 14-35 with minimum Class 5 qualification",
+      "documents": [
+        "Aadhaar",
+        "Minority certificate",
+        "Educational proof"
+      ],
+      "apply_url": "https://minorityaffairs.gov.in",
+      "sector": "minority",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Nai Roshni (Leadership for Minority Women)",
+      "ministry": "Minority Affairs",
+      "benefit": "Leadership training + awareness of government schemes for minority women",
+      "benefit_hi": "अल्पसंख्यक महिलाओं को नेतृत्व प्रशिक्षण + सरकारी योजना जागरूकता",
+      "eligibility": "Minority women aged 18-65 years",
+      "documents": [
+        "Aadhaar",
+        "Minority certificate"
+      ],
+      "apply_url": "https://minorityaffairs.gov.in",
+      "sector": "minority",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Jiyo Parsi Scheme",
+      "ministry": "Minority Affairs",
+      "benefit": "Medical assistance for fertility treatment + financial incentives for Parsi families having children",
+      "benefit_hi": "पारसी परिवारों को प्रजनन उपचार + बच्चे होने पर वित्तीय प्रोत्साहन",
+      "eligibility": "Parsi community couples",
+      "documents": [
+        "Aadhaar",
+        "Parsi certificate",
+        "Medical records"
+      ],
+      "apply_url": "https://minorityaffairs.gov.in",
+      "sector": "minority",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Educational Infrastructure Development in Minority Areas (PMJVK)",
+      "ministry": "Minority Affairs",
+      "benefit": "Construction of model schools, degree colleges, ITIs in Minority Concentration Blocks",
+      "benefit_hi": "MCB में मॉडल स्कूल, डिग्री कॉलेज, ITI का निर्माण",
+      "eligibility": "Residents near sanctioned institutions in MCBs",
+      "documents": [
+        "Aadhaar",
+        "Minority area domicile"
+      ],
+      "apply_url": "https://minorityaffairs.gov.in",
+      "sector": "minority",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "National Minorities Development and Finance Corporation (NMDFC) Loans",
+      "ministry": "Minority Affairs",
+      "benefit": "Concessional loans 5-8% for education, self-employment up to Rs 20 lakh for minorities",
+      "benefit_hi": "अल्पसंख्यकों को 5-8% पर ₹20 लाख तक शिक्षा/स्वरोजगार ऋण",
+      "eligibility": "6 minority communities, income < Rs 3 lakh (rural) / Rs 4 lakh (urban)",
+      "documents": [
+        "Minority certificate",
+        "Aadhaar",
+        "Income certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://nmdfc.org",
+      "sector": "minority",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Free Coaching for Minority Students (Civil Services/JEE/NEET)",
+      "ministry": "Minority Affairs",
+      "benefit": "Free coaching at top institutes for UPSC, JEE, NEET, SSC, banking exams",
+      "benefit_hi": "UPSC, JEE, NEET, SSC, बैंकिंग परीक्षाओं के लिए मुफ्त कोचिंग",
+      "eligibility": "Minority students who cleared preliminary screening; income < Rs 8 lakh",
+      "documents": [
+        "Minority certificate",
+        "Aadhaar",
+        "Income certificate",
+        "Exam screening result"
+      ],
+      "apply_url": "https://scholarships.gov.in",
+      "sector": "minority",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Pradhan Mantri Minorities Empowerment Programme",
+      "ministry": "Minority Affairs",
+      "benefit": "Converged delivery of 15-point programme benefits to minority communities",
+      "benefit_hi": "अल्पसंख्यकों तक 15 सूत्री कार्यक्रम का एकीकृत लाभ पहुँचाना",
+      "eligibility": "6 minority communities in notified districts",
+      "documents": [
+        "Aadhaar",
+        "Minority certificate"
+      ],
+      "apply_url": "https://minorityaffairs.gov.in",
+      "sector": "minority",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Minority Hostel Scheme",
+      "ministry": "Minority Affairs",
+      "benefit": "Hostel accommodation + mess for minority students studying away from home",
+      "benefit_hi": "घर से दूर पढ़ रहे अल्पसंख्यक छात्रों को हॉस्टल + मेस सुविधा",
+      "eligibility": "Minority students enrolled in recognized colleges/universities",
+      "documents": [
+        "Minority certificate",
+        "Aadhaar",
+        "College enrollment"
+      ],
+      "apply_url": "https://minorityaffairs.gov.in",
+      "sector": "minority",
+      "type": "Central",
+      "status": "active"
+    }
+  ]
+}

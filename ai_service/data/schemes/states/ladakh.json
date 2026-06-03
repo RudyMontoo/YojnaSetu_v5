@@ -1,0 +1,47 @@
+{
+  "state_en": "Ladakh (UT)",
+  "state_hi": "लद्दाख (UT)",
+  "schemes": [
+    {
+      "name_en": "Ladakh Autonomous Hill Development Council Schemes",
+      "name_hi": "लद्दाख स्वायत्त पर्वतीय विकास परिषद योजनाएं",
+      "benefit_en": "Local infrastructure + livelihood grants through LAHDC Leh and LAHDC Kargil",
+      "benefit_hi": "LAHDC लेह और LAHDC कारगिल के माध्यम से स्थानीय बुनियादी ढाँचा + आजीविका",
+      "eligibility": "Ladakh UT residents",
+      "documents": [
+        "Aadhaar",
+        "Ladakh domicile"
+      ],
+      "apply_url": "https://ladakh.gov.in",
+      "sector": "rural_development"
+    },
+    {
+      "name_en": "Snow Leopard Conservation Livelihood Scheme",
+      "name_hi": "हिम तेंदुआ संरक्षण आजीविका योजना",
+      "benefit_en": "Income support for herders as community protectors of snow leopards and wildlife",
+      "benefit_hi": "हिम तेंदुए और वन्यजीव संरक्षक समुदाय चरवाहों को आय सहायता",
+      "eligibility": "Herding communities near snow leopard habitats in Ladakh",
+      "documents": [
+        "Aadhaar",
+        "Ladakh domicile",
+        "Herder identity"
+      ],
+      "apply_url": "https://ladakh.gov.in",
+      "sector": "environment"
+    },
+    {
+      "name_en": "Ladakh Tourism Homestay Scheme",
+      "name_hi": "लद्दाख पर्यटन होमस्टे योजना",
+      "benefit_en": "Subsidized renovation grants + training for Ladakh families offering tourist homestays",
+      "benefit_hi": "पर्यटक होमस्टे चलाने वाले लद्दाख परिवारों को सब्सिडी + प्रशिक्षण",
+      "eligibility": "Ladakh families with space for tourist accommodation",
+      "documents": [
+        "Aadhaar",
+        "Ladakh domicile",
+        "House/property proof"
+      ],
+      "apply_url": "https://ladakhtourism.in",
+      "sector": "employment"
+    }
+  ]
+}

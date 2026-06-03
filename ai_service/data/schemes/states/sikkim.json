@@ -1,0 +1,48 @@
+{
+  "state_en": "Sikkim",
+  "state_hi": "सिक्किम",
+  "schemes": [
+    {
+      "name_en": "Sikkim Organic Mission (100% Organic State)",
+      "name_hi": "सिक्किम जैविक मिशन (100% जैविक राज्य)",
+      "benefit_en": "Input support, certification, premium markets — Sikkim is India's 1st fully organic state",
+      "benefit_hi": "निविष्टि सहायता, प्रमाणन, प्रीमियम बाजार — सिक्किम भारत का पहला जैविक राज्य",
+      "eligibility": "All Sikkim farmers (mandatory organic — full government support)",
+      "documents": [
+        "Aadhaar",
+        "Sikkim domicile",
+        "Land records"
+      ],
+      "apply_url": "https://sikkim.gov.in",
+      "sector": "agriculture"
+    },
+    {
+      "name_en": "Sikkim Universal Health Care Scheme",
+      "name_hi": "सिक्किम सार्वभौमिक स्वास्थ्य देखभाल योजना",
+      "benefit_en": "Rs 2 lakh/year comprehensive health cover for all Sikkim families",
+      "benefit_hi": "सभी सिक्किम परिवारों को ₹2 लाख/वर्ष स्वास्थ्य बीमा",
+      "eligibility": "All Sikkim residents",
+      "documents": [
+        "Aadhaar",
+        "Sikkim domicile"
+      ],
+      "apply_url": "https://sikkim.gov.in",
+      "sector": "health"
+    },
+    {
+      "name_en": "Sikkim Swabhiman (Dignity for Senior Citizens)",
+      "name_hi": "सिक्किम स्वाभिमान वृद्धा पेंशन",
+      "benefit_en": "Rs 2,000-3,000/month social security pension for all Sikkim senior citizens",
+      "benefit_hi": "सभी सिक्किम वृद्धों को ₹2,000-3,000/माह पेंशन",
+      "eligibility": "Sikkim domicile residents aged 60+",
+      "documents": [
+        "Aadhaar",
+        "Sikkim domicile",
+        "Age proof",
+        "Bank account"
+      ],
+      "apply_url": "https://sikkim.gov.in",
+      "sector": "senior_citizens"
+    }
+  ]
+}

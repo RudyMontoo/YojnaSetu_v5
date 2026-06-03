@@ -1,0 +1,61 @@
+{
+  "state_en": "Tripura",
+  "state_hi": "त्रिपुरा",
+  "schemes": [
+    {
+      "name_en": "Mukhyamantri Vigyan Unnayan Yojana",
+      "name_hi": "मुख्यमंत्री विज्ञान उन्नयन योजना",
+      "benefit_en": "Free science equipment, lab setup for government school students in Tripura",
+      "benefit_hi": "त्रिपुरा सरकारी स्कूल छात्रों को मुफ्त विज्ञान उपकरण, प्रयोगशाला",
+      "eligibility": "Students at government schools in Tripura (Class 8-12)",
+      "documents": [
+        "School enrollment",
+        "Aadhaar"
+      ],
+      "apply_url": "https://tripura.gov.in",
+      "sector": "education"
+    },
+    {
+      "name_en": "Tripura Swasthya Sati (Health Scheme)",
+      "name_hi": "त्रिपुरा स्वास्थ्य साथी",
+      "benefit_en": "Rs 2 lakh/year cashless health cover for BPL Tripura families",
+      "benefit_hi": "त्रिपुरा BPL परिवारों को ₹2 लाख/वर्ष कैशलेस स्वास्थ्य बीमा",
+      "eligibility": "Tripura BPL families",
+      "documents": [
+        "Aadhaar",
+        "BPL card",
+        "Tripura residence"
+      ],
+      "apply_url": "https://tripura.gov.in",
+      "sector": "health"
+    },
+    {
+      "name_en": "Mukhyamantri Griha Nirman Yojana (Tripura)",
+      "name_hi": "मुख्यमंत्री गृह निर्माण योजना",
+      "benefit_en": "Rs 1.5 lakh state housing grant for BPL families in Tripura not under PMAY",
+      "benefit_hi": "PMAY से बाहर त्रिपुरा BPL परिवारों को ₹1.5 लाख राज्य अनुदान",
+      "eligibility": "Tripura BPL families without own house",
+      "documents": [
+        "Aadhaar",
+        "BPL card",
+        "Land/plot ownership"
+      ],
+      "apply_url": "https://tripura.gov.in",
+      "sector": "housing"
+    },
+    {
+      "name_en": "Rubber Board Support Scheme (Tripura)",
+      "name_hi": "रबर बोर्ड सहायता योजना",
+      "benefit_en": "Replanting subsidy + skill training for rubber farmers in Tripura",
+      "benefit_hi": "त्रिपुरा के रबर किसानों को पुनरोपण सब्सिडी + प्रशिक्षण",
+      "eligibility": "Tripura small rubber farmers",
+      "documents": [
+        "Aadhaar",
+        "Land records",
+        "Rubber Board registration"
+      ],
+      "apply_url": "https://rubberboard.org.in",
+      "sector": "agriculture"
+    }
+  ]
+}

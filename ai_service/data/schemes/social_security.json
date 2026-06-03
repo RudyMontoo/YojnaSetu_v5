@@ -1,0 +1,192 @@
+{
+  "sector": "social_security",
+  "schemes": [
+    {
+      "name": "PM Jeevan Jyoti Bima Yojana (PMJJBY)",
+      "ministry": "Finance",
+      "benefit": "Rs 2 lakh life insurance at just Rs 436/year",
+      "eligibility": "Bank account holders aged 18-50",
+      "documents": [
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://financialservices.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM Suraksha Bima Yojana (PMSBY)",
+      "ministry": "Finance",
+      "benefit": "Rs 2 lakh accident insurance at Rs 20/year",
+      "eligibility": "Bank account holders aged 18-70",
+      "documents": [
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://financialservices.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Atal Pension Yojana (APY)",
+      "ministry": "Finance",
+      "benefit": "Guaranteed pension Rs 1000-5000/month after age 60",
+      "eligibility": "Unorganized sector workers, bank account holders aged 18-40",
+      "documents": [
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://npscra.nsdl.co.in",
+      "type": "Central"
+    },
+    {
+      "name": "National Social Assistance Programme (NSAP)",
+      "ministry": "Rural Development",
+      "benefit": "Monthly pension Rs 200-500 for elderly, widow, disabled BPL",
+      "eligibility": "BPL elderly (60+), widows (40+), disabled (18+)",
+      "documents": [
+        "Aadhaar",
+        "BPL card",
+        "Age/widow/disability proof"
+      ],
+      "apply_url": "https://nsap.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "Indira Gandhi National Old Age Pension",
+      "ministry": "Rural Development",
+      "benefit": "Rs 200-500/month pension for BPL elderly",
+      "eligibility": "BPL persons aged 60+",
+      "documents": [
+        "Aadhaar",
+        "BPL card",
+        "Age proof"
+      ],
+      "apply_url": "https://nsap.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "Indira Gandhi National Disability Pension",
+      "ministry": "Rural Development",
+      "benefit": "Rs 300/month for disabled BPL persons",
+      "eligibility": "BPL persons with 80%+ disability aged 18+",
+      "documents": [
+        "Aadhaar",
+        "BPL card",
+        "Disability certificate (80%+)"
+      ],
+      "apply_url": "https://nsap.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM Jan Dhan Yojana (PMJDY)",
+      "ministry": "Finance",
+      "benefit": "Zero-balance account, Rs 2 lakh accident cover, overdraft Rs 10K",
+      "eligibility": "All unbanked Indian citizens",
+      "documents": [
+        "Aadhaar or any address proof"
+      ],
+      "apply_url": "https://pmjdy.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Antyodaya Anna Yojana",
+      "ministry": "Food & Public Distribution",
+      "benefit": "35 kg food grain/month at Rs 1-3/kg for poorest families",
+      "eligibility": "Poorest of poor (identified by state), landless laborers",
+      "documents": [
+        "AAY Ration Card",
+        "Aadhaar"
+      ],
+      "apply_url": "State Food Department",
+      "type": "Central"
+    },
+    {
+      "name": "PM Garib Kalyan Anna Yojana",
+      "ministry": "Food & Public Distribution",
+      "benefit": "Free 5 kg food grain per person per month",
+      "eligibility": "NFSA beneficiaries (PHH and AAY cardholders)",
+      "documents": [
+        "Ration card",
+        "Aadhaar"
+      ],
+      "apply_url": "State Food Department",
+      "type": "Central"
+    },
+    {
+      "name": "Niramaya Health Insurance (Disability)",
+      "ministry": "Social Justice",
+      "benefit": "Health insurance up to Rs 1 lakh for persons with disability",
+      "eligibility": "Persons with disability",
+      "documents": [
+        "Aadhaar",
+        "Disability certificate"
+      ],
+      "apply_url": "https://nhfdc.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "Viklang Saathi (Disability Pension)",
+      "ministry": "Social Justice",
+      "benefit": "Monthly pension + aids/appliances for severely disabled",
+      "eligibility": "Persons with 40%+ disability, income < Rs 2 lakh/year",
+      "documents": [
+        "Aadhaar",
+        "Disability certificate",
+        "Income certificate"
+      ],
+      "apply_url": "https://disabilityaffairs.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Employees' Provident Fund (EPF)",
+      "ministry": "Labour",
+      "benefit": "Retirement corpus + pension (EPS) + insurance (EDLI)",
+      "eligibility": "Employees in organizations with 20+ workers",
+      "documents": [
+        "Aadhaar",
+        "UAN",
+        "Employment details"
+      ],
+      "apply_url": "https://epfindia.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Pradhan Mantri Vaya Vandana Yojana",
+      "ministry": "Finance",
+      "benefit": "8% guaranteed pension for 10 years for senior citizens",
+      "eligibility": "Senior citizens aged 60+",
+      "documents": [
+        "Aadhaar",
+        "Age proof",
+        "Bank account"
+      ],
+      "apply_url": "https://licindia.in",
+      "type": "Central"
+    },
+    {
+      "name": "Post Office Monthly Income Scheme",
+      "ministry": "Finance",
+      "benefit": "Guaranteed 7.4% p.a. monthly income on deposit",
+      "eligibility": "All Indian citizens (single: Rs 9L max, joint: Rs 15L max)",
+      "documents": [
+        "Aadhaar",
+        "PAN",
+        "Post office KYC"
+      ],
+      "apply_url": "https://www.indiapost.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Senior Citizens' Saving Scheme",
+      "ministry": "Finance",
+      "benefit": "8.2% interest quarterly deposit for 5 years, up to Rs 30 lakh",
+      "eligibility": "Citizens aged 60+ (55+ for VRS, 50+ for retired defence)",
+      "documents": [
+        "Aadhaar",
+        "Age proof",
+        "KYC documents"
+      ],
+      "apply_url": "https://www.indiapost.gov.in",
+      "type": "Central"
+    }
+  ]
+}

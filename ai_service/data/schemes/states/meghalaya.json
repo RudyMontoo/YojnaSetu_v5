@@ -1,0 +1,62 @@
+{
+  "state_en": "Meghalaya",
+  "state_hi": "मेघालय",
+  "schemes": [
+    {
+      "name_en": "Meghalaya Health Insurance Scheme (MHIS)",
+      "name_hi": "मेघालय स्वास्थ्य बीमा योजना",
+      "benefit_en": "Rs 5 lakh/year cashless treatment at 200+ hospitals for all Meghalaya residents",
+      "benefit_hi": "मेघालय निवासियों को ₹5 लाख/वर्ष कैशलेस इलाज 200+ अस्पतालों में",
+      "eligibility": "All Meghalaya residents (domicile required)",
+      "documents": [
+        "Aadhaar",
+        "Meghalaya domicile"
+      ],
+      "apply_url": "https://meghalaya.gov.in",
+      "sector": "health"
+    },
+    {
+      "name_en": "Meghalaya Basin Development Authority (MBDA) Livelihood",
+      "name_hi": "MBDA आजीविका योजना मेघालय",
+      "benefit_en": "Skill training + micro-enterprise support in 4 river basins of Meghalaya",
+      "benefit_hi": "मेघालय की 4 नदी घाटियों में कौशल प्रशिक्षण + सूक्ष्म उद्यम सहायता",
+      "eligibility": "Residents along 4 river basin areas of Meghalaya",
+      "documents": [
+        "Aadhaar",
+        "Meghalaya domicile",
+        "Bank account"
+      ],
+      "apply_url": "https://meghalaya.gov.in",
+      "sector": "employment"
+    },
+    {
+      "name_en": "Orange Revolution Scheme (Meghalaya Orange Farming)",
+      "name_hi": "ऑरेंज रिवोल्यूशन मेघालय",
+      "benefit_en": "Subsidy + market linkage for Khasi mandarin orange growers in Meghalaya",
+      "benefit_hi": "मेघालय खासी मंदारिन संतरा उत्पादकों को सब्सिडी + बाजार संपर्क",
+      "eligibility": "Meghalaya orange-growing farmers in tribal areas",
+      "documents": [
+        "Aadhaar",
+        "Land records",
+        "Tribe certificate"
+      ],
+      "apply_url": "https://meghalaya.gov.in",
+      "sector": "agriculture"
+    },
+    {
+      "name_en": "Meghalaya Pension for Senior Citizens",
+      "name_hi": "मेघालय वृद्धावस्था पेंशन",
+      "benefit_en": "Rs 1,000/month pension for BPL senior citizens in Meghalaya",
+      "benefit_hi": "मेघालय BPL वृद्धों को ₹1,000/माह पेंशन",
+      "eligibility": "Meghalaya domicile, aged 60+, BPL",
+      "documents": [
+        "Aadhaar",
+        "Meghalaya domicile",
+        "Age proof",
+        "Bank account"
+      ],
+      "apply_url": "https://meghalaya.gov.in",
+      "sector": "senior_citizens"
+    }
+  ]
+}

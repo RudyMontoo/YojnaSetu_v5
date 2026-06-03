@@ -1,0 +1,294 @@
+{
+  "sector": "tribal",
+  "schemes": [
+    {
+      "name": "PM Janjati Adivasi Nyaya Maha Abhiyan (PM-JANMAN)",
+      "ministry": "Tribal Affairs",
+      "benefit": "Housing, clean water, roads, mobile medical units for Particularly Vulnerable Tribal Groups (PVTG)",
+      "benefit_hi": "PVTG जनजातियों को आवास, स्वच्छ जल, सड़क, मोबाइल चिकित्सा इकाई",
+      "eligibility": "75 Particularly Vulnerable Tribal Group communities",
+      "documents": [
+        "Tribe certificate",
+        "Aadhaar",
+        "Village identification"
+      ],
+      "apply_url": "https://tribal.nic.in",
+      "sector": "tribal",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Tribal Sub Plan (TSP) / Scheduled Tribe Component",
+      "ministry": "Tribal Affairs",
+      "benefit": "Funds earmarked proportional to ST population in every ministry budget for tribal welfare",
+      "benefit_hi": "हर मंत्रालय बजट में ST जनसंख्या अनुपात में धनराशि",
+      "eligibility": "All Scheduled Tribe citizens",
+      "documents": [
+        "ST certificate",
+        "Aadhaar"
+      ],
+      "apply_url": "https://tribal.nic.in",
+      "sector": "tribal",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Eklavya Model Residential Schools (EMRS)",
+      "ministry": "Tribal Affairs",
+      "benefit": "Free quality residential education (Class 6-12) + vocational training in tribal areas",
+      "benefit_hi": "जनजातीय क्षेत्रों में कक्षा 6-12 तक मुफ्त आवासीय शिक्षा",
+      "eligibility": "ST children in areas with 50%+ tribal population",
+      "documents": [
+        "ST certificate",
+        "Aadhaar",
+        "Birth certificate"
+      ],
+      "apply_url": "https://emrs.tribal.gov.in",
+      "sector": "tribal",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Van Dhan Vikas Kendras (VDVK)",
+      "ministry": "Tribal Affairs / TRIFED",
+      "benefit": "Skill training + value addition on Minor Forest Produce + collective marketing for tribal entrepreneurs",
+      "benefit_hi": "लघु वन उत्पाद पर मूल्य संवर्धन, कौशल प्रशिक्षण, सामूहिक विपणन",
+      "eligibility": "ST members in forest areas, SHGs processing MFP",
+      "documents": [
+        "ST certificate",
+        "Aadhaar",
+        "SHG registration"
+      ],
+      "apply_url": "https://trifed.tribal.gov.in",
+      "sector": "tribal",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Tribal Cooperative Marketing Development Federation (TRIFED) Support",
+      "ministry": "Tribal Affairs",
+      "benefit": "MSP for 87 Minor Forest Produce items + market linkages",
+      "benefit_hi": "87 लघु वन उत्पादों के लिए MSP + बाजार संपर्क",
+      "eligibility": "ST forest produce collectors across India",
+      "documents": [
+        "ST certificate",
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://trifed.tribal.gov.in",
+      "sector": "tribal",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Scholarships for ST Students (Pre-Matric)",
+      "ministry": "Tribal Affairs",
+      "benefit": "Rs 150-350/month stipend + Rs 750-1000 book grant for ST students (Class 9-10)",
+      "benefit_hi": "ST छात्रों को ₹150-350/माह वजीफा + ₹750-1000 पुस्तक अनुदान",
+      "eligibility": "ST students in Class 9-10, income < Rs 2 lakh/year",
+      "documents": [
+        "ST certificate",
+        "Aadhaar",
+        "Income certificate",
+        "School enrollment"
+      ],
+      "apply_url": "https://scholarships.gov.in",
+      "sector": "tribal",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Scholarships for ST Students (Post-Matric)",
+      "ministry": "Tribal Affairs",
+      "benefit": "Full tuition + maintenance allowance for ST students in Class 11 through PhD",
+      "benefit_hi": "ST छात्रों को कक्षा 11 से PhD तक पूरी फीस + रखरखाव भत्ता",
+      "eligibility": "ST students in post-matric courses, income < Rs 2.5 lakh/year",
+      "documents": [
+        "ST certificate",
+        "Aadhaar",
+        "Income certificate",
+        "Admission proof"
+      ],
+      "apply_url": "https://scholarships.gov.in",
+      "sector": "tribal",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "National Overseas Scholarship for ST Students",
+      "ministry": "Tribal Affairs",
+      "benefit": "Full cost scholarship for Master's/PhD abroad at top universities",
+      "benefit_hi": "विदेश में Master's/PhD के लिए पूर्ण छात्रवृत्ति",
+      "eligibility": "ST students under 35, family income < Rs 6 lakh/year",
+      "documents": [
+        "ST certificate",
+        "Aadhaar",
+        "Admission offer letter",
+        "Degree certificate"
+      ],
+      "apply_url": "https://tribal.nic.in",
+      "sector": "tribal",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Pradhan Mantri Adi Adarsh Gram Yojana",
+      "ministry": "Tribal Affairs",
+      "benefit": "Integrated development of 36,428 villages with 50%+ ST population (roads, schools, health centres)",
+      "benefit_hi": "50%+ ST आबादी वाले गाँवों में एकीकृत विकास",
+      "eligibility": "ST residents of notified PMAAGY villages",
+      "documents": [
+        "ST certificate",
+        "Aadhaar"
+      ],
+      "apply_url": "https://tribal.nic.in",
+      "sector": "tribal",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Mechanism for Marketing of Minor Forest Produce (MFP)",
+      "ministry": "Tribal Affairs",
+      "benefit": "Procurement of MFP at MSP, storage, processing to end distress selling",
+      "benefit_hi": "MSP पर MFP की खरीद, भंडारण, प्रसंस्करण — त्रस्त बिक्री खत्म",
+      "eligibility": "ST MFP gatherers in notified states",
+      "documents": [
+        "ST certificate",
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://trifed.tribal.gov.in",
+      "sector": "tribal",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Tribal Health Action Plan",
+      "ministry": "Health / Tribal Affairs",
+      "benefit": "Mobile health units, tribal-specific disease control, skill health workers in tribal blocks",
+      "benefit_hi": "जनजातीय ब्लॉकों में मोबाइल स्वास्थ्य इकाई, आशा कार्यकर्ता",
+      "eligibility": "ST communities in health-deprived tribal areas",
+      "documents": [
+        "Aadhaar",
+        "Tribe identification"
+      ],
+      "apply_url": "https://nhm.gov.in",
+      "sector": "tribal",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Forest Rights Act (FRA) Individual Land Rights",
+      "ministry": "Tribal Affairs / Environment",
+      "benefit": "Legal ownership of up to 4 hectares of forest land under cultivation before 2005",
+      "benefit_hi": "2005 से पूर्व खेती योग्य वन भूमि पर 4 हेक्टेयर तक कानूनी स्वामित्व",
+      "eligibility": "Scheduled Tribes and Other Traditional Forest Dwellers",
+      "documents": [
+        "ST certificate",
+        "Evidence of occupation (3 witnesses)",
+        "Gram Sabha resolution"
+      ],
+      "apply_url": "https://tribal.nic.in",
+      "sector": "tribal",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Tribal Research Institutes (TRI) Support",
+      "ministry": "Tribal Affairs",
+      "benefit": "Documentation of tribal culture + support to tribal artists, craft persons",
+      "benefit_hi": "जनजातीय कला, संस्कृति संरक्षण + कलाकारों को सहायता",
+      "eligibility": "Tribal artists, craftspersons, cultural workers",
+      "documents": [
+        "ST certificate",
+        "Aadhaar",
+        "Portfolio/craft proof"
+      ],
+      "apply_url": "https://tribal.nic.in",
+      "sector": "tribal",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Pradhan Mantri Annadata Aay Sanrakshan — Tribal MSP",
+      "ministry": "Agriculture / Tribal Affairs",
+      "benefit": "Price support for tribal crops like millets, oilseeds, pulses at MSP",
+      "benefit_hi": "जनजातीय फसलों (मिलेट, तिलहन, दलहन) की MSP पर खरीद",
+      "eligibility": "ST farmers growing notified crops",
+      "documents": [
+        "ST certificate",
+        "Aadhaar",
+        "Land records",
+        "Bank account"
+      ],
+      "apply_url": "https://tribal.nic.in",
+      "sector": "tribal",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Ashram Schools (Tribal Residential Schools)",
+      "ministry": "Tribal Affairs (State shared)",
+      "benefit": "Free residential schooling from Class 1-12 with food, clothing and boarding in tribal areas",
+      "benefit_hi": "जनजातीय क्षेत्रों में कक्षा 1-12 तक मुफ्त आवास, भोजन, वस्त्र सहित शिक्षा",
+      "eligibility": "ST children in remote forest/tribal areas",
+      "documents": [
+        "ST certificate",
+        "Aadhaar",
+        "Birth certificate"
+      ],
+      "apply_url": "https://tribal.nic.in",
+      "sector": "tribal",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "National Fellowship for ST Students (UGC)",
+      "ministry": "Tribal Affairs / UGC",
+      "benefit": "Rs 25,000-28,000/month fellowship for ST PhD scholars",
+      "benefit_hi": "ST PhD छात्रों को ₹25,000-28,000/माह फेलोशिप",
+      "eligibility": "ST students admitted to PhD in recognized universities",
+      "documents": [
+        "ST certificate",
+        "Aadhaar",
+        "PhD admission"
+      ],
+      "apply_url": "https://scholarships.gov.in",
+      "sector": "tribal",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Vanbandhu Kalyan Yojana",
+      "ministry": "Tribal Affairs",
+      "benefit": "Integrated tribal block development — livelihood + infrastructure + education in 1 package",
+      "benefit_hi": "जनजातीय ब्लॉकों में आजीविका + बुनियादी ढाँचा + शिक्षा एकीकृत",
+      "eligibility": "ST communities in notified tribal sub-plan areas",
+      "documents": [
+        "ST certificate",
+        "Aadhaar"
+      ],
+      "apply_url": "https://tribal.nic.in",
+      "sector": "tribal",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Pradhan Mantri Van Dhan Yojana (Tribal)",
+      "ministry": "TRIFED / Tribal Affairs",
+      "benefit": "Rs 15 lakh seed money per Van Dhan Vikas Kendra for 300 tribal MFP collectors",
+      "benefit_hi": "300 जनजातीय MFP संग्रहकर्ताओं के समूह को ₹15 लाख बीज पूंजी",
+      "eligibility": "ST MFP collector SHGs in tribal districts",
+      "documents": [
+        "ST certificate",
+        "SHG registration",
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://trifed.tribal.gov.in",
+      "sector": "tribal",
+      "type": "Central",
+      "status": "active"
+    }
+  ]
+}

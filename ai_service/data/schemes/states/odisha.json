@@ -1,0 +1,61 @@
+{
+  "state_en": "Odisha",
+  "state_hi": "ओडिशा",
+  "schemes": [
+    {
+      "name_en": "Biju Swasthya Kalyan Yojana",
+      "name_hi": "बीजू स्वास्थ्य कल्याण योजना",
+      "benefit_en": "Rs 5 lakh (women: Rs 10 lakh)/year free health cover for BPL families",
+      "benefit_hi": "BPL परिवारों को ₹5 लाख (महिला: ₹10 लाख)/वर्ष मुफ्त इलाज",
+      "eligibility": "Odisha BPL families (NFSA eligible)",
+      "documents": [
+        "Aadhaar",
+        "NFSA/Ration card"
+      ],
+      "apply_url": "https://bskyodisha.co.in",
+      "sector": "health"
+    },
+    {
+      "name_en": "KALIA Scheme",
+      "name_hi": "KALIA योजना",
+      "benefit_en": "Rs 10,000/season financial assistance to small/marginal farmers",
+      "benefit_hi": "लघु/सीमांत किसानों को ₹10,000/सीजन सहायता",
+      "eligibility": "Odisha small/marginal farmers and landless agricultural laborers",
+      "documents": [
+        "Aadhaar",
+        "Land records or LPC",
+        "Bank account"
+      ],
+      "apply_url": "https://kalia.odisha.gov.in",
+      "sector": "agriculture"
+    },
+    {
+      "name_en": "Subhadra Yojana",
+      "name_hi": "सुभद्रा योजना",
+      "benefit_en": "Rs 10,000/year (Rs 50,000 over 5 years) for Odisha women",
+      "benefit_hi": "ओडिशा महिलाओं को ₹10,000/वर्ष (5 साल में ₹50,000)",
+      "eligibility": "Odisha women aged 21-60, not income tax payer",
+      "documents": [
+        "Aadhaar",
+        "Ration card",
+        "Bank account"
+      ],
+      "apply_url": "https://subhadra.odisha.gov.in",
+      "sector": "women_child"
+    },
+    {
+      "name_en": "Mukhyamantri Karma Tatpara Abhiyan (MUKТА)",
+      "name_hi": "मुख्यमंत्री कर्म तत्परा अभियान",
+      "benefit_en": "Employment guarantee + skill training for urban poor in Odisha",
+      "benefit_hi": "ओडिशा शहरी गरीबों को रोजगार गारंटी + कौशल प्रशिक्षण",
+      "eligibility": "Urban poor families in Odisha",
+      "documents": [
+        "Aadhaar",
+        "Urban residence proof",
+        "Bank account"
+      ],
+      "apply_url": "https://hud.odisha.gov.in",
+      "sector": "employment"
+    }
+  ]
+}

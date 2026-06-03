@@ -1,0 +1,47 @@
+{
+  "state_en": "Puducherry",
+  "state_hi": "पुदुच्चेरी",
+  "schemes": [
+    {
+      "name_en": "Puducherry Chief Minister Health Insurance Scheme",
+      "name_hi": "पुदुच्चेरी मुख्यमंत्री स्वास्थ्य बीमा",
+      "benefit_en": "Rs 5 lakh/year health cover for all Puducherry families at select hospitals",
+      "benefit_hi": "सभी पुदुच्चेरी परिवारों को ₹5 लाख/वर्ष स्वास्थ्य बीमा",
+      "eligibility": "All Puducherry UT residents",
+      "documents": [
+        "Aadhaar",
+        "Puducherry domicile/ration card"
+      ],
+      "apply_url": "https://puducherry.gov.in",
+      "sector": "health"
+    },
+    {
+      "name_en": "Puducherry Adi Dravidar Housing Scheme",
+      "name_hi": "पुदुच्चेरी आदि द्राविड़ आवास योजना",
+      "benefit_en": "Free housing + essential amenities for SC/Adi Dravidar families in Puducherry",
+      "benefit_hi": "SC/ आदि द्राविड़ परिवारों को मुफ्त आवास + जरूरी सुविधाएं",
+      "eligibility": "SC/Adi Dravidar BPL families in Puducherry",
+      "documents": [
+        "Aadhaar",
+        "SC certificate",
+        "Puducherry domicile"
+      ],
+      "apply_url": "https://puducherry.gov.in",
+      "sector": "housing"
+    },
+    {
+      "name_en": "Puducherry Special Incentive Scheme for Industries",
+      "name_hi": "पुदुच्चेरी उद्योग विशेष प्रोत्साहन योजना",
+      "benefit_en": "Power tariff subsidy + building plan fee waiver for new industries in Puducherry",
+      "benefit_hi": "पुदुच्चेरी में नए उद्योगों को बिजली दर सब्सिडी + नक्शा शुल्क माफी",
+      "eligibility": "Entrepreneurs establishing industries in Puducherry UT",
+      "documents": [
+        "Aadhaar",
+        "Business registration",
+        "Project report"
+      ],
+      "apply_url": "https://industrypuducherry.gov.in",
+      "sector": "employment"
+    }
+  ]
+}

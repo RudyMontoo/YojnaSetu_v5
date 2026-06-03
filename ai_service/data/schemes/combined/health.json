@@ -1,0 +1,436 @@
+{
+  "sector": "health",
+  "central_count": 15,
+  "state_count": 15,
+  "total": 30,
+  "central_schemes": [
+    {
+      "name": "Ayushman Bharat PM-JAY",
+      "ministry": "Health",
+      "benefit": "Rs 5 lakh/year health insurance per family",
+      "eligibility": "SECC-listed poor and vulnerable families",
+      "documents": [
+        "Aadhaar",
+        "Ration card",
+        "PM-JAY letter"
+      ],
+      "apply_url": "https://pmjay.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Janani Suraksha Yojana",
+      "ministry": "Health",
+      "benefit": "Rs 1400 (rural) / Rs 1000 (urban) cash for institutional delivery",
+      "eligibility": "Below poverty line pregnant women",
+      "documents": [
+        "Aadhaar",
+        "BPL card",
+        "Ante-natal card"
+      ],
+      "apply_url": "https://nhm.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM Surakshit Matritva Abhiyan",
+      "ministry": "Health",
+      "benefit": "Free ante-natal checkup on 9th of every month",
+      "eligibility": "All pregnant women in 2nd/3rd trimester",
+      "documents": [
+        "Aadhaar",
+        "Mother & Child Protection card"
+      ],
+      "apply_url": "https://pmsma.nhp.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "National Health Mission",
+      "ministry": "Health",
+      "benefit": "Free essential medicines, diagnostics, and primary health care",
+      "eligibility": "All citizens, priority to rural/BPL",
+      "documents": [
+        "Aadhaar (recommended)",
+        "No strict requirement for primary care"
+      ],
+      "apply_url": "https://nhm.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Pradhan Mantri National Dialysis Programme",
+      "ministry": "Health",
+      "benefit": "Free dialysis for BPL kidney patients",
+      "eligibility": "BPL patients with kidney failure",
+      "documents": [
+        "Aadhaar",
+        "BPL card",
+        "Referral from government doctor"
+      ],
+      "apply_url": "https://nhm.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Rashtriya Bal Swasthya Karyakram",
+      "ministry": "Health",
+      "benefit": "Free health screening and treatment for children 0-18",
+      "eligibility": "All children from birth to 18 years",
+      "documents": [
+        "Birth certificate or Aadhaar"
+      ],
+      "apply_url": "https://nhm.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM Atmanirbhar Swasth Bharat Yojana",
+      "ministry": "Health",
+      "benefit": "Funding for health infrastructure across urban/rural areas",
+      "eligibility": "Citizens benefiting from upgraded health facilities",
+      "documents": [],
+      "apply_url": "https://nhm.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Mission Indradhanush",
+      "ministry": "Health",
+      "benefit": "Free vaccination for 12 vaccine-preventable diseases",
+      "eligibility": "Children up to 2 years and pregnant women",
+      "documents": [
+        "Birth certificate",
+        "Mother & Child Protection card"
+      ],
+      "apply_url": "https://nhm.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Jan Aushadhi Scheme",
+      "ministry": "Chemicals & Fertilizers",
+      "benefit": "Generic medicines at 50-90% lower cost at Jan Aushadhi stores",
+      "eligibility": "All citizens",
+      "documents": [
+        "Doctor's prescription"
+      ],
+      "apply_url": "https://janaushadhi.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Ayushman Bharat Digital Mission",
+      "ministry": "Health",
+      "benefit": "Digital health ID (ABHA), linked health records",
+      "eligibility": "All Indian citizens",
+      "documents": [
+        "Aadhaar or mobile number"
+      ],
+      "apply_url": "https://healthid.ndhm.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM Mental Health Care Scheme (NIMHANS)",
+      "ministry": "Health",
+      "benefit": "Free mental health services via government hospitals",
+      "eligibility": "All citizens, priority to BPL",
+      "documents": [
+        "Aadhaar",
+        "Referral letter",
+        "BPL card if applicable"
+      ],
+      "apply_url": "https://nimhans.ac.in",
+      "type": "Central"
+    },
+    {
+      "name": "National Tobacco Control Programme",
+      "ministry": "Health",
+      "benefit": "Free de-addiction counselling and treatment",
+      "eligibility": "All citizens who use tobacco",
+      "documents": [
+        "None required"
+      ],
+      "apply_url": "https://ntcp.nhp.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Niramaya (Disability Health Insurance)",
+      "ministry": "Social Justice",
+      "benefit": "Health insurance up to Rs 1 lakh for persons with disability",
+      "eligibility": "Divyangjan (persons with disability)",
+      "documents": [
+        "Aadhaar",
+        "Disability certificate"
+      ],
+      "apply_url": "https://nhfdc.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "Nutritional Support to Cancer Patients",
+      "ministry": "Health",
+      "benefit": "Free nutritional supplements at AIIMS and government cancer centers",
+      "eligibility": "Cancer patients at government hospitals",
+      "documents": [
+        "Hospital ID",
+        "Cancer diagnosis report"
+      ],
+      "apply_url": "https://mohfw.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Pradhan Mantri Swasthya Suraksha Yojana",
+      "ministry": "Health",
+      "benefit": "Improved tertiary healthcare via AIIMS and upgraded hospitals",
+      "eligibility": "All citizens accessing government tertiary hospitals",
+      "documents": [
+        "Aadhaar",
+        "Referral letter"
+      ],
+      "apply_url": "https://mohfw.gov.in",
+      "type": "Central"
+    }
+  ],
+  "state_schemes": [
+    {
+      "name_en": "Chief Minister's Comprehensive Health Insurance (CMCHIS)",
+      "name_hi": "मुख्यमंत्री व्यापक स्वास्थ्य बीमा योजना",
+      "benefit_en": "Up to Rs 5 lakh/year free surgical treatment at government and private hospitals",
+      "benefit_hi": "₹5 लाख/वर्ष तक मुफ्त शल्य चिकित्सा",
+      "eligibility": "TN families with annual income < Rs 72,000/year",
+      "documents": [
+        "Aadhaar",
+        "Income certificate",
+        "Ration card"
+      ],
+      "apply_url": "https://www.cmchistn.com",
+      "sector": "health",
+      "state_en": "Tamil Nadu",
+      "state_hi": "तमिलनाडु",
+      "type": "State"
+    },
+    {
+      "name_en": "Chiranjeevi Swasthya Bima Yojana",
+      "name_hi": "मुख्यमंत्री चिरंजीवी स्वास्थ्य बीमा योजना",
+      "benefit_en": "Rs 25 lakh/year health insurance for every family in Rajasthan",
+      "benefit_hi": "राजस्थान के प्रत्येक परिवार को ₹25 लाख/वर्ष स्वास्थ्य बीमा",
+      "eligibility": "All Rajasthan residents (BPL: free; others: Rs 850/year premium)",
+      "documents": [
+        "Aadhaar",
+        "Jan Aadhaar card",
+        "Bank account"
+      ],
+      "apply_url": "https://chiranjeevi.rajasthan.gov.in",
+      "sector": "health",
+      "state_en": "Rajasthan",
+      "state_hi": "राजस्थान",
+      "type": "State"
+    },
+    {
+      "name_en": "Arogya Karnataka (Universal Health Coverage)",
+      "name_hi": "आरोग्य कर्नाटक",
+      "benefit_en": "Free/subsidized treatment in government hospitals across Karnataka",
+      "benefit_hi": "कर्नाटक के सरकारी अस्पतालों में मुफ्त/रियायती इलाज",
+      "eligibility": "Karnataka residents (BPL: fully free, APL: subsidized)",
+      "documents": [
+        "Aadhaar",
+        "Ration card or income certificate"
+      ],
+      "apply_url": "https://arogyakarnataka.karnataka.gov.in",
+      "sector": "health",
+      "state_en": "Karnataka",
+      "state_hi": "कर्नाटक",
+      "type": "State"
+    },
+    {
+      "name_en": "Chirayu Haryana (AYUSH Health)",
+      "name_hi": "चिरायु हरियाणा",
+      "benefit_en": "Rs 5 lakh/year health insurance for families with income < Rs 1.8 lakh",
+      "benefit_hi": "₹1.8 लाख से कम आय वाले परिवारों को ₹5 लाख/वर्ष बीमा",
+      "eligibility": "Haryana families with annual income < Rs 1.8 lakh",
+      "documents": [
+        "Aadhaar",
+        "Family ID (Parivar Pehchaan Patra)",
+        "Income certificate"
+      ],
+      "apply_url": "https://chirayu.haryana.gov.in",
+      "sector": "health",
+      "state_en": "Haryana",
+      "state_hi": "हरियाणा",
+      "type": "State"
+    },
+    {
+      "name_en": "Himcare (HP Health Insurance)",
+      "name_hi": "हिमकेयर (HP स्वास्थ्य बीमा)",
+      "benefit_en": "Rs 5 lakh/year health insurance for HP residents not covered under PMJAY",
+      "benefit_hi": "PMJAY से बाहर HP निवासियों को ₹5 लाख/वर्ष स्वास्थ्य बीमा",
+      "eligibility": "HP residents not eligible for PMJAY, premium Rs 365-1000/year by category",
+      "documents": [
+        "Aadhaar",
+        "HP domicile",
+        "Bank account"
+      ],
+      "apply_url": "https://himcare.hp.gov.in",
+      "sector": "health",
+      "state_en": "Himachal Pradesh",
+      "state_hi": "हिमाचल प्रदेश",
+      "type": "State"
+    },
+    {
+      "name_en": "Sahara Yojana (HP)",
+      "name_hi": "सहारा योजना (HP)",
+      "benefit_en": "Rs 3,000/month for home-based care of serious illness patients",
+      "benefit_hi": "गंभीर बीमारी के घरेलू देखभाल के लिए ₹3,000/माह",
+      "eligibility": "HP patients with cancer, paralysis, muscular dystrophy etc.",
+      "documents": [
+        "Aadhaar",
+        "Medical certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://sahara.hp.gov.in",
+      "sector": "health",
+      "state_en": "Himachal Pradesh",
+      "state_hi": "हिमाचल प्रदेश",
+      "type": "State"
+    },
+    {
+      "name_en": "Atal Amrit Abhiyan (Assam Health)",
+      "name_hi": "अटल अमृत अभियान",
+      "benefit_en": "Rs 2 lakh/year free treatment for 5 disease categories",
+      "benefit_hi": "5 रोग श्रेणियों के लिए ₹2 लाख/वर्ष मुफ्त इलाज",
+      "eligibility": "Assam families (BPL: free, APL: income < Rs 5 lakh)",
+      "documents": [
+        "Aadhaar",
+        "Family enrollment certificate"
+      ],
+      "apply_url": "https://atalamrit.assam.gov.in",
+      "sector": "health",
+      "state_en": "Assam",
+      "state_hi": "असम",
+      "type": "State"
+    },
+    {
+      "name_en": "Biju Swasthya Kalyan Yojana",
+      "name_hi": "बीजू स्वास्थ्य कल्याण योजना",
+      "benefit_en": "Rs 5 lakh (women: Rs 10 lakh)/year free health cover for BPL families",
+      "benefit_hi": "BPL परिवारों को ₹5 लाख (महिला: ₹10 लाख)/वर्ष मुफ्त इलाज",
+      "eligibility": "Odisha BPL families (NFSA eligible)",
+      "documents": [
+        "Aadhaar",
+        "NFSA/Ration card"
+      ],
+      "apply_url": "https://bskyodisha.co.in",
+      "sector": "health",
+      "state_en": "Odisha",
+      "state_hi": "ओडिशा",
+      "type": "State"
+    },
+    {
+      "name_en": "Swasthya Sathi",
+      "name_hi": "স্বাস্থ্য সাথী / स्वास्थ्य साथी",
+      "benefit_en": "Rs 5 lakh/year cashless health coverage for all WB families",
+      "benefit_hi": "पश्चिम बंगाल के सभी परिवारों को ₹5 लाख/वर्ष स्वास्थ्य बीमा",
+      "eligibility": "All West Bengal families (smart card issued)",
+      "documents": [
+        "Aadhaar",
+        "Ration card or voter ID"
+      ],
+      "apply_url": "https://swasthyasathi.gov.in",
+      "sector": "health",
+      "state_en": "West Bengal",
+      "state_hi": "पश्चिम बंगाल",
+      "type": "State"
+    },
+    {
+      "name_en": "Mahatma Jyotirao Phule Jan Arogya Yojana",
+      "name_hi": "महात्मा ज्योतिराव फुले जन आरोग्य योजना",
+      "benefit_en": "Health insurance up to Rs 1.5 lakh/year (Rs 2.5 lakh for special diseases)",
+      "benefit_hi": "₹1.5 लाख/वर्ष स्वास्थ्य बीमा (विशेष बीमारियों में ₹2.5 लाख)",
+      "eligibility": "Yellow/Orange/White ration card holders in Maharashtra",
+      "documents": [
+        "Aadhaar",
+        "Ration card",
+        "Yellow/orange card"
+      ],
+      "apply_url": "https://www.jeevandayee.gov.in",
+      "sector": "health",
+      "state_en": "Maharashtra",
+      "state_hi": "महाराष्ट्र",
+      "type": "State"
+    },
+    {
+      "name_en": "Aarogyasri (Telangana)",
+      "name_hi": "आरोग्यश्री (तेलंगाना)",
+      "benefit_en": "Rs 5 lakh/year cashless treatment for poor families at 460+ hospitals",
+      "benefit_hi": "₹5 लाख/वर्ष कैशलेस इलाज 460+ अस्पतालों में",
+      "eligibility": "Telangana BPL families with white ration card",
+      "documents": [
+        "Aadhaar",
+        "White ration card"
+      ],
+      "apply_url": "https://aarogyasri.telangana.gov.in",
+      "sector": "health",
+      "state_en": "Telangana",
+      "state_hi": "तेलंगाना",
+      "type": "State"
+    },
+    {
+      "name_en": "Aam Aadmi Clinic",
+      "name_hi": "ਆਮ ਆਦਮੀ ਕਲੀਨਿਕ / आम आदमी क्लीनिक",
+      "benefit_en": "Free OPD, 43 tests and 80+ medicines at neighborhood clinics",
+      "benefit_hi": "नजदीकी क्लीनिक में मुफ्त OPD, 43 जांच और 80+ दवाइयाँ",
+      "eligibility": "All Punjab residents",
+      "documents": [
+        "Aadhaar (recommended)"
+      ],
+      "apply_url": "https://aamaadmiclinic.punjab.gov.in",
+      "sector": "health",
+      "state_en": "Punjab",
+      "state_hi": "पंजाब",
+      "type": "State"
+    },
+    {
+      "name_en": "Mukhyamantri Amrutam (MA) Yojana",
+      "name_hi": "मुख्यमंत्री अमृतम योजना",
+      "benefit_en": "Cashless health treatment up to Rs 5 lakh for serious diseases",
+      "benefit_hi": "गंभीर बीमारियों के लिए ₹5 लाख तक कैशलेस इलाज",
+      "eligibility": "Gujarat BPL families and lower-middle income groups",
+      "documents": [
+        "Aadhaar",
+        "MA/Vatsalya card",
+        "Income certificate"
+      ],
+      "apply_url": "https://www.magujarat.com",
+      "sector": "health",
+      "state_en": "Gujarat",
+      "state_hi": "गुजरात",
+      "type": "State"
+    },
+    {
+      "name_en": "YSR Arogyasri",
+      "name_hi": "वाईएसआर आरोग्यश्री",
+      "benefit_en": "Rs 5 lakh/year health cover + additional Rs 10 lakh for critical illnesses",
+      "benefit_hi": "₹5 लाख/वर्ष स्वास्थ्य बीमा + गंभीर बीमारियों में ₹10 लाख",
+      "eligibility": "All AP families with white/yellow ration card",
+      "documents": [
+        "Aadhaar",
+        "Ration card",
+        "Bank account"
+      ],
+      "apply_url": "https://ysrarogyasri.ap.gov.in",
+      "sector": "health",
+      "state_en": "Andhra Pradesh",
+      "state_hi": "आंध्र प्रदेश",
+      "type": "State"
+    },
+    {
+      "name_en": "Karunya Health Scheme",
+      "name_hi": "करुण्य स्वास्थ्य योजना",
+      "benefit_en": "Financial assistance up to Rs 2 lakh for cancer and major illness treatment",
+      "benefit_hi": "कैंसर और गंभीर बीमारियों के इलाज में ₹2 लाख तक सहायता",
+      "eligibility": "Kerala BPL/APL families with income < Rs 1 lakh/year",
+      "documents": [
+        "Aadhaar",
+        "Ration card",
+        "Income certificate",
+        "Medical report"
+      ],
+      "apply_url": "https://karunyakerala.org",
+      "sector": "health",
+      "state_en": "Kerala",
+      "state_hi": "केरल",
+      "type": "State"
+    }
+  ]
+}

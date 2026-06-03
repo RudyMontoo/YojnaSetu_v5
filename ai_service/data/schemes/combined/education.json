@@ -1,0 +1,285 @@
+{
+  "sector": "education",
+  "central_count": 15,
+  "state_count": 5,
+  "total": 20,
+  "central_schemes": [
+    {
+      "name": "PM Vidya Lakshmi",
+      "ministry": "Education",
+      "benefit": "Education loans up to Rs 10 lakh at subsidized rates via single portal",
+      "eligibility": "Students admitted to recognized institutions",
+      "documents": [
+        "Aadhaar",
+        "Admission letter",
+        "Mark sheets",
+        "Bank account"
+      ],
+      "apply_url": "https://www.vidyalakshmi.co.in",
+      "type": "Central"
+    },
+    {
+      "name": "National Scholarship Portal (NSP)",
+      "ministry": "Education",
+      "benefit": "Scholarships for SC/ST/OBC/Minority/Disabled students",
+      "eligibility": "Students from minority, SC, ST, OBC, disability categories",
+      "documents": [
+        "Aadhaar",
+        "Caste certificate",
+        "Income certificate",
+        "Mark sheets"
+      ],
+      "apply_url": "https://scholarships.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM POSHAN (Mid-Day Meal)",
+      "ministry": "Education",
+      "benefit": "Free hot meal for school children (Classes 1-8)",
+      "eligibility": "All children enrolled in government/aided schools",
+      "documents": [
+        "School enrollment"
+      ],
+      "apply_url": "https://pmposhan.education.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Samagra Shiksha Abhiyan",
+      "ministry": "Education",
+      "benefit": "Free textbooks, uniforms, digital devices for school students",
+      "eligibility": "All government school students (Classes 1-12)",
+      "documents": [
+        "School enrollment",
+        "Aadhaar"
+      ],
+      "apply_url": "https://samagra.education.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Eklavya Model Residential Schools",
+      "ministry": "Tribal Affairs",
+      "benefit": "Free residential quality education for ST students (Classes 6-12)",
+      "eligibility": "Scheduled Tribe students",
+      "documents": [
+        "Aadhaar",
+        "ST certificate",
+        "Birth certificate"
+      ],
+      "apply_url": "https://tribal.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "National Means-cum-Merit Scholarship",
+      "ministry": "Education",
+      "benefit": "Rs 12,000/year for meritorious economically weak students",
+      "eligibility": "Class 8 pass, family income < Rs 1.5 lakh/year",
+      "documents": [
+        "Aadhaar",
+        "Income certificate",
+        "Class 8 marksheet"
+      ],
+      "apply_url": "https://scholarships.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Beti Bachao Beti Padhao",
+      "ministry": "Women & Child Development",
+      "benefit": "Incentives for girl child education, community awareness programs",
+      "eligibility": "Girl children from birth to higher education",
+      "documents": [
+        "Birth certificate",
+        "Aadhaar",
+        "School enrollment"
+      ],
+      "apply_url": "https://wcd.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "Pradhan Mantri Kaushal Vikas Yojana 4.0",
+      "ministry": "Skill Development",
+      "benefit": "Free skill training + Rs 8000 reward on certification",
+      "eligibility": "Youth aged 15-45, school dropouts to graduates",
+      "documents": [
+        "Aadhaar",
+        "Educational certificates",
+        "Bank account"
+      ],
+      "apply_url": "https://pmkvyofficial.org",
+      "type": "Central"
+    },
+    {
+      "name": "National Fellowship for SC Students (UGC)",
+      "ministry": "Social Justice",
+      "benefit": "Rs 25,000-28,000/month fellowship for SC PhD students",
+      "eligibility": "SC students admitted to PhD programs",
+      "documents": [
+        "Aadhaar",
+        "SC certificate",
+        "Admission letter"
+      ],
+      "apply_url": "https://scholarships.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Pragati Scholarship (AICTE)",
+      "ministry": "Education",
+      "benefit": "Rs 50,000/year scholarship for technical education",
+      "eligibility": "Girl students in AICTE-approved institutions",
+      "documents": [
+        "Aadhaar",
+        "Income certificate",
+        "Admission proof"
+      ],
+      "apply_url": "https://www.aicte-india.org",
+      "type": "Central"
+    },
+    {
+      "name": "iSTEM Scholarship (INSPIRE)",
+      "ministry": "Science & Technology",
+      "benefit": "Rs 12,000/year for science stream students (Class 11-PhD)",
+      "eligibility": "Top 1% in Class 10 board, pursuing science",
+      "documents": [
+        "Aadhaar",
+        "Mark sheet",
+        "Income certificate"
+      ],
+      "apply_url": "https://online-inspire.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "National Institute of Open Schooling Support",
+      "ministry": "Education",
+      "benefit": "Low-cost secondary/senior secondary education for dropouts",
+      "eligibility": "School dropouts, working adults, special needs children",
+      "documents": [
+        "Aadhaar",
+        "Previous education proof"
+      ],
+      "apply_url": "https://nios.ac.in",
+      "type": "Central"
+    },
+    {
+      "name": "Digital India e-Learning (DIKSHA)",
+      "ministry": "Education",
+      "benefit": "Free digital learning content in 30+ languages",
+      "eligibility": "All students and teachers",
+      "documents": [],
+      "apply_url": "https://diksha.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Central Sector Scholarship for College Students",
+      "ministry": "Education",
+      "benefit": "Rs 12,000/year (UG) to Rs 20,000/year (PG)",
+      "eligibility": "Top 20 percentile in Class 12, family income < Rs 4.5 lakh",
+      "documents": [
+        "Aadhaar",
+        "Income certificate",
+        "Class 12 marksheet"
+      ],
+      "apply_url": "https://scholarships.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Navodaya Vidyalaya Samiti",
+      "ministry": "Education",
+      "benefit": "Free quality residential education from Class 6 to 12",
+      "eligibility": "Rural students passing Class 5 entrance test",
+      "documents": [
+        "Birth certificate",
+        "Aadhaar",
+        "Rural residence proof"
+      ],
+      "apply_url": "https://navodaya.gov.in",
+      "type": "Central"
+    }
+  ],
+  "state_schemes": [
+    {
+      "name_en": "Raitha Vidyanidhi (Farmer Children Scholarship)",
+      "name_hi": "रायत विद्यानिधि छात्रवृत्ति",
+      "benefit_en": "Rs 2,000-10,000 scholarship for children of farmers",
+      "benefit_hi": "किसानों के बच्चों को ₹2,000-10,000 छात्रवृत्ति",
+      "eligibility": "Children of Karnataka farmers enrolled in Class 10 to degree",
+      "documents": [
+        "Aadhaar",
+        "Parent's land records",
+        "School/college enrollment"
+      ],
+      "apply_url": "https://farmers.karnataka.gov.in",
+      "sector": "education",
+      "state_en": "Karnataka",
+      "state_hi": "कर्नाटक",
+      "type": "State"
+    },
+    {
+      "name_en": "Bihar Student Credit Card Yojana",
+      "name_hi": "बिहार स्टूडेंट क्रेडिट कार्ड योजना",
+      "benefit_en": "Education loan up to Rs 4 lakh at 4% interest (1% for girls/disabled)",
+      "benefit_hi": "₹4 लाख तक शिक्षा ऋण 4% ब्याज (महिला/दिव्यांग: 1%)",
+      "eligibility": "Bihar students who passed Class 12, admitted to recognized institutions",
+      "documents": [
+        "Aadhaar",
+        "Class 12 marksheet",
+        "Admission letter",
+        "Bank account"
+      ],
+      "apply_url": "https://www.7nishchay-yuvaupmission.bihar.gov.in",
+      "sector": "education",
+      "state_en": "Bihar",
+      "state_hi": "बिहार",
+      "type": "State"
+    },
+    {
+      "name_en": "TS ePass Scholarship",
+      "name_hi": "TS ई-पास छात्रवृत्ति",
+      "benefit_en": "Full tuition fee + maintenance for SC/ST/BC/EBC/Minority students",
+      "benefit_hi": "SC/ST/BC/EBC/अल्पसंख्यक छात्रों की पूरी फीस + रखरखाव",
+      "eligibility": "Telangana SC/ST/BC/EBC/Minority students in recognized colleges",
+      "documents": [
+        "Aadhaar",
+        "Caste/income certificate",
+        "Admission proof"
+      ],
+      "apply_url": "https://telanganaepass.cgg.gov.in",
+      "sector": "education",
+      "state_en": "Telangana",
+      "state_hi": "तेलंगाना",
+      "type": "State"
+    },
+    {
+      "name_en": "Jagananna Amma Vodi",
+      "name_hi": "जगनन्ना अम्मा वोडी",
+      "benefit_en": "Rs 15,000/year for mothers to keep children in school",
+      "benefit_hi": "बच्चों को स्कूल भेजने पर माँ को ₹15,000/वर्ष",
+      "eligibility": "AP mothers with children enrolled in Classes 1-12 (BPL)",
+      "documents": [
+        "Aadhaar",
+        "School enrollment",
+        "BPL status"
+      ],
+      "apply_url": "https://ammavodi.ap.gov.in",
+      "sector": "education",
+      "state_en": "Andhra Pradesh",
+      "state_hi": "आंध्र प्रदेश",
+      "type": "State"
+    },
+    {
+      "name_en": "Mukhyamantri Sarthi Yojana",
+      "name_hi": "मुख्यमंत्री सारथी योजना",
+      "benefit_en": "Free coaching for competitive exams (UPSC, SSC, Banking) for Jharkhand youth",
+      "benefit_hi": "UPSC, SSC, बैंकिंग परीक्षाओं की मुफ्त कोचिंग",
+      "eligibility": "Jharkhand youth aged 18-35 from poor families",
+      "documents": [
+        "Aadhaar",
+        "Income certificate",
+        "Educational proof"
+      ],
+      "apply_url": "https://jharkhand.gov.in",
+      "sector": "education",
+      "state_en": "Jharkhand",
+      "state_hi": "झारखंड",
+      "type": "State"
+    }
+  ]
+}

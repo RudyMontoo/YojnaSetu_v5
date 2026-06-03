@@ -1,0 +1,90 @@
+{
+  "state_en": "Uttarakhand",
+  "state_hi": "उत्तराखंड",
+  "schemes": [
+    {
+      "name_en": "Mukhyamantri Swarozgar Yojana (UK)",
+      "name_hi": "मुख्यमंत्री स्वरोजगार योजना",
+      "benefit_en": "Loans Rs 25,000-25 lakh with 25% marginal money grant for youth enterprises",
+      "benefit_hi": "युवा उद्यमों के लिए ₹25,000-25 लाख ऋण + 25% मार्जिन मनी अनुदान",
+      "eligibility": "UK domicile, age 18-45, education min Class 8",
+      "documents": [
+        "Aadhaar",
+        "UK domicile",
+        "Business plan",
+        "Bank account"
+      ],
+      "apply_url": "https://msy.uk.gov.in",
+      "sector": "employment"
+    },
+    {
+      "name_en": "Vatsalya Yojana (UK)",
+      "name_hi": "वात्सल्य योजना (उत्तराखंड)",
+      "benefit_en": "Rs 900/month for children orphaned by COVID-19 till age 21 + education support",
+      "benefit_hi": "COVID से अनाथ बच्चों को 21 वर्ष तक ₹900/माह + शिक्षा सहायता",
+      "eligibility": "Children who lost both parents to COVID in Uttarakhand",
+      "documents": [
+        "Death certificates",
+        "Birth certificate",
+        "Aadhaar"
+      ],
+      "apply_url": "https://uk.gov.in",
+      "sector": "women_child"
+    },
+    {
+      "name_en": "Uttarakhand Gramin Himalayan Scheme",
+      "name_hi": "उत्तराखंड ग्रामीण हिमालय योजना",
+      "benefit_en": "Enhanced MGNREGA wages + additional 50 days for hill/remote districts",
+      "benefit_hi": "पहाड़ी/दूरस्थ जिलों में बेहतर MGNREGA मजदूरी + 50 अतिरिक्त दिन",
+      "eligibility": "MGNREGA job card holders in hilly districts of Uttarakhand",
+      "documents": [
+        "Job card",
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://nrega.nic.in",
+      "sector": "rural_development"
+    },
+    {
+      "name_en": "Atal Ayushman Uttarakhand Yojana",
+      "name_hi": "अटल आयुष्मान उत्तराखंड योजना",
+      "benefit_en": "Rs 5 lakh/year health insurance for all UK families (extends PM-JAY)",
+      "benefit_hi": "सभी UK परिवारों को ₹5 लाख/वर्ष स्वास्थ्य बीमा",
+      "eligibility": "All Uttarakhand residents (UK domicile)",
+      "documents": [
+        "Aadhaar",
+        "UK domicile/ration card"
+      ],
+      "apply_url": "https://ayushmanuttarakhand.org",
+      "sector": "health"
+    },
+    {
+      "name_en": "Mukhyamantri Kisan Protsahan Nidhi",
+      "name_hi": "मुख्यमंत्री किसान प्रोत्साहन निधि",
+      "benefit_en": "Rs 2,000/year additional input support to UK hill farmers on top of PM Kisan",
+      "benefit_hi": "PM Kisan के अतिरिक्त पहाड़ी किसानों को ₹2,000/वर्ष",
+      "eligibility": "PM Kisan-enrolled farmers in Uttarakhand",
+      "documents": [
+        "PM Kisan registration",
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://uk.gov.in",
+      "sector": "agriculture"
+    },
+    {
+      "name_en": "Homestay Yojana (UK Tourism Support)",
+      "name_hi": "होमस्टे योजना (UK पर्यटन)",
+      "benefit_en": "Interest subsidy + training for rural families to set up homestays for tourists",
+      "benefit_hi": "ग्रामीण परिवारों को होमस्टे के लिए ब्याज सब्सिडी + प्रशिक्षण",
+      "eligibility": "Rural Uttarakhand families in tourist areas",
+      "documents": [
+        "Aadhaar",
+        "Land/house proof",
+        "Bank account"
+      ],
+      "apply_url": "https://uttarakhandtourism.gov.in",
+      "sector": "employment"
+    }
+  ]
+}

@@ -1,0 +1,217 @@
+{
+  "sector": "environment",
+  "schemes": [
+    {
+      "name": "National Action Plan on Climate Change (NAPCC) — Solar Mission",
+      "ministry": "Environment",
+      "benefit": "Solar energy targets, incentives for solar adoption at household/community level",
+      "benefit_hi": "घरेलू/सामुदायिक स्तर पर सौर ऊर्जा अपनाने के प्रोत्साहन",
+      "eligibility": "Citizens, institutions installing solar in approved mission areas",
+      "documents": [
+        "Aadhaar",
+        "Installation proof"
+      ],
+      "apply_url": "https://moef.gov.in",
+      "sector": "environment",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Pradhan Mantri Ujjwala + Clean Cooking Mission",
+      "ministry": "Environment / Petroleum",
+      "benefit": "Shift from biomass to LPG/PNG to reduce indoor air pollution",
+      "benefit_hi": "इनडोर वायु प्रदूषण कम करने के लिए बायोमास से LPG/PNG में बदलाव",
+      "eligibility": "Rural/slum households still using wood/coal for cooking",
+      "documents": [
+        "Aadhaar",
+        "BPL card",
+        "Bank account"
+      ],
+      "apply_url": "https://pmuy.gov.in",
+      "sector": "environment",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "National Clean Air Programme (NCAP)",
+      "ministry": "Environment",
+      "benefit": "City-level action plans to reduce PM2.5/PM10 by 40% in 131 cities by 2026",
+      "benefit_hi": "131 शहरों में PM2.5/PM10 को 40% कम करना",
+      "eligibility": "All citizens in 131 non-attainment cities",
+      "documents": [],
+      "apply_url": "https://cpcb.nic.in/national-clean-air-programme",
+      "sector": "environment",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Swachh Bharat Mission (Urban & Rural)",
+      "ministry": "Housing / Jal Shakti",
+      "benefit": "Free toilet construction (Rs 12,000), SBA+ for solid/liquid waste management",
+      "benefit_hi": "मुफ्त शौचालय (₹12,000) + ठोस/तरल कचरा प्रबंधन",
+      "eligibility": "Households without toilets (rural) / all urban households for SBM",
+      "documents": [
+        "Aadhaar",
+        "No-toilet certificate from Gram Panchayat"
+      ],
+      "apply_url": "https://swachhbharat.mygov.in",
+      "sector": "environment",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Pradhan Mantri Krishi Sinchayee Yojana — Watershed",
+      "ministry": "Rural Development",
+      "benefit": "Watershed treatment for drought-prone areas — check dams, percolation ponds, afforestation",
+      "benefit_hi": "सूखाग्रस्त क्षेत्रों में चेक डैम, परकोलेशन तालाब, वनीकरण",
+      "eligibility": "Farmers and communities in notified watershed project areas",
+      "documents": [
+        "Land records",
+        "Aadhaar",
+        "Village membership"
+      ],
+      "apply_url": "https://pmksy.gov.in",
+      "sector": "environment",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Green India Mission (GIM)",
+      "ministry": "Environment",
+      "benefit": "Afforestation, forest restoration, livelihood for forest-dependent communities",
+      "benefit_hi": "वनरोपण, वन पुनरुद्धार, वन आश्रित समुदायों की आजीविका",
+      "eligibility": "Communities near degraded forests and JFM committees",
+      "documents": [
+        "Community forest rights document",
+        "Aadhaar"
+      ],
+      "apply_url": "https://moef.gov.in",
+      "sector": "environment",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "CAMPA (Compensatory Afforestation) Fund",
+      "ministry": "Environment",
+      "benefit": "Plantation activities, eco-restoration funding in states",
+      "benefit_hi": "राज्यों में वृक्षारोपण एवं पारिस्थितिक पुनरुद्धार निधि",
+      "eligibility": "Communities near forest areas benefiting from CAMPA works",
+      "documents": [
+        "Village membership",
+        "Forest committee membership"
+      ],
+      "apply_url": "https://moef.gov.in",
+      "sector": "environment",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "National Coastal Mission",
+      "ministry": "Environment",
+      "benefit": "Mangrove restoration, coastal protection, livelihood for coastal fishing communities",
+      "benefit_hi": "तटीय मछुआरा समुदाय के लिए मैंग्रोव पुनरुद्धार, आजीविका",
+      "eligibility": "Coastal communities in 9 maritime states + Andaman, Lakshadweep",
+      "documents": [
+        "Aadhaar",
+        "Fisherman ID",
+        "Coastal residence proof"
+      ],
+      "apply_url": "https://moef.gov.in",
+      "sector": "environment",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "FAME India (EV Adoption)",
+      "ministry": "Heavy Industries",
+      "benefit": "Subsidy on electric vehicles to reduce vehicular pollution",
+      "benefit_hi": "वाहन प्रदूषण घटाने के लिए EV पर सब्सिडी",
+      "eligibility": "Buyers of FAME-approved EVs (2W, 3W, 4W, buses)",
+      "documents": [
+        "Aadhaar",
+        "Purchase invoice"
+      ],
+      "apply_url": "https://heavyindustry.gov.in",
+      "sector": "environment",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "National Biogas Programme",
+      "ministry": "New & Renewable Energy",
+      "benefit": "Rs 7,000-20,000 subsidy on biogas plants to replace wood fuel",
+      "benefit_hi": "लकड़ी ईंधन बदलने के लिए बायोगैस संयंत्र पर ₹7,000-20,000 सब्सिडी",
+      "eligibility": "Rural households with cattle/livestock",
+      "documents": [
+        "Aadhaar",
+        "Land/house",
+        "Livestock ownership",
+        "Bank account"
+      ],
+      "apply_url": "https://mnre.gov.in",
+      "sector": "environment",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Jal Jeevan Mission (Clean Drinking Water)",
+      "ministry": "Jal Shakti",
+      "benefit": "Safe tap water to every rural household, reducing groundwater over-extraction",
+      "benefit_hi": "हर ग्रामीण घर में सुरक्षित नल जल, भूजल संरक्षण",
+      "eligibility": "All rural households without functional household tap connection",
+      "documents": [
+        "Aadhaar",
+        "Gram Panchayat verification"
+      ],
+      "apply_url": "https://jaljeevanmission.gov.in",
+      "sector": "environment",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "PM Kusum (Solar for Farmers)",
+      "ministry": "New & Renewable Energy",
+      "benefit": "60% subsidy on solar pumps + income from surplus power sold to grid",
+      "benefit_hi": "सौर पंप पर 60% सब्सिडी + ग्रिड को बिजली बेचकर अतिरिक्त आय",
+      "eligibility": "All farmers (priority to diesel pump users)",
+      "documents": [
+        "Aadhaar",
+        "Land records",
+        "Bank account"
+      ],
+      "apply_url": "https://mnre.gov.in",
+      "sector": "environment",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "MISHTI (Mangrove Initiative for Shoreline Habitats & Tangible Incomes)",
+      "ministry": "Environment",
+      "benefit": "Mangrove plantation along coastline + income for coastal communities from eco-tourism",
+      "benefit_hi": "तटीय मैंग्रोव रोपण + पर्यावरण पर्यटन से तटीय समुदायों की आय",
+      "eligibility": "Coastal communities in 9 states + UTs",
+      "documents": [
+        "Aadhaar",
+        "Coastal residence proof"
+      ],
+      "apply_url": "https://moef.gov.in",
+      "sector": "environment",
+      "type": "Central",
+      "status": "active"
+    },
+    {
+      "name": "Amrit Dharohar Wetland Scheme",
+      "ministry": "Environment",
+      "benefit": "Conservation of 75 Ramsar wetlands, eco-tourism income for communities around them",
+      "benefit_hi": "75 रामसर आर्द्रभूमियों का संरक्षण + पर्यटन आय",
+      "eligibility": "Communities around Ramsar wetland sites",
+      "documents": [
+        "Residence proof near wetland"
+      ],
+      "apply_url": "https://moef.gov.in",
+      "sector": "environment",
+      "type": "Central",
+      "status": "active"
+    }
+  ]
+}

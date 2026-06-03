@@ -1,0 +1,66 @@
+{
+  "state_en": "Rajasthan",
+  "state_hi": "राजस्थान",
+  "schemes": [
+    {
+      "name_en": "Chiranjeevi Swasthya Bima Yojana",
+      "name_hi": "मुख्यमंत्री चिरंजीवी स्वास्थ्य बीमा योजना",
+      "benefit_en": "Rs 25 lakh/year health insurance for every family in Rajasthan",
+      "benefit_hi": "राजस्थान के प्रत्येक परिवार को ₹25 लाख/वर्ष स्वास्थ्य बीमा",
+      "eligibility": "All Rajasthan residents (BPL: free; others: Rs 850/year premium)",
+      "documents": [
+        "Aadhaar",
+        "Jan Aadhaar card",
+        "Bank account"
+      ],
+      "apply_url": "https://chiranjeevi.rajasthan.gov.in",
+      "sector": "health",
+      "status": "active"
+    },
+    {
+      "name_en": "Indira Gandhi Shehri Rojgar Guarantee Yojana",
+      "name_hi": "इंदिरा गांधी शहरी रोजगार गारंटी योजना",
+      "benefit_en": "100 days guaranteed employment per year for urban families",
+      "benefit_hi": "शहरी परिवारों को 100 दिन रोजगार की गारंटी",
+      "eligibility": "Urban Rajasthan families (18+ members)",
+      "documents": [
+        "Jan Aadhaar card",
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://irgy.rajasthan.gov.in",
+      "sector": "employment",
+      "status": "active"
+    },
+    {
+      "name_en": "Rajasthan Tarbandi Yojana",
+      "name_hi": "राजस्थान तारबंदी योजना",
+      "benefit_en": "50% subsidy (up to Rs 40,000) on fencing to protect farmland",
+      "benefit_hi": "खेत की तारबंदी पर 50% सब्सिडी (अधिकतम ₹40,000)",
+      "eligibility": "Rajasthan farmers with minimum 0.5 hectare land",
+      "documents": [
+        "Aadhaar",
+        "Khasra",
+        "Bank account"
+      ],
+      "apply_url": "https://rajkisan.rajasthan.gov.in",
+      "sector": "agriculture",
+      "status": "active"
+    },
+    {
+      "name_en": "Palanhar Yojana",
+      "name_hi": "पालनहार योजना",
+      "benefit_en": "Rs 1500/month for guardians raising orphan/destitute children",
+      "benefit_hi": "अनाथ/असहाय बच्चों के पालक को ₹1500/माह",
+      "eligibility": "Guardians raising orphan, destitute or disabled children",
+      "documents": [
+        "Aadhaar",
+        "Guardianship proof",
+        "Child's documents"
+      ],
+      "apply_url": "https://sje.rajasthan.gov.in",
+      "sector": "women_child",
+      "status": "active"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "state_en": "Manipur",
+  "state_hi": "मणिपुर",
+  "schemes": [
+    {
+      "name_en": "Imphal Free Zone (IFZ) Industrial Incentives",
+      "name_hi": "इम्फाल मुक्त क्षेत्र औद्योगिक प्रोत्साहन",
+      "benefit_en": "Tax holidays + capital subsidy for industries in Manipur industrial zones",
+      "benefit_hi": "मणिपुर औद्योगिक क्षेत्रों में उद्योगों को टैक्स छूट + पूंजी सब्सिडी",
+      "eligibility": "Entrepreneurs setting up in Manipur industrial zones",
+      "documents": [
+        "Aadhaar",
+        "Business registration",
+        "Project plan"
+      ],
+      "apply_url": "https://manipur.gov.in",
+      "sector": "employment"
+    },
+    {
+      "name_en": "Chief Minister Gi Harana (Manipur Farmer Support)",
+      "name_hi": "मुख्यमंत्री गी हरना (किसान सहायता मणिपुर)",
+      "benefit_en": "Rs 6,000/year additional farmer support on top of PM Kisan for Manipur farmers",
+      "benefit_hi": "PM Kisan के अतिरिक्त मणिपुर किसानों को ₹6,000/वर्ष",
+      "eligibility": "PM Kisan-enrolled Manipur farmers",
+      "documents": [
+        "PM Kisan registration",
+        "Aadhaar",
+        "Land records"
+      ],
+      "apply_url": "https://manipur.gov.in",
+      "sector": "agriculture"
+    },
+    {
+      "name_en": "Manipur Sports University Scholarship",
+      "name_hi": "मणिपुर खेल विश्वविद्यालय छात्रवृत्ति",
+      "benefit_en": "Free education + Rs 5,000/month stipend for sports students at Manipur Sports University",
+      "benefit_hi": "मणिपुर स्पोर्ट्स यूनिवर्सिटी छात्रों को मुफ्त शिक्षा + ₹5,000/माह",
+      "eligibility": "Students admitted to Manipur Sports University",
+      "documents": [
+        "Aadhaar",
+        "Admission letter",
+        "Sports certificate"
+      ],
+      "apply_url": "https://msu.ac.in",
+      "sector": "sports"
+    },
+    {
+      "name_en": "Manipur Jan Arogya Yojana",
+      "name_hi": "मणिपुर जन आरोग्य योजना",
+      "benefit_en": "Rs 3 lakh/year health coverage for BPL Manipur families at empanelled hospitals",
+      "benefit_hi": "BPL मणिपुर परिवारों को ₹3 लाख/वर्ष स्वास्थ्य बीमा",
+      "eligibility": "Manipur BPL families",
+      "documents": [
+        "Aadhaar",
+        "BPL card",
+        "Manipur domicile"
+      ],
+      "apply_url": "https://manipur.gov.in",
+      "sector": "health"
+    }
+  ]
+}

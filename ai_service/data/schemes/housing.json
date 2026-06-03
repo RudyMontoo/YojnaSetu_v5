@@ -1,0 +1,197 @@
+{
+  "sector": "housing",
+  "schemes": [
+    {
+      "name": "PM Awas Yojana - Gramin (PMAY-G)",
+      "ministry": "Rural Development",
+      "benefit": "Rs 1.2-1.3 lakh grant for pucca house construction (rural)",
+      "eligibility": "Homeless/kutcha house families in SECC list",
+      "documents": [
+        "Aadhaar",
+        "SECC list name",
+        "Bank account",
+        "Geo-tag photo"
+      ],
+      "apply_url": "https://pmayg.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM Awas Yojana - Urban (PMAY-U)",
+      "ministry": "Housing & Urban Affairs",
+      "benefit": "Interest subsidy 3-6.5% on home loan OR grant up to Rs 2.67 lakh",
+      "eligibility": "EWS/LIG/MIG families without pucca house",
+      "documents": [
+        "Aadhaar",
+        "Income proof",
+        "Bank account",
+        "Property documents"
+      ],
+      "apply_url": "https://pmaymis.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Credit Linked Subsidy Scheme (CLSS)",
+      "ministry": "Housing",
+      "benefit": "Home loan interest subsidy up to Rs 2.67 lakh for EWS/LIG",
+      "eligibility": "First-time homebuyers with income < Rs 18 lakh/year",
+      "documents": [
+        "Aadhaar",
+        "Income certificate",
+        "Bank statement"
+      ],
+      "apply_url": "https://pmaymis.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "National Urban Livelihood Mission (Housing)",
+      "ministry": "Housing & Urban Affairs",
+      "benefit": "Affordable rental housing for urban poor",
+      "eligibility": "Urban migrants, daily wage workers",
+      "documents": [
+        "Aadhaar",
+        "Employment proof",
+        "Income certificate"
+      ],
+      "apply_url": "https://mohua.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Indira Awas Yojana (IAY) Legacy Beneficiaries",
+      "ministry": "Rural Development",
+      "benefit": "Housing assistance for incomplete IAY houses",
+      "eligibility": "Existing IAY beneficiaries with incomplete construction",
+      "documents": [
+        "Aadhaar",
+        "IAY sanction letter",
+        "Bank account"
+      ],
+      "apply_url": "https://pmayg.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM SVANidhi (Street Vendor Housing Benefit)",
+      "ministry": "Housing & Urban Affairs",
+      "benefit": "Collateral-free working capital loans Rs 10K-50K + credit score benefit",
+      "eligibility": "Street vendors with vending certificate",
+      "documents": [
+        "Aadhaar",
+        "Vending certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://pmsvanidhi.mohua.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Rajiv Awas Yojana",
+      "ministry": "Housing",
+      "benefit": "Slum rehabilitation and affordable housing for slum dwellers",
+      "eligibility": "Slum dwellers and urban homeless",
+      "documents": [
+        "Aadhaar",
+        "Slum residence proof"
+      ],
+      "apply_url": "https://mohua.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "PMAY NE States Special Package",
+      "ministry": "Housing",
+      "benefit": "Enhanced grant Rs 1.3 lakh for NE states and hill states",
+      "eligibility": "BPL families in NE/hill states",
+      "documents": [
+        "Aadhaar",
+        "BPL card",
+        "State domicile"
+      ],
+      "apply_url": "https://pmayg.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "Mukhyamantri Gramin Awas Yojana (State)",
+      "ministry": "State Rural Development",
+      "benefit": "Additional Rs 20,000-40,000 top-up to PMAY-G",
+      "eligibility": "PMAY-G beneficiaries in respective states",
+      "documents": [
+        "PMAY-G sanction letter",
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "State portal",
+      "type": "State"
+    },
+    {
+      "name": "Housing for Plantation Workers",
+      "ministry": "Labour",
+      "benefit": "Housing assistance for tea and coffee plantation workers",
+      "eligibility": "Workers on registered plantations",
+      "documents": [
+        "Aadhaar",
+        "Employment card",
+        "Bank account"
+      ],
+      "apply_url": "https://labour.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Affordable Rental Housing Complexes (ARHC)",
+      "ministry": "Housing",
+      "benefit": "Low-cost rental accommodation for urban migrants",
+      "eligibility": "Migrant workers, urban poor",
+      "documents": [
+        "Aadhaar",
+        "Employment proof"
+      ],
+      "apply_url": "https://mohua.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Valmiki Ambedkar Awas Yojana (VAMBAY)",
+      "ministry": "Housing",
+      "benefit": "Subsidized shelter for urban slum dwellers below poverty line",
+      "eligibility": "Urban BPL families in slums",
+      "documents": [
+        "Aadhaar",
+        "BPL card"
+      ],
+      "apply_url": "https://mohua.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "NHB Residex Scheme",
+      "ministry": "Finance",
+      "benefit": "Housing loan at reduced rates through NHB registered lenders",
+      "eligibility": "Home loan seekers in notified cities",
+      "documents": [
+        "Aadhaar",
+        "Income proof",
+        "KYC documents"
+      ],
+      "apply_url": "https://nhb.org.in",
+      "type": "Central"
+    },
+    {
+      "name": "Global Housing Technology Challenge",
+      "ministry": "Housing",
+      "benefit": "Access to affordable innovative housing construction tech",
+      "eligibility": "PMAY beneficiaries in pilot sites",
+      "documents": [
+        "PMAY sanction"
+      ],
+      "apply_url": "https://ghtc-india.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM Awas Yojana LIFE (PMAY-LIFE)",
+      "ministry": "Housing",
+      "benefit": "Turnkey housing via private builders under PMAY EWS category",
+      "eligibility": "EWS category families not yet with permanent housing",
+      "documents": [
+        "Aadhaar",
+        "Income certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://pmaymis.gov.in",
+      "type": "Central"
+    }
+  ]
+}

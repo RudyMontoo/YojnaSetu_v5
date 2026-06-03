@@ -1,0 +1,33 @@
+{
+  "state_en": "Andaman & Nicobar Islands",
+  "state_hi": "अंडमान निकोबार द्वीप समूह",
+  "schemes": [
+    {
+      "name_en": "Island Development Agency (IDA) Livelihood Scheme",
+      "name_hi": "द्वीप विकास एजेंसी आजीविका योजना",
+      "benefit_en": "Tourism, fisheries, horticulture-based livelihood support for island communities",
+      "benefit_hi": "द्वीप समुदायों के लिए पर्यटन, मत्स्य, बागवानी आधारित आजीविका सहायता",
+      "eligibility": "A&N Islands residents in targeted development areas",
+      "documents": [
+        "Aadhaar",
+        "A&N residence proof"
+      ],
+      "apply_url": "https://andaman.gov.in",
+      "sector": "employment"
+    },
+    {
+      "name_en": "A&N Coconut Development Board Subsidy",
+      "name_hi": "A&N नारियल विकास बोर्ड सब्सिडी",
+      "benefit_en": "Input subsidy + replanting support + value-adding unit grants for coconut farmers",
+      "benefit_hi": "नारियल किसानों को निवेश सब्सिडी + पुनरोपण + मूल्य संवर्धन इकाई अनुदान",
+      "eligibility": "A&N coconut farmers",
+      "documents": [
+        "Aadhaar",
+        "Land records",
+        "A&N residence"
+      ],
+      "apply_url": "https://coconutboard.gov.in",
+      "sector": "agriculture"
+    }
+  ]
+}

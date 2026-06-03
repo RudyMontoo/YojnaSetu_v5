@@ -1,0 +1,77 @@
+{
+  "state_en": "Bihar",
+  "state_hi": "बिहार",
+  "schemes": [
+    {
+      "name_en": "Bihar Student Credit Card Yojana",
+      "name_hi": "बिहार स्टूडेंट क्रेडिट कार्ड योजना",
+      "benefit_en": "Education loan up to Rs 4 lakh at 4% interest (1% for girls/disabled)",
+      "benefit_hi": "₹4 लाख तक शिक्षा ऋण 4% ब्याज (महिला/दिव्यांग: 1%)",
+      "eligibility": "Bihar students who passed Class 12, admitted to recognized institutions",
+      "documents": [
+        "Aadhaar",
+        "Class 12 marksheet",
+        "Admission letter",
+        "Bank account"
+      ],
+      "apply_url": "https://www.7nishchay-yuvaupmission.bihar.gov.in",
+      "sector": "education"
+    },
+    {
+      "name_en": "Mukhyamantri Kanya Utthan Yojana",
+      "name_hi": "मुख्यमंत्री कन्या उत्थान योजना",
+      "benefit_en": "Rs 50,000 for girl child from birth to graduation in 7 installments",
+      "benefit_hi": "जन्म से स्नातक तक बालिका को 7 किस्तों में ₹50,000",
+      "eligibility": "Bihar girl child (family: max 2 daughters eligible)",
+      "documents": [
+        "Birth certificate",
+        "Aadhaar",
+        "Bank account",
+        "School/college enrollment"
+      ],
+      "apply_url": "https://medhasoft.bih.nic.in",
+      "sector": "women_child"
+    },
+    {
+      "name_en": "Har Ghar Bijli Yojana (Bihar)",
+      "name_hi": "हर घर बिजली योजना (बिहार)",
+      "benefit_en": "Free electricity connection to all unelectrified households",
+      "benefit_hi": "सभी बिना बिजली घरों को मुफ्त कनेक्शन",
+      "eligibility": "Un-electrified households in Bihar",
+      "documents": [
+        "Aadhaar",
+        "Address proof"
+      ],
+      "apply_url": "https://hargharbijli.bsphcl.co.in",
+      "sector": "energy"
+    },
+    {
+      "name_en": "Mukhyamantri Vridhjan Pension Yojana",
+      "name_hi": "मुख्यमंत्री वृद्धजन पेंशन योजना",
+      "benefit_en": "Rs 400/month (age 60-79) and Rs 500/month (80+) pension",
+      "benefit_hi": "60-79 वर्ष ₹400 और 80+ वर्ष ₹500 प्रतिमाह पेंशन",
+      "eligibility": "Bihar residents aged 60+, not receiving other government pension",
+      "documents": [
+        "Aadhaar",
+        "Age proof",
+        "Bank account"
+      ],
+      "apply_url": "https://sspmis.bihar.gov.in",
+      "sector": "social_security"
+    },
+    {
+      "name_en": "Bihar Krishi Input Subsidy Yojana",
+      "name_hi": "कृषि इनपुट अनुदान योजना",
+      "benefit_en": "Rs 13,500/hectare subsidy for flood/drought-affected crops",
+      "benefit_hi": "बाढ़/सूखा प्रभावित फसल पर ₹13,500/हेक्टेयर अनुदान",
+      "eligibility": "Bihar farmers affected by natural calamity (in notified districts)",
+      "documents": [
+        "Aadhaar",
+        "Land records",
+        "Bank account"
+      ],
+      "apply_url": "https://dbtagriculture.bihar.gov.in",
+      "sector": "agriculture"
+    }
+  ]
+}

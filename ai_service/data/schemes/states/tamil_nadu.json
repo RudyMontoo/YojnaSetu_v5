@@ -1,0 +1,77 @@
+{
+  "state_en": "Tamil Nadu",
+  "state_hi": "तमिलनाडु",
+  "schemes": [
+    {
+      "name_en": "Chief Minister's Comprehensive Health Insurance (CMCHIS)",
+      "name_hi": "मुख्यमंत्री व्यापक स्वास्थ्य बीमा योजना",
+      "benefit_en": "Up to Rs 5 lakh/year free surgical treatment at government and private hospitals",
+      "benefit_hi": "₹5 लाख/वर्ष तक मुफ्त शल्य चिकित्सा",
+      "eligibility": "TN families with annual income < Rs 72,000/year",
+      "documents": [
+        "Aadhaar",
+        "Income certificate",
+        "Ration card"
+      ],
+      "apply_url": "https://www.cmchistn.com",
+      "sector": "health"
+    },
+    {
+      "name_en": "Moovalur Ramamirtham Ammaiyar Ninaivu Marriage Assistance",
+      "name_hi": "विवाह सहायता योजना (तमिलनाडु)",
+      "benefit_en": "Rs 50,000 + 8g gold coin for marriage of SC/ST/BC girls",
+      "benefit_hi": "SC/ST/BC बालिकाओं के विवाह पर ₹50,000 + 8 ग्राम सोना",
+      "eligibility": "TN SC/ST/BC girls aged 18+, family income < Rs 72,000",
+      "documents": [
+        "Aadhaar",
+        "Caste certificate",
+        "Income certificate",
+        "Marriage proof"
+      ],
+      "apply_url": "https://www.tn.gov.in",
+      "sector": "women_child"
+    },
+    {
+      "name_en": "Kalaignar Magalir Urimai Thittam",
+      "name_hi": "कलैञ्ञर महिला अधिकार योजना",
+      "benefit_en": "Rs 1,000/month financial support for women-headed households",
+      "benefit_hi": "महिला प्रधान परिवारों को ₹1,000/माह",
+      "eligibility": "TN women aged 21+, family income not in top 25%",
+      "documents": [
+        "Aadhaar",
+        "Ration card",
+        "Bank account"
+      ],
+      "apply_url": "https://www.tn.gov.in",
+      "sector": "women_child"
+    },
+    {
+      "name_en": "Uzhavar Sandhai (Farmers Market)",
+      "name_hi": "उझवर संठई – किसान बाजार",
+      "benefit_en": "Direct-to-consumer sale stalls for farmers eliminating middlemen",
+      "benefit_hi": "किसानों को सीधे उपभोक्ताओं तक बिक्री, बिचौलियों से मुक्ति",
+      "eligibility": "All TN farmers",
+      "documents": [
+        "Aadhaar",
+        "Land records",
+        "Farmer ID"
+      ],
+      "apply_url": "https://www.tn.gov.in/agriculture",
+      "sector": "agriculture"
+    },
+    {
+      "name_en": "Tamil Nadu Startup & Innovation Policy",
+      "name_hi": "तमिलनाडु स्टार्टअप नीति",
+      "benefit_en": "Rs 10 lakh seed fund + mentoring + co-working space for TN startups",
+      "benefit_hi": "TN स्टार्टअप को ₹10 लाख सीड फंड + मेंटरिंग",
+      "eligibility": "DPIIT-recognized startups operating in Tamil Nadu",
+      "documents": [
+        "DPIIT certificate",
+        "Aadhaar",
+        "Business plan"
+      ],
+      "apply_url": "https://startuptn.in",
+      "sector": "employment"
+    }
+  ]
+}

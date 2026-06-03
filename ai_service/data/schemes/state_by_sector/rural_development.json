@@ -1,0 +1,39 @@
+{
+  "sector": "rural_development",
+  "type": "state",
+  "count": 2,
+  "schemes": [
+    {
+      "name_en": "Bhu-Lekh (Land Record Digitisation)",
+      "name_hi": "भू-लेख योजना",
+      "benefit_en": "Online land records, Khatauni, Khasra accessible free",
+      "benefit_hi": "ऑनलाइन खसरा-खतौनी निःशुल्क देखें",
+      "eligibility": "All UP landowners",
+      "documents": [
+        "Khasra number",
+        "Village name"
+      ],
+      "apply_url": "https://upbhulekh.gov.in",
+      "sector": "rural_development",
+      "state_en": "Uttar Pradesh",
+      "state_hi": "उत्तर प्रदेश",
+      "type": "State"
+    },
+    {
+      "name_en": "Telangana Mission Bhagiratha",
+      "name_hi": "मिशन भागीरथ",
+      "benefit_en": "Safe tap water connection to every rural/urban household",
+      "benefit_hi": "हर घर तक सुरक्षित पेयजल कनेक्शन",
+      "eligibility": "All Telangana households without safe water connection",
+      "documents": [
+        "Aadhaar",
+        "House address proof"
+      ],
+      "apply_url": "https://missionbhagiratha.telangana.gov.in",
+      "sector": "rural_development",
+      "state_en": "Telangana",
+      "state_hi": "तेलंगाना",
+      "type": "State"
+    }
+  ]
+}

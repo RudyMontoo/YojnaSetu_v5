@@ -1,0 +1,65 @@
+{
+  "state_en": "Delhi",
+  "state_hi": "दिल्ली",
+  "schemes": [
+    {
+      "name_en": "Delhi Ration Card (AAY/PHH Free Ration)",
+      "name_hi": "दिल्ली राशन कार्ड (मुफ्त राशन)",
+      "benefit_en": "Free 5kg wheat + 1kg rice per person per month",
+      "benefit_hi": "प्रति व्यक्ति 5 किलो गेहूँ + 1 किलो चावल मुफ्त प्रतिमाह",
+      "eligibility": "Delhi BPL/EWS families with ration card",
+      "documents": [
+        "Aadhaar",
+        "Delhi domicile",
+        "Income proof"
+      ],
+      "apply_url": "https://edistrict.delhigovt.nic.in",
+      "sector": "social_security",
+      "status": "active"
+    },
+    {
+      "name_en": "Delhi Mahila Samman Yojana",
+      "name_hi": "दिल्ली महिला सम्मान योजना",
+      "benefit_en": "Rs 2,100/month financial support for Delhi women",
+      "benefit_hi": "दिल्ली महिलाओं को ₹2,100/माह सहायता",
+      "eligibility": "Delhi women aged 18+, Delhi domicile, not income tax payer",
+      "documents": [
+        "Aadhaar",
+        "Delhi voter ID/domicile",
+        "Bank account"
+      ],
+      "apply_url": "https://delhi.gov.in",
+      "sector": "women_child",
+      "status": "active"
+    },
+    {
+      "name_en": "Delhi Rozgar Bazaar",
+      "name_hi": "दिल्ली रोजगार बाजार",
+      "benefit_en": "Online job portal + skill centres + career guidance for Delhi youth",
+      "benefit_hi": "दिल्ली युवाओं के लिए ऑनलाइन जॉब पोर्टल + स्किल सेंटर",
+      "eligibility": "Delhi residents looking for employment",
+      "documents": [
+        "Aadhaar",
+        "Educational certificates"
+      ],
+      "apply_url": "https://jobsearch.delhi.gov.in",
+      "sector": "employment",
+      "status": "active"
+    },
+    {
+      "name_en": "Delhi EV Policy (EV Subsidy)",
+      "name_hi": "दिल्ली ईवी नीति (सब्सिडी)",
+      "benefit_en": "Rs 5,000-30,000 subsidy on electric 2-wheelers + scrapping incentive",
+      "benefit_hi": "इलेक्ट्रिक दोपहिया पर ₹5,000-30,000 सब्सिडी",
+      "eligibility": "Delhi residents buying FAME-approved EVs",
+      "documents": [
+        "Aadhaar",
+        "Delhi address proof",
+        "Vehicle purchase invoice"
+      ],
+      "apply_url": "https://ev.delhi.gov.in",
+      "sector": "energy",
+      "status": "active"
+    }
+  ]
+}

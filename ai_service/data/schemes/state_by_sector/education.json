@@ -1,0 +1,93 @@
+{
+  "sector": "education",
+  "type": "state",
+  "count": 5,
+  "schemes": [
+    {
+      "name_en": "Raitha Vidyanidhi (Farmer Children Scholarship)",
+      "name_hi": "रायत विद्यानिधि छात्रवृत्ति",
+      "benefit_en": "Rs 2,000-10,000 scholarship for children of farmers",
+      "benefit_hi": "किसानों के बच्चों को ₹2,000-10,000 छात्रवृत्ति",
+      "eligibility": "Children of Karnataka farmers enrolled in Class 10 to degree",
+      "documents": [
+        "Aadhaar",
+        "Parent's land records",
+        "School/college enrollment"
+      ],
+      "apply_url": "https://farmers.karnataka.gov.in",
+      "sector": "education",
+      "state_en": "Karnataka",
+      "state_hi": "कर्नाटक",
+      "type": "State"
+    },
+    {
+      "name_en": "Bihar Student Credit Card Yojana",
+      "name_hi": "बिहार स्टूडेंट क्रेडिट कार्ड योजना",
+      "benefit_en": "Education loan up to Rs 4 lakh at 4% interest (1% for girls/disabled)",
+      "benefit_hi": "₹4 लाख तक शिक्षा ऋण 4% ब्याज (महिला/दिव्यांग: 1%)",
+      "eligibility": "Bihar students who passed Class 12, admitted to recognized institutions",
+      "documents": [
+        "Aadhaar",
+        "Class 12 marksheet",
+        "Admission letter",
+        "Bank account"
+      ],
+      "apply_url": "https://www.7nishchay-yuvaupmission.bihar.gov.in",
+      "sector": "education",
+      "state_en": "Bihar",
+      "state_hi": "बिहार",
+      "type": "State"
+    },
+    {
+      "name_en": "TS ePass Scholarship",
+      "name_hi": "TS ई-पास छात्रवृत्ति",
+      "benefit_en": "Full tuition fee + maintenance for SC/ST/BC/EBC/Minority students",
+      "benefit_hi": "SC/ST/BC/EBC/अल्पसंख्यक छात्रों की पूरी फीस + रखरखाव",
+      "eligibility": "Telangana SC/ST/BC/EBC/Minority students in recognized colleges",
+      "documents": [
+        "Aadhaar",
+        "Caste/income certificate",
+        "Admission proof"
+      ],
+      "apply_url": "https://telanganaepass.cgg.gov.in",
+      "sector": "education",
+      "state_en": "Telangana",
+      "state_hi": "तेलंगाना",
+      "type": "State"
+    },
+    {
+      "name_en": "Jagananna Amma Vodi",
+      "name_hi": "जगनन्ना अम्मा वोडी",
+      "benefit_en": "Rs 15,000/year for mothers to keep children in school",
+      "benefit_hi": "बच्चों को स्कूल भेजने पर माँ को ₹15,000/वर्ष",
+      "eligibility": "AP mothers with children enrolled in Classes 1-12 (BPL)",
+      "documents": [
+        "Aadhaar",
+        "School enrollment",
+        "BPL status"
+      ],
+      "apply_url": "https://ammavodi.ap.gov.in",
+      "sector": "education",
+      "state_en": "Andhra Pradesh",
+      "state_hi": "आंध्र प्रदेश",
+      "type": "State"
+    },
+    {
+      "name_en": "Mukhyamantri Sarthi Yojana",
+      "name_hi": "मुख्यमंत्री सारथी योजना",
+      "benefit_en": "Free coaching for competitive exams (UPSC, SSC, Banking) for Jharkhand youth",
+      "benefit_hi": "UPSC, SSC, बैंकिंग परीक्षाओं की मुफ्त कोचिंग",
+      "eligibility": "Jharkhand youth aged 18-35 from poor families",
+      "documents": [
+        "Aadhaar",
+        "Income certificate",
+        "Educational proof"
+      ],
+      "apply_url": "https://jharkhand.gov.in",
+      "sector": "education",
+      "state_en": "Jharkhand",
+      "state_hi": "झारखंड",
+      "type": "State"
+    }
+  ]
+}

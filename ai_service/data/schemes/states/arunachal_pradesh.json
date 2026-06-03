@@ -1,0 +1,47 @@
+{
+  "state_en": "Arunachal Pradesh",
+  "state_hi": "अरुणाचल प्रदेश",
+  "schemes": [
+    {
+      "name_en": "CM Arogya Arunachal Yojana",
+      "name_hi": "मुख्यमंत्री आरोग्य अरुणाचल योजना",
+      "benefit_en": "Rs 5 lakh/year cashless health cover at 200+ hospitals extending PM-JAY in AP",
+      "benefit_hi": "PM-JAY विस्तार — ₹5 लाख/वर्ष कैशलेस इलाज 200+ अस्पतालों में",
+      "eligibility": "All Arunachal Pradesh residents (domicile required)",
+      "documents": [
+        "Aadhaar",
+        "AP domicile certificate"
+      ],
+      "apply_url": "https://arunachalpradesh.gov.in",
+      "sector": "health"
+    },
+    {
+      "name_en": "Arunachal Pradesh Buddhist Circuit Tourism Development",
+      "name_hi": "अरुणाचल बौद्ध सर्किट पर्यटन योजना",
+      "benefit_en": "Grants for homestays, local guides, cultural enterprise along Buddhist circuit",
+      "benefit_hi": "बौद्ध सर्किट पर होमस्टे, स्थानीय गाइड, सांस्कृतिक उद्यम के लिए अनुदान",
+      "eligibility": "AP communities near Buddhist monasteries/circuits",
+      "documents": [
+        "Aadhaar",
+        "AP domicile",
+        "Business plan"
+      ],
+      "apply_url": "https://arunachalpradesh.gov.in",
+      "sector": "employment"
+    },
+    {
+      "name_en": "AP Kiwi / Organic Farming Support",
+      "name_hi": "अरुणाचल प्रदेश कीवी / जैविक खेती",
+      "benefit_en": "Subsidy on kiwi, orange, apple plantation + organic certification for AP hill farmers",
+      "benefit_hi": "AP पहाड़ी किसानों को कीवी, संतरा, सेब रोपण + जैविक प्रमाणन सब्सिडी",
+      "eligibility": "Arunachal Pradesh farmers with suitable hilly land",
+      "documents": [
+        "Aadhaar",
+        "Land records",
+        "AP domicile"
+      ],
+      "apply_url": "https://arunachalpradesh.gov.in",
+      "sector": "agriculture"
+    }
+  ]
+}

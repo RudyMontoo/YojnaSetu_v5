@@ -1,0 +1,191 @@
+{
+  "sector": "women_and_child",
+  "central_count": 15,
+  "state_count": 0,
+  "total": 15,
+  "central_schemes": [
+    {
+      "name": "PM Matru Vandana Yojana (PMMVY)",
+      "ministry": "Women & Child Development",
+      "benefit": "Rs 5000 maternity benefit in 3 installments for first child",
+      "eligibility": "Pregnant and lactating mothers for first living child",
+      "documents": [
+        "Aadhaar",
+        "MCP card",
+        "Bank account"
+      ],
+      "apply_url": "https://wcd.nic.in/schemes",
+      "type": "Central"
+    },
+    {
+      "name": "Beti Bachao Beti Padhao",
+      "ministry": "Women & Child Development",
+      "benefit": "Girl child welfare, education incentives, anti-dowry campaigns",
+      "eligibility": "Girl children (0-18 years)",
+      "documents": [
+        "Birth certificate",
+        "Aadhaar"
+      ],
+      "apply_url": "https://wcd.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "Sukanya Samriddhi Yojana",
+      "ministry": "Finance",
+      "benefit": "High-interest savings account (7.6% p.a.) for girl child education/marriage",
+      "eligibility": "Girl child below age 10 (parent/guardian opens it)",
+      "documents": [
+        "Girl's birth certificate",
+        "Parent's Aadhaar",
+        "Post office/bank KYC"
+      ],
+      "apply_url": "https://www.indiapost.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "One Stop Centre (Sakhi) Scheme",
+      "ministry": "Women & Child Development",
+      "benefit": "Police, medical, legal, counselling support for violence victims",
+      "eligibility": "Women affected by violence (any age, any background)",
+      "documents": [
+        "No mandatory documents - emergency help available immediately"
+      ],
+      "apply_url": "Helpline: 181",
+      "type": "Central"
+    },
+    {
+      "name": "Swadhar Greh Scheme",
+      "ministry": "Women & Child Development",
+      "benefit": "Shelter, food, clothing, counselling for women in difficult circumstances",
+      "eligibility": "Women in distress (trafficking victims, released prisoners, natural disaster victims)",
+      "documents": [
+        "Aadhaar if available",
+        "Police report if applicable"
+      ],
+      "apply_url": "https://wcd.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM Jan Dhan Yojana (Women)",
+      "ministry": "Finance",
+      "benefit": "Zero-balance bank account, Rs 2 lakh accident insurance, Rs 30K life cover",
+      "eligibility": "All unbanked citizens, especially women",
+      "documents": [
+        "Aadhaar or any ID proof"
+      ],
+      "apply_url": "https://pmjdy.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "National Crèche Scheme",
+      "ministry": "Women & Child Development",
+      "benefit": "Day care for children 6 months - 6 years while mother works",
+      "eligibility": "Working mothers (daily wage, MGNREGA, BPL)",
+      "documents": [
+        "Mother's employment proof",
+        "Child's birth certificate"
+      ],
+      "apply_url": "https://wcd.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "POSHAN Abhiyaan (Nutrition Mission)",
+      "ministry": "Women & Child Development",
+      "benefit": "Supplementary nutrition, ICDS services for children 0-6 and mothers",
+      "eligibility": "Children 0-6 years, pregnant/lactating mothers",
+      "documents": [
+        "Aadhaar",
+        "MCP card"
+      ],
+      "apply_url": "https://icds-wcd.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "Mahila Shakti Kendra Scheme",
+      "ministry": "Women & Child Development",
+      "benefit": "Skill training, awareness, convergence services for rural women",
+      "eligibility": "Rural women in aspirational districts",
+      "documents": [
+        "Aadhaar",
+        "Village residence proof"
+      ],
+      "apply_url": "https://wcd.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "Working Women Hostel Scheme",
+      "ministry": "Women & Child Development",
+      "benefit": "Safe, affordable hostel accommodation for working women",
+      "eligibility": "Single working women with income < Rs 50K/month",
+      "documents": [
+        "Aadhaar",
+        "Employment proof",
+        "Income certificate"
+      ],
+      "apply_url": "https://wcd.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "Rashtriya Mahila Kosh Micro Finance",
+      "ministry": "Women & Child Development",
+      "benefit": "Low-interest micro-loans for SHG women entrepreneurs",
+      "eligibility": "Women SHGs in low-income category",
+      "documents": [
+        "Aadhaar",
+        "SHG registration",
+        "Bank account"
+      ],
+      "apply_url": "https://rmk.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "Integrated Child Development Services (ICDS)",
+      "ministry": "Women & Child Development",
+      "benefit": "Free nutrition, healthcare, pre-school education via Anganwadis",
+      "eligibility": "Children 0-6 years, pregnant/nursing mothers",
+      "documents": [
+        "Aadhaar",
+        "Birth certificate"
+      ],
+      "apply_url": "https://icds-wcd.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM Ujjwala Yojana 2.0",
+      "ministry": "Petroleum",
+      "benefit": "Free LPG connection + first refill + regulator for BPL women",
+      "eligibility": "BPL women who don't already have LPG connection",
+      "documents": [
+        "Aadhaar",
+        "BPL Ration Card",
+        "Bank account"
+      ],
+      "apply_url": "https://pmuy.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Nari Shakti Puraskar",
+      "ministry": "Women & Child Development",
+      "benefit": "National award + Rs 2 lakh for outstanding contribution to women's empowerment",
+      "eligibility": "Women/institutions working on women empowerment",
+      "documents": [
+        "Application + supporting evidence"
+      ],
+      "apply_url": "https://wcd.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "STEP (Support to Training & Employment of Women)",
+      "ministry": "Women & Child Development",
+      "benefit": "Skill training and employment support in 9 traditional sectors",
+      "eligibility": "Marginalized women in rural/urban areas aged 16+",
+      "documents": [
+        "Aadhaar",
+        "Income certificate"
+      ],
+      "apply_url": "https://wcd.nic.in",
+      "type": "Central"
+    }
+  ],
+  "state_schemes": []
+}

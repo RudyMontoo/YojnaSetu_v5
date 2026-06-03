@@ -1,0 +1,47 @@
+{
+  "state_en": "Assam",
+  "state_hi": "असम",
+  "schemes": [
+    {
+      "name_en": "Atal Amrit Abhiyan (Assam Health)",
+      "name_hi": "अटल अमृत अभियान",
+      "benefit_en": "Rs 2 lakh/year free treatment for 5 disease categories",
+      "benefit_hi": "5 रोग श्रेणियों के लिए ₹2 लाख/वर्ष मुफ्त इलाज",
+      "eligibility": "Assam families (BPL: free, APL: income < Rs 5 lakh)",
+      "documents": [
+        "Aadhaar",
+        "Family enrollment certificate"
+      ],
+      "apply_url": "https://atalamrit.assam.gov.in",
+      "sector": "health"
+    },
+    {
+      "name_en": "Orunodoi Scheme",
+      "name_hi": "অৰুণোদই / ओरुणोदोई योजना",
+      "benefit_en": "Rs 1,250/month to woman of economically poor families",
+      "benefit_hi": "गरीब परिवार की महिला को ₹1,250/माह",
+      "eligibility": "Assam women in BPL/low-income families (EWS)",
+      "documents": [
+        "Aadhaar",
+        "Income certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://orunodoi.assam.gov.in",
+      "sector": "women_child"
+    },
+    {
+      "name_en": "Mukhyamantri Atmanirbhar Asom Abhiyan",
+      "name_hi": "मुख्यमंत्री आत्मनिर्भर असम अभियान",
+      "benefit_en": "1 lakh youth to get skill training + tool kit + Rs 30,000 support",
+      "benefit_hi": "1 लाख युवाओं को कौशल प्रशिक्षण + टूल किट + ₹30,000",
+      "eligibility": "Assam youth aged 18-40 from poor families",
+      "documents": [
+        "Aadhaar",
+        "Educational certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://slsa.assam.gov.in",
+      "sector": "employment"
+    }
+  ]
+}

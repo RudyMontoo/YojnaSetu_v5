@@ -1,0 +1,74 @@
+{
+  "state_en": "Karnataka",
+  "state_hi": "कर्नाटक",
+  "schemes": [
+    {
+      "name_en": "Arogya Karnataka (Universal Health Coverage)",
+      "name_hi": "आरोग्य कर्नाटक",
+      "benefit_en": "Free/subsidized treatment in government hospitals across Karnataka",
+      "benefit_hi": "कर्नाटक के सरकारी अस्पतालों में मुफ्त/रियायती इलाज",
+      "eligibility": "Karnataka residents (BPL: fully free, APL: subsidized)",
+      "documents": [
+        "Aadhaar",
+        "Ration card or income certificate"
+      ],
+      "apply_url": "https://arogyakarnataka.karnataka.gov.in",
+      "sector": "health"
+    },
+    {
+      "name_en": "Gruha Jyothi (Free Electricity)",
+      "name_hi": "गृह ज्योति योजना",
+      "benefit_en": "200 units free electricity per month for domestic consumers",
+      "benefit_hi": "घरेलू उपभोक्ताओं को 200 यूनिट मुफ्त बिजली प्रतिमाह",
+      "eligibility": "Karnataka domestic electricity consumers using ≤ 200 units/month",
+      "documents": [
+        "Aadhaar",
+        "Electricity consumer number"
+      ],
+      "apply_url": "https://escoms.karnataka.gov.in",
+      "sector": "energy"
+    },
+    {
+      "name_en": "Gruha Lakshmi (Women Financial Support)",
+      "name_hi": "गृह लक्ष्मी योजना",
+      "benefit_en": "Rs 2,000/month to woman head of the household",
+      "benefit_hi": "परिवार की महिला मुखिया को ₹2,000/माह",
+      "eligibility": "Karnataka women who are head of their household (above 18)",
+      "documents": [
+        "Aadhaar",
+        "Ration card",
+        "Bank account"
+      ],
+      "apply_url": "https://sevasindhu.karnataka.gov.in",
+      "sector": "women_child"
+    },
+    {
+      "name_en": "Yuva Nidhi Scheme",
+      "name_hi": "युवा निधि योजना",
+      "benefit_en": "Rs 3,000/month (graduates) or Rs 1,500/month (diploma) for unemployed youth",
+      "benefit_hi": "बेरोजगार स्नातक ₹3,000/माह, डिप्लोमाधारी ₹1,500/माह",
+      "eligibility": "Karnataka unemployed youth (graduated within 2 years), age < 25",
+      "documents": [
+        "Aadhaar",
+        "Degree/diploma certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://sevasindhu.karnataka.gov.in",
+      "sector": "employment"
+    },
+    {
+      "name_en": "Raitha Vidyanidhi (Farmer Children Scholarship)",
+      "name_hi": "रायत विद्यानिधि छात्रवृत्ति",
+      "benefit_en": "Rs 2,000-10,000 scholarship for children of farmers",
+      "benefit_hi": "किसानों के बच्चों को ₹2,000-10,000 छात्रवृत्ति",
+      "eligibility": "Children of Karnataka farmers enrolled in Class 10 to degree",
+      "documents": [
+        "Aadhaar",
+        "Parent's land records",
+        "School/college enrollment"
+      ],
+      "apply_url": "https://farmers.karnataka.gov.in",
+      "sector": "education"
+    }
+  ]
+}

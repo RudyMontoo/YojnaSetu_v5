@@ -1,0 +1,144 @@
+{
+  "sector": "housing",
+  "type": "state",
+  "count": 8,
+  "schemes": [
+    {
+      "name_en": "UP Mukhyamantri Awas Yojana",
+      "name_hi": "मुख्यमंत्री आवास योजना",
+      "benefit_en": "Additional housing grant for urban slum dwellers not covered under PMAY",
+      "benefit_hi": "PMAY से वंचित शहरी गरीबों को आवास सहायता",
+      "eligibility": "Urban BPL families without own home in UP",
+      "documents": [
+        "Aadhaar",
+        "Income certificate",
+        "BPL card"
+      ],
+      "apply_url": "https://updesco.com",
+      "sector": "housing",
+      "state_en": "Uttar Pradesh",
+      "state_hi": "उत्तर प्रदेश",
+      "type": "State"
+    },
+    {
+      "name_en": "Nijashree / Gitanjali Housing",
+      "name_hi": "निजश्री / गीतांजलि आवास योजना",
+      "benefit_en": "Affordable flats and houses for EWS/LIG groups in WB",
+      "benefit_hi": "EWS/LIG समूह के लिए किफायती फ्लैट",
+      "eligibility": "WB EWS/LIG families without own house",
+      "documents": [
+        "Aadhaar",
+        "Income proof",
+        "Application form"
+      ],
+      "apply_url": "https://wbhidco.in",
+      "sector": "housing",
+      "state_en": "West Bengal",
+      "state_hi": "पश्चिम बंगाल",
+      "type": "State"
+    },
+    {
+      "name_en": "Gharkul Yojana (PMAY top-up)",
+      "name_hi": "घरकुल योजना",
+      "benefit_en": "State top-up of Rs 30,000-50,000 over PMAY for SC/ST/NT/OBC",
+      "benefit_hi": "SC/ST/NT/OBC के लिए PMAY के अतिरिक्त ₹30,000-50,000",
+      "eligibility": "SC/ST/NT/OBC PMAY beneficiaries in Maharashtra",
+      "documents": [
+        "PMAY sanction",
+        "Caste certificate",
+        "Aadhaar"
+      ],
+      "apply_url": "https://mhada.gov.in",
+      "sector": "housing",
+      "state_en": "Maharashtra",
+      "state_hi": "महाराष्ट्र",
+      "type": "State"
+    },
+    {
+      "name_en": "Pandit Deen Dayal Upadhyay Awas Yojana",
+      "name_hi": "पं. दीनदयाल उपाध्याय आवास योजना",
+      "benefit_en": "Housing for SC/ST/OBC families with Rs 1.2 lakh state grant",
+      "benefit_hi": "SC/ST/OBC परिवारों को ₹1.2 लाख राज्य अनुदान",
+      "eligibility": "SC/ST/OBC BPL families in Gujarat without pucca house",
+      "documents": [
+        "Aadhaar",
+        "Caste certificate",
+        "Income certificate",
+        "Land ownership"
+      ],
+      "apply_url": "https://gujarathousing.gov.in",
+      "sector": "housing",
+      "state_en": "Gujarat",
+      "state_hi": "गुजरात",
+      "type": "State"
+    },
+    {
+      "name_en": "Jagananna Housing (PMAY AP Extension)",
+      "name_hi": "जगनन्ना आवास योजना",
+      "benefit_en": "State-funded house with basic amenities for homeless AP families",
+      "benefit_hi": "बेघर AP परिवारों को बुनियादी सुविधाओं सहित घर",
+      "eligibility": "AP homeless families not covered under PMAY",
+      "documents": [
+        "Aadhaar",
+        "Income certificate",
+        "No-property certificate"
+      ],
+      "apply_url": "https://navasakam.ap.gov.in",
+      "sector": "housing",
+      "state_en": "Andhra Pradesh",
+      "state_hi": "आंध्र प्रदेश",
+      "type": "State"
+    },
+    {
+      "name_en": "Abua Awas Yojana",
+      "name_hi": "अबुआ आवास योजना",
+      "benefit_en": "3-room pucca house with Rs 2 lakh grant for homeless Jharkhand families",
+      "benefit_hi": "बेघर परिवारों को ₹2 लाख में 3 कमरों का पक्का घर",
+      "eligibility": "Jharkhand homeless families not covered under PMAY",
+      "documents": [
+        "Aadhaar",
+        "No-house proof",
+        "Bank account"
+      ],
+      "apply_url": "https://aay.jharkhand.gov.in",
+      "sector": "housing",
+      "state_en": "Jharkhand",
+      "state_hi": "झारखंड",
+      "type": "State"
+    },
+    {
+      "name_en": "LIFE Mission Housing (Kerala)",
+      "name_hi": "LIFE मिशन आवास (केरल)",
+      "benefit_en": "Fully constructed house for homeless/landless families in Kerala",
+      "benefit_hi": "बेघर/भूमिहीन परिवारों को बना-बनाया घर",
+      "eligibility": "Homeless/landless Kerala families (especially returned migrants)",
+      "documents": [
+        "Aadhaar",
+        "No-land/no-house certificate",
+        "Income proof"
+      ],
+      "apply_url": "https://lifemission.kerala.gov.in",
+      "sector": "housing",
+      "state_en": "Kerala",
+      "state_hi": "केरल",
+      "type": "State"
+    },
+    {
+      "name_en": "Mukhyamantri Awas Yojana MP",
+      "name_hi": "मुख्यमंत्री आवास योजना (एमपी)",
+      "benefit_en": "Housing for urban poor not covered under PMAY with state subsidy",
+      "benefit_hi": "PMAY से छूटे शहरी गरीबों को राज्य आवास सहायता",
+      "eligibility": "Urban MP BPL families without pucca house",
+      "documents": [
+        "Aadhaar",
+        "BPL card",
+        "Income certificate"
+      ],
+      "apply_url": "https://mphousing.nic.in",
+      "sector": "housing",
+      "state_en": "Madhya Pradesh",
+      "state_hi": "मध्य प्रदेश",
+      "type": "State"
+    }
+  ]
+}

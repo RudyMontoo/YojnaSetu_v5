@@ -1,0 +1,339 @@
+{
+  "sector": "housing",
+  "central_count": 15,
+  "state_count": 8,
+  "total": 23,
+  "central_schemes": [
+    {
+      "name": "PM Awas Yojana - Gramin (PMAY-G)",
+      "ministry": "Rural Development",
+      "benefit": "Rs 1.2-1.3 lakh grant for pucca house construction (rural)",
+      "eligibility": "Homeless/kutcha house families in SECC list",
+      "documents": [
+        "Aadhaar",
+        "SECC list name",
+        "Bank account",
+        "Geo-tag photo"
+      ],
+      "apply_url": "https://pmayg.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM Awas Yojana - Urban (PMAY-U)",
+      "ministry": "Housing & Urban Affairs",
+      "benefit": "Interest subsidy 3-6.5% on home loan OR grant up to Rs 2.67 lakh",
+      "eligibility": "EWS/LIG/MIG families without pucca house",
+      "documents": [
+        "Aadhaar",
+        "Income proof",
+        "Bank account",
+        "Property documents"
+      ],
+      "apply_url": "https://pmaymis.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Credit Linked Subsidy Scheme (CLSS)",
+      "ministry": "Housing",
+      "benefit": "Home loan interest subsidy up to Rs 2.67 lakh for EWS/LIG",
+      "eligibility": "First-time homebuyers with income < Rs 18 lakh/year",
+      "documents": [
+        "Aadhaar",
+        "Income certificate",
+        "Bank statement"
+      ],
+      "apply_url": "https://pmaymis.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "National Urban Livelihood Mission (Housing)",
+      "ministry": "Housing & Urban Affairs",
+      "benefit": "Affordable rental housing for urban poor",
+      "eligibility": "Urban migrants, daily wage workers",
+      "documents": [
+        "Aadhaar",
+        "Employment proof",
+        "Income certificate"
+      ],
+      "apply_url": "https://mohua.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Indira Awas Yojana (IAY) Legacy Beneficiaries",
+      "ministry": "Rural Development",
+      "benefit": "Housing assistance for incomplete IAY houses",
+      "eligibility": "Existing IAY beneficiaries with incomplete construction",
+      "documents": [
+        "Aadhaar",
+        "IAY sanction letter",
+        "Bank account"
+      ],
+      "apply_url": "https://pmayg.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM SVANidhi (Street Vendor Housing Benefit)",
+      "ministry": "Housing & Urban Affairs",
+      "benefit": "Collateral-free working capital loans Rs 10K-50K + credit score benefit",
+      "eligibility": "Street vendors with vending certificate",
+      "documents": [
+        "Aadhaar",
+        "Vending certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://pmsvanidhi.mohua.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Rajiv Awas Yojana",
+      "ministry": "Housing",
+      "benefit": "Slum rehabilitation and affordable housing for slum dwellers",
+      "eligibility": "Slum dwellers and urban homeless",
+      "documents": [
+        "Aadhaar",
+        "Slum residence proof"
+      ],
+      "apply_url": "https://mohua.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "PMAY NE States Special Package",
+      "ministry": "Housing",
+      "benefit": "Enhanced grant Rs 1.3 lakh for NE states and hill states",
+      "eligibility": "BPL families in NE/hill states",
+      "documents": [
+        "Aadhaar",
+        "BPL card",
+        "State domicile"
+      ],
+      "apply_url": "https://pmayg.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "Mukhyamantri Gramin Awas Yojana (State)",
+      "ministry": "State Rural Development",
+      "benefit": "Additional Rs 20,000-40,000 top-up to PMAY-G",
+      "eligibility": "PMAY-G beneficiaries in respective states",
+      "documents": [
+        "PMAY-G sanction letter",
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "State portal",
+      "type": "State"
+    },
+    {
+      "name": "Housing for Plantation Workers",
+      "ministry": "Labour",
+      "benefit": "Housing assistance for tea and coffee plantation workers",
+      "eligibility": "Workers on registered plantations",
+      "documents": [
+        "Aadhaar",
+        "Employment card",
+        "Bank account"
+      ],
+      "apply_url": "https://labour.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Affordable Rental Housing Complexes (ARHC)",
+      "ministry": "Housing",
+      "benefit": "Low-cost rental accommodation for urban migrants",
+      "eligibility": "Migrant workers, urban poor",
+      "documents": [
+        "Aadhaar",
+        "Employment proof"
+      ],
+      "apply_url": "https://mohua.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Valmiki Ambedkar Awas Yojana (VAMBAY)",
+      "ministry": "Housing",
+      "benefit": "Subsidized shelter for urban slum dwellers below poverty line",
+      "eligibility": "Urban BPL families in slums",
+      "documents": [
+        "Aadhaar",
+        "BPL card"
+      ],
+      "apply_url": "https://mohua.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "NHB Residex Scheme",
+      "ministry": "Finance",
+      "benefit": "Housing loan at reduced rates through NHB registered lenders",
+      "eligibility": "Home loan seekers in notified cities",
+      "documents": [
+        "Aadhaar",
+        "Income proof",
+        "KYC documents"
+      ],
+      "apply_url": "https://nhb.org.in",
+      "type": "Central"
+    },
+    {
+      "name": "Global Housing Technology Challenge",
+      "ministry": "Housing",
+      "benefit": "Access to affordable innovative housing construction tech",
+      "eligibility": "PMAY beneficiaries in pilot sites",
+      "documents": [
+        "PMAY sanction"
+      ],
+      "apply_url": "https://ghtc-india.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM Awas Yojana LIFE (PMAY-LIFE)",
+      "ministry": "Housing",
+      "benefit": "Turnkey housing via private builders under PMAY EWS category",
+      "eligibility": "EWS category families not yet with permanent housing",
+      "documents": [
+        "Aadhaar",
+        "Income certificate",
+        "Bank account"
+      ],
+      "apply_url": "https://pmaymis.gov.in",
+      "type": "Central"
+    }
+  ],
+  "state_schemes": [
+    {
+      "name_en": "UP Mukhyamantri Awas Yojana",
+      "name_hi": "मुख्यमंत्री आवास योजना",
+      "benefit_en": "Additional housing grant for urban slum dwellers not covered under PMAY",
+      "benefit_hi": "PMAY से वंचित शहरी गरीबों को आवास सहायता",
+      "eligibility": "Urban BPL families without own home in UP",
+      "documents": [
+        "Aadhaar",
+        "Income certificate",
+        "BPL card"
+      ],
+      "apply_url": "https://updesco.com",
+      "sector": "housing",
+      "state_en": "Uttar Pradesh",
+      "state_hi": "उत्तर प्रदेश",
+      "type": "State"
+    },
+    {
+      "name_en": "Nijashree / Gitanjali Housing",
+      "name_hi": "निजश्री / गीतांजलि आवास योजना",
+      "benefit_en": "Affordable flats and houses for EWS/LIG groups in WB",
+      "benefit_hi": "EWS/LIG समूह के लिए किफायती फ्लैट",
+      "eligibility": "WB EWS/LIG families without own house",
+      "documents": [
+        "Aadhaar",
+        "Income proof",
+        "Application form"
+      ],
+      "apply_url": "https://wbhidco.in",
+      "sector": "housing",
+      "state_en": "West Bengal",
+      "state_hi": "पश्चिम बंगाल",
+      "type": "State"
+    },
+    {
+      "name_en": "Gharkul Yojana (PMAY top-up)",
+      "name_hi": "घरकुल योजना",
+      "benefit_en": "State top-up of Rs 30,000-50,000 over PMAY for SC/ST/NT/OBC",
+      "benefit_hi": "SC/ST/NT/OBC के लिए PMAY के अतिरिक्त ₹30,000-50,000",
+      "eligibility": "SC/ST/NT/OBC PMAY beneficiaries in Maharashtra",
+      "documents": [
+        "PMAY sanction",
+        "Caste certificate",
+        "Aadhaar"
+      ],
+      "apply_url": "https://mhada.gov.in",
+      "sector": "housing",
+      "state_en": "Maharashtra",
+      "state_hi": "महाराष्ट्र",
+      "type": "State"
+    },
+    {
+      "name_en": "Pandit Deen Dayal Upadhyay Awas Yojana",
+      "name_hi": "पं. दीनदयाल उपाध्याय आवास योजना",
+      "benefit_en": "Housing for SC/ST/OBC families with Rs 1.2 lakh state grant",
+      "benefit_hi": "SC/ST/OBC परिवारों को ₹1.2 लाख राज्य अनुदान",
+      "eligibility": "SC/ST/OBC BPL families in Gujarat without pucca house",
+      "documents": [
+        "Aadhaar",
+        "Caste certificate",
+        "Income certificate",
+        "Land ownership"
+      ],
+      "apply_url": "https://gujarathousing.gov.in",
+      "sector": "housing",
+      "state_en": "Gujarat",
+      "state_hi": "गुजरात",
+      "type": "State"
+    },
+    {
+      "name_en": "Jagananna Housing (PMAY AP Extension)",
+      "name_hi": "जगनन्ना आवास योजना",
+      "benefit_en": "State-funded house with basic amenities for homeless AP families",
+      "benefit_hi": "बेघर AP परिवारों को बुनियादी सुविधाओं सहित घर",
+      "eligibility": "AP homeless families not covered under PMAY",
+      "documents": [
+        "Aadhaar",
+        "Income certificate",
+        "No-property certificate"
+      ],
+      "apply_url": "https://navasakam.ap.gov.in",
+      "sector": "housing",
+      "state_en": "Andhra Pradesh",
+      "state_hi": "आंध्र प्रदेश",
+      "type": "State"
+    },
+    {
+      "name_en": "Abua Awas Yojana",
+      "name_hi": "अबुआ आवास योजना",
+      "benefit_en": "3-room pucca house with Rs 2 lakh grant for homeless Jharkhand families",
+      "benefit_hi": "बेघर परिवारों को ₹2 लाख में 3 कमरों का पक्का घर",
+      "eligibility": "Jharkhand homeless families not covered under PMAY",
+      "documents": [
+        "Aadhaar",
+        "No-house proof",
+        "Bank account"
+      ],
+      "apply_url": "https://aay.jharkhand.gov.in",
+      "sector": "housing",
+      "state_en": "Jharkhand",
+      "state_hi": "झारखंड",
+      "type": "State"
+    },
+    {
+      "name_en": "LIFE Mission Housing (Kerala)",
+      "name_hi": "LIFE मिशन आवास (केरल)",
+      "benefit_en": "Fully constructed house for homeless/landless families in Kerala",
+      "benefit_hi": "बेघर/भूमिहीन परिवारों को बना-बनाया घर",
+      "eligibility": "Homeless/landless Kerala families (especially returned migrants)",
+      "documents": [
+        "Aadhaar",
+        "No-land/no-house certificate",
+        "Income proof"
+      ],
+      "apply_url": "https://lifemission.kerala.gov.in",
+      "sector": "housing",
+      "state_en": "Kerala",
+      "state_hi": "केरल",
+      "type": "State"
+    },
+    {
+      "name_en": "Mukhyamantri Awas Yojana MP",
+      "name_hi": "मुख्यमंत्री आवास योजना (एमपी)",
+      "benefit_en": "Housing for urban poor not covered under PMAY with state subsidy",
+      "benefit_hi": "PMAY से छूटे शहरी गरीबों को राज्य आवास सहायता",
+      "eligibility": "Urban MP BPL families without pucca house",
+      "documents": [
+        "Aadhaar",
+        "BPL card",
+        "Income certificate"
+      ],
+      "apply_url": "https://mphousing.nic.in",
+      "sector": "housing",
+      "state_en": "Madhya Pradesh",
+      "state_hi": "मध्य प्रदेश",
+      "type": "State"
+    }
+  ]
+}

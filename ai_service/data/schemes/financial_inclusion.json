@@ -1,0 +1,199 @@
+{
+  "sector": "financial_inclusion",
+  "schemes": [
+    {
+      "name": "Stand Up India",
+      "ministry": "Finance",
+      "benefit": "Bank loans Rs 10 lakh - Rs 1 crore for SC/ST and women entrepreneurs",
+      "eligibility": "SC/ST and women entrepreneurs setting up greenfield enterprises",
+      "documents": [
+        "Aadhaar",
+        "Caste certificate",
+        "Business plan",
+        "Bank account"
+      ],
+      "apply_url": "https://www.standupmitra.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM Mudra Yojana (PMMY)",
+      "ministry": "Finance",
+      "benefit": "Collateral-free loans up to Rs 10 lakh for micro enterprises",
+      "eligibility": "Non-farm micro/small businesses, individuals",
+      "documents": [
+        "Aadhaar",
+        "Business proof",
+        "Bank account"
+      ],
+      "apply_url": "https://mudra.org.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM Jan Dhan Yojana (PMJDY)",
+      "ministry": "Finance",
+      "benefit": "Zero-balance bank account + insurance + overdraft facility",
+      "eligibility": "All unbanked Indian citizens",
+      "documents": [
+        "Aadhaar or any ID proof"
+      ],
+      "apply_url": "https://pmjdy.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Kisan Credit Card for Fisheries/Animal Husbandry",
+      "ministry": "Agriculture",
+      "benefit": "Short-term credit at subsidized rates for non-farm allied sectors",
+      "eligibility": "Fishermen, dairy farmers, livestock owners",
+      "documents": [
+        "Aadhaar",
+        "Land/pond documents",
+        "Bank account"
+      ],
+      "apply_url": "https://www.nabard.org",
+      "type": "Central"
+    },
+    {
+      "name": "PM Vishwakarma Scheme",
+      "ministry": "MSME",
+      "benefit": "Rs 3 lakh collateral-free loan at 5% + skill training + toolkit",
+      "eligibility": "18 traditional trades (carpenter, blacksmith, weaver etc.)",
+      "documents": [
+        "Aadhaar",
+        "Caste/trade proof",
+        "Bank account"
+      ],
+      "apply_url": "https://pmvishwakarma.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "NABARD Rural Credit Support",
+      "ministry": "Agriculture",
+      "benefit": "Refinance to cooperative banks for rural credit at low rates",
+      "eligibility": "Rural borrowers via cooperative banks/RRBs",
+      "documents": [
+        "Aadhaar",
+        "Land records",
+        "Bank account"
+      ],
+      "apply_url": "https://www.nabard.org",
+      "type": "Central"
+    },
+    {
+      "name": "Credit Guarantee Fund for MSEs",
+      "ministry": "MSME",
+      "benefit": "Collateral-free loans up to Rs 2 crore for micro/small enterprises",
+      "eligibility": "Micro and small enterprises (new and existing)",
+      "documents": [
+        "Aadhaar",
+        "Business registration",
+        "Bank account",
+        "ITR"
+      ],
+      "apply_url": "https://www.cgtmse.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM Street Vendor AtmaNirbhar Nidhi (SVANidhi)",
+      "ministry": "Housing",
+      "benefit": "Working capital loans Rs 10K → Rs 20K → Rs 50K with digital credit score",
+      "eligibility": "Street vendors",
+      "documents": [
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://pmsvanidhi.mohua.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "National Rural Livelihoods Mission (SHG Credit)",
+      "ministry": "Rural Development",
+      "benefit": "Collateral-free loans via SHG bank linkage at 7% interest",
+      "eligibility": "Women SHG members in rural areas",
+      "documents": [
+        "SHG passbook",
+        "Aadhaar",
+        "Bank account"
+      ],
+      "apply_url": "https://aajeevika.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Gold Monetisation Scheme",
+      "ministry": "Finance",
+      "benefit": "Interest 2.25-2.5% p.a. on idle gold deposited with banks",
+      "eligibility": "All individuals, HUFs, trusts with gold",
+      "documents": [
+        "Aadhaar",
+        "PAN",
+        "KYC documents"
+      ],
+      "apply_url": "https://rbi.org.in",
+      "type": "Central"
+    },
+    {
+      "name": "Sovereign Gold Bond Scheme",
+      "ministry": "Finance",
+      "benefit": "2.5% annual interest + capital gains on gold price appreciation",
+      "eligibility": "Resident individuals, HUFs, trusts, universities",
+      "documents": [
+        "Aadhaar",
+        "PAN",
+        "Bank account"
+      ],
+      "apply_url": "https://rbi.org.in",
+      "type": "Central"
+    },
+    {
+      "name": "PM CARES for Orphan Children (Education + Finance)",
+      "ministry": "Social Justice",
+      "benefit": "Free education + Rs 10 lakh corpus at 23 for COVID orphans",
+      "eligibility": "Children who lost both parents to COVID-19",
+      "documents": [
+        "Death certificates",
+        "Birth certificate",
+        "Aadhaar"
+      ],
+      "apply_url": "https://pmcares.gov.in",
+      "type": "Central"
+    },
+    {
+      "name": "Microfinance via SIDBI (Priority Sector)",
+      "ministry": "Finance",
+      "benefit": "Low-interest microfinance through NBFC-MFIs for poor",
+      "eligibility": "Borrowers with income < Rs 3 lakh (rural) / Rs 3.6 lakh (urban)",
+      "documents": [
+        "Aadhaar",
+        "Income declaration"
+      ],
+      "apply_url": "https://www.sidbi.in",
+      "type": "Central"
+    },
+    {
+      "name": "Venture Capital Fund for SC/ST Entrepreneurs",
+      "ministry": "Social Justice",
+      "benefit": "Concessional finance up to Rs 50 lakh for SC/ST startups",
+      "eligibility": "SC/ST entrepreneurs with viable business plans",
+      "documents": [
+        "Aadhaar",
+        "SC/ST certificate",
+        "Business plan"
+      ],
+      "apply_url": "https://nsfdc.nic.in",
+      "type": "Central"
+    },
+    {
+      "name": "Dairy Entrepreneurship Development Scheme",
+      "ministry": "Animal Husbandry",
+      "benefit": "25-33% back-ended subsidy on dairy infrastructure loans",
+      "eligibility": "Farmers, individual entrepreneurs for dairy units",
+      "documents": [
+        "Aadhaar",
+        "Land documents",
+        "Bank account",
+        "Project report"
+      ],
+      "apply_url": "https://dahd.nic.in",
+      "type": "Central"
+    }
+  ]
+}
