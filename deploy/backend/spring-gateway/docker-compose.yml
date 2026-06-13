@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  gateway:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_URL=${DB_URL}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - JWT_SECRET=${JWT_SECRET}
+      - FASTAPI_URL=${FASTAPI_URL:-http://localhost:8001}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:5173}
+    env_file:
+      - .env
