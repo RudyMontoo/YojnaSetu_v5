@@ -2,6 +2,7 @@ package com.yojnasetu.gateway.controller;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -66,6 +67,23 @@ public class TrendingController {
                 "trending", result,
                 "cached", false,
                 "computed_at", Instant.ofEpochMilli(now).toString()));
+    }
+
+    @GetMapping("/schemes/recent")
+    public ResponseEntity<?> recentSchemes() {
+        // "News": schemes Agent 2 actually discovered/updated most recently —
+        // real ingestion data, not an editorial feed.
+        Query q = new Query(org.springframework.data.mongodb.core.query.Criteria
+                .where("discoverySource").exists(true))
+                .with(Sort.by(Sort.Direction.DESC, "lastUpdated"))
+                .limit(6);
+        q.fields().include("schemeCode", "name", "state", "ministry", "lastUpdated");
+        List<org.bson.Document> docs = mongoTemplate.find(q, org.bson.Document.class, "schemes");
+        return ResponseEntity.ok(Map.of("recent", docs.stream().map(d -> Map.<String, Object>of(
+                "scheme_code", String.valueOf(d.get("schemeCode")),
+                "scheme_name", String.valueOf(d.get("name")),
+                "state", d.get("state") != null ? d.get("state") : "All India",
+                "added_at", String.valueOf(d.get("lastUpdated")))).toList()));
     }
 
     @PostMapping("/admin/trend/recompute")

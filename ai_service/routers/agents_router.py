@@ -45,7 +45,7 @@ class PpoVerifyResponse(BaseModel):
     reply: str | None = None
 
 
-@router.post("/document/verify-ppo", response_model=PpoVerifyResponse, dependencies=[Depends(require_api_key)])
+@router.post("/document/verify-ppo", response_model=PpoVerifyResponse)
 async def verify_ppo(
     request: Request,
     aadhaar_file: Annotated[UploadFile, File(description="Aadhaar card image")],
@@ -178,7 +178,7 @@ async def agents_health():
     return {"agents": statuses, "checked_at": now.isoformat()}
 
 
-@router.get("/trace/{session_id}", dependencies=[Depends(require_api_key)])
+@router.get("/trace/{session_id}")
 async def get_trace(session_id: str, citizen_id: str = Depends(get_current_citizen_id)):
     """
     CLAUDE.md: GET /agents/trace/{session_id} — Citizen JWT — full reasoning
@@ -233,7 +233,7 @@ class GrievanceRequest(BaseModel):
     external_app_id: str | None = None
 
 
-@router.post("/grievance", dependencies=[Depends(require_api_key)])
+@router.post("/grievance")
 async def file_grievance(req: GrievanceRequest, citizen_id: str = Depends(get_current_citizen_id)):
     """
     Agent 5 — CLAUDE.md: POST /agents/grievance, Citizen JWT. Records the
@@ -263,13 +263,19 @@ class CscAlternativesResponse(BaseModel):
     operator_advice: str
 
 
-@router.post("/csc/alternatives", response_model=CscAlternativesResponse, dependencies=[Depends(require_api_key)])
+@router.post("/csc/alternatives", response_model=CscAlternativesResponse)
 async def csc_alternatives(req: CscAlternativesRequest, operator_id: str = Depends(get_current_operator_id)):
     """
     Agent 9 — CSC Assist, per CLAUDE.md: 'Operator JWT — body: {scheme_id,
     missing_doc_type}'. Role-gated: a valid CITIZEN token gets 403 here —
     the role claim rides inside the RS256-signed token, so no extra lookup.
     Uses scheme_code (not Mongo _id) consistent with the rest of the API.
+
+    require_api_key deliberately dropped 2026-07-04: this is a human CSC
+    operator's browser session, not a service-to-service call — the same
+    reasoning that already moved citizen-facing endpoints off X-API-Key
+    (browsers can't hold a service secret without exposing it). It was the
+    one endpoint that fell through that earlier fix.
     """
     result = await suggest_doc_alternatives(get_db(), req.scheme_code, req.missing_doc_type)
     if not result.pop("found"):
@@ -278,7 +284,7 @@ async def csc_alternatives(req: CscAlternativesRequest, operator_id: str = Depen
     return CscAlternativesResponse(**result)
 
 
-@router.get("/financial-plan", response_model=FinancialPlanResponse, dependencies=[Depends(require_api_key)])
+@router.get("/financial-plan", response_model=FinancialPlanResponse)
 async def financial_plan(citizen_id: str = Depends(get_current_citizen_id)):
     """
     Agent 7 — Financial Planning, per CLAUDE.md's spec: GET, citizen

@@ -50,7 +50,7 @@ class ChatResponse(BaseModel):
 _indexes_ready = False
 
 
-@router.post("/chat", response_model=ChatResponse, dependencies=[Depends(require_api_key)])
+@router.post("/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest, citizen_id: str = Depends(get_current_citizen_id)):
     global _indexes_ready
     db = get_db()

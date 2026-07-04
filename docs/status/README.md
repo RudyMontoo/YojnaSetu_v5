@@ -26,7 +26,7 @@ This is a **solo rebuild** (Pranjal is off the project — see the earlier owner
 | 7 | Agent 6 (Nudge) + Agent 9 (CSC) + Agent 10 (Analytics) | 🟡 2 of 3 done | Agents 9 + 10 built & verified 2026-07-03. Agent 6 blocked on Twilio WhatsApp Business approval — not yet applied for |
 | 8 | Agent 11 (Biometric Assist) | ❌ Not started | Model provenance (IllumiNet/MobileNetV3) still an open question |
 | 9 | Agent 12 (Offline Survival Proof) | ❌ Not started | No PWA/offline-service-worker infrastructure exists yet |
-| 10 | Frontend integration + DPDP UI + hardening | ❌ Not started | Frontend still uses Supabase auth (`frontend/src/lib/supabase.js`), not the new gateway |
+| 10 | Frontend integration + DPDP UI + hardening | 🟡 Rebuilt 2026-07-03 | Full redesign: OTP login, chat+trending, applications+grievance, PPO check, profile+plan+DPDP delete — all verified through the dev proxy against live backends. Remaining: WS chat, voice UI, CSC operator dashboard, prod deploy |
 | 11 | Cloud Run deployment + pilot readiness | ❌ Not started | Everything currently runs local-only (`localhost:8000` / `:8080`) |
 
 ## Quick counts

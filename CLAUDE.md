@@ -373,7 +373,7 @@ db.trend_events.aggregate([
 | GET | /admin/agents/analytics/latest | Admin JWT — latest Agent 10 weekly report |
 | POST | /admin/agents/nudge/trigger | Admin JWT — manually triggers Agent 6 batch |
 
-**Implementation status (2026-07-03)** — LIVE (with path deviations from the table above where noted): `WSS /ws/session/{id}` (cookie-JWT auth, one reply frame per turn — token streaming not yet implemented), `POST /orchestrator/chat` (REST twin of the WS endpoint, not in table), `GET /agents/health` (13-agent registry, honest `not_built` statuses), `GET /agents/trace/{id}` (ownership-enforced via session userId), `GET /agents/financial-plan`, `POST /agents/document/verify-ppo` (two-file PPO/Aadhaar mismatch — the generic single-doc `/agents/document/verify` is NOT built), `POST /agents/csc/alternatives` (body uses `scheme_code`, not scheme_id), analytics at `POST /agents/admin/analytics/run` + `GET /agents/admin/analytics/latest` (not `/admin/agents/...`), `DELETE /internal/citizen/{id}/data` (DPDP cascade, called by Spring Boot). NOT built: voice WS + voice sessions, /webhook/whatsapp, /agents/compare (comparison runs via chat intent instead), /agents/grievance, nudge endpoints, /metrics/impact.
+**Implementation status (2026-07-03)** — LIVE (with path deviations from the table above where noted): `WSS /ws/session/{id}` (cookie-JWT auth, streams real LLM tokens as `{"type":"token"}` frames + one authoritative `{"type":"done"}` frame per turn — 2026-07-04), `POST /orchestrator/chat` (REST twin of the WS endpoint, not in table), `GET /agents/health` (13-agent registry, honest `not_built` statuses), `GET /agents/trace/{id}` (ownership-enforced via session userId), `GET /agents/financial-plan`, `POST /agents/document/verify-ppo` (two-file PPO/Aadhaar mismatch — the generic single-doc `/agents/document/verify` is NOT built), `POST /agents/csc/alternatives` (body uses `scheme_code`, not scheme_id), analytics at `POST /agents/admin/analytics/run` + `GET /agents/admin/analytics/latest` (not `/admin/agents/...`), `DELETE /internal/citizen/{id}/data` (DPDP cascade, called by Spring Boot). NOT built: voice WS + voice sessions, /webhook/whatsapp, /agents/compare (comparison runs via chat intent instead), /agents/grievance, nudge endpoints, /metrics/impact.
 
 ---
 
@@ -445,51 +445,54 @@ All agents share GraphState. Never call agents directly — always go through Or
 
 ### Agent Directory
 
-| Agent | Type | Trigger | Timeout | Built? (2026-07-03, detail in docs/status/) |
+| Agent | Type | Trigger | Timeout | Built? (2026-07-04, detail in docs/status/) |
 |---|---|---|---|---|
-| Orchestrator | Always-on (FastAPI) | Every citizen message | 30s total | ✅ `ai_service/graph/orchestrator.py` |
+| Orchestrator | Always-on (FastAPI) | Every citizen message | 30s total | ✅ `ai_service/graph/orchestrator.py`, incl. `small_talk` intent (no fake scheme retrieval on greetings) |
 | Agent 1 — Eligibility | On-demand (LangGraph node) | Orchestrator route | 10s | ✅ |
-| Agent 2 — Discovery | Always-on (Cloud Run service) | PIB RSS 30min + daily cron | 2h for full run | ✅ MyScheme live (984 schemes); PIB/data.gov.in blocked on config |
-| Agent 3 — Application | On-demand (Cloud Run job) | Citizen apply action | 60s | ❌ not started |
+| Agent 2 — Discovery | Always-on (Cloud Run service) | PIB RSS 30min + daily cron | 2h for full run | ✅ MyScheme live (1,230 schemes, growing — see docs/status/REMAINING.md); PIB/data.gov.in blocked on config |
+| Agent 3 — Application | On-demand (Cloud Run job) | Citizen apply action | 60s | ✅ guidance path (curated playbook + grounded LLM fallback, domain-whitelisted URLs) via `application_request` chat intent; ❌ browser-use automation not started |
 | Agent 4 — Document | On-demand (FastAPI) | Document upload | 15s | ✅ incl. v5.0 PPO/Aadhaar mismatch check |
-| Agent 5 — Grievance | On-demand (Cloud Run job) | Citizen grievance request | 120s | ❌ not started |
+| Agent 5 — Grievance | On-demand (Cloud Run job) | Citizen grievance request | 120s | ✅ recording path (persists to `grievances`, CPGRAMS self-filing guidance) via `grievance` chat intent + `POST /agents/grievance`; ❌ pgportal automation + NPCI/SPARSH monitoring not started |
 | Agent 6 — Nudge | Scheduled (Cloud Run job) | Daily 8AM + weekly Mon 9AM IST | 10min | ❌ blocked on Twilio WhatsApp approval |
 | Agent 7 — Financial | On-demand (LangGraph node) | Orchestrator route | 10s | ✅ |
 | Agent 8 — Comparison | On-demand (LangGraph node) | Orchestrator route | 10s | ✅ |
-| Agent 9 — CSC | On-demand (LangGraph node) | CSC operator request | 15s | ✅ doc-alternatives, operator-JWT-gated |
+| Agent 9 — CSC | On-demand (LangGraph node) | CSC operator request | 15s | ✅ doc-alternatives, operator-JWT-gated (browser dashboard at `/csc-dashboard`, no service key required) |
 | Agent 10 — Analytics | Scheduled (Cloud Run job) | Weekly Sunday 11PM IST | 30min | ✅ on-demand; weekly cron is Phase 11 |
 | Agent 11 — Biometric Assist (v5.0) | On-demand (CV module) | DLC liveness attempt | 20s | ❌ not started; model provenance unresolved |
 | Agent 12 — Offline Survival Proof (v5.0) | On-demand (PWA + signing) | Offline DLC generation | 30s | ❌ not started; needs PWA infra first |
 
 ### GraphState (never rename fields without updating all agents)
+Actual implementation is `ai_service/graph/state.py` — a `TypedDict, total=False`, not a `@dataclass` (every agent imports from there rather than redefining its own shape):
 ```python
-@dataclass
-class GraphState:
+class GraphState(TypedDict, total=False):
     citizen_id: str
     session_id: str
     channel: str          # "web|voice|whatsapp"
     lang: str
     profile: dict         # CitizenProfile decrypted
-    messages: list        # conversation history
+    messages: list[dict]  # conversation history: [{"role": "user"|"assistant", "content": str}]
     intent: str           # set by intent_classifier
-    active_schemes: list  # set by Agent 1
-    reasoning_trace: list # append-only, every agent writes here
-    agent_outputs: dict   # keyed by agent name
+    active_schemes: list[dict]  # set by Agent 1 / Agent 8
+    reasoning_trace: list[dict] # append-only, every agent writes here
+    agent_outputs: dict    # keyed by agent name
+    reply: str             # final composed response text
 ```
 
 ### Orchestrator Routing (LangGraph conditional edges)
+Reflects the actual `_INTENT_TO_NODE` map in `ai_service/graph/orchestrator.py` — every branch below routes to a real node, not a placeholder (the only placeholder targets left are `status_check` and the injection guard's `blocked` pseudo-intent):
 ```
 START
   → intent_classifier node
-      → "eligibility_query"   → [Agent1, Agent2] parallel
-      → "application_request" → Agent1 → Agent3
-      → "grievance"           → Agent5
+      → "eligibility_query"   → Agent1
+      → "application_request" → Agent3 (guidance path)
+      → "grievance"           → Agent5 (recording path)
       → "comparison"          → Agent8
       → "financial_plan"      → Agent7
-      → "document_verify"     → Agent4
-      → "status_check"        → Spring Boot direct (no agent)
+      → "document_verify"     → Agent4 (guidance-only on this text channel)
       → "csc_assist"          → Agent9
-  → response_composer node
+      → "small_talk"          → small_talk node (greetings/thanks — NO scheme retrieval)
+      → "status_check"        → placeholder ("use Spring Boot's applications API")
+      → "blocked"             → placeholder (injection guard's own reply)
 END
 ```
 
@@ -512,14 +515,15 @@ END
 Orchestrator total:    30s   (hard limit — LangGraph graph-level timeout)
 Agent 1 Eligibility:   10s
 Agent 2 Discovery:     2h    (full pipeline run)
-Agent 3 Guidance:      60s   (portal navigation)
+Agent 3 Guidance:      60s   (portal navigation — not built yet; guidance path is a single LLM call, well under 10s)
 Agent 4 Document:      15s
-Agent 5 Grievance:     120s  (portal navigation + submission)
+Agent 5 Grievance:     120s  (portal navigation + submission — not built yet; recording path is a single Mongo write, well under 10s)
 Agent 6 Nudge batch:   10min
 Agent 7 Financial:     10s
 Agent 8 Comparison:    10s
 Agent 9 CSC:           15s
 Agent 10 Analytics:    30min
+small_talk:            n/a   (no scheme retrieval, single LLM call, well under any other node's budget)
 ```
 
 ### Common Claude Code Tasks — Multi-Agent
@@ -662,3 +666,5 @@ New Central scheme target: **detected within 60 minutes of PIB publication**, up
 *Last updated: 2026-06-26 — v4.0: 10-Agent LangGraph architecture. Added orchestrator/ + agents/ directory (10 agents), GraphState, agent directory table, browser-use security rules, timeout table, multi-agent Claude Code tasks. 4 new MongoDB collections: reasoning_traces, admin_reports, agent_alerts, nudge_log. 11 new agent API endpoints.*
 
 *Updated 2026-07-03 — v5.0 build-state sync: agent table now covers all 12 agents (11/12 from the v5.0 master doc) with honest built/not-built status; endpoint tables carry implementation-status blocks with actual path deviations; trend_events schema corrected to what's actually written (scheme_code-keyed); new "State Fields" cross-service rule. Directory layout note: the implemented code lives in `ai_service/graph/` (orchestrator + agents as modules, not per-agent directories), `ai_service/discovery/` (Agent 2 + sources, absorbing the planned `pipeline/`), `ai_service/scripts/` (batch/repair jobs). Live build status: docs/status/{README,COMPLETED,REMAINING,AGENTS}.md.*
+
+*Updated 2026-07-04 — doc-sync pass against actual code (Agent Directory table hadn't been touched since 2026-07-03 and had drifted): Agent 3 and Agent 5 corrected from "❌ not started" to their real guidance/recording-path status (both shipped 2026-07-03, this file just never caught up); scheme count 984→1,230; GraphState code block corrected from a `@dataclass` sketch to match the actual `TypedDict` in `state.py` (was missing the `reply` field entirely); Orchestrator Routing diagram corrected — `eligibility_query` never fanned out to "[Agent1, Agent2] parallel" in the real code (Agent 2 is a separate always-on discovery service, not a graph node), `application_request`/`grievance` already routed to real Agent3/Agent5 nodes despite the table above them claiming those agents didn't exist, and the new `small_talk` intent (added same day — greetings no longer trigger fake scheme retrieval) was missing entirely. `/ws/session/{id}` endpoint entry updated for token streaming (shipped same day). Also fixed 3 live bugs unrelated to this doc but found the same day: `/agents/csc/alternatives`, `/ocr/scan`, and `/agent/start`+`/agent/answer` all required `X-API-Key` despite being called directly from the browser — browsers can't hold a service secret, so every real citizen hitting these paths (document scan, CSC operator lookup, voice-mode text fallback) got a silent 403. All three fixed and verified via the literal user-reachable path; detail in docs/status/COMPLETED.md.*

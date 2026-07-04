@@ -5,7 +5,7 @@ import './ApplyMethodModal.css'
 
 /**
  * ApplyMethodModal — shown when user clicks "Apply Now" on a scheme.
- * Lets them choose: Online (YouTube tutorial) or Offline (Jan Sahayak finder).
+ * Lets them choose: Online (YouTube tutorial) or Offline (nearest CSC finder).
  *
  * Props:
  *   scheme     — { name, applyUrl, applyPortal, youtubeQuery? }
@@ -21,7 +21,7 @@ export default function ApplyMethodModal({ scheme, onClose }) {
 
     const handleOffline = () => {
         onClose()
-        navigate(`/helpers?scheme=${encodeURIComponent(scheme.name)}`)
+        navigate('/csc-finder')
     }
 
     return (
@@ -55,7 +55,7 @@ export default function ApplyMethodModal({ scheme, onClose }) {
                                 <Users size={32} />
                             </div>
                             <h3>Get Offline Help</h3>
-                            <p>Find a Jan Sahayak near you who will help you fill and submit the form in person.</p>
+                            <p>Find your nearest Common Service Centre (CSC) — trained staff there will help you fill and submit the form in person.</p>
                             <span className="apply-method-badge assisted">Assisted</span>
                         </button>
                     </div>

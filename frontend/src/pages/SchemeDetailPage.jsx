@@ -206,7 +206,7 @@ export default function SchemeDetailPage() {
                     >
                         <Zap size={16} /> Apply Now
                     </button>
-                    <button className="btn btn-ghost btn-lg" onClick={() => navigate(`/helpers?scheme=${encodeURIComponent(scheme.name)}`)}>
+                    <button className="btn btn-ghost btn-lg" onClick={() => navigate('/csc-finder')}>
                         <MapPin size={16} /> Get Offline Help
                     </button>
                 </div>

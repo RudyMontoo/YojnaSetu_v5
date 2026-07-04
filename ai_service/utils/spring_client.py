@@ -44,3 +44,28 @@ async def fetch_citizen_profile(citizen_id: str) -> dict:
     except httpx.HTTPError as e:
         logger.warning("fetch_citizen_profile(%s) failed: %s: %s", citizen_id, e.__class__.__name__, e)
         return {}
+
+
+async def patch_citizen_profile(citizen_id: str, updates: dict) -> bool:
+    """PATCH /internal/profile/{userId} — writes chat-learned profile facts
+    (CLAUDE.md: 'FastAPI writes session-end profile updates'). Spring Boot
+    creates the profile if it doesn't exist yet and recalculates
+    profileCompleteness. Never raises — profile learning is best-effort."""
+    base_url = os.getenv("SPRING_BOOT_INTERNAL_URL", "http://localhost:8080").rstrip("/")
+    internal_key = os.getenv("INTERNAL_API_KEY", "").strip()
+
+    if not internal_key or not updates:
+        return False
+
+    try:
+        async with httpx.AsyncClient(timeout=_TIMEOUT_SECONDS) as client:
+            resp = await client.patch(
+                f"{base_url}/internal/profile/{citizen_id}",
+                headers={"X-Internal-Key": internal_key},
+                json=updates,
+            )
+        resp.raise_for_status()
+        return True
+    except httpx.HTTPError as e:
+        logger.warning("patch_citizen_profile(%s) failed: %s: %s", citizen_id, e.__class__.__name__, e)
+        return False

@@ -11,16 +11,19 @@ python-dotenv>=1.0
 requests>=2.31
 beautifulsoup4>=4.12
 lxml>=5.0
-openai-whisper>=20231117
 pypdf>=4.0
 pillow>=10.0
 
 # ── OCR + Document Scanning ────────────────────────────────────────────────────
-paddlepaddle>=2.6.0         # PaddleOCR deep learning backend (CPU)
-paddleocr>=2.7.0            # PaddleOCR engine (supports Devanagari + regional scripts)
+easyocr>=1.7                # primary OCR engine (ocr_router.py) — was installed but
+                            # missing from this file entirely; a fresh install would
+                            # have silently broken the document scanner (found
+                            # 2026-07-04 while validating a CI pipeline against a
+                            # truly clean install, not the long-lived dev venv)
 opencv-python-headless>=4.9 # OpenCV without GUI — lighter, server-safe
 numpy>=1.24                 # Array ops (likely already transitive)
 python-multipart>=0.0.9     # FastAPI file upload (multipart/form-data)
+python-magic>=0.4.27         # real file-byte MIME sniffing (CLAUDE.md security rule #2) — needs system libmagic1
 pdf2image>=1.17             # PDF → image (requires poppler system package)
 # Install poppler separately: sudo apt install poppler-utils
 

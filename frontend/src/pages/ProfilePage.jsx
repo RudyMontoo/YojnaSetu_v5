@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
     LayoutDashboard, FileText, Bookmark, Bell, Settings, LogOut,
-    CheckCircle, Clock, ChevronRight, User, Globe, Smartphone, Shield
+    CheckCircle, Clock, ChevronRight, User, Globe, Smartphone, Shield,
+    HeartHandshake, Upload, Loader2, IndianRupee, AlertTriangle
 } from 'lucide-react'
 import { getLocalUser, clearLocalUser } from '../lib/auth'
-import { supabase } from '../lib/supabase'
+import { gateway, ai } from '../lib/api'
 import { Navbar, BottomNav } from '../components/Navbar'
 import '../components/components.css'
 import './ProfilePage.css'
@@ -14,31 +15,117 @@ const SIDEBAR_ITEMS = [
     { id: 'dashboard', label: 'Dashboard', Icon: LayoutDashboard },
     { id: 'applications', label: 'Applications', Icon: FileText },
     { id: 'saved', label: 'Saved Schemes', Icon: Bookmark },
+    { id: 'pension', label: 'Pension Seva', Icon: HeartHandshake },
     { id: 'alerts', label: 'Alerts', Icon: Bell },
     { id: 'settings', label: 'Settings', Icon: Settings },
 ]
 
-function SettingsPanel() {
-    const [lang, setLang] = useState(() => localStorage.getItem('yojna_lang') || 'hi-en')
-    const [notif, setNotif] = useState(() => localStorage.getItem('yojna_notif') !== 'off')
-    const [showPwd, setShowPwd] = useState(false)
-    const [oldPwd, setOldPwd] = useState('')
-    const [newPwd, setNewPwd] = useState('')
-    const [pwdMsg, setPwdMsg] = useState('')
+function PensionPanel() {
+    const [aadhaar, setAadhaar] = useState(null)
+    const [ppo, setPpo] = useState(null)
+    const [busy, setBusy] = useState(false)
+    const [result, setResult] = useState(null)
+    const [plan, setPlan] = useState(null)
+    const [planBusy, setPlanBusy] = useState(false)
+    const [error, setError] = useState('')
 
-    const changeLang = (v) => { setLang(v); localStorage.setItem('yojna_lang', v) }
-    const toggleNotif = () => { const n = !notif; setNotif(n); localStorage.setItem('yojna_notif', n ? 'on' : 'off') }
-    const changePwd = async () => {
-        if (newPwd.length < 6) { setPwdMsg('❌ New password must be 6+ characters'); return }
-        try {
-            const { error } = await supabase.auth.updateUser({ password: newPwd })
-            if (error) throw error
-            setPwdMsg('✅ Password updated!')
-            setOldPwd(''); setNewPwd('')
-        } catch (err) {
-            setPwdMsg(`❌ ${err.message}`)
-        }
+    const check = async (e) => {
+        e.preventDefault(); setBusy(true); setError(''); setResult(null)
+        try { setResult(await ai.verifyPpo(aadhaar, ppo)) }
+        catch (err) { setError(err.message) }
+        finally { setBusy(false) }
     }
+    const loadPlan = async () => {
+        setPlanBusy(true); setError('')
+        try { setPlan(await ai.financialPlan()) }
+        catch (err) { setError(err.message) }
+        finally { setPlanBusy(false) }
+    }
+
+    return (
+        <div>
+            <h3 className="profile-section-title">Pension Seva (Jeevan-Setu)</h3>
+            {error && <p style={{ fontSize: 13, color: '#ff6b6b', marginBottom: 10 }}>{error}</p>}
+
+            {/* PPO / Aadhaar mismatch check — #1 cause of pension DLC rejection */}
+            <div className="glass-card" style={{ padding: 16, marginBottom: 16 }}>
+                <p className="profile-app-name" style={{ marginBottom: 4 }}>PPO ↔ Aadhaar Match Check</p>
+                <p className="text-muted" style={{ fontSize: 12.5, marginBottom: 12 }}>
+                    A name or date-of-birth mismatch between your Aadhaar and PPO (Pension Payment Order)
+                    is the most common reason pensions stop. Upload photos of both — we compare them.
+                    Photos are never stored.
+                </p>
+                <form onSubmit={check} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <label className="text-muted" style={{ fontSize: 12 }}>Aadhaar card photo
+                        <input className="input-glass" type="file" accept="image/*" required
+                               onChange={e => setAadhaar(e.target.files[0])} style={{ width: '100%', marginTop: 4 }} />
+                    </label>
+                    <label className="text-muted" style={{ fontSize: 12 }}>PPO document photo
+                        <input className="input-glass" type="file" accept="image/*" required
+                               onChange={e => setPpo(e.target.files[0])} style={{ width: '100%', marginTop: 4 }} />
+                    </label>
+                    <button className="btn btn-primary btn-aarti" disabled={busy || !aadhaar || !ppo}>
+                        {busy ? <><Loader2 size={15} className="spin" /> Checking (takes a minute)…</> : <><Upload size={15} /> Check Match</>}
+                    </button>
+                </form>
+                {result && (result.checked ? (
+                    <div style={{ marginTop: 14 }}>
+                        <span className={`badge badge-${result.blocks_dlc_submission ? 'red' : 'green'}`}>
+                            {result.blocks_dlc_submission
+                                ? <><AlertTriangle size={11} /> Mismatch found — fix before DLC</>
+                                : <><CheckCircle size={11} /> Records match — DLC ready</>}
+                        </span>
+                        <table style={{ width: '100%', fontSize: 13, marginTop: 10, borderCollapse: 'collapse' }}>
+                            <tbody>
+                                <tr><td className="text-subtle" style={{ padding: '3px 0' }}>Aadhaar name</td><td><b>{result.name_aadhaar}</b></td></tr>
+                                <tr><td className="text-subtle" style={{ padding: '3px 0' }}>PPO name</td><td><b>{result.name_ppo}</b></td></tr>
+                                <tr><td className="text-subtle" style={{ padding: '3px 0' }}>Aadhaar DOB</td><td>{result.dob_aadhaar || '—'}</td></tr>
+                                <tr><td className="text-subtle" style={{ padding: '3px 0' }}>PPO DOB</td><td>{result.dob_ppo || '—'}</td></tr>
+                            </tbody>
+                        </table>
+                        <p className="text-muted" style={{ fontSize: 12.5, marginTop: 8, whiteSpace: 'pre-wrap' }}>{result.reply}</p>
+                    </div>
+                ) : (
+                    <p style={{ fontSize: 13, color: '#ff6b6b', marginTop: 10 }}>{result.reason}</p>
+                ))}
+            </div>
+
+            {/* Annual benefit plan (Agent 7) */}
+            <div className="glass-card" style={{ padding: 16 }}>
+                <p className="profile-app-name" style={{ marginBottom: 4 }}>My Yearly Benefit Plan</p>
+                <p className="text-muted" style={{ fontSize: 12.5, marginBottom: 12 }}>
+                    Based on your profile: your total guaranteed yearly benefit across all eligible schemes,
+                    and which give the most for the least paperwork.
+                </p>
+                <button className="btn btn-saffron-outline btn-sm" onClick={loadPlan} disabled={planBusy}>
+                    {planBusy ? <><Loader2 size={14} className="spin" /> Calculating…</> : <><IndianRupee size={14} /> Show My Plan</>}
+                </button>
+                {plan && (
+                    <div style={{ marginTop: 12 }}>
+                        <p style={{ fontSize: 24, fontWeight: 800 }} className="text-saffron">
+                            ₹{Number(plan.total_annual_benefit_inr).toLocaleString('en-IN')}
+                            <span className="text-subtle" style={{ fontSize: 12, fontWeight: 400 }}> / year guaranteed</span>
+                        </p>
+                        {plan.ranked_by_benefit_effort_ratio?.slice(0, 3).map(sch => (
+                            <div key={sch.schemeCode} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, borderTop: '1px solid var(--border-glass)', padding: '7px 0', fontSize: 13 }}>
+                                <span>{sch.name}</span>
+                                <b className="text-saffron" style={{ flexShrink: 0 }}>₹{Number(sch.annualized_inr || sch.amount_inr || 0).toLocaleString('en-IN')}</b>
+                            </div>
+                        ))}
+                        <p className="text-muted" style={{ fontSize: 12.5, marginTop: 8, whiteSpace: 'pre-wrap' }}>{plan.reply}</p>
+                    </div>
+                )}
+            </div>
+        </div>
+    )
+}
+
+function SettingsPanel({ onDeleteAccount }) {
+    const [lang, setLang] = useState(() => localStorage.getItem('yojna_lang') || 'en')
+    const [notif, setNotif] = useState(() => localStorage.getItem('yojna_notif') !== 'off')
+
+    const changeLang = (v) => { setLang(v); localStorage.setItem('yojna_lang', v); window.location.reload() }
+    const toggleNotif = () => { const n = !notif; setNotif(n); localStorage.setItem('yojna_notif', n ? 'on' : 'off') }
 
     return (
         <div>
@@ -52,13 +139,12 @@ function SettingsPanel() {
                 </div>
                 <select className="input-glass" value={lang} onChange={e => changeLang(e.target.value)}
                     style={{ width: '100%' }}>
-                    <option value="hi-en">Hindi + English (Hinglish)</option>
-                    <option value="hi">Hindi only</option>
-                    <option value="en">English only</option>
-                    <option value="mr">Marathi</option>
-                    <option value="ta">Tamil</option>
-                    <option value="te">Telugu</option>
-                    <option value="bn">Bengali</option>
+                    <option value="en">English</option>
+                    <option value="hi">हिन्दी</option>
+                    <option value="bn">বাংলা</option>
+                    <option value="ta">தமிழ்</option>
+                    <option value="te">తెలుగు</option>
+                    <option value="mr">मराठी</option>
                 </select>
             </div>
 
@@ -74,21 +160,19 @@ function SettingsPanel() {
                 </div>
             </div>
 
-            {/* Change Password */}
+            {/* DPDP: delete account */}
             <div className="profile-setting-row" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 8 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', cursor: 'pointer' }} onClick={() => setShowPwd(s => !s)}>
-                    <Shield size={18} className="text-saffron" />
-                    <div style={{ flex: 1 }}><p className="profile-app-name">Change Password</p></div>
-                    <ChevronRight size={16} className="text-subtle" style={{ transform: showPwd ? 'rotate(90deg)' : 'none', transition: '0.2s' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <Shield size={18} style={{ color: 'var(--red)' }} />
+                    <p className="profile-app-name">Delete my account &amp; data</p>
                 </div>
-                {showPwd && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', marginLeft: 28 }}>
-                        <input className="input-glass" type="password" placeholder="Current password" value={oldPwd} onChange={e => setOldPwd(e.target.value)} style={{ width: '100%' }} />
-                        <input className="input-glass" type="password" placeholder="New password (min 6 chars)" value={newPwd} onChange={e => setNewPwd(e.target.value)} style={{ width: '100%' }} />
-                        <button className="btn btn-saffron-outline btn-sm" onClick={changePwd}>Update Password</button>
-                        {pwdMsg && <p style={{ fontSize: 13, color: pwdMsg.startsWith('✅') ? 'var(--green, #4caf50)' : '#ff6b6b' }}>{pwdMsg}</p>}
-                    </div>
-                )}
+                <p className="text-muted" style={{ fontSize: 12, marginLeft: 28 }}>
+                    Right to erasure (DPDP Act 2023): profile, applications and chat history are permanently removed.
+                </p>
+                <button className="btn btn-sm" style={{ marginLeft: 28, background: 'var(--red-muted)', color: 'var(--red)', border: '1px solid rgba(239,68,68,0.25)' }}
+                        onClick={onDeleteAccount}>
+                    Delete permanently
+                </button>
             </div>
 
             {/* Help */}
@@ -129,34 +213,33 @@ export default function ProfilePage() {
         const localUser = getLocalUser()
         if (localUser) setProfile(localUser)
 
-        // Get live session from Supabase
+        // v5.0: live profile from the Spring Boot gateway (decrypted server-side)
         try {
-            const { data: { session } } = await supabase.auth.getSession()
-            if (session?.user) {
-                const u = session.user
-                const meta = u.user_metadata || {}
-                const profileData = {
-                    id: u.id,
-                    email: u.email,
-                    name: meta.name || meta.full_name || localUser?.name || '',
-                    state: meta.state || localUser?.state || '',
-                    language: meta.language || localUser?.language || 'hi-IN',
-                    age: meta.age || localUser?.age || '',
-                }
-                setProfile(profileData)
-                localStorage.setItem('yojna_user', JSON.stringify(profileData))
+            const p = await gateway.getProfile()
+            const profileData = {
+                id: p.userId,
+                phone: p.phone || localUser?.phone || '',
+                name: p.name || localUser?.name || '',
+                state: p.state || '',
+                occupation: p.occupation || '',
+                annualIncome: p.annualIncome,
+                completeness: p.profileCompleteness,
             }
+            setProfile(profileData)
+            localStorage.setItem('yojna_user', JSON.stringify(profileData))
         } catch (e) {
-            console.error('Failed to load Supabase session', e)
+            if (e.status === 401 || e.status === 403) { navigate('/signin'); return }
+            // 404 = logged in, no profile document yet — that's fine
         }
 
-        // Load saved schemes from localStorage
+        // Real applications; "saved" ones double as the saved-schemes list
         try {
-            const localSaved = JSON.parse(localStorage.getItem('yojna_saved') || '[]')
-            setSavedSchemes(localSaved)
-        } catch { setSavedSchemes([]) }
+            const apps = await gateway.listApplications()
+            setApplications(apps)
+            setSavedSchemes(apps.filter(a => a.status === 'saved')
+                .map(a => ({ scheme_id: a.schemeCode, name: a.schemeName, benefit: '' })))
+        } catch { setApplications([]); setSavedSchemes([]) }
 
-        setApplications([])
         setLoading(false)
     }
 
@@ -166,9 +249,18 @@ export default function ProfilePage() {
     }, [])
 
     const handleLogout = async () => {
-        await supabase.auth.signOut()
+        try { await gateway.logout() } catch { /* cookie clear is best-effort */ }
         clearLocalUser()
         navigate('/signin')
+    }
+
+    const handleDeleteAccount = async () => {
+        if (!window.confirm('This permanently deletes your profile, applications and chat history (DPDP Act right to erasure). This cannot be undone. Continue?')) return
+        try {
+            await gateway.deleteAccount()
+            clearLocalUser()
+            navigate('/signin')
+        } catch (e) { alert(`Could not delete: ${e.message}`) }
     }
 
     const unsaveScheme = async (schemeId) => {
@@ -182,7 +274,7 @@ export default function ProfilePage() {
     const initials = profile?.name
         ? profile.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
         : (getLocalUser()?.email?.[0] || '?').toUpperCase()
-    const displayEmail = getLocalUser()?.email || ''
+    const displayEmail = getLocalUser()?.phone || getLocalUser()?.email || ''
 
     return (
         <div className="page-wrapper">
@@ -190,7 +282,8 @@ export default function ProfilePage() {
             <main className="page-content profile-content">
 
                 {/* User Header */}
-                <div className="glass-card profile-user-card">
+                <div className="glass-card profile-user-card" style={{ position: 'relative' }}>
+                    <div className="sathi-tag"><Shield size={10} /> Citizen Profile</div>
                     <div className="profile-avatar">{loading ? '…' : initials}</div>
                     <div className="profile-user-info">
                         <h2 className="profile-name">{loading ? 'Loading…' : profile?.name || getLocalUser()?.name || 'Guest User'}</h2>
@@ -201,7 +294,7 @@ export default function ProfilePage() {
                         </p>
                         <p className="text-subtle profile-phone">{displayEmail}</p>
                     </div>
-                    <button className="btn btn-ghost btn-sm" onClick={() => { setActive('edit'); setEditForm({ name: profile?.name || '', state: profile?.state || '', occupation: profile?.occupation || '', income: profile?.income || '', district: profile?.district || '' }) }}>Edit Profile</button>
+                    <button className="btn btn-ghost btn-sm" onClick={() => { setActive('edit'); setEditForm({ name: profile?.name || '', state: profile?.state || '', occupation: profile?.occupation || '', income: profile?.income || '', district: profile?.district || '' }) }} style={{ background: 'var(--grad-aarti)', color: '#14100a', fontWeight: 700 }}>Edit Profile</button>
                 </div>
 
                 {/* Stats Row */}
@@ -324,6 +417,10 @@ export default function ProfilePage() {
                                     </div>
                                 ))}
                             </div>
+                        )}
+
+                        {active === 'pension' && (
+                            <PensionPanel />
                         )}
 
                         {active === 'settings' && (

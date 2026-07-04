@@ -61,7 +61,7 @@ export default function SchemesPage() {
             <main className="page-content">
 
                 <div className="schemes-header">
-                    <h1 className="schemes-title">Yojana Catalogue</h1>
+                    <h1 className="schemes-title font-display">Yojana Catalogue</h1>
                     <p className="text-muted schemes-sub">419+ Central & State schemes</p>
                 </div>
 

@@ -3,7 +3,7 @@
 
 /* ── Wrapper ── */
 .home-wrapper {
-    background: #08090f;
+    background: transparent;  /* let the fixed 3D chakra (app-3d-bg) show through */
     min-height: 100vh;
 }
 
@@ -23,7 +23,9 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    overflow: hidden;
+    overflow: hidden;    /* clips aurora + 3D canvas to hero boundary */
+    /* ensure content inside hero sits above background layers */
+    isolation: isolate;
 }
 
 .home-hero-cultural::before {
@@ -200,7 +202,7 @@
 ═══════════════════════════════════════ */
 .home-container {
     min-height: 100vh;
-    background: #0d0e1b;
+    background: transparent;  /* transparent — 3D canvas is the background */
     position: relative;
 }
 
@@ -208,19 +210,15 @@
    PREMIUM AURORA BACKGROUND ANIMATION
 ═══════════════════════════════════════ */
 .home-bg-aurora {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
+    position: absolute;   /* now lives inside .home-hero-cultural — clips at hero edge */
+    inset: 0;
     overflow: hidden;
     z-index: 0;
-    /* Keep behind content */
     pointer-events: none;
-    filter: blur(80px);
-    /* Massive blur for the soft aurora effect */
-    opacity: 0.6;
-    /* Subtle intensity */
+    filter: blur(40px);
+    opacity: 0.55;
+    will-change: transform;
+    transform: translateZ(0);
 }
 
 .aurora-orb {
@@ -349,8 +347,10 @@
 }
 
 .cat-card-cultural {
-    background: linear-gradient(135deg, #111422 0%, #0e1020 100%);
-    border: 1px solid rgba(232, 141, 10, 0.15);
+    background: rgba(10, 10, 20, 0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(232, 141, 10, 0.18);
     border-radius: 12px;
     padding: 30px;
     cursor: pointer;
@@ -461,13 +461,15 @@
     margin: 0 auto;
     max-width: 900px;
     width: calc(100% - 32px);
-    background: linear-gradient(135deg, #12142a 0%, #0e1020 100%);
+    background: rgba(8, 9, 22, 0.55);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(232, 141, 10, 0.2);
     border-radius: 12px;
     padding: 24px;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
 }
 
 .sathi-cultural-card::before {
@@ -558,4 +560,33 @@
     .cat-card-cultural {
         padding: 12px;
     }
+}
+
+/* 3D mandala canvas — absolute inside hero, clips at hero boundary */
+.home-hero-3d {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+/* Hero text/buttons must sit above the 3D layer */
+.home-hero-cultural > *:not(.home-bg-aurora):not(.home-hero-3d):not(.hero-bg-rays) {
+    position: relative;
+    z-index: 2;
+}
+.hero-bg-rays { z-index: 1; }
+/* full-page 3D flythrough layer: above aurora, below all content */
+.home-3d-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.42;
+}
+.home-main {
+    position: relative;
+    z-index: 1;
 }
