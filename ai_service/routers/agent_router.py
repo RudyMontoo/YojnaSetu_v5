@@ -6,12 +6,11 @@ Session state is stored in-memory per session_id (for dev).
 In production: use Redis or a DB-backed session store.
 """
 import uuid
-from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 from typing import Optional
 import logging
 
-from ai_service.utils.auth import require_api_key
 from ai_service.utils.rate_limiter import agent_limiter
 
 from ai_service.agent.yojna_sathi import (
@@ -72,7 +71,14 @@ class AgentResponse(BaseModel):
 
 
 # ── Routes ─────────────────────────────────────────────────────────────────────
-@router.post("/start", response_model=AgentStartResponse, dependencies=[Depends(require_api_key)])
+# No require_api_key on /start or /answer: called directly from the browser
+# (ChatPage's voice-mode text fallback, and voice_conversation.py's /start
+# which shares this module's _sessions dict) — a browser can never hold a
+# service secret. Anonymous by design already: random UUID session id,
+# in-memory only, IP-rate-limited via agent_limiter. Same bug class fixed on
+# /ocr/scan and /agents/csc/alternatives 2026-07-04; found via a full
+# require_api_key grep sweep after those two.
+@router.post("/start", response_model=AgentStartResponse)
 async def start_session(request: Request):
     """Start a new Yojna Sathi interview session."""
     agent_limiter.check(agent_limiter.get_client_ip(request))
@@ -90,7 +96,7 @@ async def start_session(request: Request):
     )
 
 
-@router.post("/answer", response_model=AgentResponse, dependencies=[Depends(require_api_key)])
+@router.post("/answer", response_model=AgentResponse)
 async def answer_question(req: AgentAnswerRequest, request: Request):
     """Submit an answer and get the next question or final scheme recommendations."""
     agent_limiter.check(agent_limiter.get_client_ip(request))

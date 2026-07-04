@@ -1,0 +1,177 @@
+/* Mythos preview — isolated. Reuses existing tokens from index.css.
+   Display face: Cormorant Garamond (design-mythos.md §3), headers only. */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&display=swap');
+
+.mythos-wrap {
+  min-height: 100dvh;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(245, 158, 11, 0.10), transparent 65%),
+    linear-gradient(170deg, var(--navy-light) 0%, var(--navy) 60%);
+  color: var(--text-primary);
+  padding: 24px 16px 60px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+.mythos-back {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text-muted);
+}
+.mythos-back:hover { color: var(--saffron); }
+
+/* ── hero ── */
+.mythos-hero { text-align: center; padding: 12px 0 40px; }
+.mythos-3d { display: flex; justify-content: center; min-height: 300px; align-items: center; }
+.mythos-hero h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(44px, 8vw, 68px);
+  font-weight: 700; letter-spacing: 0.5px; line-height: 1.1;
+  margin-top: -18px;
+}
+.mythos-hero h1 span {
+  background: linear-gradient(135deg, var(--saffron) 0%, var(--gold) 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.mythos-hero-sub { color: var(--text-muted); font-size: 16px; margin-top: 6px; }
+.mythos-hero-btns { display: flex; gap: 12px; justify-content: center; margin-top: 22px; }
+
+.mythos-btn-primary {
+  background: linear-gradient(135deg, var(--saffron) 0%, var(--gold) 100%);
+  color: #14100a; font-weight: 700; font-size: 14px;
+  border: none; border-radius: 9999px; padding: 12px 26px;
+  box-shadow: 0 4px 18px rgba(255, 107, 53, 0.28);
+  transition: box-shadow 0.4s ease;
+}
+.mythos-btn-primary:hover { box-shadow: 0 6px 26px rgba(245, 158, 11, 0.4); }
+.mythos-btn-ghost {
+  background: transparent; color: var(--text-primary);
+  border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 9999px;
+  padding: 12px 26px; font-size: 14px; font-weight: 600;
+  transition: border-color 0.4s ease, background 0.4s ease;
+}
+.mythos-btn-ghost:hover { border-color: var(--gold); background: rgba(245, 158, 11, 0.08); }
+
+/* ── sections ── */
+.mythos-section { margin-top: 46px; }
+.mythos-section h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px; font-weight: 600; text-align: center;
+}
+.mythos-section-sub { text-align: center; color: var(--text-muted); font-size: 14px; margin: 6px 0 20px; }
+.mythos-note {
+  margin-top: 18px; text-align: center; font-size: 12px; color: var(--text-subtle);
+  border-top: 1px solid var(--border-glass); padding-top: 12px;
+}
+
+/* ── agent council ── */
+.council-stage {
+  position: relative; height: 400px;
+  background: var(--navy-card);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-xl);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  overflow: hidden;
+}
+.council-arch {
+  position: absolute; inset: 8% 6% auto; height: 150%;
+  border: 1px solid rgba(245, 158, 11, 0.14);
+  border-bottom: none;
+  border-radius: 50% 50% 0 0 / 38% 38% 0 0;
+  pointer-events: none;
+}
+.council-hub {
+  position: absolute; left: 50%; top: 74%; transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  color: var(--gold); font-size: 11px; font-weight: 600; z-index: 3;
+}
+.council-hub svg {
+  padding: 12px; border-radius: 50%;
+  background: rgba(245, 158, 11, 0.10);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  width: 48px; height: 48px;
+}
+.council-node {
+  position: absolute; transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  width: 74px; text-align: center; z-index: 2;
+}
+.council-node-orb {
+  position: relative;
+  width: 40px; height: 40px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-glass);
+  color: var(--text-muted);
+  transition: background 0.5s ease, border-color 0.5s ease, color 0.5s ease;
+}
+.depth-0 .council-node-orb { transform: scale(0.9); opacity: 0.9; }
+.depth-1 .council-node-orb { transform: scale(1.06); }
+.council-node-name { font-size: 10.5px; font-weight: 600; color: var(--text-muted); }
+.council-node-identity {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 10px; color: var(--text-subtle);
+}
+.status-idle { opacity: 0.45; }
+.status-active { opacity: 1; z-index: 4; }
+.status-active .council-node-orb {
+  background: linear-gradient(135deg, var(--saffron) 0%, var(--gold) 100%);
+  border-color: transparent; color: #14100a;
+  box-shadow: 0 6px 22px rgba(255, 107, 53, 0.45);
+}
+.status-active .council-node-name { color: var(--text-primary); }
+.status-done { opacity: 0.9; }
+.status-done .council-node-orb {
+  border-color: rgba(34, 197, 94, 0.5); color: var(--green);
+  background: rgba(34, 197, 94, 0.08);
+}
+.node-pulse {
+  position: absolute; inset: -6px; border-radius: 50%;
+  border: 1.5px solid rgba(245, 158, 11, 0.7);
+  animation: nodePulse 1.6s ease-out infinite;
+}
+.node-tick {
+  position: absolute; right: -4px; top: -4px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--green); color: #06220f;
+  font-size: 10px; font-weight: 800;
+  display: grid; place-items: center;
+}
+@keyframes nodePulse {
+  from { transform: scale(0.9); opacity: 0.9; }
+  to   { transform: scale(1.5); opacity: 0; }
+}
+.council-caption {
+  position: absolute; left: 0; right: 0; bottom: 12px;
+  text-align: center; font-size: 13px; color: var(--text-muted);
+  padding: 0 16px;
+}
+
+/* ── loaders ── */
+.mythos-loader-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.mythos-loader-card {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+  min-height: 170px;
+  background: var(--navy-card); border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+}
+.mythos-loader-card span { font-size: 12px; color: var(--text-muted); text-align: center; padding: 0 10px; }
+.chakra-spoke { opacity: 0.15; animation: spokeGlow 1.4s linear infinite; }
+@keyframes spokeGlow { 0%, 12% { opacity: 1; } 40%, 100% { opacity: 0.15; } }
+.arch-pct { fill: var(--text-primary); font-size: 13px; font-weight: 700; font-family: Inter, sans-serif; }
+
+.mythos-footer {
+  margin-top: 48px; text-align: center;
+  font-size: 12px; color: var(--text-subtle);
+}
+
+@media (max-width: 700px) {
+  .mythos-loader-row { grid-template-columns: 1fr; }
+  .council-stage { height: 470px; }
+  .council-node { width: 62px; }
+  .council-node-identity { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chakra-spoke, .node-pulse { animation: none; }
+  .chakra-spoke { opacity: 0.8; }
+  .mythos-btn-primary, .mythos-btn-ghost, .council-node-orb { transition: none; }
+}

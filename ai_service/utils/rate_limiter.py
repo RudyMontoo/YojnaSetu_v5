@@ -55,8 +55,6 @@ class RateLimiter:
 # ── Pre-built limiters for each route group ────────────────────────────────────
 # Import these directly in each router — do NOT create new instances per request.
 
-chat_limiter   = RateLimiter(max_requests=20, window_seconds=60)   # 20/min
 agent_limiter  = RateLimiter(max_requests=20, window_seconds=60)   # 20/min
-voice_limiter  = RateLimiter(max_requests=10, window_seconds=60)   # 10/min (expensive)
 status_limiter = RateLimiter(max_requests=15, window_seconds=60)   # 15/min
 ocr_limiter    = RateLimiter(max_requests=10, window_seconds=60)   # 10/min (heavy CPU)

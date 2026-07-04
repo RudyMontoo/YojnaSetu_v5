@@ -1,0 +1,49 @@
+/* Agent Council — production styles (design-mythos.md §6, compact form) */
+.council { display: flex; flex-direction: column; gap: 6px; min-width: 240px; }
+
+.council-strip { display: flex; align-items: center; gap: 10px; }
+
+.council-hub-mini {
+  flex-shrink: 0;
+  width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center;
+  color: var(--gold);
+  background: rgba(245, 158, 11, 0.10);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  transition: box-shadow 0.5s ease;
+}
+.hub-working { box-shadow: 0 0 18px rgba(245, 158, 11, 0.25); }
+
+.council-pillars { display: flex; gap: 5px; flex-wrap: wrap; }
+
+.pillar {
+  width: 24px; height: 24px; border-radius: 8px;
+  display: grid; place-items: center;
+  color: var(--text-subtle);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-glass);
+  transition: color 0.4s ease, background 0.4s ease, border-color 0.4s ease;
+}
+.pillar-active {
+  color: #14100a;
+  background: linear-gradient(135deg, var(--saffron) 0%, var(--gold) 100%);
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgba(255, 107, 53, 0.4);
+}
+
+.council-line {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+  margin: 0;
+  min-height: 16px;
+}
+
+/* chakra loader (shared) */
+.chakra-spoke { opacity: 0.15; animation: spokeGlow 1.4s linear infinite; }
+@keyframes spokeGlow { 0%, 12% { opacity: 1; } 40%, 100% { opacity: 0.15; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .chakra-spoke { animation: none; opacity: 0.8; }
+  .pillar, .council-hub-mini { transition: none; }
+}

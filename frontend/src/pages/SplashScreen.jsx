@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './SplashScreen.css'
+import { ChakraLoader } from '../components/AgentCouncil'
 
 export default function SplashScreen() {
     const navigate = useNavigate()
@@ -26,7 +27,7 @@ export default function SplashScreen() {
                 </div>
 
                 {/* Brand */}
-                <h1 className="splash-brand">
+                <h1 className="splash-brand font-display">
                     Yojna<span className="text-saffron">Setu</span>
                 </h1>
                 <p className="splash-tagline-sub">JAN JAN KO YOJANA SE JODO</p>
@@ -40,7 +41,7 @@ export default function SplashScreen() {
 
                 {/* Loading */}
                 <div className="splash-loading">
-                    <div className="splash-spinner" />
+                    <ChakraLoader size={44} />
                     <span className="splash-loading-text">Initialising...</span>
                 </div>
 

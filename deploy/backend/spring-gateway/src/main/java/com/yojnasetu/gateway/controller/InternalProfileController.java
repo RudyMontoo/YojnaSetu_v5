@@ -80,6 +80,14 @@ public class InternalProfileController {
         if (updates.containsKey("state")) profile.setState((String) updates.get("state"));
         if (updates.containsKey("category")) profile.setCategory((String) updates.get("category"));
         if (updates.containsKey("occupation")) profile.setOccupation((String) updates.get("occupation"));
+        if (updates.containsKey("gender")) profile.setGender((String) updates.get("gender"));
+        if (updates.containsKey("district")) profile.setDistrict((String) updates.get("district"));
+        if (updates.containsKey("isBpl")) profile.setIsBpl((Boolean) updates.get("isBpl"));
+        if (updates.containsKey("isDisabled")) profile.setIsDisabled((Boolean) updates.get("isDisabled"));
+        if (updates.containsKey("isRural")) profile.setIsRural((Boolean) updates.get("isRural"));
+        if (updates.containsKey("familySize")) profile.setFamilySize(((Number) updates.get("familySize")).intValue());
+        if (updates.containsKey("hasLand")) profile.setHasLand((Boolean) updates.get("hasLand"));
+        if (updates.containsKey("landAreaAcres")) profile.setLandAreaAcres(((Number) updates.get("landAreaAcres")).doubleValue());
 
         CitizenProfile saved = citizenProfileService.saveEncrypted(profile);
         auditLogRepository.save(AuditLog.of(userId, "profile_write", "/internal/profile/" + userId, clientIp(req)));

@@ -2,6 +2,10 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { Send, Mic, MicOff, VolumeX, Camera, Upload, Shield, Loader2, CheckCircle, X, Paperclip } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Navbar, BottomNav } from '../components/Navbar'
+import { BubbleIn } from '../components/motion'
+import AgentCouncil from '../components/AgentCouncil'
+import { gateway } from '../lib/api'
+import { useLang } from '../lib/i18n'
 import '../components/components.css'
 import './ChatPage.css'
 
@@ -40,12 +44,9 @@ const SathiAvatar = () => (
 
 export default function ChatPage() {
     const navigate = useNavigate()
+    const { t, lang } = useLang()
     const [messages, setMessages] = useState([
-        {
-            role: 'assistant',
-            text: 'Namaste! 🙏 I am Sathi — your AI guide for government schemes.\n\n🎤 Tap the mic button to speak in any Indian language (Hindi, Tamil, Bengali, and more), or type your question below.',
-            schemes: []
-        }
+        { role: 'assistant', text: t('chat.greeting'), schemes: [] }
     ])
     const [input, setInput] = useState('')
     const [loading, setLoading] = useState(false)
@@ -56,6 +57,7 @@ export default function ChatPage() {
     const [dbSessionId, setDbSessionId] = useState(null)
     const [detectedLang, setDetectedLang] = useState('hi')
     const [showAttachMenu, setShowAttachMenu] = useState(false)
+    const [agentSplash, setAgentSplash] = useState(0)   // increments each time an agent finishes
 
     // ── Doc scan state ─────────────────────────────────────────────────────
     const [docRequested, setDocRequested] = useState(null)  // e.g. 'aadhaar' | null
@@ -104,6 +106,16 @@ export default function ChatPage() {
     }
     const audioRef = useRef(null)
     const voiceModeRef = useRef(false) // track voiceMode in closures
+    const sessionIdRef = useRef(null)  // orchestrator conversation session
+    const wsRef = useRef(null)         // streaming chat socket (one per session)
+
+    useEffect(() => () => wsRef.current?.close(), [])
+
+    // if the user switches language before chatting, re-render the greeting in it
+    useEffect(() => {
+        setMessages(m => (m.length === 1 && m[0].role === 'assistant')
+            ? [{ role: 'assistant', text: t('chat.greeting'), schemes: [] }] : m)
+    }, [t])
 
     const scrollBottom = () => bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
     useEffect(scrollBottom, [messages, loading])
@@ -133,6 +145,19 @@ export default function ChatPage() {
 
     const addMsg = (role, text, extra = {}) =>
         setMessages(m => [...m, { role, text, schemes: [], ...extra }])
+
+    const saveScheme = async (s) => {
+        try {
+            await gateway.createApplication(s.code)
+            addMsg('assistant', `"${s.name}" saved to My Applications. Track it from the Status tab.`)
+        } catch (err) {
+            addMsg('assistant', err.status === 409
+                ? `"${s.name}" is already in your applications.`
+                : err.status === 401 || err.status === 403
+                    ? 'Please login first to save schemes.'
+                    : `Could not save: ${err.message}`)
+        }
+    }
 
     // ── Doc scan handlers ────────────────────────────────────────────────────
     const openCameraForDoc = useCallback(async () => {
@@ -327,6 +352,99 @@ export default function ChatPage() {
         }
     }
 
+    // ── v5.0 Sathi chat: WebSocket token streaming, REST fallback ────────────
+    const ensureSessionId = () => {
+        if (!sessionIdRef.current) {
+            sessionIdRef.current = crypto.randomUUID?.()
+                || `web-${Date.now()}-${Math.random().toString(16).slice(2)}`
+        }
+        return sessionIdRef.current
+    }
+
+    const openChatSocket = () => new Promise((resolve, reject) => {
+        if (wsRef.current?.readyState === WebSocket.OPEN) return resolve(wsRef.current)
+        const proto = window.location.protocol === 'https:' ? 'wss' : 'ws'
+        const ws = new WebSocket(`${proto}://${window.location.host}/ws/session/${ensureSessionId()}`)
+        const timer = setTimeout(() => { ws.close(); reject(new Error('ws open timeout')) }, 4000)
+        ws.onopen = () => { clearTimeout(timer); wsRef.current = ws; resolve(ws) }
+        ws.onerror = () => { clearTimeout(timer); reject(new Error('ws error')) }
+    })
+
+    const finishAssistantTurn = (data) => {
+        const schemes = (data.active_schemes || []).map(sch => ({
+            id: sch.schemeCode,
+            code: sch.schemeCode,
+            name: sch.name,
+            benefit: sch.benefitAmount || '',
+        }))
+        const finalMsg = { role: 'assistant', text: data.reply || 'Samajh gaya!', intent: data.intent, schemes }
+        // done.reply is authoritative — replace the streaming bubble (a mid-stream
+        // provider fallback on the server can leave stale partial tokens in it)
+        setMessages(m => (m[m.length - 1]?.streaming ? [...m.slice(0, -1), finalMsg] : [...m, finalMsg]))
+        setAgentSplash(n => n + 1)          // bright splash: an agent just ran
+    }
+
+    const sendViaSocket = async (text) => {
+        const ws = await openChatSocket()
+        return new Promise((resolve, reject) => {
+            let streamed = ''
+            let settled = false
+            const settle = (fn, arg) => { if (!settled) { settled = true; fn(arg) } }
+            ws.onmessage = (ev) => {
+                let frame
+                try { frame = JSON.parse(ev.data) } catch { return }
+                if (frame.type === 'token') {
+                    streamed += frame.text
+                    setLoading(false)       // council bubble out, live bubble in
+                    setMessages(m => {
+                        const last = m[m.length - 1]
+                        return last?.streaming
+                            ? [...m.slice(0, -1), { ...last, text: streamed }]
+                            : [...m, { role: 'assistant', text: streamed, schemes: [], streaming: true }]
+                    })
+                } else if (frame.type === 'done') {
+                    finishAssistantTurn(frame)
+                    settle(resolve)
+                } else if (frame.error) {
+                    addMsg('assistant', frame.error)
+                    settle(resolve)
+                }
+            }
+            ws.onclose = (ev) => {
+                if (wsRef.current === ws) wsRef.current = null
+                if (settled) return
+                if (ev.code === 1008) {
+                    addMsg('assistant', 'Your session has expired. Please login again from the Profile tab.')
+                    settle(resolve)
+                } else if (streamed) {
+                    addMsg('assistant', 'Connection dropped mid-reply — please send that again.')
+                    settle(resolve)
+                } else {
+                    settle(reject, new Error('ws closed before reply'))   // caller falls back to REST
+                }
+            }
+            ws.send(JSON.stringify({ message: text, lang, channel: 'web' }))
+        })
+    }
+
+    const sendViaRest = async (text) => {
+        const res = await fetch(`/orchestrator/chat`, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text, session_id: sessionIdRef.current })
+        })
+        if (res.ok) {
+            const data = await res.json()
+            sessionIdRef.current = data.session_id
+            finishAssistantTurn(data)
+        } else if (res.status === 401) {
+            addMsg('assistant', 'Your session has expired. Please login again from the Profile tab.')
+        } else {
+            addMsg('assistant', 'Could not connect to backend. Browse schemes at /schemes.')
+        }
+    }
+
     const sendMessage = async () => {
         if (!input.trim()) return
         const text = input.trim()
@@ -357,25 +475,14 @@ export default function ChatPage() {
                     addMsg('assistant', 'Backend error during interview.')
                 }
             } else {
-                const res = await fetch(`${API}/chat`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: text, session_id: dbSessionId || 'frontend-demo' })
-                })
-                if (res.ok) {
-                    const data = await res.json()
-                    const reply = data.response || data.reply || data.message || 'Samajh gaya!'
-                    // If agent signals a doc is needed, store it
-                    if (data.doc_requested) setDocRequested(data.doc_requested)
-                    setMessages(m => [...m, {
-                        role: 'assistant',
-                        text: reply,
-                        schemes: data.matched_schemes || [],
-                        docRequested: data.doc_requested || null,
-                    }])
-                } else {
-                    const reply = 'Could not connect to backend. Browse schemes at /schemes.'
-                    addMsg('assistant', reply)
+                // v5.0: LangGraph orchestrator over WebSocket — tokens stream in
+                // live as the agent council composes. Falls back to the REST
+                // endpoint if the socket can't be established (same turn logic
+                // server-side either way). Cookie auth; 1008/401 = OTP session expired.
+                try {
+                    await sendViaSocket(text)
+                } catch {
+                    await sendViaRest(text)
                 }
             }
         } catch {
@@ -405,6 +512,7 @@ export default function ChatPage() {
 
     return (
         <div className="page-wrapper chat-wrapper">
+            {agentSplash > 0 && <div key={agentSplash} className="agent-splash" aria-hidden="true" />}
             <Navbar />
 
             {voiceMode && (
@@ -467,7 +575,7 @@ export default function ChatPage() {
 
             <div className="chat-messages">
                 {messages.map((msg, i) => (
-                    <div key={i} className={`chat-bubble-row ${msg.role}`}>
+                    <BubbleIn key={i} className={`chat-bubble-row ${msg.role}`} fromUser={msg.role === 'user'}>
                         {msg.role === 'assistant' && (
                             <div className="chat-avatar sathi-avatar-custom"><SathiAvatar /></div>
                         )}
@@ -477,17 +585,25 @@ export default function ChatPage() {
                             {msg.schemes && msg.schemes.length > 0 && (
                                 <div className="chat-schemes">
                                     {msg.schemes.map(s => (
-                                        <div
-                                            key={s.id || s.name}
-                                            className="chat-scheme-card"
-                                            onClick={() => navigate(`/schemes/${s.id || 'scheme'}`, { state: s })}
-                                            style={{ cursor: 'pointer' }}
-                                        >
-                                            <p className="scheme-card-title">{s.name}</p>
-                                            <p className="scheme-card-benefit">{s.benefit}</p>
+                                        <div key={s.id || s.name} className="chat-scheme-card">
+                                            <div onClick={() => navigate(`/schemes/${s.id || 'scheme'}`, { state: s })} style={{ cursor: 'pointer' }}>
+                                                <p className="scheme-card-title">{s.name}</p>
+                                                <p className="scheme-card-benefit">{s.benefit}</p>
+                                            </div>
+                                            {s.code && (
+                                                <button className="btn btn-saffron-outline btn-sm" style={{ marginTop: 6 }}
+                                                        onClick={(e) => { e.stopPropagation(); saveScheme(s) }}>
+                                                    Save to My Applications
+                                                </button>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
+                            )}
+                            {msg.intent && (
+                                <p className="text-subtle" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.6, marginTop: 6 }}>
+                                    {msg.intent.replace(/_/g, ' ')}
+                                </p>
                             )}
                             {/* ── Inline doc upload bubble ── */}
                             {msg.role === 'assistant' && msg.docRequested && (
@@ -500,7 +616,7 @@ export default function ChatPage() {
                                 />
                             )}
                         </div>
-                    </div>
+                    </BubbleIn>
                 ))}
 
                 {/* Active doc upload bubble at bottom if docRequested but last msg doesn't have it */}
@@ -523,11 +639,7 @@ export default function ChatPage() {
                     <div className="chat-bubble-row assistant">
                         <div className="chat-avatar sathi-avatar-custom"><SathiAvatar /></div>
                         <div className="chat-bubble glass-card assistant">
-                            <div className="typing-indicator">
-                                <div className="typing-dot" />
-                                <div className="typing-dot" />
-                                <div className="typing-dot" />
-                            </div>
+                            <AgentCouncil working />
                         </div>
                     </div>
                 )}
@@ -589,7 +701,7 @@ export default function ChatPage() {
 
                 <textarea
                     className="chat-input"
-                    placeholder={recording ? '🔴 Recording… press Enter or tap 🎤 to send' : 'Ask about any government scheme…'}
+                    placeholder={recording ? '🔴 Recording… press Enter or tap 🎤 to send' : t('chat.placeholder')}
                     value={input}
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={handleKey}

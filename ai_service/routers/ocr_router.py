@@ -15,13 +15,13 @@ import logging
 import time
 from typing import Optional, Annotated
 
-from fastapi import APIRouter, File, Form, UploadFile, HTTPException, Request, Depends
+import magic
+from fastapi import APIRouter, File, Form, UploadFile, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from ai_service.utils.doc_scanner import preprocess_image, pdf_page_to_image_bytes
 from ai_service.utils.id_extractor import extract_ids, detect_doc_type, build_agent_answer
-from ai_service.utils.auth import require_api_key
 from ai_service.utils.rate_limiter import ocr_limiter
 
 logger = logging.getLogger(__name__)
@@ -43,13 +43,24 @@ class ScanResponse(BaseModel):
     agent_message: Optional[str] = None
     page_count: int = 1
 
-# ── Supported MIME types ───────────────────────────────────────────────────────
-_IMAGE_MIMES = {"image/jpeg", "image/png", "image/webp", "image/jpg"}
+# ── Supported MIME types — real byte signatures only (CLAUDE.md security
+# rule #2: "use python-magic to inspect actual file bytes. Do NOT trust the
+# file extension.") A client-supplied content_type or filename extension is
+# just a string the caller chose; magic.from_buffer reads the actual magic
+# bytes, so a .jpg-named file containing something else is rejected here
+# instead of being handed to OpenCV/EasyOCR.
+_IMAGE_MIMES = {"image/jpeg", "image/png", "image/webp"}
 _PDF_MIME    = "application/pdf"
 
 
 # ── Main Endpoint ─────────────────────────────────────────────────────────────
-@router.post("/scan", response_model=ScanResponse, dependencies=[Depends(require_api_key)])
+# No require_api_key: this is called directly from the browser (ChatPage's
+# document scanner) with no session/citizen identity at all — zero-retention,
+# IP-rate-limited (ocr_limiter below), nothing persisted or citizen-scoped.
+# X-API-Key was the wrong gate for a browser caller (same class of bug fixed
+# on /agents/csc/alternatives 2026-07-04 — a browser can't hold a service
+# secret) and made every real scan 403 before this fix.
+@router.post("/scan", response_model=ScanResponse)
 async def scan_document(
     request: Request,
     file: Annotated[UploadFile, File(description="Document image (JPEG/PNG/WEBP) or PDF")],
@@ -73,15 +84,18 @@ async def scan_document(
     try:
         # ── Read file into memory ──────────────────────────────────────────────
         raw_bytes = await file.read()
-        content_type = file.content_type or ""
 
         if not raw_bytes:
             raise HTTPException(status_code=400, detail="Empty file received.")
         if len(raw_bytes) > 20 * 1024 * 1024:  # 20MB limit
             raise HTTPException(status_code=413, detail="File too large. Max 20MB.")
 
+        # Real byte signature — never the client-supplied content_type or
+        # filename extension, both of which are just strings the caller chose.
+        detected_mime = magic.from_buffer(raw_bytes, mime=True)
+
         # ── PDF handling ───────────────────────────────────────────────────────
-        if content_type == _PDF_MIME or file.filename.lower().endswith(".pdf"):
+        if detected_mime == _PDF_MIME:
             try:
                 page_images = pdf_page_to_image_bytes(raw_bytes)
                 page_count = len(page_images)
@@ -101,9 +115,7 @@ async def scan_document(
             del page_images  # free memory immediately
             del raw_bytes
 
-        elif content_type in _IMAGE_MIMES or any(
-            file.filename.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".webp"]
-        ):
+        elif detected_mime in _IMAGE_MIMES:
             image_bytes = raw_bytes
             del raw_bytes
             all_ocr_text = await _run_ocr(image_bytes)
@@ -112,7 +124,7 @@ async def scan_document(
         else:
             raise HTTPException(
                 status_code=415,
-                detail=f"Unsupported file type: {content_type}. Use JPEG, PNG, WEBP, or PDF."
+                detail=f"Unsupported file type: {detected_mime}. Use JPEG, PNG, WEBP, or PDF."
             )
 
         # ── Extract IDs from OCR text ──────────────────────────────────────────

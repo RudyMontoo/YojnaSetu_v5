@@ -4,6 +4,8 @@ import {
     RefreshCw, Shield, FileText, Loader2, CameraOff, SwitchCamera, Lock
 } from 'lucide-react'
 import { Navbar, BottomNav } from '../components/Navbar'
+import { Reveal } from '../components/motion'
+import { Sparkles } from 'lucide-react'
 import '../components/components.css'
 import './ScannerPage.css'
 
@@ -167,7 +169,8 @@ export default function ScannerPage() {
             <main className="page-content">
 
                 <div className="scanner-header">
-                    <h1 className="scanner-title">Jan-Sahayak Lens 📷</h1>
+                    <div className="sathi-tag" style={{ position: 'static', display: 'inline-flex', marginBottom: 8 }}><Sparkles size={10} /> Agent 4 · Document Seva</div>
+                    <h1 className="scanner-title font-display">Jan-Sahayak Lens</h1>
                     <p className="text-muted scanner-sub">
                         Scan a document — unique ID will be detected automatically
                     </p>
@@ -203,7 +206,7 @@ export default function ScannerPage() {
                             <div className="scanner-actions">
                                 <button
                                     id="scanner-camera-btn"
-                                    className="btn btn-primary btn-lg scanner-upload-btn"
+                                    className="btn btn-primary btn-lg scanner-upload-btn btn-aarti"
                                     onClick={openCamera}
                                 >
                                     <Camera size={18} /> Scan with Camera
@@ -257,7 +260,7 @@ export default function ScannerPage() {
                             </button>
                             <button
                                 id="camera-capture-btn"
-                                className="btn btn-primary capture-btn"
+                                className="btn btn-primary capture-btn btn-aarti"
                                 onClick={captureFromCamera}
                             >
                                 <Camera size={20} />

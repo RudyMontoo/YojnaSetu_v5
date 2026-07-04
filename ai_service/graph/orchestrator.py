@@ -23,6 +23,7 @@ from ai_service.graph.agents.eligibility import run_eligibility_agent
 from ai_service.graph.agents.grievance import run_grievance_agent
 from ai_service.graph.agents.financial_planning import run_financial_plan_agent
 from ai_service.graph.agents.placeholder import run_placeholder
+from ai_service.graph.agents.small_talk import run_small_talk
 from ai_service.graph.intent_classifier import classify_intent
 from ai_service.graph.state import GraphState
 
@@ -37,6 +38,7 @@ _INTENT_TO_NODE = {
     "application_request": "agent3_guidance",
     "grievance": "agent5_grievance",
     "status_check": "placeholder",
+    "small_talk": "small_talk",
     "blocked": "placeholder",
 }
 
@@ -72,6 +74,7 @@ def build_graph(db: AsyncIOMotorDatabase):
     graph.add_node("agent4_document", run_document_verify_guidance)
     graph.add_node("agent5_grievance", _agent5_node)
     graph.add_node("agent9_csc", run_csc_assist_guidance)
+    graph.add_node("small_talk", run_small_talk)
     graph.add_node("placeholder", run_placeholder)
 
     graph.add_edge(START, "intent_classifier")
@@ -83,6 +86,7 @@ def build_graph(db: AsyncIOMotorDatabase):
         "agent4_document": "agent4_document",
         "agent5_grievance": "agent5_grievance",
         "agent9_csc": "agent9_csc",
+        "small_talk": "small_talk",
         "placeholder": "placeholder",
     })
     graph.add_edge("agent1_eligibility", END)
@@ -92,6 +96,7 @@ def build_graph(db: AsyncIOMotorDatabase):
     graph.add_edge("agent4_document", END)
     graph.add_edge("agent5_grievance", END)
     graph.add_edge("agent9_csc", END)
+    graph.add_edge("small_talk", END)
     graph.add_edge("placeholder", END)
 
     return graph.compile()

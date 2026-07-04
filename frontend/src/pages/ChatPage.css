@@ -337,3 +337,40 @@
     font-size: 11px;
     height: auto;
 }
+
+/* full-page 3D flythrough behind the chat (auto-drift camera) */
+.chat-3d-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.55;
+}
+.chat-wrapper > *:not(.chat-3d-bg) {
+    position: relative;
+    z-index: 1;
+}
+
+
+/* ── bright splash when an agent completes a run ── */
+.agent-splash {
+    position: fixed;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 50% 42%,
+            rgba(245, 158, 11, 0.55) 0%,
+            rgba(255, 107, 53, 0.30) 26%,
+            rgba(255, 107, 53, 0.08) 48%,
+            transparent 68%);
+    animation: agentSplash 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes agentSplash {
+    0%   { opacity: 0; transform: scale(0.55); }
+    28%  { opacity: 1; }
+    100% { opacity: 0; transform: scale(1.6); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .agent-splash { animation: none; opacity: 0; }
+}

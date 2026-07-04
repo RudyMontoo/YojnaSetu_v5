@@ -227,3 +227,14 @@
     transform: translateX(4px);
     opacity: 1;
 }
+
+.signin-error {
+    background: var(--red-muted);
+    color: var(--red);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-radius: var(--radius-md);
+    padding: 9px 12px;
+    font-size: 13px;
+    margin-bottom: 12px;
+    text-align: center;
+}

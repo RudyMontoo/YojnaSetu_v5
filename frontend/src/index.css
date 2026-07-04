@@ -1,7 +1,7 @@
 /* ===========================
    YOJNA SETU — DESIGN SYSTEM
    =========================== */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&display=swap');
 
 /* ---------- CSS TOKENS ---------- */
 :root {
@@ -16,8 +16,8 @@
   --saffron-glow-strong: rgba(255, 107, 53, 0.45);
   --white: #ffffff;
   --text-primary: rgba(255, 255, 255, 0.95);
-  --text-muted: rgba(255, 255, 255, 0.60);
-  --text-subtle: rgba(255, 255, 255, 0.35);
+  --text-muted: rgba(255, 255, 255, 0.72);
+  --text-subtle: rgba(255, 255, 255, 0.45);
   --border-glass: rgba(255, 255, 255, 0.10);
   --border-saffron: rgba(255, 107, 53, 0.40);
   --green: #22C55E;
@@ -494,3 +494,46 @@ select.input-glass option {
     padding-right: 16px;
   }
 }
+
+/* ── Mythos layer (design-mythos.md, signed off 2026-07-04) ────────────── */
+:root {
+  --grad-aarti: linear-gradient(135deg, var(--saffron) 0%, var(--gold) 100%);
+  --grad-copper: linear-gradient(135deg, rgba(245,158,11,.28), rgba(255,107,53,.08));
+  --grad-temple-glow: radial-gradient(ellipse at 50% 0%, rgba(245,158,11,.10), transparent 65%);
+  --grad-tulsi: linear-gradient(135deg, var(--green), rgba(34,197,94,.35));
+  --font-display: 'Cormorant Garamond', 'Noto Sans Devanagari', serif;
+}
+
+/* Display serif for headers >= 28px only — body text stays Inter */
+.font-display { font-family: var(--font-display); font-weight: 700; letter-spacing: 0.3px; }
+
+.btn-aarti {
+  background: var(--grad-aarti) !important;
+  color: #14100a !important;
+  box-shadow: 0 4px 18px rgba(255, 107, 53, 0.28);
+  transition: box-shadow 0.4s ease, transform 0.15s ease;
+}
+.btn-aarti:hover { box-shadow: 0 6px 26px rgba(245, 158, 11, 0.4); transform: translateY(-1px); }
+.btn-aarti:active { transform: scale(0.97); }
+
+/* One display face for ALL page titles (user request 2026-07-04): the
+   Cormorant style used on "Jan-Sahayak Lens" applies everywhere. */
+.schemes-title, .status-title, .scanner-title, .csc-title, .detail-title,
+.helper-page-title, .signin-brand, .splash-brand, .hero-title-cultural,
+.cat-heading-main, .sathi-card-title, .chat-header-title, .profile-name,
+.onboarding-title {
+  font-family: var(--font-display) !important;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+
+/* ── Global ambient 3D background (all pages) ── */
+.app-3d-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.75;
+}
+.page-wrapper { position: relative; z-index: 1; }

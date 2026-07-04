@@ -26,6 +26,7 @@ INTENTS = [
     "document_verify",
     "status_check",
     "csc_assist",
+    "small_talk",
 ]
 
 _CLASSIFY_PROMPT = """You are an intent classifier for Yojna Setu, an Indian government welfare scheme assistant.
@@ -38,6 +39,9 @@ Classify the citizen's message into exactly one of these intents:
 - document_verify: uploading or asking about a document (Aadhaar, income cert, etc.)
 - status_check: checking status of an application they already submitted
 - csc_assist: a CSC operator asking for help on behalf of a citizen
+- small_talk: greeting (hello/namaste/hi), thanks, goodbye, "who are you / what can you do", or chit-chat with NO facts about their situation and NO scheme question
+
+Only pick eligibility_query if the message actually asks about schemes or gives situation facts (state, occupation, income, age, etc.). A bare greeting is small_talk, never eligibility_query.
 
 Message (may be in Hindi, Hinglish, or English): "{message}"
 

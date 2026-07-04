@@ -68,33 +68,27 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 # ── Mount routers ─────────────────────────────────────────────────────────────
-from ai_service.routers.chat import router as chat_router
 from ai_service.routers.status_tracker import router as status_router
 from ai_service.routers.agent_router import router as agent_router
-from ai_service.routers.voice import router as voice_router
 from ai_service.routers.voice_conversation import router as voice_conv_router
 from ai_service.routers.help_discovery import router as help_router
 from ai_service.routers.apply_guide import router as apply_router
 from ai_service.routers.ocr_router import router as ocr_router
-from ai_service.routers.jan_sahayak import router as sahayak_router
 from ai_service.routers.orchestrator_router import router as orchestrator_router
 from ai_service.routers.agents_router import router as agents_router
 from ai_service.routers.internal_router import router as internal_router
 from ai_service.routers.ws_router import router as ws_router
 
-app.include_router(chat_router)
 app.include_router(orchestrator_router)
 app.include_router(agents_router)
 app.include_router(internal_router)
 app.include_router(ws_router)
 app.include_router(status_router, prefix="/status")
 app.include_router(agent_router)
-app.include_router(voice_router)
 app.include_router(voice_conv_router)
 app.include_router(help_router)
 app.include_router(apply_router)
 app.include_router(ocr_router, prefix="/ocr")
-app.include_router(sahayak_router)
 
 
 # ── Root ───────────────────────────────────────────────────────────────────────
@@ -104,9 +98,9 @@ async def root():
         "service": "Yojna Setu AI",
         "version": "1.0.0",
         "endpoints": {
-            "chat":           "/chat — RAG-powered scheme chatbot",
-            "agent":          "/agent/start + /agent/answer — Adaptive interview",
-            "voice":          "/voice/transcribe + /voice/query — Whisper STT",
+            "chat":           "/orchestrator/chat (REST) + /ws/session/{id} (WebSocket, token streaming) — 12-agent LangGraph orchestrator",
+            "agent":          "/agent/start + /agent/answer — legacy adaptive interview (pre-v5.0, still live for voice-mode text fallback)",
+            "voice":          "/voice/conversation/start + /voice/conversation/answer — voice interview",
             "status_tracker": "/status/check — Live scheme application status",
             "help_csc":       "/help/csc/nearby — CSC Centre locator (OpenStreetMap)",
             "help_doc":       "/help/doc/guide — Document help guide (YouTube + portal)",
