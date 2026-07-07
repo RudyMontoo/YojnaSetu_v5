@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
+import { ai } from "./api";
 
 // UI language layer. English is the default; the switcher in the Navbar
 // changes every registered string live. Chat/voice language is separate —
@@ -67,4 +68,48 @@ export function LanguageProvider({ children }) {
 
 export function useLang() {
   return useContext(LanguageContext);
+}
+
+// ── Live translation for DYNAMIC text (scheme names, benefits, and any page
+// label not hand-registered in STRINGS) ──────────────────────────────────────
+// The static dictionary above can only cover a fixed phrase set; it can't
+// translate the 1,900+ scheme strings that come from the database. This hook
+// batches whatever English strings a component passes in to the cached
+// /translate endpoint (Sarvam Mayura, server-side cached), and returns a
+// tr(str) lookup. English → identity (no network). Client-side cache means
+// switching languages back and forth never re-fetches.
+
+const _clientCache = new Map(); // key `${lang}:${text}` -> translated
+
+export function useAutoTranslate(texts) {
+  const { lang } = useLang();
+  const [, force] = useState(0);
+  const list = Array.isArray(texts) ? texts.filter(Boolean) : [];
+  const key = list.join("\u0000"); // stable content-based effect dependency
+
+  useEffect(() => {
+    if (lang === "en" || list.length === 0) return;
+    const uniq = [...new Set(list)];
+    const missing = uniq.filter((t) => !_clientCache.has(lang + ":" + t));
+    if (missing.length === 0) return;
+    let cancelled = false;
+    ai.translate(missing, lang)
+      .then((res) => {
+        if (cancelled) return;
+        (res.translations || []).forEach((tr, i) => {
+          _clientCache.set(lang + ":" + missing[i], tr);
+        });
+        force((n) => n + 1); // re-render with freshly cached translations
+      })
+      .catch(() => {}); // graceful: fall back to original English
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lang, key]);
+
+  // tr(original) -> translated (original as fallback while loading / on error)
+  return useCallback(
+    (s) => (lang === "en" || !s ? s : _clientCache.get(lang + ":" + s) || s),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [lang, key]
+  );
 }
