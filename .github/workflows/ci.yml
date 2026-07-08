@@ -48,8 +48,10 @@ jobs:
           import ai_service.main
           print('ai_service.main imports cleanly — every mounted router loaded without error')
           "
+      - name: Unit + smoke tests (pytest — pure functions + app wiring, no external services)
+        run: python -m pytest -q
 
-  spring-compile:
+  spring-test:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -61,4 +63,6 @@ jobs:
           distribution: temurin
           java-version: "17"
           cache: maven
-      - run: mvn -B -q compile
+      # `mvn test` compiles AND runs the JUnit unit tests (JwtUtils,
+      # FieldEncryptionService — both context-free, no Mongo needed).
+      - run: mvn -B test
