@@ -1,5 +1,5 @@
 // ── Local Session Helpers ──────────────────────────────────────────────────
-// Used by ProfilePage, OnboardingPage etc. for quick access to cached user info.
+// Used by ProfilePage etc. for quick access to cached user info.
 // Supabase is the source of truth — this is just a local cache.
 
 export function getLocalUser() {
