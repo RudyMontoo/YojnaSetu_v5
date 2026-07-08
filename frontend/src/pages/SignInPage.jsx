@@ -2,7 +2,17 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowRight, Smartphone, KeyRound, ChevronLeft } from 'lucide-react'
 import { gateway } from '../lib/api'
+import { useAutoTranslate } from '../lib/i18n'
 import './SignInPage.css'
+
+const UI = {
+    tagline: 'Login with your mobile number. An OTP will be sent by SMS.',
+    mobile: 'Mobile Number', sendOtp: 'Send OTP',
+    privacy: 'No password needed. Your number stays private and encrypted.',
+    otpSentTo: 'Enter the 6-digit OTP sent to', verifyLogin: 'Verify & Login',
+    changeNumber: 'Change number',
+    errSend: 'Could not send OTP. Try again.', errOtp: 'Incorrect OTP',
+}
 
 // v5.0 auth: phone → OTP → httpOnly cookies from the Spring Boot gateway.
 // No email, no password, no Supabase — matches how the backend actually works.
@@ -13,6 +23,7 @@ export default function SignInPage() {
     const [otp, setOtp] = useState('')
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
+    const tr = useAutoTranslate([...Object.values(UI), error].filter(Boolean))
 
     const digits = phone.replace(/\D/g, '')
     const fullPhone = phone.startsWith('+') ? phone : `+91${digits}`
@@ -24,7 +35,7 @@ export default function SignInPage() {
             await gateway.sendOtp(fullPhone)
             setStep('otp')
         } catch (err) {
-            setError(err.message || 'Could not send OTP. Try again.')
+            setError(err.message || UI.errSend)
         } finally { setLoading(false) }
     }
 
@@ -42,7 +53,7 @@ export default function SignInPage() {
             }))
             navigate('/home')
         } catch (err) {
-            setError(err.message || 'Incorrect OTP')
+            setError(err.message || UI.errOtp)
             setLoading(false)
         }
     }
@@ -61,14 +72,14 @@ export default function SignInPage() {
                     Yojna<span className="text-saffron">Setu</span>
                 </h1>
                 <p className="signin-sub" style={{ textAlign: 'center', marginBottom: 18 }}>
-                    Login with your mobile number. An OTP will be sent by SMS.
+                    {tr(UI.tagline)}
                 </p>
 
-                {error && <p className="signin-error">{error}</p>}
+                {error && <p className="signin-error">{tr(error)}</p>}
 
                 {step === 'phone' ? (
                     <form onSubmit={sendOtp} className="signin-form">
-                        <p className="signin-label">Mobile Number</p>
+                        <p className="signin-label">{tr(UI.mobile)}</p>
                         <div className="signin-input-row">
                             <span className="signin-prefix"><Smartphone size={15} /> +91</span>
                             <input
@@ -79,15 +90,15 @@ export default function SignInPage() {
                         </div>
                         <button type="submit" className="btn btn-primary btn-lg signin-btn btn-aarti"
                                 disabled={loading || digits.length < 10}>
-                            {loading ? <span className="btn-spinner" /> : <><span>Send OTP</span> <ArrowRight size={16} /></>}
+                            {loading ? <span className="btn-spinner" /> : <><span>{tr(UI.sendOtp)}</span> <ArrowRight size={16} /></>}
                         </button>
                         <p className="text-subtle" style={{ fontSize: 12, textAlign: 'center', marginTop: 10 }}>
-                            No password needed. Your number stays private and encrypted.
+                            {tr(UI.privacy)}
                         </p>
                     </form>
                 ) : (
                     <form onSubmit={verifyOtp} className="signin-form">
-                        <p className="signin-label">Enter the 6-digit OTP sent to {fullPhone}</p>
+                        <p className="signin-label">{tr(UI.otpSentTo)} {fullPhone}</p>
                         <div className="signin-input-row">
                             <span className="signin-prefix"><KeyRound size={15} /></span>
                             <input
@@ -100,11 +111,11 @@ export default function SignInPage() {
                         </div>
                         <button type="submit" className="btn btn-primary btn-lg signin-btn btn-aarti"
                                 disabled={loading || otp.trim().length !== 6}>
-                            {loading ? <span className="btn-spinner" /> : <><span>Verify &amp; Login</span> <ArrowRight size={16} /></>}
+                            {loading ? <span className="btn-spinner" /> : <><span>{tr(UI.verifyLogin)}</span> <ArrowRight size={16} /></>}
                         </button>
                         <button type="button" className="btn btn-ghost btn-sm" style={{ width: '100%', marginTop: 8 }}
                                 onClick={() => { setStep('phone'); setOtp(''); setError('') }}>
-                            <ChevronLeft size={14} /> Change number
+                            <ChevronLeft size={14} /> {tr(UI.changeNumber)}
                         </button>
                     </form>
                 )}
