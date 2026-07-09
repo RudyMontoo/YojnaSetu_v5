@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { Send, Mic, MicOff, VolumeX, Camera, Upload, Shield, Loader2, CheckCircle, X, Paperclip } from 'lucide-react'
+import { Send, Mic, MicOff, Camera, Upload, Shield, Loader2, CheckCircle, X, Paperclip } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Navbar, BottomNav } from '../components/Navbar'
 import { BubbleIn } from '../components/motion'
@@ -10,11 +10,6 @@ import '../components/components.css'
 import './ChatPage.css'
 
 const API = '/api'
-
-const LANG_NAMES = {
-    hi: 'Hindi', en: 'English', bn: 'Bengali', ta: 'Tamil',
-    te: 'Telugu', kn: 'Kannada', mr: 'Marathi', gu: 'Gujarati', pa: 'Punjabi'
-}
 
 const DOC_TYPE_LABELS = {
     aadhaar:          { label: 'Aadhaar Card',     emoji: '🪪' },
@@ -50,12 +45,10 @@ export default function ChatPage() {
     ])
     const [input, setInput] = useState('')
     const [loading, setLoading] = useState(false)
-    const [recording, setRecording] = useState(false)
-    const [voiceMode, setVoiceMode] = useState(false)
-    const [sessionId, setSessionId] = useState(null)
-    const [audioPlaying, setAudioPlaying] = useState(false)
+    const [voiceMode, setVoiceMode] = useState(false)       // live voice call active
+    const [userSpeaking, setUserSpeaking] = useState(false) // VAD: citizen talking now
+    const [botSpeaking, setBotSpeaking] = useState(false)   // Sathi's reply audio playing
     const [dbSessionId, setDbSessionId] = useState(null)
-    const [detectedLang, setDetectedLang] = useState('hi')
     const [showAttachMenu, setShowAttachMenu] = useState(false)
     const [agentSplash, setAgentSplash] = useState(0)   // increments each time an agent finishes
 
@@ -69,12 +62,11 @@ export default function ChatPage() {
     const canvasRef = useRef()
     const camStreamRef = useRef(null)
 
-    // keep ref in sync so playAudio closure can read current voiceMode
-    useEffect(() => { voiceModeRef.current = voiceMode }, [voiceMode])
-
     const bottomRef = useRef()
-    const mediaRecRef = useRef(null)
-    const chunksRef = useRef([])
+    const voiceClientRef = useRef(null)  // live PipecatClient (one per call)
+
+    // hang up cleanly if the user navigates away mid-call
+    useEffect(() => () => { voiceClientRef.current?.disconnect?.() }, [])
 
     // Create/load session on mount
     useEffect(() => {
@@ -104,8 +96,6 @@ export default function ChatPage() {
     const saveMessage = async (role, text) => {
         // Obsolete: Handled by backend `/api/chat` router now.
     }
-    const audioRef = useRef(null)
-    const voiceModeRef = useRef(false) // track voiceMode in closures
     const sessionIdRef = useRef(null)  // orchestrator conversation session
     const wsRef = useRef(null)         // streaming chat socket (one per session)
 
@@ -119,29 +109,6 @@ export default function ChatPage() {
 
     const scrollBottom = () => bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
     useEffect(scrollBottom, [messages, loading])
-
-    const playAudio = async (blob) => {
-        if (audioRef.current) { audioRef.current.pause(); audioRef.current = null }
-        const url = URL.createObjectURL(blob)
-        const audio = new Audio(url)
-        audioRef.current = audio
-        setAudioPlaying(true)
-        audio.onended = async () => {
-            setAudioPlaying(false)
-            URL.revokeObjectURL(url)
-            // Auto-listen: start mic again after each response if still in voice mode
-            if (voiceModeRef.current) {
-                await startRecordingAuto()
-            }
-        }
-        audio.onerror = () => { setAudioPlaying(false); URL.revokeObjectURL(url) }
-        await audio.play()
-    }
-
-    const stopAudio = () => {
-        if (audioRef.current) { audioRef.current.pause(); audioRef.current = null }
-        setAudioPlaying(false)
-    }
 
     const addMsg = (role, text, extra = {}) =>
         setMessages(m => [...m, { role, text, schemes: [], ...extra }])
@@ -233,124 +200,77 @@ export default function ChatPage() {
         }, 'image/jpeg', 0.92)
     }, [stopCamStream, handleDocScan])
 
-    const startVoiceSession = async () => {
+    // ── v5.0 LIVE voice: streaming call to /ws/voice/{session_id} ────────────
+    // Real-time pipeline (Pipecat protobuf): mic streams continuously, Sarvam's
+    // server-side VAD detects when the citizen stops talking, the transcript
+    // runs through the SAME orchestrator session as typed chat, and the spoken
+    // reply streams back — with barge-in (speak to interrupt Sathi mid-reply).
+    // The turn-based /voice/conversation/* endpoints remain server-side as a
+    // fallback surface, but this client is live-first.
+
+    const upsertVoiceUserBubble = (text, final) => {
+        setMessages(m => {
+            const last = m[m.length - 1]
+            const bubble = { role: 'user', text: `\u{1F3A4} ${final ? `"${text}"` : text}`, schemes: [], voicePartial: !final }
+            return last?.voicePartial ? [...m.slice(0, -1), bubble] : [...m, bubble]
+        })
+    }
+
+    const appendBotVoiceText = (chunk) => {
+        if (!chunk) return
+        setMessages(m => {
+            const last = m[m.length - 1]
+            if (last?.voiceStreaming) {
+                return [...m.slice(0, -1), { ...last, text: (last.text + ' ' + chunk).replace(/\s+/g, ' ') }]
+            }
+            return [...m, { role: 'assistant', text: chunk, schemes: [], voice: true, voiceStreaming: true }]
+        })
+    }
+
+    const finalizeBotVoiceBubble = () => {
+        setMessages(m => {
+            const last = m[m.length - 1]
+            return last?.voiceStreaming ? [...m.slice(0, -1), { ...last, voiceStreaming: false }] : m
+        })
+        setAgentSplash(n => n + 1)
+    }
+
+    const endLiveVoice = async () => {
+        const client = voiceClientRef.current
+        voiceClientRef.current = null
+        setVoiceMode(false); setUserSpeaking(false); setBotSpeaking(false)
+        try { await client?.disconnect?.() } catch { /* already closed */ }
+    }
+
+    const startLiveVoice = async () => {
         setLoading(true)
         try {
-            const form = new FormData()
-            const res = await fetch(`/voice/conversation/start`, { method: 'POST', body: form })
-            if (!res.ok) throw new Error(`${res.status}`)
-            const sid = res.headers.get('X-Session-Id')
-            const qText = decodeURIComponent(res.headers.get('X-Question-En') || '')
-            const blob = await res.blob()
-            setSessionId(sid)
+            // Lazy chunk: the Pipecat client (~400KB) loads only when a call starts
+            const { createVoiceClient } = await import('../lib/voiceClient')
+            const client = createVoiceClient({
+                sessionId: ensureSessionId(),
+                onUserTranscript: (data) => upsertVoiceUserBubble(data.text, data.final),
+                onBotText: appendBotVoiceText,
+                onUserSpeaking: setUserSpeaking,
+                onBotSpeaking: (speaking) => {
+                    setBotSpeaking(speaking)
+                    if (!speaking) finalizeBotVoiceBubble()
+                },
+                onDisconnected: () => { if (voiceClientRef.current) endLiveVoice() },
+                onError: (msg) => addMsg('assistant', `\u26A0\uFE0F Voice: ${msg}`),
+            })
+            voiceClientRef.current = client
+            await client.connect()
             setVoiceMode(true)
-            addMsg('assistant', qText, { voice: true })
-            await playAudio(blob)
         } catch (err) {
-            addMsg('assistant', `⚠️ Could not start voice session: ${err.message}`)
+            voiceClientRef.current = null
+            addMsg('assistant', `\u26A0\uFE0F Could not start live voice: ${err.message || err}. Please check mic permission and login.`)
         } finally {
             setLoading(false)
         }
     }
 
-    // Internal: starts mic without checking recording state — used by auto-listen
-    const startRecordingAuto = async () => {
-        try {
-            // Brief pause so user knows Sathi finished before we listen
-            await new Promise(r => setTimeout(r, 600))
-            if (!voiceModeRef.current) return  // session ended while waiting
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-            const mr = new MediaRecorder(stream, { mimeType: 'audio/webm' })
-            chunksRef.current = []
-            mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data) }
-            mr.onstop = () => stream.getTracks().forEach(t => t.stop())
-            mr.start()
-            mediaRecRef.current = mr
-            setRecording(true)
-        } catch {
-            // silently fail — user can tap mic manually
-        }
-    }
-
-    const startRecording = async () => {
-        if (recording) return
-        await startRecordingAuto()
-    }
-
-    const stopRecordingOnly = () => {
-        if (!mediaRecRef.current || !recording) return
-        const mr = mediaRecRef.current
-        mr.onstop = null
-        mr.stream?.getTracks().forEach(t => t.stop())
-        mr.stop()
-        setRecording(false)
-    }
-
-    const stopRecordingAndSend = () => {
-        if (!mediaRecRef.current || !recording) return
-        const mr = mediaRecRef.current
-        mr.onstop = async () => {
-            mr.stream?.getTracks().forEach(t => t.stop())
-            setRecording(false)
-
-            const blob = new Blob(chunksRef.current, { type: 'audio/webm' })
-            if (blob.size < 1000) {
-                addMsg('assistant', '⚠️ Recording too short. Please speak a little longer.')
-                return
-            }
-
-            setMessages(m => [...m, { role: 'user', text: '\uD83C\uDFA4 [Voice message]', schemes: [] }])
-            setLoading(true)
-
-            try {
-                const form = new FormData()
-                form.append('audio', blob, 'answer.webm')
-                form.append('session_id', sessionId)
-                const res = await fetch(`/voice/conversation/answer`, { method: 'POST', body: form })
-                if (!res.ok) throw new Error(`${res.status}`)
-
-                const transcript = decodeURIComponent(res.headers.get('X-Transcript') || '')
-                const reply = decodeURIComponent(res.headers.get('X-Question-En') || '')
-                const isDone = res.headers.get('X-Done') === 'true'
-                const detLang = res.headers.get('X-Detected-Language') || 'hi'
-                setDetectedLang(detLang)
-
-                const audioBlob = await res.blob()
-
-                if (transcript) {
-                    setMessages(m => {
-                        const updated = [...m]
-                        updated[updated.length - 1] = { role: 'user', text: `\uD83C\uDFA4 "${transcript}"`, schemes: [] }
-                        return updated
-                    })
-                }
-                addMsg('assistant', reply, { voice: true })
-                await playAudio(audioBlob)
-
-                if (isDone) {
-                    setVoiceMode(false)
-                    setSessionId(null)
-                    addMsg('assistant', '✅ Interview complete! Check the schemes above or ask more questions in chat.')
-                }
-            } catch (err) {
-                addMsg('assistant', `\u26A0\uFE0F Voice error: ${err.message}`)
-            } finally {
-                setLoading(false)
-            }
-        }
-        mr.stop()
-    }
-
-    const handleMicClick = async () => {
-        if (recording) {
-            stopRecordingAndSend()
-        } else if (!voiceMode) {
-            await startVoiceSession()
-            await startRecording()
-        } else {
-            await startRecording()
-        }
-    }
+    const handleMicClick = () => (voiceMode ? endLiveVoice() : startLiveVoice())
 
     // ── v5.0 Sathi chat: WebSocket token streaming, REST fallback ────────────
     const ensureSessionId = () => {
@@ -453,37 +373,16 @@ export default function ChatPage() {
         setInput('')
         setLoading(true)
         try {
-            if (voiceMode && sessionId) {
-                const res = await fetch(`/agent/answer`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ session_id: sessionId, answer: text })
-                })
-                if (res.ok) {
-                    const data = await res.json()
-                    if (data.doc_requested) setDocRequested(data.doc_requested)
-                    if (data.done) {
-                        setVoiceMode(false)
-                        setSessionId(null)
-                        stopAudio()
-                        addMsg('assistant', data.message || 'Interview complete!', { schemes: data.schemes || [] })
-                    } else {
-                        const reply = data.question_hi || data.question
-                        addMsg('assistant', reply)
-                    }
-                } else {
-                    addMsg('assistant', 'Backend error during interview.')
-                }
-            } else {
-                // v5.0: LangGraph orchestrator over WebSocket — tokens stream in
-                // live as the agent council composes. Falls back to the REST
-                // endpoint if the socket can't be established (same turn logic
-                // server-side either way). Cookie auth; 1008/401 = OTP session expired.
-                try {
-                    await sendViaSocket(text)
-                } catch {
-                    await sendViaRest(text)
-                }
+            // v5.0: typing always goes through the real orchestrator, whether or
+            // not voice mode is active — speaking and typing share one
+            // conversation thread now, not a separate voice-only interview.
+            // WebSocket streams tokens live; falls back to REST if the socket
+            // can't be established (same turn logic server-side either way).
+            // Cookie auth; 1008/401 = OTP session expired.
+            try {
+                await sendViaSocket(text)
+            } catch {
+                await sendViaRest(text)
             }
         } catch {
             const reply = 'Backend appears to be offline. Click "Schemes" to browse available schemes.'
@@ -495,12 +394,7 @@ export default function ChatPage() {
 
     const handleFormSubmit = e => {
         e.preventDefault()
-        if (input.trim()) {
-            if (recording) stopRecordingOnly()
-            sendMessage()
-        } else if (recording) {
-            stopRecordingAndSend()
-        }
+        if (input.trim()) sendMessage()
     }
 
     const handleKey = e => {
@@ -519,13 +413,13 @@ export default function ChatPage() {
                 <div className="voice-mode-banner">
                     <span className="voice-pulse-dot" />
                     <span>
-                        🌐 Detected: <strong>{LANG_NAMES[detectedLang] || detectedLang.toUpperCase()}</strong>
-                        &nbsp;&bull; Tap 🎤 to speak
+                        {botSpeaking
+                            ? '🔊 Sathi bol raha hai… (bolkar interrupt kar sakte hain)'
+                            : userSpeaking
+                                ? '🎙️ Sun raha hoon…'
+                                : '🔴 Live — boliye, Sathi sun raha hai'}
                     </span>
-                    <button
-                        className="btn btn-ghost btn-sm"
-                        onClick={() => { setVoiceMode(false); setSessionId(null); stopAudio() }}
-                    >
+                    <button className="btn btn-ghost btn-sm" onClick={endLiveVoice}>
                         End
                     </button>
                 </div>
@@ -685,23 +579,17 @@ export default function ChatPage() {
 
                 <button
                     type="button"
-                    className={`chat-mic-btn ${recording ? 'recording' : voiceMode ? 'active' : ''}`}
+                    className={`chat-mic-btn ${userSpeaking ? 'recording' : voiceMode ? 'active' : ''}`}
                     onClick={handleMicClick}
-                    title={recording ? 'Tap to stop & send' : voiceMode ? 'Tap to speak' : 'Start voice session'}
+                    title={voiceMode ? 'End live voice call' : 'Start live voice call'}
                     disabled={loading}
                 >
-                    {recording ? <MicOff size={18} /> : <Mic size={18} />}
+                    {voiceMode ? <MicOff size={18} /> : <Mic size={18} />}
                 </button>
-
-                {audioPlaying && (
-                    <button type="button" className="chat-mic-btn active" onClick={stopAudio} title="Stop audio">
-                        <VolumeX size={18} />
-                    </button>
-                )}
 
                 <textarea
                     className="chat-input"
-                    placeholder={recording ? '🔴 Recording… press Enter or tap 🎤 to send' : t('chat.placeholder')}
+                    placeholder={voiceMode ? '🔴 Live call — you can also type here' : t('chat.placeholder')}
                     value={input}
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={handleKey}
@@ -710,7 +598,7 @@ export default function ChatPage() {
                 <button
                     type="submit"
                     className="chat-send-btn btn btn-primary btn-sm"
-                    disabled={loading || (!recording && !input.trim())}
+                    disabled={loading || !input.trim()}
                 >
                     <Send size={16} />
                 </button>

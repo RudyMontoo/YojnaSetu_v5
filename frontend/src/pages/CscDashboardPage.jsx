@@ -4,8 +4,22 @@ import { Navbar, BottomNav } from '../components/Navbar'
 import { Reveal } from '../components/motion'
 import { Sparkles } from 'lucide-react'
 import { ai } from '../lib/api'
+import { useAutoTranslate } from '../lib/i18n'
 import '../components/components.css'
 import './CscDashboardPage.css'
+
+const UI = {
+    tag: 'Agent 9 · CSC Operator Assist', title: 'Missing Document Helper',
+    intro: 'Citizen at your counter is missing a document? Check for a real, accepted alternative before turning them away.',
+    schemeCode: 'Scheme code', missingDoc: 'Missing document',
+    checking: 'Checking…', findAlt: 'Find Alternatives',
+    missing: 'Missing:', mandatory: 'Mandatory — no substitute accepted',
+    available: 'Alternatives available', none: 'No realistic alternative found',
+    advice: 'Advice for you',
+    err403: "This tool is for CSC operators only. Your account isn't marked as an operator.",
+    err401: 'Please login again — your session has expired.',
+    errGeneric: 'Could not reach the alternatives service.',
+}
 
 // Agent 9 — CSC Assist. Real operator tool: a citizen at the counter is
 // missing one document for a scheme; this asks what's an accepted
@@ -33,6 +47,11 @@ export default function CscDashboardPage() {
     const [loading, setLoading] = useState(false)
     const [result, setResult] = useState(null)
     const [error, setError] = useState('')
+    const tr = useAutoTranslate([
+        ...Object.values(UI), ...DOC_TYPES.map(d => d.label),
+        error, result?.scheme_name, result?.operator_advice,
+        ...(result?.alternatives || []).flatMap(a => [a.document, a.how_to_get, a.note].filter(Boolean)),
+    ].filter(Boolean))
 
     const submit = async (e) => {
         e.preventDefault()
@@ -43,13 +62,13 @@ export default function CscDashboardPage() {
             setResult(res)
         } catch (err) {
             if (err.status === 403) {
-                setError('This tool is for CSC operators only. Your account isn\'t marked as an operator.')
+                setError(UI.err403)
             } else if (err.status === 404) {
                 setError(`No scheme found for code "${schemeCode.trim()}" — check the code and try again.`)
             } else if (err.status === 401) {
-                setError('Please login again — your session has expired.')
+                setError(UI.err401)
             } else {
-                setError(err.message || 'Could not reach the alternatives service.')
+                setError(err.message || UI.errGeneric)
             }
         } finally {
             setLoading(false)
@@ -63,18 +82,18 @@ export default function CscDashboardPage() {
                 <div className="status-header">
                     <div>
                         <div className="sathi-tag" style={{ position: 'static', display: 'inline-flex', marginBottom: 8 }}>
-                            <Building2 size={10} /> Agent 9 · CSC Operator Assist
+                            <Building2 size={10} /> {tr(UI.tag)}
                         </div>
-                        <h1 className="status-title font-display">Missing Document Helper</h1>
+                        <h1 className="status-title font-display">{tr(UI.title)}</h1>
                         <p className="text-muted" style={{ fontSize: 13, marginTop: 4 }}>
-                            Citizen at your counter is missing a document? Check for a real, accepted alternative before turning them away.
+                            {tr(UI.intro)}
                         </p>
                     </div>
                 </div>
 
                 <Reveal><form onSubmit={submit} className="glass-card csc-form">
                     <label className="csc-field">
-                        <span className="csc-label">Scheme code</span>
+                        <span className="csc-label">{tr(UI.schemeCode)}</span>
                         <input
                             className="input-glass"
                             placeholder="e.g. central-agriculture-pm-fasal-bima-yojana"
@@ -85,43 +104,43 @@ export default function CscDashboardPage() {
                     </label>
 
                     <label className="csc-field">
-                        <span className="csc-label">Missing document</span>
+                        <span className="csc-label">{tr(UI.missingDoc)}</span>
                         <select className="input-glass" value={docType} onChange={e => setDocType(e.target.value)}>
-                            {DOC_TYPES.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
+                            {DOC_TYPES.map(d => <option key={d.value} value={d.value}>{tr(d.label)}</option>)}
                         </select>
                     </label>
 
                     <button className="btn btn-primary btn-aarti" disabled={loading || !schemeCode.trim()}>
                         {loading ? <Loader2 size={15} className="spin" /> : <Search size={15} />}
-                        {loading ? 'Checking…' : 'Find Alternatives'}
+                        {loading ? tr(UI.checking) : tr(UI.findAlt)}
                     </button>
                 </form></Reveal>
 
                 {error && (
                     <div className="glass-card" style={{ padding: 14, marginTop: 16, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                         <ShieldAlert size={18} className="text-saffron" style={{ flexShrink: 0, marginTop: 1 }} />
-                        <p style={{ fontSize: 13.5 }}>{error}</p>
+                        <p style={{ fontSize: 13.5 }}>{tr(error)}</p>
                     </div>
                 )}
 
                 {result && (
                     <Reveal><div className="glass-card glass-card-glow" style={{ padding: 18, marginTop: 16 }}>
-                        <h2 className="status-scheme-name" style={{ marginBottom: 4 }}>{result.scheme_name}</h2>
+                        <h2 className="status-scheme-name" style={{ marginBottom: 4 }}>{tr(result.scheme_name)}</h2>
                         <p className="text-muted" style={{ fontSize: 12, marginBottom: 14 }}>
-                            Missing: {DOC_TYPES.find(d => d.value === docType)?.label || docType}
+                            {tr(UI.missing)} {tr(DOC_TYPES.find(d => d.value === docType)?.label || docType)}
                         </p>
 
                         {result.mandatory_no_substitute ? (
                             <div className="csc-verdict csc-verdict-block">
-                                <XCircle size={16} /> Mandatory — no substitute accepted
+                                <XCircle size={16} /> {tr(UI.mandatory)}
                             </div>
                         ) : result.has_alternatives ? (
                             <div className="csc-verdict csc-verdict-ok">
-                                <CheckCircle2 size={16} /> Alternatives available
+                                <CheckCircle2 size={16} /> {tr(UI.available)}
                             </div>
                         ) : (
                             <div className="csc-verdict csc-verdict-block">
-                                <XCircle size={16} /> No realistic alternative found
+                                <XCircle size={16} /> {tr(UI.none)}
                             </div>
                         )}
 
@@ -129,9 +148,9 @@ export default function CscDashboardPage() {
                             <div className="csc-alt-list">
                                 {result.alternatives.map((alt, i) => (
                                     <div key={i} className="csc-alt-item">
-                                        <p className="csc-alt-name"><Sparkles size={12} className="text-saffron" /> {alt.document}</p>
-                                        <p className="csc-alt-how">{alt.how_to_get}</p>
-                                        {alt.note && <p className="csc-alt-note">{alt.note}</p>}
+                                        <p className="csc-alt-name"><Sparkles size={12} className="text-saffron" /> {tr(alt.document)}</p>
+                                        <p className="csc-alt-how">{tr(alt.how_to_get)}</p>
+                                        {alt.note && <p className="csc-alt-note">{tr(alt.note)}</p>}
                                     </div>
                                 ))}
                             </div>
@@ -139,8 +158,8 @@ export default function CscDashboardPage() {
 
                         {result.operator_advice && (
                             <div className="csc-advice">
-                                <p className="csc-label">Advice for you</p>
-                                <p style={{ fontSize: 13.5 }}>{result.operator_advice}</p>
+                                <p className="csc-label">{tr(UI.advice)}</p>
+                                <p style={{ fontSize: 13.5 }}>{tr(result.operator_advice)}</p>
                             </div>
                         )}
                     </div></Reveal>
