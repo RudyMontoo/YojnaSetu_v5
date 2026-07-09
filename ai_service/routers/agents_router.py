@@ -20,10 +20,11 @@ from ai_service.graph.agents.analytics import generate_weekly_report
 from ai_service.graph.agents.csc_assist import suggest_doc_alternatives
 from ai_service.graph.agents.document_verification import verify_ppo_aadhaar_match
 from ai_service.graph.agents.financial_planning import build_financial_plan
-from ai_service.graph.agents.grievance import record_grievance
+from ai_service.graph.agents.grievance import attach_cpgrams_reference, list_grievances, record_grievance
 from ai_service.routers.ocr_router import _run_ocr
 from ai_service.utils.auth import require_api_key
 from ai_service.utils.jwt_auth import get_current_admin_id, get_current_citizen_id, get_current_operator_id
+from ai_service.utils.portal_recon import recon_portal
 from ai_service.utils.rate_limiter import ocr_limiter
 from ai_service.utils.spring_client import fetch_citizen_profile
 
@@ -109,7 +110,8 @@ _AGENT_REGISTRY = {
     "agent9_csc": {"built": True, "trace_names": ["agent9_csc"]},
     "agent10_analytics": {"built": True, "trace_names": []},  # liveness from admin_reports
     "agent11_biometric": {"built": False, "trace_names": []},
-    "agent12_offline_proof": {"built": False, "trace_names": []},
+    # Agent 12 core built 2026-07-08 — liveness from the newest verified DLC proof.
+    "agent12_offline_proof": {"built": True, "trace_names": []},
 }
 
 _STALE_AFTER_HOURS = 48
@@ -157,6 +159,9 @@ async def agents_health():
         elif agent_name == "orchestrator":
             trace = await db["reasoning_traces"].find_one({}, {"at": 1}, sort=[("at", -1)])
             last_active = trace["at"] if trace else None
+        elif agent_name == "agent12_offline_proof":
+            doc = await db["dlc_proofs"].find_one({}, {"verifiedAt": 1}, sort=[("verifiedAt", -1)])
+            last_active = doc.get("verifiedAt") if doc else None
 
         alerts = alert_counts.get(agent_name, 0)
         # Mongo returns naive datetimes — normalize before comparing
@@ -248,6 +253,132 @@ async def file_grievance(req: GrievanceRequest, citizen_id: str = Depends(get_cu
         scheme_code=req.scheme_code, external_app_id=req.external_app_id,
     )
     return result
+
+
+@router.get("/grievances")
+async def get_grievances(citizen_id: str = Depends(get_current_citizen_id)):
+    """Agent 5 — the citizen's own grievances, newest first, with status.
+    The tracking view that closes the grievance loop (recorded ->
+    filed_on_portal -> resolved). Read-only, ownership-scoped by citizenId."""
+    grievances = await list_grievances(get_db(), citizen_id)
+    return {"count": len(grievances), "grievances": grievances}
+
+
+class CpgramsRefRequest(BaseModel):
+    cpgrams_ref: str
+
+
+@router.post("/grievance/{grievance_id}/cpgrams-ref")
+async def set_cpgrams_ref(
+    grievance_id: str, req: CpgramsRefRequest, citizen_id: str = Depends(get_current_citizen_id)
+):
+    """Agent 5 — the citizen reports back the CPGRAMS registration number they
+    got after self-filing on pgportal; the grievance moves recorded ->
+    filed_on_portal. We NEVER file on the portal ourselves — this records the
+    ref the citizen already obtained (see the grievance agent's honest scope).
+    404 if the grievance doesn't exist OR isn't the caller's (no existence leak)."""
+    updated = await attach_cpgrams_reference(get_db(), citizen_id, grievance_id, req.cpgrams_ref)
+    if updated is None:
+        raise HTTPException(status_code=404, detail="Grievance not found, not yours, or missing a CPGRAMS reference.")
+    return {"grievance_id": updated["grievance_id"], "status": updated["status"], "cpgramsRef": updated.get("cpgramsRef")}
+
+
+@router.get("/nudge/status")
+async def nudge_status(citizen_id: str = Depends(get_current_citizen_id)):
+    """Agent 6 — CLAUDE.md: 'nudge preferences + last 5 nudges sent'. Also
+    reports honestly whether WhatsApp delivery is actually live (Twilio
+    configured) or still dry-run pending approval."""
+    from bson import ObjectId
+    from bson.errors import InvalidId
+    from ai_service.utils.whatsapp_sender import is_live
+    db = get_db()
+    try:
+        user = await db["users"].find_one({"_id": ObjectId(citizen_id)}, {"nudgeOptedOut": 1})
+    except (InvalidId, TypeError):
+        user = await db["users"].find_one({"_id": citizen_id}, {"nudgeOptedOut": 1})
+    recent = await db["nudge_log"].find(
+        {"citizen_id": citizen_id}, {"_id": 0, "message_type": 1, "scheme_name": 1, "sent_at": 1, "delivered": 1}
+    ).sort("sent_at", -1).limit(5).to_list(length=5)
+    return {
+        "opted_out": bool(user and user.get("nudgeOptedOut")),
+        "delivery_live": is_live(),  # False = dry-run until Twilio WhatsApp approval lands
+        "recent_nudges": recent,
+    }
+
+
+class NudgeOptOutRequest(BaseModel):
+    opted_out: bool = True  # default true keeps the CLAUDE.md "opt-out" contract; false re-enables
+
+
+@router.post("/nudge/optout")
+async def nudge_optout(req: NudgeOptOutRequest = NudgeOptOutRequest(),
+                       citizen_id: str = Depends(get_current_citizen_id)):
+    """Agent 6 — sets nudge_opted_out. DPDP-friendly, effective immediately (the
+    batch checks this flag before every send). Reversible: post {opted_out:false}
+    to turn WhatsApp reminders back on, so it backs a real preference toggle."""
+    from bson import ObjectId
+    from bson.errors import InvalidId
+    db = get_db()
+    try:
+        query = {"_id": ObjectId(citizen_id)}
+    except (InvalidId, TypeError):
+        query = {"_id": citizen_id}
+    await db["users"].update_one(query, {"$set": {"nudgeOptedOut": req.opted_out}})
+    logger.info("Agent 6: citizen %s set nudge opt-out = %s", citizen_id, req.opted_out)
+    return {"opted_out": req.opted_out}
+
+
+@router.post("/admin/nudge/trigger", dependencies=[Depends(require_api_key)])
+async def trigger_nudge_batch(dry_run: bool = True, admin_id: str = Depends(get_current_admin_id)):
+    """Agent 6 — CLAUDE.md: 'manually triggers Agent 6 batch'. Admin JWT.
+    Defaults to dry_run=True; pass ?dry_run=false to actually deliver (which
+    still only sends if Twilio is configured, else stays dry-run per the
+    sender). The scheduled daily/weekly cron is Phase 11 deployment work."""
+    from ai_service.graph.agents.nudge import run_nudge_batch
+    summary = await run_nudge_batch(get_db(), dry_run=dry_run)
+    return summary
+
+
+class PortalReconRequest(BaseModel):
+    scheme_code: str
+
+
+@router.post("/application/portal-recon")
+async def application_portal_recon(req: PortalReconRequest, citizen_id: str = Depends(get_current_citizen_id)):
+    """
+    Agent 3 — read-only live portal reconnaissance. Given a scheme, opens its
+    (whitelisted) applyUrl and reads what the government application page
+    ACTUALLY asks for right now — visible form fields, required-document hints,
+    section headings — to enrich the static guidance path.
+
+    Strictly read-only (a plain GET + HTML parse): no auto-fill, no submit, no
+    login, no credential. Government domains only — the requested URL and every
+    redirect hop are re-checked against domain_whitelist (utils/portal_recon).
+    Never errors hard: an unreachable / JS-rendered / off-domain portal returns
+    a structured note so the citizen still gets the step-by-step guidance.
+    """
+    db = get_db()
+    scheme = await db["schemes"].find_one(
+        {"schemeCode": req.scheme_code}, {"name": 1, "applyUrl": 1}
+    )
+    if not scheme:
+        raise HTTPException(status_code=404, detail=f"Unknown scheme_code: {req.scheme_code}")
+
+    apply_url = (scheme.get("applyUrl") or "").strip()
+    if not apply_url:
+        return {
+            "scheme_code": req.scheme_code, "scheme_name": scheme.get("name"),
+            "apply_url": None, "recon": None,
+            "note": "This scheme has no official application URL on record — use the step-by-step guidance or a CSC.",
+        }
+
+    recon = await recon_portal(apply_url)
+    logger.info("Agent 3 recon: citizen %s, scheme %s, reachable=%s forms=%d",
+                citizen_id, req.scheme_code, recon.get("reachable"), len(recon.get("forms", [])))
+    return {
+        "scheme_code": req.scheme_code, "scheme_name": scheme.get("name"),
+        "apply_url": apply_url, "recon": recon, "note": recon.get("note"),
+    }
 
 
 class CscAlternativesRequest(BaseModel):

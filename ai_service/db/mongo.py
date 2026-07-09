@@ -57,4 +57,7 @@ async def ensure_indexes() -> None:
     # creating the same index under different names causes (found 2026-07-03).
     await db["trend_events"].create_index("at", expireAfterSeconds=30 * 24 * 3600)
     await db["trend_events"].create_index([("scheme_code", 1), ("user_state", 1), ("at", -1)])
+    # nudge_log (Agent 6) per CLAUDE.md: TTL 90 days + a per-citizen dedup lookup.
+    await db["nudge_log"].create_index("sent_at", expireAfterSeconds=90 * 24 * 3600)
+    await db["nudge_log"].create_index([("citizen_id", 1), ("scheme_id", 1), ("message_type", 1), ("sent_at", -1)])
     logger.info("MongoDB indexes ensured")

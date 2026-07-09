@@ -27,8 +27,18 @@ python-magic>=0.4.27         # real file-byte MIME sniffing (CLAUDE.md security 
 pdf2image>=1.17             # PDF → image (requires poppler system package)
 # Install poppler separately: sudo apt install poppler-utils
 
+# ── v5.0 voice: real-time pipeline (WSS /ws/voice/{id}) ───────────────────────
+pipecat-ai[sarvam,silero]>=1.5   # streaming STT/TTS pipeline; sarvam extra = sarvamai SDK
+
 # ── v5.0 rebuild: LangGraph orchestrator + MongoDB Atlas ──────────────────────
 langgraph>=0.2
 langchain-google-genai>=2.0  # Gemini 2.5 Flash client
 motor>=3.5                   # async MongoDB driver
-pyjwt>=2.8                   # verifies Spring Boot's RS256 citizen JWT (cryptography backend already a transitive dep)
+pyjwt[crypto]>=2.8          # verifies Spring Boot's RS256 citizen JWT; [crypto] makes the
+                            # cryptography backend an EXPLICIT dep (RS256 needs it) instead of
+                            # relying on it arriving transitively via google-auth
+
+# ── Test suite (CI: python -m pytest) ─────────────────────────────────────────
+pytest>=8.0
+pytest-asyncio>=0.23         # asyncio_mode=auto in pytest.ini
+twilio>=9.0  # Agent 6 WhatsApp nudges — only needed for real delivery; dry-run works without it

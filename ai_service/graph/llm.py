@@ -26,6 +26,14 @@ logger = logging.getLogger(__name__)
 
 GEMINI_MODEL = "gemini-2.5-flash"
 GROQ_FALLBACK_MODEL = "llama-3.3-70b-versatile"
+# Local Ollama model for bulk/offline work. The free cloud tiers (Gemini 20/day,
+# Groq's daily token cap) can't sustain a 1,300-scheme backfill; a local model
+# has NO daily limit and no per-call cost, and structured eligibility-rule
+# extraction is simple enough that a small 3B model handles it well. Opt in with
+# prefer="ollama" (bulk callers) — it's NOT in the default chain, so interactive
+# chat still prefers the sharper cloud models. Requires `ollama serve` running.
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 
 
 def _gemini_llm(temperature: float):
@@ -46,6 +54,15 @@ def _groq_llm(temperature: float):
     return ChatGroq(model=GROQ_FALLBACK_MODEL, groq_api_key=groq_key, temperature=temperature)
 
 
+def _ollama_llm(temperature: float):
+    # Disabled unless explicitly opted in via OLLAMA_ENABLED, so a stray local
+    # daemon never silently intercepts interactive traffic. Bulk scripts set it.
+    if os.getenv("OLLAMA_ENABLED", "").strip().lower() not in ("1", "true", "yes"):
+        return None
+    from langchain_community.chat_models import ChatOllama
+    return ChatOllama(model=OLLAMA_MODEL, base_url=OLLAMA_BASE_URL, temperature=temperature)
+
+
 def get_llm(temperature: float = 0.3):
     """Returns a LangChain chat model: Gemini if GEMINI_API_KEY is set, else Groq.
     Kept for callers that just need *a* model and don't need call-time fallback."""
@@ -63,21 +80,30 @@ async def ainvoke_with_fallback(prompt: str, temperature: float = 0.3, prefer: s
     Interactive, per-chat-turn callers (intent classifier, Agent 1/8 replies)
     should use the default prefer="gemini" — one call per turn stays well
     under the 5rpm free-tier quota. Bulk callers (normalizer.py, processing
-    hundreds of schemes concurrently) should pass prefer="groq" to avoid
-    burning through that quota on every call before falling back anyway.
+    hundreds of schemes concurrently) should pass prefer="ollama" (local, no
+    quota, no cost) or prefer="groq". The chosen provider is tried first, then
+    the remaining providers in a sensible fallback order — so a single call
+    still succeeds even if the preferred provider is down/unconfigured.
     """
-    providers = [_gemini_llm, _groq_llm] if prefer == "gemini" else [_groq_llm, _gemini_llm]
-    names = ["Gemini", "Groq"] if prefer == "gemini" else ["Groq", "Gemini"]
+    _factories = {"gemini": _gemini_llm, "groq": _groq_llm, "ollama": _ollama_llm}
+    _label = {"gemini": "Gemini", "groq": "Groq", "ollama": "Ollama"}
 
-    primary = providers[0](temperature)
-    if primary is not None:
+    # preferred first, then the other two in a default order
+    order = [prefer] + [p for p in ("gemini", "groq", "ollama") if p != prefer]
+
+    last_error = None
+    attempted = False
+    for key in order:
+        llm = _factories[key](temperature)
+        if llm is None:
+            continue  # provider not configured/enabled — skip silently
+        attempted = True
         try:
-            return await primary.ainvoke(prompt)
+            return await llm.ainvoke(prompt)
         except Exception as e:
-            logger.warning("%s call failed (%s: %s) — falling back to %s", names[0], e.__class__.__name__, e, names[1])
+            last_error = e
+            logger.warning("%s call failed (%s: %s) — trying next provider", _label[key], e.__class__.__name__, e)
 
-    secondary = providers[1](temperature)
-    if secondary is not None:
-        return await secondary.ainvoke(prompt)
-
-    raise RuntimeError(f"{names[0]} failed and no fallback provider is configured — no LLM available.")
+    if attempted:
+        raise RuntimeError(f"All configured LLM providers failed; last error: {last_error}")
+    raise RuntimeError("No LLM provider is configured (set GEMINI_API_KEY, GROQ_API_KEY, or OLLAMA_ENABLED).")
