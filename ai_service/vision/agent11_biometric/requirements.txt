@@ -1,0 +1,24 @@
+# Agent 11 (Biometric Assist) — CANDIDATE dependencies.
+#
+# Deliberately kept OUT of ai_service/requirements.txt: this module is not
+# deployed yet (post-launch feature update), and these are heavy. Install into
+# a SEPARATE venv while developing the model; only fold the final, minimal set
+# into the main service when Agent 11 actually ships.
+#
+# The exact stack depends on the model path chosen (README.md §5). Pick ONE
+# lane; don't install everything.
+
+# --- Lane A: ONNX/TFLite inference of a pretrained anti-spoofing model (lightest for on-device-style inference) ---
+# onnxruntime>=1.17
+# opencv-python-headless>=4.9   # frame decode/resize only (headless = no GUI libs on a server)
+# numpy>=1.26
+
+# --- Lane B: PyTorch, if fine-tuning or training a FAS/PAD model from scratch ---
+# torch>=2.2
+# torchvision>=0.17
+# opencv-python-headless>=4.9
+# numpy>=1.26
+
+# --- Lane C: MediaPipe active-liveness fallback (blink/head-turn challenge, no heavy model) ---
+# mediapipe>=0.10
+# opencv-python-headless>=4.9

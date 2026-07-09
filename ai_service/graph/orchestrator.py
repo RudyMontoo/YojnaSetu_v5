@@ -24,6 +24,7 @@ from ai_service.graph.agents.grievance import run_grievance_agent
 from ai_service.graph.agents.financial_planning import run_financial_plan_agent
 from ai_service.graph.agents.placeholder import run_placeholder
 from ai_service.graph.agents.small_talk import run_small_talk
+from ai_service.graph.agents.status_check import run_status_check_agent
 from ai_service.graph.intent_classifier import classify_intent
 from ai_service.graph.state import GraphState
 
@@ -37,7 +38,7 @@ _INTENT_TO_NODE = {
     "csc_assist": "agent9_csc",
     "application_request": "agent3_guidance",
     "grievance": "agent5_grievance",
-    "status_check": "placeholder",
+    "status_check": "status_check",
     "small_talk": "small_talk",
     "blocked": "placeholder",
 }
@@ -65,6 +66,9 @@ def build_graph(db: AsyncIOMotorDatabase):
     async def _agent5_node(state: GraphState) -> GraphState:
         return await run_grievance_agent(state, db)
 
+    async def _status_check_node(state: GraphState) -> GraphState:
+        return await run_status_check_agent(state, db)
+
     graph = StateGraph(GraphState)
     graph.add_node("intent_classifier", classify_intent)
     graph.add_node("agent1_eligibility", _agent1_node)
@@ -74,6 +78,7 @@ def build_graph(db: AsyncIOMotorDatabase):
     graph.add_node("agent4_document", run_document_verify_guidance)
     graph.add_node("agent5_grievance", _agent5_node)
     graph.add_node("agent9_csc", run_csc_assist_guidance)
+    graph.add_node("status_check", _status_check_node)
     graph.add_node("small_talk", run_small_talk)
     graph.add_node("placeholder", run_placeholder)
 
@@ -86,6 +91,7 @@ def build_graph(db: AsyncIOMotorDatabase):
         "agent4_document": "agent4_document",
         "agent5_grievance": "agent5_grievance",
         "agent9_csc": "agent9_csc",
+        "status_check": "status_check",
         "small_talk": "small_talk",
         "placeholder": "placeholder",
     })
@@ -96,6 +102,7 @@ def build_graph(db: AsyncIOMotorDatabase):
     graph.add_edge("agent4_document", END)
     graph.add_edge("agent5_grievance", END)
     graph.add_edge("agent9_csc", END)
+    graph.add_edge("status_check", END)
     graph.add_edge("small_talk", END)
     graph.add_edge("placeholder", END)
 

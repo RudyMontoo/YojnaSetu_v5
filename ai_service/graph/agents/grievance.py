@@ -25,6 +25,10 @@ from datetime import datetime, timezone
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from ai_service.graph.state import GraphState
+from bson import ObjectId
+from bson.errors import InvalidId
+from pymongo import ReturnDocument
+
 from ai_service.utils.domain_whitelist import is_allowed_url
 
 logger = logging.getLogger(__name__)
@@ -81,6 +85,62 @@ async def record_grievance(
     )
     logger.info("Agent 5: grievance recorded id=%s scheme=%s", gid, scheme_code)
     return {"grievance_id": gid, "status": "recorded", "scheme_name": scheme_name, "reply": reply}
+
+
+async def list_grievances(db: AsyncIOMotorDatabase, citizen_id: str) -> list[dict]:
+    """Returns the citizen's OWN grievances, newest first — read-only, filtered
+    to their citizenId. The status-tracking view for the grievance loop (analog
+    of the applications status_check)."""
+    if not citizen_id:
+        return []
+    cursor = (
+        db["grievances"]
+        .find(
+            {"citizenId": citizen_id},
+            {"schemeName": 1, "schemeCode": 1, "complaint": 1, "status": 1,
+             "cpgramsRef": 1, "externalAppId": 1, "createdAt": 1, "statusHistory": 1},
+        )
+        .sort("createdAt", -1)
+        .limit(50)
+    )
+    docs = await cursor.to_list(length=50)
+    for d in docs:
+        d["grievance_id"] = str(d.pop("_id"))
+    return docs
+
+
+async def attach_cpgrams_reference(
+    db: AsyncIOMotorDatabase, citizen_id: str, grievance_id: str, cpgrams_ref: str
+) -> dict | None:
+    """After the citizen self-files on pgportal (CPGRAMS), they record the
+    registration number back here → the grievance moves recorded ->
+    filed_on_portal, closing the loop the recording path was designed for.
+
+    Ownership-enforced: only updates a grievance that both matches the id AND
+    belongs to the caller (returns None otherwise — no cross-citizen writes,
+    no existence leak). Never files anything on the portal itself; this is the
+    citizen reporting back the ref they already obtained by self-filing."""
+    try:
+        oid = ObjectId(grievance_id)
+    except (InvalidId, TypeError):
+        return None
+    ref = (cpgrams_ref or "").strip()
+    if not ref:
+        return None
+
+    now = datetime.now(timezone.utc)
+    updated = await db["grievances"].find_one_and_update(
+        {"_id": oid, "citizenId": citizen_id},  # ownership in the filter itself
+        {
+            "$set": {"status": "filed_on_portal", "cpgramsRef": ref, "filedOnPortalAt": now},
+            "$push": {"statusHistory": {"status": "filed_on_portal", "at": now, "cpgramsRef": ref}},
+        },
+        return_document=ReturnDocument.AFTER,
+    )
+    if not updated:
+        return None
+    updated["grievance_id"] = str(updated.pop("_id"))
+    return updated
 
 
 async def run_grievance_agent(state: GraphState, db: AsyncIOMotorDatabase) -> GraphState:
