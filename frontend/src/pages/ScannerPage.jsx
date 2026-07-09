@@ -6,8 +6,25 @@ import {
 import { Navbar, BottomNav } from '../components/Navbar'
 import { Reveal } from '../components/motion'
 import { Sparkles } from 'lucide-react'
+import { useAutoTranslate } from '../lib/i18n'
 import '../components/components.css'
 import './ScannerPage.css'
+
+const UI = {
+    tag: 'Agent 4 · Document Seva', title: 'Jan-Sahayak Lens',
+    sub: 'Scan a document — unique ID will be detected automatically',
+    privacy: 'Documents are never saved to our servers — processed in memory only',
+    tapUpload: 'Tap here or use the buttons to upload', scanCamera: 'Scan with Camera',
+    galleryUpload: 'Gallery / File Upload',
+    supported: 'Aadhaar, PAN, Voter ID, Ration Card, Passport, Driving Licence, PDF supported.',
+    keepInFrame: 'Keep document within the frame', cancel: 'Cancel', flip: 'Flip',
+    processing: 'Processing document…', validDoc: 'Valid Document', partialDoc: 'Document Partially Read',
+    pagesScanned: 'pages scanned', detectedIds: '🔍 Detected Unique IDs',
+    only4: 'Only last 4 digits shown — raw data is never saved',
+    noId: 'Koi ID Nahi Mili', unclear: 'Document may be unclear. Try again in better lighting.',
+    officialSeal: 'Official Seal', expiryInfo: 'Expiry Info', ocrConfidence: 'OCR Confidence',
+    scanAgain: 'Scan Again', scanFailed: 'Scan Failed', tryAgain: 'Try Again',
+}
 
 const API_BASE = '/api'
 
@@ -36,6 +53,9 @@ export default function ScannerPage() {
     const canvasRef = useRef()
     const streamRef = useRef(null)
     const stepTimerRef = useRef(null)
+    const tr = useAutoTranslate([
+        ...Object.values(UI), ...STEPS, ...Object.values(DOC_LABELS), error,
+    ].filter(Boolean))
 
     // ── Step progress animation ──────────────────────────────────────────────
     const startStepAnimation = useCallback(() => {
@@ -169,15 +189,15 @@ export default function ScannerPage() {
             <main className="page-content">
 
                 <div className="scanner-header">
-                    <div className="sathi-tag" style={{ position: 'static', display: 'inline-flex', marginBottom: 8 }}><Sparkles size={10} /> Agent 4 · Document Seva</div>
-                    <h1 className="scanner-title font-display">Jan-Sahayak Lens</h1>
+                    <div className="sathi-tag" style={{ position: 'static', display: 'inline-flex', marginBottom: 8 }}><Sparkles size={10} /> {tr(UI.tag)}</div>
+                    <h1 className="scanner-title font-display">{tr(UI.title)}</h1>
                     <p className="text-muted scanner-sub">
-                        Scan a document — unique ID will be detected automatically
+                        {tr(UI.sub)}
                     </p>
                     {/* Privacy badge */}
                     <div className="privacy-badge">
                         <Shield size={14} className="privacy-icon" />
-                        <span>Documents are never saved to our servers — processed in memory only</span>
+                        <span>{tr(UI.privacy)}</span>
                     </div>
                 </div>
 
@@ -195,7 +215,7 @@ export default function ScannerPage() {
                                 <div className="scanner-placeholder">
                                     <FileText size={48} className="text-muted" />
                                     <p className="text-muted scanner-placeholder-text">
-                                        Tap here or use the buttons to upload
+                                        {tr(UI.tapUpload)}
                                     </p>
                                 </div>
                             </div>
@@ -209,14 +229,14 @@ export default function ScannerPage() {
                                     className="btn btn-primary btn-lg scanner-upload-btn btn-aarti"
                                     onClick={openCamera}
                                 >
-                                    <Camera size={18} /> Scan with Camera
+                                    <Camera size={18} /> {tr(UI.scanCamera)}
                                 </button>
                                 <button
                                     id="scanner-upload-btn"
                                     className="btn btn-ghost btn-lg scanner-upload-btn"
                                     onClick={() => fileRef.current.click()}
                                 >
-                                    <Upload size={18} /> Gallery / File Upload
+                                    <Upload size={18} /> {tr(UI.galleryUpload)}
                                 </button>
                                 <input
                                     ref={fileRef}
@@ -226,7 +246,7 @@ export default function ScannerPage() {
                                     onChange={handleFile}
                                 />
                                 <p className="text-subtle scanner-note">
-                                    Aadhaar, PAN, Voter ID, Ration Card, Passport, Driving Licence, PDF supported.
+                                    {tr(UI.supported)}
                                 </p>
                             </div>
 
@@ -252,11 +272,11 @@ export default function ScannerPage() {
                                 <div className="scanner-corner bl" />
                                 <div className="scanner-corner br" />
                             </div>
-                            <p className="camera-hint text-muted">Keep document within the frame</p>
+                            <p className="camera-hint text-muted">{tr(UI.keepInFrame)}</p>
                         </div>
                         <div className="camera-controls">
                             <button className="btn btn-ghost btn-sm" onClick={reset}>
-                                <CameraOff size={16} /> Cancel
+                                <CameraOff size={16} /> {tr(UI.cancel)}
                             </button>
                             <button
                                 id="camera-capture-btn"
@@ -266,7 +286,7 @@ export default function ScannerPage() {
                                 <Camera size={20} />
                             </button>
                             <button className="btn btn-ghost btn-sm" onClick={flipCamera}>
-                                <SwitchCamera size={16} /> Flip
+                                <SwitchCamera size={16} /> {tr(UI.flip)}
                             </button>
                         </div>
                     </div>
@@ -278,7 +298,7 @@ export default function ScannerPage() {
                         <div className="scanner-spinner">
                             <Loader2 size={40} className="text-saffron spin" />
                         </div>
-                        <p className="scanner-loading-text">Processing document…</p>
+                        <p className="scanner-loading-text">{tr(UI.processing)}</p>
                         <div className="scan-steps">
                             {STEPS.map((step, i) => (
                                 <div
@@ -291,7 +311,7 @@ export default function ScannerPage() {
                                         ? <Loader2 size={14} className="spin" />
                                         : <div className="step-dot" />
                                     }
-                                    <span>{step}</span>
+                                    <span>{tr(step)}</span>
                                 </div>
                             ))}
                         </div>
@@ -309,15 +329,15 @@ export default function ScannerPage() {
                                     : <HelpCircle size={20} className="text-amber" />
                                 }
                                 <span className={`badge ${result.validity?.is_valid ? 'badge-green' : 'badge-amber'}`}>
-                                    {result.validity?.is_valid ? 'Valid Document' : 'Document Partially Read'}
+                                    {tr(result.validity?.is_valid ? UI.validDoc : UI.partialDoc)}
                                 </span>
                             </div>
                             <h2 className="scanner-doc-type">
-                                {DOC_LABELS[result.detected_ids?.[0]?.id_type] || result.doc_type}
+                                {tr(DOC_LABELS[result.detected_ids?.[0]?.id_type] || result.doc_type)}
                             </h2>
                             {result.page_count > 1 && (
                                 <p className="text-muted" style={{ fontSize: 13 }}>
-                                    {result.page_count} pages scanned
+                                    {result.page_count} {tr(UI.pagesScanned)}
                                 </p>
                             )}
                         </div>
@@ -326,11 +346,11 @@ export default function ScannerPage() {
                         {result.detected_ids?.length > 0 && (
                             <div className="glass-card scanner-ids-card">
                                 <h3 className="scanner-fields-title">
-                                    🔍 Detected Unique IDs
+                                    {tr(UI.detectedIds)}
                                 </h3>
                                 <p className="id-privacy-note">
                                     <Lock size={10} />
-                                    Only last 4 digits shown — raw data is never saved
+                                    {tr(UI.only4)}
                                 </p>
                                 {result.detected_ids.map((id, i) => (
                                     <div key={i} className="scanner-id-row">
@@ -360,10 +380,10 @@ export default function ScannerPage() {
                         {(!result.detected_ids || result.detected_ids.length === 0) && (
                             <div className="glass-card scanner-missing">
                                 <h3 className="scanner-fields-title">
-                                    <HelpCircle size={16} className="text-amber" /> Koi ID Nahi Mili
+                                    <HelpCircle size={16} className="text-amber" /> {tr(UI.noId)}
                                 </h3>
                                 <p className="text-muted" style={{ fontSize: 14 }}>
-                                    Document may be unclear. Try again in better lighting.
+                                    {tr(UI.unclear)}
                                 </p>
                             </div>
                         )}
@@ -371,21 +391,21 @@ export default function ScannerPage() {
                         {/* Validity details */}
                         <div className="glass-card scanner-validity">
                             <div className="validity-row">
-                                <span className="validity-label">Official Seal</span>
+                                <span className="validity-label">{tr(UI.officialSeal)}</span>
                                 {result.validity?.has_official_seal
                                     ? <CheckCircle size={16} style={{ color: '#4ade80' }} />
                                     : <XCircle size={16} className="text-subtle" />
                                 }
                             </div>
                             <div className="validity-row">
-                                <span className="validity-label">Expiry Info</span>
+                                <span className="validity-label">{tr(UI.expiryInfo)}</span>
                                 {result.validity?.has_expiry_info
                                     ? <CheckCircle size={16} style={{ color: '#4ade80' }} />
                                     : <XCircle size={16} className="text-subtle" />
                                 }
                             </div>
                             <div className="validity-row">
-                                <span className="validity-label">OCR Confidence</span>
+                                <span className="validity-label">{tr(UI.ocrConfidence)}</span>
                                 <span className="confidence-pct">
                                     {Math.round((result.validity?.confidence || 0) * 100)}%
                                 </span>
@@ -393,7 +413,7 @@ export default function ScannerPage() {
                         </div>
 
                         <button className="btn btn-ghost scanner-reset-btn" onClick={reset}>
-                            <RefreshCw size={16} /> Scan Again
+                            <RefreshCw size={16} /> {tr(UI.scanAgain)}
                         </button>
                     </>
                 )}
@@ -402,10 +422,10 @@ export default function ScannerPage() {
                 {state === 'error' && (
                     <div className="glass-card scanner-error">
                         <XCircle size={36} className="text-red" />
-                        <p className="scanner-loading-text">Scan Failed</p>
-                        <p className="text-muted" style={{ fontSize: 14 }}>{error}</p>
+                        <p className="scanner-loading-text">{tr(UI.scanFailed)}</p>
+                        <p className="text-muted" style={{ fontSize: 14 }}>{tr(error)}</p>
                         <button className="btn btn-primary" style={{ marginTop: 16 }} onClick={reset}>
-                            <RefreshCw size={16} /> Try Again
+                            <RefreshCw size={16} /> {tr(UI.tryAgain)}
                         </button>
                     </div>
                 )}

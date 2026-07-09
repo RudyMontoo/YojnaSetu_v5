@@ -1,7 +1,14 @@
 import { MapPin, Phone, Clock, Navigation, Star } from 'lucide-react'
 import { Navbar, BottomNav } from '../components/Navbar'
+import { useAutoTranslate } from '../lib/i18n'
 import '../components/components.css'
 import './CSCFinderPage.css'
+
+const UI = {
+    title: 'CSC / Jan Seva Kendra Finder 📍', sub: 'Apne najdeek help centre dhundein',
+    mapLoading: 'Map loading… (GPS access required)', enableLoc: 'Enable Location Access',
+    nearby: 'Najdeek Kendra', directions: 'Directions', call: 'Call',
+}
 
 const CSC_CENTRES = [
     {
@@ -45,27 +52,31 @@ function StarRating({ rating }) {
 }
 
 export default function CSCFinderPage() {
+    const tr = useAutoTranslate([
+        ...Object.values(UI),
+        ...CSC_CENTRES.flatMap(c => [c.name, c.address, c.hours, ...c.services]),
+    ])
     return (
         <div className="page-wrapper">
             <Navbar />
             <main className="page-content">
 
                 <div className="csc-header">
-                    <h1 className="csc-title">CSC / Jan Seva Kendra Finder 📍</h1>
-                    <p className="text-muted csc-sub">Apne najdeek help centre dhundein</p>
+                    <h1 className="csc-title">{tr(UI.title)}</h1>
+                    <p className="text-muted csc-sub">{tr(UI.sub)}</p>
                 </div>
 
                 {/* Map placeholder */}
                 <div className="glass-card csc-map-card">
                     <div className="csc-map-placeholder">
                         <MapPin size={36} className="text-saffron" />
-                        <p className="text-muted csc-map-text">Map loading… (GPS access required)</p>
-                        <button className="btn btn-primary btn-sm">Enable Location Access</button>
+                        <p className="text-muted csc-map-text">{tr(UI.mapLoading)}</p>
+                        <button className="btn btn-primary btn-sm">{tr(UI.enableLoc)}</button>
                     </div>
                 </div>
 
                 {/* Nearest CSC list */}
-                <h2 className="csc-list-title">Najdeek Kendra ({CSC_CENTRES.length})</h2>
+                <h2 className="csc-list-title">{tr(UI.nearby)} ({CSC_CENTRES.length})</h2>
                 <div className="csc-list">
                     {CSC_CENTRES.map((csc, i) => (
                         <div key={i} className="glass-card csc-card">
@@ -74,8 +85,8 @@ export default function CSCFinderPage() {
                                     <MapPin size={20} className="text-saffron" />
                                 </div>
                                 <div className="csc-info">
-                                    <p className="csc-name">{csc.name}</p>
-                                    <p className="text-muted csc-address">{csc.address}</p>
+                                    <p className="csc-name">{tr(csc.name)}</p>
+                                    <p className="text-muted csc-address">{tr(csc.address)}</p>
                                     <StarRating rating={csc.rating} />
                                 </div>
                                 <div className="csc-distance">
@@ -90,20 +101,20 @@ export default function CSCFinderPage() {
                                 </div>
                                 <div className="csc-detail-row">
                                     <Clock size={13} className="text-muted" />
-                                    <span className="text-muted csc-detail-text">{csc.hours}</span>
+                                    <span className="text-muted csc-detail-text">{tr(csc.hours)}</span>
                                 </div>
                             </div>
 
                             <div className="csc-services">
-                                {csc.services.map(s => <span key={s} className="badge badge-muted">{s}</span>)}
+                                {csc.services.map(s => <span key={s} className="badge badge-muted">{tr(s)}</span>)}
                             </div>
 
                             <div className="csc-actions">
                                 <a href={`https://maps.google.com?q=${encodeURIComponent(csc.address)}`} target="_blank" rel="noreferrer" className="btn btn-primary btn-sm">
-                                    <Navigation size={14} /> Directions
+                                    <Navigation size={14} /> {tr(UI.directions)}
                                 </a>
                                 <a href={`tel:${csc.phone}`} className="btn btn-ghost btn-sm">
-                                    <Phone size={14} /> Call
+                                    <Phone size={14} /> {tr(UI.call)}
                                 </a>
                             </div>
                         </div>

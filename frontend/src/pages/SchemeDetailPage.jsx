@@ -1,10 +1,32 @@
 import { useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
-import { ArrowLeft, CheckCircle, XCircle, ExternalLink, MapPin, FileText, Zap } from 'lucide-react'
+import { ArrowLeft, CheckCircle, XCircle, ExternalLink, MapPin, FileText, Zap, Eye, Loader2 } from 'lucide-react'
 import { Navbar, BottomNav } from '../components/Navbar'
 import ApplyMethodModal from '../components/ApplyMethodModal'
+import { ai } from '../lib/api'
+import { useAutoTranslate } from '../lib/i18n'
 import '../components/components.css'
 import './SchemeDetailPage.css'
+
+// Static labels — live-translated alongside the scheme content.
+const UI = {
+    back: 'Back', schemes: 'Schemes', keyBenefit: 'Key Benefit:',
+    eligNote: '✅ = You likely qualify  |  ? = Verify on official portal',
+    applyNow: 'Apply Now', offlineHelp: 'Get Offline Help',
+    seeLiveForm: 'See the live application form',
+    checkingForm: 'Checking the official portal…',
+    liveFormTitle: 'What the official form asks right now',
+    liveFormFields: 'Form fields on the portal:',
+    liveFormDocs: 'Documents the portal mentions:',
+    required: 'required',
+    reconUnavailable: "Couldn't read the live form (the portal may load its form with JavaScript). Follow the steps above or use a CSC.",
+}
+const APPLY_STEPS = [
+    'Visit Jan Seva Kendra (CSC) or the official portal',
+    'Fill out the application form and provide required documents',
+    'Submit the form — you will receive an Application ID',
+    'Track status under "My Applications"',
+]
 
 const SCHEMES_DATA = {
     'pm-kisan': {
@@ -78,6 +100,15 @@ export default function SchemeDetailPage() {
     const location = useLocation()
     const [activeTab, setActiveTab] = useState('Overview')
     const [showApplyModal, setShowApplyModal] = useState(false)
+    const [recon, setRecon] = useState(null)        // Agent 3 live portal recon result
+    const [reconBusy, setReconBusy] = useState(false)
+
+    const runRecon = async () => {
+        setReconBusy(true)
+        try { setRecon(await ai.portalRecon(id)) }
+        catch { setRecon({ error: true }) }
+        finally { setReconBusy(false) }
+    }
 
     // Priority: router state (from chat/agent) > hardcoded dict > default
     const routeState = location.state  // passed by ChatPage navigate()
@@ -100,6 +131,20 @@ export default function SchemeDetailPage() {
         }),
     }
 
+    // Live-translate everything on the page: the scheme's own text (name,
+    // ministry, benefit, overview, eligibility, documents) plus all fixed
+    // labels, tabs, and apply steps.
+    const tr = useAutoTranslate([
+        ...Object.values(UI), ...TABS, ...APPLY_STEPS,
+        scheme.name, scheme.shortName, scheme.ministry, scheme.category,
+        scheme.tag, scheme.benefit, scheme.overview,
+        ...(scheme.eligibility?.map(e => e.text) || []),
+        ...(scheme.documents || []),
+        // live recon field/doc labels (from the real portal) so they translate too
+        ...((recon?.recon?.forms || []).flatMap(f => f.fields).map(f => f.label)),
+        ...(recon?.recon?.document_hints || []),
+    ])
+
     return (
         <div className="page-wrapper">
             <Navbar />
@@ -108,9 +153,9 @@ export default function SchemeDetailPage() {
                 {/* Breadcrumb */}
                 <div className="detail-breadcrumb">
                     <button className="btn btn-ghost btn-sm" onClick={() => navigate(-1)}>
-                        <ArrowLeft size={14} /> Back
+                        <ArrowLeft size={14} /> {tr(UI.back)}
                     </button>
-                    <span className="text-subtle">Schemes / {scheme.shortName}</span>
+                    <span className="text-subtle">{tr(UI.schemes)} / {tr(scheme.shortName)}</span>
                 </div>
 
                 {/* Hero */}
@@ -118,25 +163,25 @@ export default function SchemeDetailPage() {
                     <div className="detail-hero-icon">{scheme.icon}</div>
                     <div className="detail-hero-info">
                         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
-                            <span className="badge badge-saffron">{scheme.category}</span>
-                            <span className="badge badge-muted">{scheme.tag}</span>
+                            <span className="badge badge-saffron">{tr(scheme.category)}</span>
+                            <span className="badge badge-muted">{tr(scheme.tag)}</span>
                         </div>
-                        <h1 className="detail-title">{scheme.name}</h1>
-                        <p className="text-muted detail-ministry">{scheme.ministry}</p>
+                        <h1 className="detail-title">{tr(scheme.name)}</h1>
+                        <p className="text-muted detail-ministry">{tr(scheme.ministry)}</p>
                     </div>
                 </div>
 
                 {/* Benefit highlight */}
                 <div className="detail-benefit-card glass-card">
-                    <span className="detail-benefit-label text-muted">Key Benefit:</span>
-                    <p className="detail-benefit-text text-saffron">{scheme.benefit}</p>
+                    <span className="detail-benefit-label text-muted">{tr(UI.keyBenefit)}</span>
+                    <p className="detail-benefit-text text-saffron">{tr(scheme.benefit)}</p>
                 </div>
 
                 {/* Tabs */}
                 <div className="detail-tabs">
                     {TABS.map(tab => (
                         <button key={tab} className={`chip ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab)}>
-                            {tab}
+                            {tr(tab)}
                         </button>
                     ))}
                 </div>
@@ -145,7 +190,7 @@ export default function SchemeDetailPage() {
                 <div className="glass-card detail-tab-content">
 
                     {activeTab === 'Overview' && (
-                        <p className="detail-overview-text">{scheme.overview}</p>
+                        <p className="detail-overview-text">{tr(scheme.overview)}</p>
                     )}
 
                     {activeTab === 'Eligibility' && (
@@ -159,11 +204,11 @@ export default function SchemeDetailPage() {
                                     ) : (
                                         <div className="elig-unknown">?</div>
                                     )}
-                                    <span className="detail-elig-text">{item.text}</span>
+                                    <span className="detail-elig-text">{tr(item.text)}</span>
                                 </div>
                             ))}
                             <p className="text-muted detail-elig-note">
-                                ✅ = You likely qualify &nbsp;|&nbsp; ? = Verify on official portal
+                                {tr(UI.eligNote)}
                             </p>
                         </div>
                     )}
@@ -174,7 +219,7 @@ export default function SchemeDetailPage() {
                                 <li key={i} className="detail-doc-item">
                                     <div className="detail-doc-num">{i + 1}</div>
                                     <FileText size={16} className="text-saffron" />
-                                    <span>{doc}</span>
+                                    <span>{tr(doc)}</span>
                                 </li>
                             ))}
                         </ol>
@@ -182,17 +227,53 @@ export default function SchemeDetailPage() {
 
                     {activeTab === 'How to Apply' && (
                         <div className="detail-apply-steps">
-                            {[
-                                'Visit Jan Seva Kendra (CSC) or the official portal',
-                                'Fill out the application form and provide required documents',
-                                'Submit the form — you will receive an Application ID',
-                                'Track status under "My Applications"',
-                            ].map((step, i) => (
+                            {APPLY_STEPS.map((step, i) => (
                                 <div key={i} className="detail-apply-step">
                                     <div className="detail-step-num">{i + 1}</div>
-                                    <p>{step}</p>
+                                    <p>{tr(step)}</p>
                                 </div>
                             ))}
+
+                            {/* Agent 3 — read-only live portal recon. Reads the real
+                                government form so the citizen knows what to prepare. */}
+                            <div style={{ marginTop: 16 }}>
+                                {!recon && (
+                                    <button className="btn btn-ghost btn-sm" onClick={runRecon} disabled={reconBusy}>
+                                        {reconBusy ? <Loader2 size={14} className="spin" /> : <Eye size={14} />}
+                                        {' '}{tr(reconBusy ? UI.checkingForm : UI.seeLiveForm)}
+                                    </button>
+                                )}
+                                {recon && (() => {
+                                    const r = recon.recon
+                                    const fields = r?.forms?.flatMap(f => f.fields) || []
+                                    const docs = r?.document_hints || []
+                                    if (recon.error || !r || (!fields.length && !docs.length)) {
+                                        return <p className="text-muted" style={{ fontSize: 13 }}>{tr(UI.reconUnavailable)}</p>
+                                    }
+                                    return (
+                                        <div className="glass-card" style={{ padding: 14, marginTop: 6 }}>
+                                            <p className="profile-app-name" style={{ marginBottom: 8 }}>
+                                                <Eye size={14} className="text-saffron" style={{ verticalAlign: -2, marginRight: 5 }} />
+                                                {tr(UI.liveFormTitle)}
+                                            </p>
+                                            {fields.length > 0 && <>
+                                                <p className="text-muted" style={{ fontSize: 12, marginBottom: 4 }}>{tr(UI.liveFormFields)}</p>
+                                                <ul style={{ margin: '0 0 10px 16px', fontSize: 13 }}>
+                                                    {fields.slice(0, 12).map((f, i) => (
+                                                        <li key={i}>{tr(f.label)}{f.required && <span className="text-saffron"> ({tr(UI.required)})</span>}</li>
+                                                    ))}
+                                                </ul>
+                                            </>}
+                                            {docs.length > 0 && <>
+                                                <p className="text-muted" style={{ fontSize: 12, marginBottom: 4 }}>{tr(UI.liveFormDocs)}</p>
+                                                <ul style={{ margin: '0 0 0 16px', fontSize: 13 }}>
+                                                    {docs.slice(0, 8).map((d, i) => <li key={i}>{tr(d)}</li>)}
+                                                </ul>
+                                            </>}
+                                        </div>
+                                    )
+                                })()}
+                            </div>
                         </div>
                     )}
                 </div>
@@ -204,10 +285,10 @@ export default function SchemeDetailPage() {
                         className="btn btn-primary btn-lg detail-cta-btn"
                         onClick={() => setShowApplyModal(true)}
                     >
-                        <Zap size={16} /> Apply Now
+                        <Zap size={16} /> {tr(UI.applyNow)}
                     </button>
                     <button className="btn btn-ghost btn-lg" onClick={() => navigate('/csc-finder')}>
-                        <MapPin size={16} /> Get Offline Help
+                        <MapPin size={16} /> {tr(UI.offlineHelp)}
                     </button>
                 </div>
 
