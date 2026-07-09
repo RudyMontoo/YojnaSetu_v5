@@ -1,0 +1,10 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+.env
+.env.*
+tests/
+.pytest_cache/
+*.log
+vision/agent11_biometric/requirements.txt
