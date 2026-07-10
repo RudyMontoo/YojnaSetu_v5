@@ -17,6 +17,11 @@ _env_path = Path(__file__).parent / ".env"
 load_dotenv(dotenv_path=_env_path, override=True)
 logging.basicConfig(level=logging.INFO)
 
+# Security rule #3/#8: strip Aadhaar/phone/PAN/email from every log line before
+# emission. Installed right after basicConfig so it covers all handlers.
+from ai_service.utils.log_redaction import install_pii_log_redaction  # noqa: E402
+install_pii_log_redaction()
+
 app = FastAPI(
     title="Yojna Setu AI Service",
     description="AI/ML backend for Yojna Setu — Indian Government Scheme Assistant",
@@ -78,11 +83,17 @@ from ai_service.routers.orchestrator_router import router as orchestrator_router
 from ai_service.routers.agents_router import router as agents_router
 from ai_service.routers.internal_router import router as internal_router
 from ai_service.routers.ws_router import router as ws_router
+from ai_service.routers.voice_ws_router import router as voice_ws_router
+from ai_service.routers.translate_router import router as translate_router
+from ai_service.routers.dlc_router import router as dlc_router
 
 app.include_router(orchestrator_router)
 app.include_router(agents_router)
 app.include_router(internal_router)
 app.include_router(ws_router)
+app.include_router(voice_ws_router)
+app.include_router(translate_router)
+app.include_router(dlc_router)
 app.include_router(status_router, prefix="/status")
 app.include_router(agent_router)
 app.include_router(voice_conv_router)
