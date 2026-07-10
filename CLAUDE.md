@@ -373,13 +373,15 @@ db.trend_events.aggregate([
 | GET | /admin/agents/analytics/latest | Admin JWT — latest Agent 10 weekly report |
 | POST | /admin/agents/nudge/trigger | Admin JWT — manually triggers Agent 6 batch |
 
-**Implementation status (2026-07-03)** — LIVE (with path deviations from the table above where noted): `WSS /ws/session/{id}` (cookie-JWT auth, streams real LLM tokens as `{"type":"token"}` frames + one authoritative `{"type":"done"}` frame per turn — 2026-07-04), `POST /orchestrator/chat` (REST twin of the WS endpoint, not in table), `GET /agents/health` (13-agent registry, honest `not_built` statuses), `GET /agents/trace/{id}` (ownership-enforced via session userId), `GET /agents/financial-plan`, `POST /agents/document/verify-ppo` (two-file PPO/Aadhaar mismatch — the generic single-doc `/agents/document/verify` is NOT built), `POST /agents/csc/alternatives` (body uses `scheme_code`, not scheme_id), analytics at `POST /agents/admin/analytics/run` + `GET /agents/admin/analytics/latest` (not `/admin/agents/...`), `DELETE /internal/citizen/{id}/data` (DPDP cascade, called by Spring Boot). NOT built: voice WS + voice sessions, /webhook/whatsapp, /agents/compare (comparison runs via chat intent instead), /agents/grievance, nudge endpoints, /metrics/impact.
+**Implementation status (2026-07-03)** — LIVE (with path deviations from the table above where noted): `WSS /ws/session/{id}` (cookie-JWT auth, streams real LLM tokens as `{"type":"token"}` frames + one authoritative `{"type":"done"}` frame per turn — 2026-07-04), `POST /orchestrator/chat` (REST twin of the WS endpoint, not in table), `GET /agents/health` (13-agent registry, honest `not_built` statuses), `GET /agents/trace/{id}` (ownership-enforced via session userId), `GET /agents/financial-plan`, `POST /agents/document/verify-ppo` (two-file PPO/Aadhaar mismatch — the generic single-doc `/agents/document/verify` is NOT built), `POST /agents/csc/alternatives` (body uses `scheme_code`, not scheme_id), analytics at `POST /agents/admin/analytics/run` + `GET /agents/admin/analytics/latest` (not `/admin/agents/...`), `DELETE /internal/citizen/{id}/data` (DPDP cascade, called by Spring Boot), `WSS /ws/voice/{id}` (real-time Pipecat pipeline per the Voice Pipeline section below — 2026-07-07; the `/voice/session/start`+`/voice/session/end` REST pair from the table was NOT built as such — turn-based fallback lives at `POST /voice/conversation/{start,answer}`, session summaries write on WS disconnect instead), `POST /agents/grievance` (recording path) + `GET /agents/grievances` + `POST /agents/grievance/{id}/cpgrams-ref` (Agent 5 grievance-loop tracking — 2026-07-09; list own grievances + report back the CPGRAMS ref after self-filing, status recorded→filed_on_portal; pgportal bot-submit deliberately not built — can't verify without filing a real govt complaint), `GET /agents/nudge/status` + `POST /agents/nudge/optout` + `POST /agents/admin/nudge/trigger` (Agent 6 nudges — 2026-07-09; full batch built + verified in dry-run, WhatsApp delivery dry-runs until Twilio approval), `POST /agents/application/portal-recon` (Agent 3 read-only live portal reconnaissance, Citizen JWT — 2026-07-09; opens a scheme's whitelisted applyUrl and reads live form fields/doc-hints, whitelist re-checked per redirect hop, honest degrade on JS-rendered SPAs; auto-fill/submit deliberately not built). NOT built: /webhook/whatsapp, /agents/compare (comparison runs via chat intent instead), /metrics/impact.
 
 ---
 
 ## Voice Pipeline (Pipecat — CONFIRMED, not LiveKit)
 
 **Stack**: Pipecat → Sarvam Saaras V3 (STT) → Gemini 2.5 Flash (LLM) → Sarvam Bulbul V3 (TTS)
+
+**BUILT 2026-07-07** — `ai_service/routers/voice_ws_router.py` (not the planned `voice/` dir): pipecat-ai 1.5, `FastAPIWebsocketTransport` + protobuf frames, Sarvam server-side VAD (`vad_signals=True` — no local Silero needed), and a custom `OrchestratorTurnProcessor` in place of a Pipecat LLM service so voice runs the SAME LangGraph orchestrator as text chat (the "LLM" row of this stack is the whole 12-agent graph, not a bare Gemini call). Frontend: `frontend/src/lib/voiceClient.js` (@pipecat-ai/client-js, lazy chunk). Verified with real synthesized-speech e2e (see docs/status/COMPLETED.md). The rules below remain the spec; one deviation: VAD tuning lives in the STT service params, not a `voice/vad_config.py` file. pipecat 1.5 gotcha: no `vad_analyzer` on TransportParams, no `allow_interruptions` on PipelineParams — canonical patterns are in the installed package's `cli/templates/server/`.
 
 **Key rules**:
 - STT: always pass `mode="transcribe"` — specify explicitly even though it's the Saaras v3 default
@@ -453,13 +455,13 @@ All agents share GraphState. Never call agents directly — always go through Or
 | Agent 3 — Application | On-demand (Cloud Run job) | Citizen apply action | 60s | ✅ guidance path (curated playbook + grounded LLM fallback, domain-whitelisted URLs) via `application_request` chat intent; ❌ browser-use automation not started |
 | Agent 4 — Document | On-demand (FastAPI) | Document upload | 15s | ✅ incl. v5.0 PPO/Aadhaar mismatch check |
 | Agent 5 — Grievance | On-demand (Cloud Run job) | Citizen grievance request | 120s | ✅ recording path (persists to `grievances`, CPGRAMS self-filing guidance) via `grievance` chat intent + `POST /agents/grievance`; ❌ pgportal automation + NPCI/SPARSH monitoring not started |
-| Agent 6 — Nudge | Scheduled (Cloud Run job) | Daily 8AM + weekly Mon 9AM IST | 10min | ❌ blocked on Twilio WhatsApp approval |
+| Agent 6 — Nudge | Scheduled (Cloud Run job) | Daily 8AM + weekly Mon 9AM IST | 10min | ✅ built + REAL delivery verified 2026-07-09 via Twilio WhatsApp Sandbox (`graph/agents/nudge.py`, `utils/whatsapp_sender.py`, 3 endpoints, `scripts/send_test_whatsapp.py`); prod needs an approved WhatsApp Business sender (Meta) + Cloud Scheduler cron |
 | Agent 7 — Financial | On-demand (LangGraph node) | Orchestrator route | 10s | ✅ |
 | Agent 8 — Comparison | On-demand (LangGraph node) | Orchestrator route | 10s | ✅ |
 | Agent 9 — CSC | On-demand (LangGraph node) | CSC operator request | 15s | ✅ doc-alternatives, operator-JWT-gated (browser dashboard at `/csc-dashboard`, no service key required) |
 | Agent 10 — Analytics | Scheduled (Cloud Run job) | Weekly Sunday 11PM IST | 30min | ✅ on-demand; weekly cron is Phase 11 |
 | Agent 11 — Biometric Assist (v5.0) | On-demand (CV module) | DLC liveness attempt | 20s | ❌ not started; model provenance unresolved |
-| Agent 12 — Offline Survival Proof (v5.0) | On-demand (PWA + signing) | Offline DLC generation | 30s | ❌ not started; needs PWA infra first |
+| Agent 12 — Offline Survival Proof (v5.0) | On-demand (PWA + signing) | Offline DLC generation | 30s | 🟡 core built 2026-07-08 (`/agents/dlc/*` + Profile Pension Seva UI): RSA-2048 WebCrypto offline signing → QR + offline queue → sync-on-reconnect, server verifies + rejects replay/tamper/forgery. PWA prerequisite now exists. Deferred: Bluetooth/WiFi-Direct P2P (not a web API), real SPARSH acceptance (institutional) |
 
 ### GraphState (never rename fields without updating all agents)
 Actual implementation is `ai_service/graph/state.py` — a `TypedDict, total=False`, not a `@dataclass` (every agent imports from there rather than redefining its own shape):
@@ -479,7 +481,7 @@ class GraphState(TypedDict, total=False):
 ```
 
 ### Orchestrator Routing (LangGraph conditional edges)
-Reflects the actual `_INTENT_TO_NODE` map in `ai_service/graph/orchestrator.py` — every branch below routes to a real node, not a placeholder (the only placeholder targets left are `status_check` and the injection guard's `blocked` pseudo-intent):
+Reflects the actual `_INTENT_TO_NODE` map in `ai_service/graph/orchestrator.py` — every intent below routes to a real node. The placeholder is now reached only by the injection guard's `blocked` pseudo-intent and any unknown/future intent:
 ```
 START
   → intent_classifier node
@@ -491,7 +493,7 @@ START
       → "document_verify"     → Agent4 (guidance-only on this text channel)
       → "csc_assist"          → Agent9
       → "small_talk"          → small_talk node (greetings/thanks — NO scheme retrieval)
-      → "status_check"        → placeholder ("use Spring Boot's applications API")
+      → "status_check"        → status_check node (reads citizen's own applications, read-only; grounded Hinglish status summary)
       → "blocked"             → placeholder (injection guard's own reply)
 END
 ```
