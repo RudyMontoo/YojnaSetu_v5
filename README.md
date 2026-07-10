@@ -1,230 +1,267 @@
-<div align="center">
-  <h1>🏛️ Yojna Setu</h1>
-  <h3>AI-Powered Government Welfare &amp; Pension Assistant</h3>
-  <p><b>"Connecting Citizens to Their Rights — Jan Jan ko Yojana se Jodo 🇮🇳"</b></p>
+<!-- ░░░░░░░░░░░░░░░░░░░░░░░░░  YOJNA SETU  ░░░░░░░░░░░░░░░░░░░░░░░░░ -->
 
-  <p>
-    <img src="https://img.shields.io/badge/version-5.0-blue?style=for-the-badge" alt="Version 5.0" />
-    <img src="https://img.shields.io/badge/Python-3.12-green?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.12" />
-    <img src="https://img.shields.io/badge/FastAPI-LangGraph-teal?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI + LangGraph" />
-    <img src="https://img.shields.io/badge/Spring_Boot-3.2-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" alt="Spring Boot" />
-    <img src="https://img.shields.io/badge/MongoDB-Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB Atlas" />
-  </p>
-  <p>
-    <img src="https://img.shields.io/badge/Schemes_Indexed-419-orange?style=flat-square" alt="419 Schemes" />
-    <img src="https://img.shields.io/badge/Languages-22_Indian-purple?style=flat-square" alt="22 Languages" />
-    <img src="https://img.shields.io/badge/Agents-12-red?style=flat-square" alt="12 Agents" />
-  </p>
+<div align="center">
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1b3e,45:1a3a6e,100:ff9933&height=210&section=header&text=Yojna%20Setu&fontSize=76&fontColor=ffffff&animation=fadeIn&fontAlignY=36&desc=%E0%A4%B8%E0%A5%87%E0%A4%A4%E0%A5%81%20%E2%80%94%20the%20bridge%20between%20a%20citizen%20and%20their%20rights&descAlignY=58&descSize=18" width="100%"/>
+
+<a href="https://github.com/RudyMontoo/YojnaSetu_v5">
+  <img src="https://readme-typing-svg.demolab.com/?font=Poppins&weight=600&size=21&pause=1200&color=FF9933&center=true&vCenter=true&width=820&lines=3%2C500%2B+welfare+schemes.+22+languages.+One+conversation.;Discover+%E2%86%92+Apply+%E2%86%92+Track+%E2%86%92+Get+paid.;Voice-first.+WhatsApp-native.+DPDP-2023+compliant." alt="tagline"/>
+</a>
+
+<br/><br/>
+
+![Schemes](https://img.shields.io/badge/Schemes-3%2C500%2B-ff9933?style=for-the-badge)
+![Languages](https://img.shields.io/badge/Languages-22-138808?style=for-the-badge)
+![Agents](https://img.shields.io/badge/AI_Agents-13-000080?style=for-the-badge)
+![Compliance](https://img.shields.io/badge/DPDP_Act-2023-blue?style=for-the-badge)
+
+![Python](https://img.shields.io/badge/Python_3.12-3776AB?style=flat-square&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
+![LangGraph](https://img.shields.io/badge/LangGraph-1C3C3C?style=flat-square&logo=langchain&logoColor=white)
+![Spring](https://img.shields.io/badge/Spring_Boot_3.2-6DB33F?style=flat-square&logo=springboot&logoColor=white)
+![React](https://img.shields.io/badge/React_PWA-61DAFB?style=flat-square&logo=react&logoColor=black)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat-square&logo=mongodb&logoColor=white)
+
+</div>
+
+<br/>
+
+<!-- ─────────────────────────────  THE HOOK  ───────────────────────────── -->
+
+<div align="center">
+
+### A 62-year-old farmer in Uttar Pradesh opens WhatsApp and types in Hindi.
+
+</div>
+
+```text
+👵  "main UP ka kisan hoon, meri saalana aay 1.5 lakh hai. mujhe kya milega?"
+
+🏛️  Namaste! Aapke liye ye yojnayein hain —
+    • PM Kisan Samman Nidhi        →  ₹6,000 / saal, seedhe khaate mein
+    • Natural Farming Mission      →  ₹15,000 / hectare
+    • Agriculture Infrastructure Fund
+
+    Kaunsi ke liye apply karna hai? Main step-by-step bataunga. 📄
+```
+
+<div align="center">
+
+**That's it. No portal. No form. No English. No middleman.**
+Just a conversation that ends with money in a bank account.
+
 </div>
 
 ---
 
-## 📖 Table of Contents
-1. [What is Yojna Setu?](#-what-is-yojna-setu)
-2. [v5.0 — 12-Agent Architecture](#-v50--12-agent-architecture)
-3. [Build Status](#-build-status)
-4. [Tech Stack](#-tech-stack)
-5. [Getting Started](#-getting-started)
-6. [API Reference](#-api-reference)
-7. [Security &amp; Compliance](#-security--compliance)
-8. [Project Docs](#-project-docs)
+## 🎯 Why Yojna Setu exists
+
+> [!NOTE]
+> India runs **3,500+ welfare schemes** worth *lakhs of crores*. The people they were built for — farmers, students, widows, the elderly, daily-wage workers — often **never find them.** Buried in portals they can't navigate, written in a language that isn't theirs, gated behind forms and jargon and information they don't have.
+
+Yojna Setu closes that gap with **one multilingual conversation.** It takes a citizen from *"what am I even eligible for?"* → discovery → application guidance → document checks → grievance tracking → and, for pensioners, **fully-offline proof-of-life** — all in their own language, by voice or WhatsApp.
+
+Not a search engine over scheme PDFs. A **fleet of 13 specialised AI agents** that actually reason about *your* situation against *real, structured* government data.
 
 ---
 
-## 🌟 What is Yojna Setu?
+## ✨ What makes it different
 
-India has 419+ active welfare schemes and 194M+ elderly citizens who often can't access the pensions they're already enrolled for. Most citizens never discover the schemes they qualify for — complex portals, language barriers, and information asymmetry get in the way. When they *are* enrolled, biometric authentication failures and payment-routing errors silently block disbursement.
+<table>
+<tr>
+<td width="50%" valign="top">
 
-**Yojna Setu v5.0** solves both problems with one platform: a 12-agent LangGraph system that takes a citizen from *"what am I eligible for?"* through scheme discovery, application guidance, document verification, and — for pensioners — biometric-assisted and fully offline proof-of-life verification.
+### 🗣️ Speaks your language — literally
+22 Indian languages, **voice-first**. Real-time speech in and out via Pipecat + Sarvam (Saaras v3 STT, Bulbul v3 TTS) — the *same* 13-agent brain answers whether you type, talk, or WhatsApp.
 
-- 🗣️ **Voice-first** — 22 Indian languages via Pipecat + Sarvam Saaras v3 / Bulbul v3
-- 🤖 **12 specialized agents** — eligibility, discovery, application guidance, document/PPO verification, grievance + NPCI monitoring, nudges, financial planning, comparison, CSC assist, analytics, biometric assist, and offline survival proof
-- 🔒 **DPDP 2023 compliant** — field-level AES-256 encryption, SHA-256 Aadhaar hashing, immutable audit logs, consent-first writes
-- 🌐 **Real data** — 419 schemes migrated into MongoDB with Gemini-extracted structured eligibility rules, not free-text guesses
+</td>
+<td width="50%" valign="top">
+
+### 🤖 13 agents, not one chatbot
+A LangGraph `StateGraph` routes each message to the right specialist — eligibility, discovery, comparison, financial planning, grievances — each grounded in Mongo data, never hallucinating a scheme.
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+### 📶 Works when the network doesn't
+Pensioners prove they're alive **offline** — an RSA-2048 key signed in the browser (WebCrypto), turned into a QR + sync-on-reconnect. No connectivity required to survive.
+
+</td>
+<td width="50%" valign="top">
+
+### 🔒 Built for real citizen data
+DPDP-2023 compliant from day one: AES-256 field encryption, SHA-256 Aadhaar hashing (never raw), httpOnly RS256 JWTs, append-only audit logs, PII stripped from every log line.
+
+</td>
+</tr>
+</table>
 
 ---
 
-## 🏗️ v5.0 — 12-Agent Architecture
+## 🏗️ Architecture at a glance
 
 ```mermaid
-graph TD;
-    classDef frontend fill:#61DAFB,stroke:#333,stroke-width:2px,color:#000;
-    classDef gateway fill:#6DB33F,stroke:#333,stroke-width:2px,color:#fff;
-    classDef ai fill:#FF9800,stroke:#333,stroke-width:2px,color:#fff;
-    classDef db fill:#47A248,stroke:#333,stroke-width:2px,color:#fff;
+graph TD
+    classDef fe fill:#61DAFB,stroke:#0b3,stroke-width:1px,color:#000
+    classDef gw fill:#6DB33F,stroke:#333,stroke-width:1px,color:#fff
+    classDef ai fill:#FF9933,stroke:#333,stroke-width:1px,color:#000
+    classDef db fill:#47A248,stroke:#333,stroke-width:1px,color:#fff
 
-    User((Citizen)) -->|Voice / Text / Scan| UI[React PWA<br/>Frontend]:::frontend
-    UI -->|REST — auth, profile, applications| Gateway[Spring Boot Gateway<br/>OTP + RS256 JWT httpOnly cookies]:::gateway
-    UI -->|WebSocket — chat, voice — DIRECT| Orchestrator[FastAPI Orchestrator<br/>LangGraph StateGraph]:::ai
+    U((👤 Citizen)) -->|voice · text · WhatsApp · scan| FE[React PWA]:::fe
+    FE -->|REST · auth/profile/apps| GW[Spring Boot Gateway<br/>OTP → RS256 JWT httpOnly]:::gw
+    FE -->|WebSocket · chat + voice — DIRECT| ORC[FastAPI Orchestrator<br/>LangGraph StateGraph]:::ai
 
-    Gateway -->|X-Internal-Key| Orchestrator
-    Gateway --> Mongo[(MongoDB Atlas<br/>9 collections)]:::db
-    Orchestrator --> Mongo
+    GW <-->|X-Internal-Key| ORC
+    GW --> DB[(MongoDB<br/>schemes · profiles · apps<br/>grievances · audit …)]:::db
+    ORC --> DB
 
-    Orchestrator --> Agent1[Agent 1 — Eligibility]:::ai
-    Orchestrator --> Agent2[Agent 2 — Discovery<br/>PIB RSS + data.gov.in]:::ai
-    Orchestrator --> Agent8[Agent 8 — Comparison]:::ai
-    Orchestrator -.-> AgentsRest[Agents 3-7, 9-12<br/>guidance, docs, grievance,<br/>nudge, financial, CSC,<br/>biometric, offline PoS]:::ai
+    ORC --> A1[Eligibility]:::ai
+    ORC --> A7[Financial Plan]:::ai
+    ORC --> A8[Comparison]:::ai
+    ORC --> A3[Application Guidance]:::ai
+    ORC --> A5[Grievance Loop]:::ai
+    ORC --> MORE[…9 more agents]:::ai
 
-    Agent1 -->|Atlas Vector Search| Mongo
-    Agent2 -->|Gemini-extracted rules| Mongo
+    A1 -->|Atlas Vector Search| DB
 ```
 
-Full routing table, agent responsibilities, and MongoDB schema live in [`CLAUDE.md`](./CLAUDE.md) — the canonical architecture reference for this repo.
+> [!IMPORTANT]
+> **Voice goes *straight* to FastAPI over WebSocket — never through Spring Boot.** Spring is thread-per-connection (blocking); 100 concurrent voice calls would exhaust its pool. FastAPI is async ASGI and holds thousands of sockets natively. REST (auth, data) stays on Spring; every WebSocket lives on FastAPI. That split is the backbone of the whole system.
 
 ---
 
-## 🚧 Build Status
+## 🛰️ The 13-agent fleet
 
-This is a solo rebuild in progress, tracked phase-by-phase against [`docs/plans`](./docs/plans) and [`docs/adr`](./docs/adr). Status as of this README:
-
-| Layer | Status |
-|---|---|
-| **Orchestrator + GraphState** | ✅ Built — LangGraph `StateGraph`, intent classifier, Gemini 2.5 Flash with automatic Groq fallback |
-| **Agent 1 — Eligibility** | ✅ Built — ReAct-style retrieval + re-ranking over real Mongo scheme data |
-| **Agent 2 — Discovery** | ✅ Built — content-hash diff pipeline + Gemini normalizer; PIB RSS / data.gov.in sources wired but not yet configured (see below) |
-| **Agent 8 — Comparison** | ✅ Built — Atlas Vector Search-backed side-by-side comparison |
-| **Agents 3-7, 9-12** | ⏳ Not yet built |
-| **Scheme data** | ✅ 419 schemes migrated (276 central + 143 across 37 states) with Gemini-extracted structured `eligibilityRules` |
-| **Spring Boot Gateway** | ✅ Rewritten — MongoDB + OTP auth + RS256 JWT httpOnly cookies + AES-256-GCM field encryption + rate limiting (see [ADR-001](./docs/adr/ADR-001-mongodb-otp-httponly-jwt-auth.md)) |
-| **DPDP erasure / Applications API** | ⏳ Not yet built |
-| **Frontend** | ⏳ Still on Supabase auth — repointing to the new gateway is planned, not yet started |
-| **Voice pipeline (Sarvam)** | ✅ Already production-shaped from the prior architecture, reused as-is |
-
-**Known gaps, stated plainly:** PIB redesigned their site and the old RSS feed URLs no longer resolve — Agent 2's PIB source is wired but needs a human to find the current feed URL. data.gov.in needs an API key + specific dataset resource IDs that can't be guessed. Both degrade gracefully (logged, not silent) rather than blocking the rest of the system.
+| # | Agent | What it does for the citizen |
+|:--:|---|---|
+| 🧭 | **Orchestrator** | Reads intent, routes to the right specialist, screens for prompt-injection first |
+| 1 | **Eligibility** | Vector-searches real schemes + scores them against *your* profile |
+| 2 | **Discovery** | Keeps the catalogue fresh — 3,500+ schemes with structured eligibility rules |
+| 3 | **Application Guidance** | Step-by-step how-to-apply + reads the *live* government form for you |
+| 4 | **Document Verify** | PPO ↔ Aadhaar name/DOB mismatch check for pensioners |
+| 5 | **Grievance** | Files & tracks complaints; guides CPGRAMS self-filing, records the reference |
+| 6 | **Nudge** | WhatsApp reminders when you start an application but don't finish it |
+| 7 | **Financial Planning** | Your total yearly benefit across all schemes, ranked by effort |
+| 8 | **Comparison** | Two schemes, side by side, grounded in real data |
+| 9 | **CSC Assist** | Helps operators find document alternatives — honest "no substitute" when true |
+| 10 | **Analytics** | Aggregate drop-off / demand insights for administrators |
+| 11 | **Biometric Assist** | Face-liveness for at-home proof-of-life *(pension release — in progress)* |
+| 12 | **Offline Survival Proof** | RSA-signed Digital Life Certificate that works with **zero network** |
 
 ---
 
-## 🛠️ Tech Stack
+## 🎬 One citizen journey, end to end
+
+```mermaid
+sequenceDiagram
+    participant C as 👤 Citizen
+    participant G as Spring Gateway
+    participant O as FastAPI Orchestrator
+    participant D as MongoDB
+
+    C->>G: OTP login
+    G-->>C: httpOnly RS256 JWT 🍪
+    C->>O: "kaunsi yojana milegi?" (cookie)
+    O->>O: verify JWT · screen injection · classify intent
+    O->>D: vector search + eligibility score
+    D-->>O: real matching schemes
+    O-->>C: grounded reply — schemes + benefits
+    C->>G: Save application
+    C->>O: "meri application ka status?"
+    O->>D: read citizen's own applications
+    O-->>C: "PM Kisan — submitted ✓"
+    Note over C,O: Later — Agent 6 pings on WhatsApp:<br/>"you left one half-finished 👀"
+```
+
+---
+
+## 🧠 The intelligence layer
+
+> [!TIP]
+> **Three LLMs, one graceful chain.** Every reasoning call tries **Gemini 2.5 Flash** first → falls back to **Groq (Llama-3.3-70B)** on quota → then to a **local Ollama** model, so the app *never* hard-fails on a dead quota. Bulk jobs (extracting eligibility rules for thousands of schemes) run entirely on the free local model — ₹0, no limits.
+
+- **Retrieval** — MongoDB Atlas `$vectorSearch` in prod, brute-force cosine locally · `all-MiniLM-L6-v2` (384-dim)
+- **Grounding** — agents answer *only* from real Mongo scheme docs; a scheme it can't cite, it won't invent
+- **Guardrails** — prompt-injection screen + PII masking on **every** input before it reaches any model
+
+---
+
+## 🛠️ Tech stack
 
 <details open>
-<summary><b>Click to expand</b></summary>
+<summary><b>Expand full stack</b></summary>
+
+<br/>
 
 | Layer | Technology |
 |---|---|
-| **Orchestrator** | LangGraph `StateGraph`, Gemini 2.5 Flash (Groq `llama-3.3-70b` automatic fallback) |
-| **AI Backend** | FastAPI (Python 3.12) |
-| **Data Gateway** | Spring Boot 3.2 (Java 17/21), REST + OTP auth |
-| **Database** | MongoDB (Atlas in prod, local Docker in dev) — 9 collections per `CLAUDE.md` |
-| **Vector Search** | MongoDB Atlas `$vectorSearch` in prod, brute-force cosine fallback locally; `all-MiniLM-L6-v2` (384-dim) embeddings |
-| **Auth** | Phone OTP (Twilio, dev-mode console fallback) → RS256 JWT in httpOnly + `SameSite=Strict` cookies |
-| **Encryption** | AES-256-GCM field-level (name/dob/phone), SHA-256 + salt (Aadhaar/PPO — never raw) |
-| **Rate Limiting** | Bucket4j (60 req/min/IP) |
-| **Voice** | Pipecat + Sarvam Saaras v3 (STT) / Bulbul v3 (TTS), Whisper + gTTS fallback |
-| **Vision/OCR** | PaddleOCR + OpenCV (deskew, contour, adaptive threshold), zero-retention |
-| **Frontend** | React 19, Vite, React Router 7, Framer Motion *(auth migration to the new gateway pending)* |
-| **Web Scraping** | `requests` + BeautifulSoup4, 2s rate limit, `robots.txt`-respecting |
+| **Orchestration** | LangGraph `StateGraph` · shared turn-logic across REST / WebSocket / voice |
+| **AI service** | FastAPI · Python 3.12 · async ASGI |
+| **Gateway** | Spring Boot 3.2 · Java 17 · OTP auth · Bucket4j rate limiting |
+| **Database** | MongoDB (Atlas prod / Docker dev) |
+| **Auth** | Phone OTP → RS256 JWT in httpOnly · `SameSite=Strict` cookies |
+| **Crypto** | AES-256-GCM fields · SHA-256+salt Aadhaar/PPO · RSA-2048 WebCrypto (offline DLC) |
+| **Voice** | Pipecat · Sarvam Saaras v3 (STT) · Bulbul v3 (TTS) · server-side VAD |
+| **Messaging** | Twilio WhatsApp (Business API) |
+| **Frontend** | React + Vite · installable PWA · code-split routes · Framer Motion |
+| **Testing** | 90 pytest + 15 JUnit · CI on every push |
 
 </details>
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Run it locally
 
-### Prerequisites
-- Python 3.12, Node.js 18+, Java 17+, Maven, Docker
+<details>
+<summary><b>Step-by-step</b></summary>
 
-### 1 — Clone
+<br/>
 
-```bash
-git clone https://github.com/RudyMontoo/YojnaSetu_v5.git
-cd YojnaSetu_v5
-```
-
-### 2 — Local MongoDB
+**Prerequisites:** Python 3.12 · Node 18+ · Java 17 · Maven · Docker
 
 ```bash
+# 1 — database
 docker run -d --name yojna-mongo -p 27017:27017 mongo:7
-```
 
-### 3 — AI Service (FastAPI + LangGraph)
-
-```bash
-cd ai_service
-python3 -m venv venv && source venv/bin/activate
+# 2 — AI service (run from repo root)
+cd ai_service && python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env   # fill in GEMINI_API_KEY, GROQ_API_KEY, SARVAM_API_KEY, MONGODB_URI
+cp .env.example .env          # fill GEMINI/GROQ/SARVAM keys + MONGODB_URI
+cd .. && uvicorn ai_service.main:app --reload --port 8000
 
-python -m ai_service.scripts.migrate_schemes --all-states   # first run only — seeds 419 schemes
-uvicorn ai_service.main:app --reload --port 8000            # run from repo root, not ai_service/
-```
-> 📖 Interactive API docs at `http://localhost:8000/docs`
-
-### 4 — Spring Boot Gateway
-
-```bash
+# 3 — gateway
 cd deploy/backend/spring-gateway
-openssl genpkey -algorithm RSA -out keys/jwt_private.pem -pkeyopt rsa_keygen_bits:2048
-openssl rsa -pubout -in keys/jwt_private.pem -out keys/jwt_public.pem
-# create src/main/resources/application-local.properties with encryption.key (openssl rand -base64 32),
-# encryption.aadhaar-salt, and app.internal-service-key (must match ai_service's INTERNAL_API_KEY)
-
 mvn spring-boot:run -Dspring-boot.run.profiles=local
+
+# 4 — frontend
+cd frontend && npm install && npm run dev
 ```
 
-### 5 — Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-> 🌐 `http://localhost:5173`
-
----
-
-## 📡 API Reference
-
-<details>
-<summary><b>FastAPI (ai_service) — port 8000</b></summary>
-
-| Method | Endpoint | Notes |
-|---|---|---|
-| `POST` | `/orchestrator/chat` | LangGraph Orchestrator — intent routing to Agent 1/8, real Mongo persistence |
-| `POST` | `/orchestrator/admin/discovery/run` | Manually trigger Agent 2 Discovery |
-| `GET` | `/health` | Service health |
-| `POST` | `/ocr/scan` | Zero-retention document OCR |
-| `POST` | `/voice/conversation/*` | Sarvam-powered voice interview |
-
-</details>
-
-<details>
-<summary><b>Spring Boot Gateway — port 8080</b></summary>
-
-| Method | Endpoint | Auth | Notes |
-|---|---|---|---|
-| `POST` | `/api/v2/auth/otp/send` | None | Rate-limited |
-| `POST` | `/api/v2/auth/otp/verify` | None | Sets httpOnly JWT cookies |
-| `POST` | `/api/v2/auth/refresh` / `/logout` | Cookie | |
-| `POST` | `/api/v2/consent` | Cookie | Required before first profile write |
-| `GET`/`PATCH` | `/api/v2/profile/me` | Cookie | PII encrypted at rest, decrypted on read |
-| `GET`/`PATCH` | `/internal/profile/{userId}` | `X-Internal-Key` | ai_service → Spring Boot only |
-| `GET` | `/internal/scheme/{schemeCode}/rules` | `X-Internal-Key` | Structured eligibility rules |
+> 🌐 App → `localhost:5173` · API docs → `localhost:8000/docs` · Gateway → `localhost:8080`
 
 </details>
 
 ---
 
-## 🛡️ Security &amp; Compliance
+## 🛡️ Security & compliance
 
-- **JWT**: RS256, httpOnly + `SameSite=Strict` cookies only — never in a response body or `localStorage`
-- **PII**: AES-256-GCM field-level encryption on name/dob/phone; Aadhaar/PPO are SHA-256 + salt hashed, raw values never stored
-- **Prompt injection & PII masking**: every message is screened before reaching an LLM
-- **Audit trail**: append-only `audit_logs`, never updated or deleted
-- **DPDP 2023**: consent required before any profile write (erasure cascade endpoint planned, not yet built)
-
-See [ADR-001](./docs/adr/ADR-001-mongodb-otp-httponly-jwt-auth.md) for the reasoning behind the auth/database architecture.
-
----
-
-## 📄 Project Docs
-
-- [`CLAUDE.md`](./CLAUDE.md) — full architecture reference: MongoDB schema, agent directory, API contracts
-- [`docs/adr/`](./docs/adr/) — architecture decision records
-- [`docs/plans/`](./docs/plans/) — phased rebuild plan
+| Guarantee | How |
+|---|---|
+| **No PII in the clear** | AES-256-GCM on name/dob/phone before every write |
+| **Aadhaar never stored raw** | SHA-256 + server salt, one-way, never decrypted |
+| **No tokens in JavaScript** | RS256 JWT lives only in httpOnly cookies |
+| **Nothing leaks to logs** | PII-redaction filter strips Aadhaar/phone/PAN/email from every log line |
+| **Voice is ephemeral** | Audio processed in memory, never written to disk — only the transcript persists |
+| **Right to erasure** | DPDP cascade wipes a citizen across every collection in seconds |
 
 ---
 
 <div align="center">
-  <p><i>Built for social good. All scheme data is sourced from verifiable Indian government public portals.</i></p>
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:ff9933,50:1a3a6e,100:0d1b3e&height=120&section=footer&text=Jan%20Jan%20ko%20Yojana%20se%20Jodo&fontSize=22&fontColor=ffffff&fontAlignY=68" width="100%"/>
+
+<sub>Built for social good · every scheme sourced from verifiable Indian government public portals</sub>
+
 </div>

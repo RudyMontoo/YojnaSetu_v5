@@ -76,3 +76,6 @@ ai_service/*.db
 ruvector.db
 
 testsprite_tests/tmp/config.json
+
+# internal architecture notes — not part of the public repo
+CLAUDE.md
