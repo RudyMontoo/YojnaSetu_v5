@@ -151,9 +151,16 @@ def deskew(img: np.ndarray) -> np.ndarray:
         return img
 
 
+# A genuine government document scan is at most a few pages. Cap hard so a
+# malicious many-page PDF (a "page bomb" — trivially <20MB as text/vector) can't
+# make one request render hundreds of pages at 200 DPI and run each through the
+# OCR/vision model (resource-exhaustion DoS — security-audit prompt 5.4).
+MAX_PDF_PAGES = 10
+
+
 def pdf_page_to_image_bytes(pdf_bytes: bytes, page_num: int = 0) -> list[bytes]:
     """
-    Convert PDF pages to image bytes using pdf2image.
+    Convert up to MAX_PDF_PAGES PDF pages to image bytes using pdf2image.
     Returns list of JPEG image bytes, one per page.
     Raises: ImportError if pdf2image/poppler not installed
             ValueError for corrupt PDF
@@ -167,7 +174,10 @@ def pdf_page_to_image_bytes(pdf_bytes: bytes, page_num: int = 0) -> list[bytes]:
         )
 
     try:
-        pages = convert_from_bytes(pdf_bytes, dpi=200, fmt="jpeg")
+        # last_page caps rendering at the poppler level — pages beyond the cap
+        # are never rasterised, so the bomb is stopped before any work is done.
+        pages = convert_from_bytes(pdf_bytes, dpi=200, fmt="jpeg",
+                                   first_page=1, last_page=MAX_PDF_PAGES)
         result = []
         for page in pages:
             buf = io.BytesIO()
