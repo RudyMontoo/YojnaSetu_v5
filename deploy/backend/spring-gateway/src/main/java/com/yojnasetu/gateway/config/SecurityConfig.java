@@ -49,6 +49,16 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
+                // Explicit security headers (security-audit prompt 3.4). Spring
+                // defaults already set X-Content-Type-Options + X-Frame-Options;
+                // this adds HSTS and a restrictive CSP on top.
+                .headers(headers -> headers
+                        .httpStrictTransportSecurity(hsts -> hsts
+                                .includeSubDomains(true)
+                                .maxAgeInSeconds(31536000))
+                        .frameOptions(frame -> frame.deny())
+                        .contentSecurityPolicy(csp -> csp
+                                .policyDirectives("default-src 'self'; frame-ancestors 'none'")))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -72,7 +82,11 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         List<String> origins = Arrays.asList(allowedOrigins.split(","));
-        config.setAllowedOriginPatterns(List.of("https://*.vercel.app", "http://localhost:*"));
+        // Security-audit prompt 3.6 / 5: with allowCredentials=true, a wildcard
+        // pattern like "https://*.vercel.app" would let ANY Vercel-hosted site
+        // ride a logged-in user's cookies. Restrict to the explicitly-configured
+        // origins (app.cors.allowed-origins) plus localhost for dev only.
+        config.setAllowedOriginPatterns(List.of("http://localhost:*"));
         config.setAllowedOrigins(origins.stream().map(String::trim).toList());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
