@@ -12,6 +12,7 @@ Two usage modes:
 """
 import gc
 import logging
+import os
 import time
 from typing import Optional, Annotated
 
@@ -23,6 +24,7 @@ from pydantic import BaseModel
 from ai_service.utils.doc_scanner import preprocess_image, pdf_page_to_image_bytes
 from ai_service.utils.id_extractor import extract_ids, detect_doc_type, build_agent_answer
 from ai_service.utils.rate_limiter import ocr_limiter
+from ai_service.utils.vision_ocr import extract_document_fields
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["ocr"])
@@ -76,6 +78,7 @@ async def scan_document(
     """
     image_bytes: Optional[bytes] = None
     all_ocr_text = ""
+    vision_fields = None
     page_count = 1
 
     # ── Rate limiting (shared ocr_limiter, 10 req/min per IP) ────────────────
@@ -118,7 +121,12 @@ async def scan_document(
         elif detected_mime in _IMAGE_MIMES:
             image_bytes = raw_bytes
             del raw_bytes
-            all_ocr_text = await _run_ocr(image_bytes)
+            # Primary: local vision model — reads ANY script and returns
+            # structured fields. Falls back to the EasyOCR text path when the
+            # vision model isn't available (e.g. a cloud deploy with no GPU).
+            vision_fields = await extract_document_fields(image_bytes)
+            if vision_fields is None:
+                all_ocr_text = await _run_ocr(image_bytes)
             del image_bytes
 
         else:
@@ -127,13 +135,14 @@ async def scan_document(
                 detail=f"Unsupported file type: {detected_mime}. Use JPEG, PNG, WEBP, or PDF."
             )
 
-        # ── Extract IDs from OCR text ──────────────────────────────────────────
-        detected_ids = extract_ids(all_ocr_text)
-        doc_type_key = detect_doc_type(all_ocr_text)
-        doc_type_label = _doc_type_label(doc_type_key)
-
-        # ── Validity check ─────────────────────────────────────────────────────
-        validity = _assess_validity(all_ocr_text, detected_ids)
+        # ── Extract fields: vision-model structured output, else OCR-text path ─
+        if vision_fields is not None:
+            doc_type_label, detected_ids, validity = _from_vision(vision_fields)
+            vision_fields = None
+        else:
+            detected_ids = extract_ids(all_ocr_text)
+            doc_type_label = _doc_type_label(detect_doc_type(all_ocr_text))
+            validity = _assess_validity(all_ocr_text, detected_ids)
 
         # ── Free OCR text from memory (contains raw text) ──────────────────────
         del all_ocr_text
@@ -242,18 +251,19 @@ _easyocr_instance = None
 
 def _get_easyocr():
     """
-    Returns a cached EasyOCR Reader.
-    Supports English and Hindi (covers most Indian government documents).
-    GPU is disabled to avoid VRAM pressure on the development machine.
+    Returns a cached EasyOCR Reader — the FALLBACK path (the vision model in
+    utils/vision_ocr.py is primary and reads any script). Devanagari + Latin
+    covers Hindi/Marathi/Nepali + English, i.e. the largest slice of Indian
+    documents; other scripts (Tamil/Telugu/Bengali/…) are handled by the vision
+    model, and EasyOCR can't load incompatible scripts in one Reader anyway.
+    Configurable via OCR_FALLBACK_LANGS (comma-separated EasyOCR codes).
+    GPU stays off here so it doesn't fight the vision model for the 6 GB VRAM.
     """
     global _easyocr_instance
     if _easyocr_instance is None:
         import easyocr
-        _easyocr_instance = easyocr.Reader(
-            ["en"],      # English; add "hi" for Hindi if needed
-            gpu=False,   # keeps it stable on machines with limited VRAM
-            verbose=False,
-        )
+        langs = [s.strip() for s in os.getenv("OCR_FALLBACK_LANGS", "hi,en").split(",") if s.strip()]
+        _easyocr_instance = easyocr.Reader(langs, gpu=False, verbose=False)
     return _easyocr_instance
 
 
@@ -301,16 +311,80 @@ def _assess_validity(ocr_text: str, detected_ids) -> dict:
 
 def _doc_type_label(doc_type_key: str) -> str:
     labels = {
-        "aadhaar":         "Aadhaar Card",
-        "pan":             "PAN Card",
-        "voter_id":        "Voter ID Card",
-        "driving_licence": "Driving Licence",
-        "passport":        "Passport",
-        "ration_card":     "Ration Card",
-        "bank_passbook":   "Bank Passbook",
-        "unknown":         "Government Document",
+        "aadhaar":              "Aadhaar Card",
+        "pan":                  "PAN Card",
+        "voter_id":             "Voter ID Card",
+        "driving_licence":      "Driving Licence",
+        "driving_license":      "Driving Licence",
+        "passport":             "Passport",
+        "ration_card":          "Ration Card",
+        "bank_passbook":        "Bank Passbook",
+        "income_certificate":   "Income Certificate",
+        "caste_certificate":    "Caste Certificate",
+        "ppo":                  "Pension Payment Order (PPO)",
+        "other":                "Government Document",
+        "unknown":              "Government Document",
     }
     return labels.get(doc_type_key, "Government Document")
+
+
+# ── Vision-model path: adapt structured fields → the same ScanResponse shape ───
+from dataclasses import dataclass
+
+
+@dataclass
+class _VisionID:
+    """DetectedID-compatible (id_type/masked_value/confidence/doc_hint) so the
+    vision path plugs into DetectedIDOut + _feed_to_agent unchanged."""
+    id_type: str
+    masked_value: str
+    confidence: float
+    doc_hint: str
+
+
+def _mask_id(number: str, doc_type: str) -> str:
+    """Mask all but the last 4 chars — raw IDs never leave the server."""
+    n = (number or "").replace(" ", "").replace("-", "")
+    if len(n) <= 4:
+        return "XXXX"
+    last4 = n[-4:]
+    if doc_type == "aadhaar":
+        return f"XXXX-XXXX-{last4}"
+    if doc_type == "pan":
+        return f"XXXXX{last4}X"
+    return f"XXXX{last4}"
+
+
+def _from_vision(fields: dict):
+    """Turns the vision model's structured output into (doc_type_label,
+    detected_ids, validity) matching the EasyOCR path's shapes."""
+    doc_type = fields.get("doc_type") or "other"
+    label = _doc_type_label(doc_type)
+
+    detected_ids = []
+    idn = (fields.get("id_number") or "").strip()
+    if idn:
+        detected_ids.append(_VisionID(
+            id_type=doc_type,
+            masked_value=_mask_id(idn, doc_type),
+            confidence=0.95,
+            doc_hint=label,
+        ))
+
+    raw = (fields.get("raw_text") or "").lower()
+    checksum = fields.get("aadhaar_checksum_valid")
+    has_seal = any(kw in raw for kw in ["government", "भारत सरकार", "uidai", "income tax", "election commission", "ministry"])
+    # An Aadhaar with a failed checksum is a real red flag (tampered / misread).
+    is_valid = (checksum is not False) and (bool(detected_ids) or has_seal)
+    validity = {
+        "is_valid": is_valid,
+        "has_official_seal": has_seal,
+        "aadhaar_checksum_valid": checksum,
+        "languages_detected": fields.get("languages_detected") or [],
+        "engine": fields.get("engine", "vision"),
+        "confidence": 0.95 if detected_ids else 0.6,
+    }
+    return label, detected_ids, validity
 
 
 async def _feed_to_agent(
