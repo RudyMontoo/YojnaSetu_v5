@@ -50,9 +50,14 @@ _EXTRACT_PROMPT = (
     "Read it carefully and return ONLY a JSON object with these keys:\n"
     '  "doc_type": one of ["aadhaar","pan","income_certificate","caste_certificate",'
     '"ppo","ration_card","voter_id","driving_license","other"],\n'
-    '  "name": the person\'s full name EXACTLY as printed (do not translate or transliterate), or null,\n'
+    '  "name": the CARDHOLDER\'s own full name, exactly as printed next to the '
+    "photo (do not translate/transliterate). This is NOT the father's/guardian's "
+    'name in an "S/O", "D/O" or address line, and NOT an address — use null if only an address is visible,\n'
     '  "dob": date of birth as printed (keep the original format), or null,\n'
-    '  "id_number": the main ID/document number with spaces removed, or null,\n'
+    '  "id_number": the MAIN document number, or null. For an Aadhaar card this '
+    "is the 12-digit number shown in three groups of 4 (e.g. 6610 1075 7480) — "
+    "NOT the 16-digit VID and NOT the 6-digit PIN code in the address. For PAN "
+    "it is the 10-character code (5 letters, 4 digits, 1 letter). Keep spaces as printed.\n"
     '  "gender": "male"/"female"/"other"/null,\n'
     '  "address": full address as printed, or null,\n'
     '  "languages_detected": list of language names you see on the document,\n'
@@ -102,6 +107,13 @@ def preprocess_for_vision(image_bytes: bytes, *, max_side: int = 1600) -> bytes:
             scale = max_side / longest
             img = cv2.resize(img, (int(w * scale), int(h * scale)), interpolation=cv2.INTER_AREA)
 
+        # Contrast boost for faded documents (e.g. old marksheets on security
+        # paper): CLAHE on the L channel only, so colour is untouched.
+        lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+        l, a, b = cv2.split(lab)
+        l = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8)).apply(l)
+        img = cv2.cvtColor(cv2.merge((l, a, b)), cv2.COLOR_LAB2BGR)
+
         ok, buf = cv2.imencode(".jpg", img, [cv2.IMWRITE_JPEG_QUALITY, 92])
         return buf.tobytes() if ok else image_bytes
     except Exception as e:  # noqa: BLE001 — preprocessing must never break the scan
@@ -137,13 +149,36 @@ async def extract_document_fields(image_bytes: bytes) -> dict | None:
         return None
 
     _correct_doc_type(fields)
-    # Validate any 12-digit number with the Aadhaar checksum — catches OCR
-    # misreads and helps confirm it really is an Aadhaar.
-    idn = (fields.get("id_number") or "").replace(" ", "")
-    if idn.isdigit() and len(idn) == 12:
-        fields["aadhaar_checksum_valid"] = verhoeff_validate(idn)
+
+    if fields.get("doc_type") == "aadhaar":
+        # The model sometimes grabs the 16-digit VID or the 6-digit pincode
+        # instead of the 12-digit Aadhaar. Prefer a checksum-valid 12-digit
+        # number found anywhere on the card (id_number field or raw text).
+        best = _find_aadhaar_number(fields.get("id_number", ""), fields.get("raw_text", ""))
+        if best:
+            fields["id_number"] = best
+            fields["aadhaar_checksum_valid"] = True
+        else:
+            fields["aadhaar_checksum_valid"] = False
+    else:
+        idn = (fields.get("id_number") or "").replace(" ", "")
+        if idn.isdigit() and len(idn) == 12:
+            fields["aadhaar_checksum_valid"] = verhoeff_validate(idn)
+
     fields["engine"] = f"vision:{VISION_MODEL}"
     return fields
+
+
+def _find_aadhaar_number(*texts) -> str | None:
+    """First checksum-valid 12-digit Aadhaar across the given texts — ignores
+    the 16-digit VID and 6-digit pincodes (only a length-12 run that passes the
+    Verhoeff checksum qualifies)."""
+    for t in texts:
+        digits = re.sub(r"(?<=\d)[ -](?=\d)", "", str(t))   # join spaced digit groups
+        for run in re.findall(r"\d{6,}", digits):            # maximal digit runs
+            if len(run) == 12 and verhoeff_validate(run):
+                return f"{run[0:4]} {run[4:8]} {run[8:12]}"
+    return None
 
 
 # PAN = 5 letters, 4 digits, 1 letter (e.g. ABCDE1234F)
