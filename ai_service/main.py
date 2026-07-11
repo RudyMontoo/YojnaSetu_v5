@@ -22,10 +22,19 @@ logging.basicConfig(level=logging.INFO)
 from ai_service.utils.log_redaction import install_pii_log_redaction  # noqa: E402
 install_pii_log_redaction()
 
+# Production hardening: the interactive API docs (/docs, /redoc) and the raw
+# OpenAPI schema expose the entire API surface — useful in dev, but an
+# information-disclosure gift to an attacker in prod. Disabled unless
+# explicitly in a non-production environment (security-audit prompt 5.6).
+_IS_PROD = os.getenv("ENVIRONMENT", "development").lower().startswith("prod")
+
 app = FastAPI(
     title="Yojna Setu AI Service",
     description="AI/ML backend for Yojna Setu — Indian Government Scheme Assistant",
     version="1.0.0",
+    docs_url=None if _IS_PROD else "/docs",
+    redoc_url=None if _IS_PROD else "/redoc",
+    openapi_url=None if _IS_PROD else "/openapi.json",
 )
 
 # ── Security Headers Middleware ────────────────────────────────────────────────
@@ -37,6 +46,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        # Force HTTPS for a year once seen over TLS (harmless over plain HTTP —
+        # browsers ignore it there). Security-audit prompt 3.4.
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
             "script-src 'self'; "

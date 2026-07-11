@@ -27,7 +27,14 @@ def get_db() -> AsyncIOMotorDatabase:
     """Returns the singleton Mongo database handle, creating the client on first use."""
     global _client, _db
     if _db is None:
-        uri = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
+        uri = os.getenv("MONGODB_URI")
+        # Fail fast in production rather than silently connecting to a local
+        # dev DB that isn't there (security-audit prompt 3.1). Dev keeps the
+        # localhost convenience default.
+        if not uri:
+            if os.getenv("ENVIRONMENT", "development").lower().startswith("prod"):
+                raise RuntimeError("MONGODB_URI is not set — refusing to start in production.")
+            uri = "mongodb://localhost:27017"
         db_name = os.getenv("MONGODB_DB", "yojnasetu")
         _client = AsyncIOMotorClient(uri)
         _db = _client[db_name]
