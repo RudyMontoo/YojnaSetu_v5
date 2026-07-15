@@ -36,9 +36,14 @@ def compute_content_hash(scheme: dict) -> str:
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 
 
-async def diff_upsert_scheme(db: AsyncIOMotorDatabase, scheme: dict) -> str:
+async def diff_upsert_scheme(db: AsyncIOMotorDatabase, scheme: dict, prefer: str = "groq") -> str:
     """Upserts one scheme dict (must have schemeCode, name, benefitAmount, eligibilityText).
-    Returns one of "skipped" | "updated" | "inserted"."""
+    Returns one of "skipped" | "updated" | "inserted".
+
+    `prefer` selects the LLM provider for rule extraction. Default "groq" (cloud);
+    bulk callers should pass "ollama" when a local `ollama serve` is up — with the
+    cloud free tiers exhausted, "groq" makes every scheme stall tens of seconds
+    failing over dead Groq→Gemini before reaching Ollama; "ollama" goes straight there."""
     scheme_code = scheme["schemeCode"]
     new_hash = compute_content_hash(scheme)
 
@@ -60,7 +65,8 @@ async def diff_upsert_scheme(db: AsyncIOMotorDatabase, scheme: dict) -> str:
         return "skipped"
 
     rules = await extract_eligibility_rules(
-        scheme.get("name", ""), scheme.get("eligibilityText", ""), scheme.get("benefitAmount", "")
+        scheme.get("name", ""), scheme.get("eligibilityText", ""), scheme.get("benefitAmount", ""),
+        prefer=prefer,
     )
     scheme["eligibilityRules"] = rules
     # CLAUDE.md's schemes schema has top-level `category` (used by Agent 1's re-ranking in
@@ -79,7 +85,7 @@ async def diff_upsert_scheme(db: AsyncIOMotorDatabase, scheme: dict) -> str:
     return "inserted" if result.upserted_id else "updated"
 
 
-async def diff_upsert_schemes(db: AsyncIOMotorDatabase, schemes: list[dict], concurrency: int = 8) -> dict:
+async def diff_upsert_schemes(db: AsyncIOMotorDatabase, schemes: list[dict], concurrency: int = 8, prefer: str = "groq") -> dict:
     """Runs diff_upsert_scheme over a batch concurrently (bounded by `concurrency`,
     since each changed/new scheme costs a Gemini call), returns counts by outcome.
 
@@ -99,7 +105,7 @@ async def diff_upsert_schemes(db: AsyncIOMotorDatabase, schemes: list[dict], con
         nonlocal done
         try:
             async with semaphore:
-                outcome = await diff_upsert_scheme(db, scheme)
+                outcome = await diff_upsert_scheme(db, scheme, prefer=prefer)
             counts[outcome] += 1
         except Exception as e:
             logger.warning("diff_upsert failed for schemeCode=%s (%s: %s) — skipping this scheme",
