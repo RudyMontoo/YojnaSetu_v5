@@ -1,5 +1,8 @@
 # Data Sync Task — Handoff Brief
 
+> **✅ STATUS 2026-07-11: THIS TASK IS COMPLETE. Both jobs are done — no need to run this anymore.**
+> The full MyScheme catalog is ingested: **4,901 total schemes** (4,482 MyScheme + 419 original), with **99.4% eligibility-rule coverage** (4,872 extracted, 29 empty — 27 permanently non-extractable + 2 retryable). Sync confirmed 100% by probing the frontier (`--offset 4748` → 0 candidates, listing exhausted). The instructions below are retained as a record of how it was done + in case MyScheme adds new schemes later (re-run Job 1 from `--offset 4748` to pick up any additions; use `--provider ollama` with `ollama serve` running). Everything below the numbers is historical.
+
 > Paste this whole file (or just say "read docs/status/SYNC_TASK_HANDOFF.md and do the task") into a **new, separate Claude Code conversation**. That conversation doesn't need any other context — everything it needs is below. Run this alongside your main conversation, not instead of it.
 
 ## What this task is
@@ -41,14 +44,15 @@ This is **two repeatable jobs**, not one. Run them in this order, every time you
 
 Edit `docs/status/REMAINING.md`'s "MyScheme sync" bullet (near the top, under "Immediate gaps in already-done phases") with the new numbers — total schemes, myscheme total, empty rules count, next offset to resume from. Keep it honest: if a run healed 0, say so; don't round up.
 
-## Current numbers as of 2026-07-10 (later)
+## Current numbers as of 2026-07-11 — ✅ BOTH JOBS COMPLETE (100%)
 
-- Total schemes: 3,231 / ~4,729 (68%)
-- MyScheme-sourced: 2,812
-- **Next offset: 3,040** (last batch started at 2,740 + 300 window; see the corrected offset rule in Job 1 — do NOT use the 2,812 doc-count as the offset)
-- Empty eligibility rules: 185 — 15 permanent non-extractable + ~170 fresh quota-fixable debt from the offset-2740 batch (quota died mid-ingestion). Run Job 2 (`run_rules_backfill --limit 900 --pause 4`) on a fresh-quota day to clear the ~170.
-- LLM quota (Groq + Gemini): exhausted for 2026-07-10 (this batch's ingestion consumed it) — don't run Job 2 again today
-- Tip learned 2026-07-08: on a fresh-quota day the sync batch's own extraction calls compete with the backfill for the same budget — if healing rules is the priority, run Job 2 BEFORE Job 1 that day
+- Total schemes: **4,901** — full MyScheme catalog ingested (4,482 MyScheme + 419 original). The "~4,729" estimate was low; frontier probe at `--offset 4748` returned 0 candidates = listing exhausted = 100%.
+- **Eligibility-rule coverage: 4,872 / 4,901 (99.4%). Empty: 29** — 27 genuinely non-extractable (permanent) + 2 retryable small-model slips. **Job 2 is DONE.**
+- If MyScheme adds schemes later, resume Job 1 from `--offset 4748 --provider ollama` (with `ollama serve` up).
+- **What cleared it — READ THIS BEFORE ANY FUTURE BULK RUN:** the backfill only became viable once **local Ollama** was used. Start it first: `OLLAMA_HOST=127.0.0.1:11434 ollama serve &` (model `qwen2.5:3b` is already pulled), then `run_rules_backfill --provider ollama --limit 2000 --pause 0` (--provider ollama is the default and sets `OLLAMA_ENABLED=1` itself, so extraction goes straight to the local GPU — ~1s/scheme, free, no quota). On 2026-07-11 this healed ~960 schemes in one pass.
+- **The trap it replaced:** with Ollama OFF, every extraction falls through dead Gemini (20 req/DAY) + dead Groq (100k tok/day) and stalls ~39s/scheme on their 429 back-offs. A fetch batch that should take ~12 min took 77 min on 2026-07-10 and had to be killed for exactly this. Cloud free-tiers CANNOT do bulk extraction — Ollama is the only workable engine at this scale.
+- Small-model caveat: `qwen2.5:3b` occasionally emits malformed JSON (~1-2% parse-fail rate observed) — those few schemes stay empty; re-run or sweep with Gemini later if desired. Not data loss.
+- Tip (2026-07-08): if ever running Job 1 + Job 2 on cloud quota the same day, run Job 2 first — but this is moot now that Ollama is the extraction engine.
 
 ## Don't touch
 
