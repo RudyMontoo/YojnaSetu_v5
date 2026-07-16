@@ -154,15 +154,25 @@ async def verify_proof(req: VerifyProofRequest, citizen_id: str = Depends(get_cu
     # The signed timestamp is when the citizen actually generated the proof
     # (possibly offline, days ago); verifiedAt is when it reached the server.
     generated_at = payload.get("generatedAt")
+
+    # Agent 11 binding: if the signed payload carries a `liveness` block (from
+    # POST /agents/biometric/liveness, embedded BEFORE signing), record it — the
+    # signature already proves it wasn't tampered with. Staged rollout: Phase B
+    # RECORDS liveness here; a later Phase C can hard-require liveness.verified.
+    liveness = payload.get("liveness") if isinstance(payload.get("liveness"), dict) else None
     await db["dlc_proofs"].insert_one({
         "citizenId": citizen_id, "keyId": req.key_id, "nonce": nonce,
         "generatedAt": generated_at, "verifiedAt": now,
         "payload": payload, "status": "verified",
+        "livenessVerified": bool(liveness and liveness.get("verified")),
+        "liveness": liveness,
     })
     next_due = now + timedelta(days=DLC_VALID_DAYS)
-    logger.info("[DLC] proof VERIFIED citizen=%s key=%s nonce=%s", citizen_id, req.key_id, nonce)
+    logger.info("[DLC] proof VERIFIED citizen=%s key=%s nonce=%s liveness=%s",
+                citizen_id, req.key_id, nonce, bool(liveness and liveness.get("verified")))
     return {
         "verified": True,
+        "liveness_verified": bool(liveness and liveness.get("verified")),
         "generated_at": generated_at,
         "verified_at": now.isoformat(),
         "next_due": next_due.isoformat(),

@@ -1,20 +1,33 @@
 """
-router_stub.py — the FastAPI surface for Agent 11, wired but disabled.
+router_stub.py — Agent 11's live FastAPI surface (face liveness).
 
-This is intentionally NOT mounted in ai_service/main.py yet — the pensioner
-vertical launches as a post-deployment feature update (README.md §7). When the
-CV engineer implements the detector, mount this router and the endpoint goes
-live with zero other changes.
+Two endpoints, deliberately split so liveness can't be replayed:
 
-Auth, multipart handling, the frames->detector call, and the fail-closed
-contract are all already here. The ONLY thing missing is the model behind
-`get_detector()`. Until `is_implemented()` is true, the endpoint returns an
-honest 501 rather than pretending to check liveness.
+  POST /agents/biometric/challenge  → server issues a RANDOM action
+      ("blink" / "turn_left" / "turn_right") + a single-use nonce with a short
+      TTL. The client can't pick the action, and a captured burst is only valid
+      for that one nonce.
+
+  POST /agents/biometric/liveness   → client sends the frame burst + the nonce.
+      Server validates the nonce (exists, ours, unexpired, unused), marks it
+      used, runs the detector against the ISSUED challenge, and returns a verdict
+      the frontend embeds into the DLC payload before signing.
+
+Security posture (README §6): frames are read into RAM only, analysed, and
+dropped — never written to disk/Mongo. Only the boolean verdict + confidence
+leave the server. The check runs SERVER-SIDE — a client-reported "is_live:true"
+would be trivially forged, so the browser never decides liveness.
+
+Falls back to an honest 501 if the CV model isn't available in this environment
+(e.g. a cloud deploy without the mediapipe extra) — is_implemented() gates it.
 """
 import logging
+import secrets
+from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 
+from ai_service.db.mongo import get_db
 from ai_service.utils.jwt_auth import get_current_citizen_id
 from ai_service.vision.agent11_biometric.interface import (
     get_detector,
@@ -26,35 +39,61 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/agents/biometric", tags=["agent11-biometric"])
 
-MAX_FRAMES = 60           # ~2s at 30fps — bounds memory; reject floods
+MAX_FRAMES = 60                    # ~2s at 30fps — bounds memory; reject floods
 MAX_FRAME_BYTES = 2 * 1024 * 1024  # 2MB/frame ceiling
+CHALLENGE_TTL_SECONDS = 90         # capture window; nonce dies after this
+_CHALLENGES = ["blink", "turn_left", "turn_right"]
+
+
+@router.post("/challenge")
+async def issue_challenge(citizen_id: str = Depends(get_current_citizen_id)):
+    """Issues a random liveness action + a single-use nonce (short TTL). The
+    client must perform THIS action; it can't choose it, and the nonce is only
+    valid once — which is what stops a recorded burst being replayed."""
+    if not is_implemented():
+        raise HTTPException(status_code=501, detail="Face liveness is not available in this environment.")
+
+    challenge = secrets.choice(_CHALLENGES)
+    nonce = secrets.token_urlsafe(24)
+    now = datetime.now(timezone.utc)
+    await get_db()["biometric_challenges"].insert_one({
+        "nonce": nonce,
+        "citizenId": citizen_id,
+        "challenge": challenge,
+        "used": False,
+        "createdAt": now,
+        "expiresAt": now + timedelta(seconds=CHALLENGE_TTL_SECONDS),
+    })
+    return {"challenge": challenge, "nonce": nonce, "expires_in": CHALLENGE_TTL_SECONDS}
 
 
 @router.post("/liveness")
 async def check_liveness(
     frames: list[UploadFile] = File(..., description="Short burst of camera frames (JPEG/PNG)"),
+    nonce: str = Form(..., description="The nonce from POST /challenge"),
     citizen_id: str = Depends(get_current_citizen_id),
 ):
-    """Runs the face-liveness check on an in-memory burst of frames and returns
-    a result the frontend embeds into the DLC payload before signing.
-
-    Returns 501 until a real detector is registered (README.md §7 Phase A)."""
+    """Validates the nonce, runs the liveness check against the issued challenge,
+    and returns a verdict + a claim the frontend embeds into the DLC payload."""
     if not is_implemented():
-        raise HTTPException(
-            status_code=501,
-            detail=(
-                "Face liveness (Agent 11) is not implemented yet. The Digital Life "
-                "Certificate currently issues without a liveness gate; this endpoint "
-                "activates in a later feature update. See ai_service/vision/agent11_biometric/README.md."
-            ),
-        )
-
+        raise HTTPException(status_code=501, detail="Face liveness is not available in this environment.")
     if not frames:
         raise HTTPException(status_code=400, detail="No frames provided.")
     if len(frames) > MAX_FRAMES:
         raise HTTPException(status_code=413, detail=f"Too many frames (max {MAX_FRAMES}).")
 
-    # Read frames into memory ONLY. Never write to disk/GCS/Mongo (README §6.1).
+    # ── Consume the nonce ATOMICALLY: it must exist, be ours, unexpired, unused ──
+    now = datetime.now(timezone.utc)
+    claimed = await get_db()["biometric_challenges"].find_one_and_update(
+        {"nonce": nonce, "citizenId": citizen_id, "used": False, "expiresAt": {"$gt": now}},
+        {"$set": {"used": True, "usedAt": now}},
+    )
+    if not claimed:
+        # unknown / not yours / expired / already used — all → reject (no leak of which)
+        raise HTTPException(status_code=409, detail="Invalid or expired liveness challenge. Request a new one.")
+    challenge = claimed["challenge"]
+
+    # ── Read frames into RAM only (never persisted) ──
     frame_bytes: list[bytes] = []
     for f in frames:
         data = await f.read()
@@ -64,16 +103,17 @@ async def check_liveness(
 
     detector = get_detector()
     try:
-        result = await detector.analyze(frame_bytes)
+        result = await detector.analyze(frame_bytes, challenge=challenge)
     except Exception as e:  # noqa: BLE001 — fail closed on ANY error (README §6.3)
-        logger.warning("Liveness analysis failed for citizen; failing closed: %s", e)
+        logger.warning("Liveness analysis failed; failing closed: %s", e)
         raise HTTPException(status_code=422, detail="Liveness could not be verified. Please try again.")
     finally:
         frame_bytes.clear()  # drop biometric bytes ASAP
 
-    # Return only the verdict block — no frames, no biometric template leaves here.
-    return {
-        "is_live": result.is_live,
-        "confidence": round(result.confidence, 4),
-        "liveness_claim": liveness_claim(result),  # <- frontend embeds this into the DLC payload, then signs
-    }
+    # The claim carries the challenge + nonce so the signed DLC payload is bound
+    # to THIS specific, single-use liveness check.
+    claim = liveness_claim(result)
+    claim["challenge"] = challenge
+    claim["nonce"] = nonce
+    logger.info("Agent 11 liveness: citizen=%s challenge=%s is_live=%s", citizen_id, challenge, result.is_live)
+    return {"is_live": result.is_live, "confidence": round(result.confidence, 4), "liveness_claim": claim}

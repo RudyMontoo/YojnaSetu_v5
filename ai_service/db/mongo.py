@@ -67,4 +67,8 @@ async def ensure_indexes() -> None:
     # nudge_log (Agent 6) per CLAUDE.md: TTL 90 days + a per-citizen dedup lookup.
     await db["nudge_log"].create_index("sent_at", expireAfterSeconds=90 * 24 * 3600)
     await db["nudge_log"].create_index([("citizen_id", 1), ("scheme_id", 1), ("message_type", 1), ("sent_at", -1)])
+    # biometric_challenges (Agent 11): single-use liveness nonces. TTL auto-cleans
+    # at each doc's expiresAt; unique nonce prevents any collision/replay.
+    await db["biometric_challenges"].create_index("nonce", unique=True)
+    await db["biometric_challenges"].create_index("expiresAt", expireAfterSeconds=0)
     logger.info("MongoDB indexes ensured")
