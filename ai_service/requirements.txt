@@ -42,3 +42,4 @@ pyjwt[crypto]>=2.8          # verifies Spring Boot's RS256 citizen JWT; [crypto]
 pytest>=8.0
 pytest-asyncio>=0.23         # asyncio_mode=auto in pytest.ini
 twilio>=9.0  # Agent 6 WhatsApp nudges — only needed for real delivery; dry-run works without it
+mediapipe>=0.10.9        # Agent 11 face-liveness (FaceLandmarker); needs the model file in vision/agent11_biometric/models/

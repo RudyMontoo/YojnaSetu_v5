@@ -98,6 +98,7 @@ from ai_service.routers.ws_router import router as ws_router
 from ai_service.routers.voice_ws_router import router as voice_ws_router
 from ai_service.routers.translate_router import router as translate_router
 from ai_service.routers.dlc_router import router as dlc_router
+from ai_service.vision.agent11_biometric.router_stub import router as biometric_router
 
 app.include_router(orchestrator_router)
 app.include_router(agents_router)
@@ -106,6 +107,7 @@ app.include_router(ws_router)
 app.include_router(voice_ws_router)
 app.include_router(translate_router)
 app.include_router(dlc_router)
+app.include_router(biometric_router)
 app.include_router(status_router, prefix="/status")
 app.include_router(agent_router)
 app.include_router(voice_conv_router)

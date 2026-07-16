@@ -59,31 +59,50 @@ class LivenessDetector(ABC):
     """
 
     @abstractmethod
-    async def analyze(self, frames: list[bytes]) -> LivenessResult:
+    async def analyze(self, frames: list[bytes], challenge: str | None = None) -> LivenessResult:
+        """`challenge` (optional): a requested action the subject must perform —
+        "blink" | "turn_left" | "turn_right". Supplying it makes this ACTIVE
+        liveness (proves a specific action) rather than just "a face moved"."""
         raise NotImplementedError
 
 
 class _UnimplementedDetector(LivenessDetector):
-    """Placeholder so imports don't fail before the real model lands. Any call
-    raises loudly — it must never silently pass a certificate through."""
+    """Fallback when the CV model isn't available (e.g. a cloud deploy without
+    the mediapipe extra, or the model file missing). Fails closed — never
+    silently passes a certificate through."""
 
-    async def analyze(self, frames: list[bytes]) -> LivenessResult:
+    async def analyze(self, frames: list[bytes], challenge: str | None = None) -> LivenessResult:
         raise NotImplementedError(
-            "Agent 11 face-liveness model is not implemented yet. "
-            "Implement LivenessDetector and register it in get_detector(). See README.md."
+            "Agent 11 face-liveness model is not available in this environment "
+            "(mediapipe not installed or model file missing). See README.md."
         )
 
 
-def get_detector() -> LivenessDetector:
-    """The single factory the endpoint calls. Swap the return line for your
-    real detector once implemented, e.g.:
+import os
 
-        from .illuminet_detector import IlluminetLivenessDetector
-        return IlluminetLivenessDetector.load("weights/illuminet-mnv3-v1.onnx")
-    """
-    return _UnimplementedDetector()
+_MODEL_PATH = os.path.join(os.path.dirname(__file__), "models", "face_landmarker.task")
+_detector_singleton: LivenessDetector | None = None
+
+
+def get_detector() -> LivenessDetector:
+    """Returns the MediaPipe face-liveness detector (cached — the FaceLandmarker
+    loads once). Falls back to _UnimplementedDetector (→ honest 501) if mediapipe
+    isn't installed or the model file is absent, so a GPU-less cloud deploy
+    degrades gracefully instead of crashing."""
+    global _detector_singleton
+    if _detector_singleton is not None:
+        return _detector_singleton
+    try:
+        import mediapipe  # noqa: F401
+        if not os.path.exists(_MODEL_PATH):
+            raise FileNotFoundError(f"face_landmarker.task not found at {_MODEL_PATH}")
+        from ai_service.vision.agent11_biometric.mediapipe_detector import MediaPipeLivenessDetector
+        _detector_singleton = MediaPipeLivenessDetector(_MODEL_PATH)
+    except Exception:
+        _detector_singleton = _UnimplementedDetector()
+    return _detector_singleton
 
 
 def is_implemented() -> bool:
-    """Lets the router return an honest 501 while the detector is a stub."""
+    """Lets the router return an honest 501 when the detector isn't available."""
     return not isinstance(get_detector(), _UnimplementedDetector)

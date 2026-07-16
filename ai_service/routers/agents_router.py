@@ -109,7 +109,7 @@ _AGENT_REGISTRY = {
     "agent8_comparison": {"built": True, "trace_names": ["agent8_comparison"]},
     "agent9_csc": {"built": True, "trace_names": ["agent9_csc"]},
     "agent10_analytics": {"built": True, "trace_names": []},  # liveness from admin_reports
-    "agent11_biometric": {"built": False, "trace_names": []},
+    "agent11_biometric": {"built": True, "trace_names": []},  # MediaPipe active liveness
     # Agent 12 core built 2026-07-08 — liveness from the newest verified DLC proof.
     "agent12_offline_proof": {"built": True, "trace_names": []},
 }
