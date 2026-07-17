@@ -155,24 +155,46 @@ async def verify_proof(req: VerifyProofRequest, citizen_id: str = Depends(get_cu
     # (possibly offline, days ago); verifiedAt is when it reached the server.
     generated_at = payload.get("generatedAt")
 
-    # Agent 11 binding: if the signed payload carries a `liveness` block (from
-    # POST /agents/biometric/liveness, embedded BEFORE signing), record it — the
-    # signature already proves it wasn't tampered with. Staged rollout: Phase B
-    # RECORDS liveness here; a later Phase C can hard-require liveness.verified.
+    # ── Agent 11 binding (server-authoritative). The client CANNOT be trusted to
+    # self-report liveness: a malicious app could skip the camera and just write
+    # {"liveness":{"verified":true}} into the payload. So if a liveness block is
+    # present, its nonce MUST match a real server-side PASSED biometric check for
+    # this citizen — consumed atomically here (single-use across certificates).
+    # A block that doesn't match a genuine pass is a FABRICATION → reject the whole
+    # proof (a forged liveness claim is worse than an honest offline one). A proof
+    # with NO liveness block is the honest offline path: recorded, not rejected. ──
     liveness = payload.get("liveness") if isinstance(payload.get("liveness"), dict) else None
+    liveness_verified = False
+    if liveness is not None:
+        bio_nonce = liveness.get("nonce")
+        consumed = None
+        if bio_nonce:
+            consumed = await db["biometric_challenges"].find_one_and_update(
+                {"nonce": bio_nonce, "citizenId": citizen_id, "passed": True,
+                 "boundToProof": {"$exists": False}},
+                {"$set": {"boundToProof": nonce, "boundAt": now}},
+            )
+        if consumed is None:
+            logger.warning("[DLC] fabricated/reused/expired liveness block REJECTED citizen=%s", citizen_id)
+            raise HTTPException(
+                status_code=403,
+                detail="Liveness block does not match a server-verified check (fabricated, reused, or expired).",
+            )
+        liveness_verified = True
+
     await db["dlc_proofs"].insert_one({
         "citizenId": citizen_id, "keyId": req.key_id, "nonce": nonce,
         "generatedAt": generated_at, "verifiedAt": now,
         "payload": payload, "status": "verified",
-        "livenessVerified": bool(liveness and liveness.get("verified")),
+        "livenessVerified": liveness_verified,  # server-derived, never client-asserted
         "liveness": liveness,
     })
     next_due = now + timedelta(days=DLC_VALID_DAYS)
     logger.info("[DLC] proof VERIFIED citizen=%s key=%s nonce=%s liveness=%s",
-                citizen_id, req.key_id, nonce, bool(liveness and liveness.get("verified")))
+                citizen_id, req.key_id, nonce, liveness_verified)
     return {
         "verified": True,
-        "liveness_verified": bool(liveness and liveness.get("verified")),
+        "liveness_verified": liveness_verified,  # server-derived (a fabricated block was already rejected above)
         "generated_at": generated_at,
         "verified_at": now.isoformat(),
         "next_due": next_due.isoformat(),

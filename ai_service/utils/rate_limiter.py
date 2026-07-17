@@ -58,3 +58,4 @@ class RateLimiter:
 agent_limiter  = RateLimiter(max_requests=20, window_seconds=60)   # 20/min
 status_limiter = RateLimiter(max_requests=15, window_seconds=60)   # 15/min
 ocr_limiter    = RateLimiter(max_requests=10, window_seconds=60)   # 10/min (heavy CPU)
+biometric_limiter = RateLimiter(max_requests=8, window_seconds=60)  # 8/min (GPU face-liveness; anti brute-force)
