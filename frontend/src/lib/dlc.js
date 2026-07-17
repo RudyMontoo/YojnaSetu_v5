@@ -92,19 +92,27 @@ export async function registerDevice() {
 
 // ── life certificate ─────────────────────────────────────────────────────────
 function canonical(obj) {
-  // Deterministic JSON (sorted keys, no spaces) so device and server sign/verify
-  // over byte-identical strings.
-  return JSON.stringify(obj, Object.keys(obj).sort())
+  // Deterministic JSON (recursively sorted keys) so device and server sign/verify
+  // over byte-identical strings. NOTE: must sort at EVERY level — a replacer
+  // array in JSON.stringify would silently DROP nested keys not in the array
+  // (which would have stripped the liveness block from the signed payload).
+  if (obj === null || typeof obj !== 'object') return JSON.stringify(obj)
+  if (Array.isArray(obj)) return '[' + obj.map(canonical).join(',') + ']'
+  return '{' + Object.keys(obj).sort().map(k => JSON.stringify(k) + ':' + canonical(obj[k])).join(',') + '}'
 }
 
 // Sign a fresh life certificate. Works fully offline.
-export async function generateCertificate(citizenId) {
+// `livenessClaim` (optional): the claim block from POST /agents/biometric/liveness
+// (Agent 11). Embedding it BEFORE signing binds the liveness check into the
+// certificate cryptographically — it can't be swapped in later.
+export async function generateCertificate(citizenId, livenessClaim = null) {
   const dev = await getOrCreateDevice()
   const payloadObj = {
     citizenId,
     nonce: crypto.randomUUID(),
     generatedAt: new Date().toISOString(),
     type: 'liveness',
+    ...(livenessClaim ? { liveness: livenessClaim } : {}),
   }
   const payload = canonical(payloadObj)
   const sigBuf = await crypto.subtle.sign(

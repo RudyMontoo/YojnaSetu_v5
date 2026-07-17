@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
     LayoutDashboard, FileText, Bookmark, Bell, Settings, LogOut,
@@ -8,6 +8,7 @@ import {
 import { getLocalUser, clearLocalUser } from '../lib/auth'
 import { gateway, ai } from '../lib/api'
 import { registerDevice, generateCertificate, submitOrQueue, syncQueued, getQueueCount, proofToQrDataUrl } from '../lib/dlc'
+import { requestChallenge, openCamera, closeCamera, captureFrames, checkLiveness, CHALLENGE_TEXT } from '../lib/liveness'
 import { useAutoTranslate } from '../lib/i18n'
 import { Navbar, BottomNav } from '../components/Navbar'
 import '../components/components.css'
@@ -57,6 +58,11 @@ const PUI = {
     dlcTitle: 'Life Certificate (works offline)',
     dlcDesc: 'Prove you are alive to keep your pension flowing — even with no network. Your phone signs the proof securely; it syncs when you are back online, or show the QR to a helper who has network.',
     dlcGenerate: 'Generate Life Certificate', dlcGenerating: 'Signing on your device…',
+    liveTitle: 'Liveness check — prove you are present',
+    liveGetReady: 'Camera on ho raha hai… seedha dekhein', liveDo: 'Ab yeh karein:',
+    liveChecking: 'Checking…', liveFailed: 'Liveness check fail hui — dobara try karein.',
+    livePassed: 'Liveness verified ✓', liveCancel: 'Cancel',
+    liveSkipOffline: 'Offline — liveness skip karke certificate sign hoga (baad mein verify hoga).',
     dlcSyncedNow: 'Verified and recorded ✓', dlcQueuedOffline: 'Saved offline — will sync when you reconnect. Show this QR to a helper with network.',
     dlcValidTill: 'Valid till', dlcNextDue: 'Next certificate due', dlcNoCert: 'No life certificate yet',
     dlcPendingSync: 'proof(s) waiting to sync', dlcSyncedQueued: 'Synced your pending proof(s).',
@@ -105,16 +111,32 @@ function PensionPanel() {
         }
         window.addEventListener('online', onOnline)
         if (navigator.onLine) onOnline()
-        return () => window.removeEventListener('online', onOnline)
+        return () => {
+            window.removeEventListener('online', onOnline)
+            closeCamera(streamRef.current)   // never leave the camera on after unmount
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    const generateDlc = async () => {
-        setDlcBusy(true); setDlcMsg(''); setQr(null); setError('')
+    // ── Agent 11 liveness capture state ──
+    const videoRef = useRef(null)
+    const streamRef = useRef(null)
+    const [liveStep, setLiveStep] = useState(null)      // null | 'camera' | 'action' | 'checking'
+    const [liveChallenge, setLiveChallenge] = useState(null)
+
+    const stopLiveness = () => {
+        closeCamera(streamRef.current); streamRef.current = null
+        setLiveStep(null); setLiveChallenge(null)
+    }
+
+    // Signs + submits the certificate. `livenessClaim` binds Agent 11's verdict
+    // into the signed payload (null = offline / liveness unavailable — Phase B
+    // records liveness when present, doesn't yet require it).
+    const signAndSubmit = async (livenessClaim) => {
         try {
             const citizenId = getLocalUser()?.id
             if (navigator.onLine) { try { await registerDevice() } catch { /* key may already be registered */ } }
-            const proof = await generateCertificate(citizenId)
+            const proof = await generateCertificate(citizenId, livenessClaim)
             setQr(await proofToQrDataUrl(proof))       // QR always available, even offline
             const { synced } = await submitOrQueue(proof)
             setDlcMsg(synced ? PUI.dlcSyncedNow : PUI.dlcQueuedOffline)
@@ -122,6 +144,49 @@ function PensionPanel() {
         } catch (err) {
             setError(err.message || 'Could not generate certificate')
         } finally { setDlcBusy(false) }
+    }
+
+    const generateDlc = async () => {
+        setDlcBusy(true); setDlcMsg(''); setQr(null); setError('')
+        // Offline: Agent 12's whole point is working with no network — sign
+        // without liveness (server records liveness only when present).
+        if (!navigator.onLine) {
+            setDlcMsg(PUI.liveSkipOffline)
+            await signAndSubmit(null)
+            return
+        }
+        try {
+            // 1) server picks a random action + single-use nonce
+            const ch = await requestChallenge()
+            setLiveChallenge(ch)
+            setLiveStep('camera')
+            // camera needs the <video> to be rendered first
+            await new Promise(r => setTimeout(r, 50))
+            streamRef.current = await openCamera(videoRef.current)
+            await new Promise(r => setTimeout(r, 800))  // let exposure settle
+            setLiveStep('action')
+            // 2) capture the burst while the citizen performs the action
+            const frames = await captureFrames(videoRef.current, { count: 10, durationMs: 2500 })
+            setLiveStep('checking')
+            const res = await checkLiveness(frames, ch.nonce)
+            stopLiveness()
+            if (!res.is_live) {
+                setError(PUI.liveFailed); setDlcBusy(false)
+                return
+            }
+            setDlcMsg(PUI.livePassed)
+            // 3) sign with the liveness claim bound into the payload
+            await signAndSubmit(res.liveness_claim)
+        } catch (err) {
+            stopLiveness()
+            if (err.status === 501) {
+                // liveness not available in this deploy — honest degrade, still sign
+                await signAndSubmit(null)
+                return
+            }
+            setError(err.message || PUI.liveFailed)
+            setDlcBusy(false)
+        }
     }
 
     const tr = useAutoTranslate([
@@ -222,8 +287,25 @@ function PensionPanel() {
                 )}
 
                 <button className="btn btn-primary btn-aarti btn-sm" onClick={generateDlc} disabled={dlcBusy}>
-                    {dlcBusy ? <><Loader2 size={14} className="spin" /> {tr(PUI.dlcGenerating)}</> : <><ShieldCheck size={14} /> {tr(PUI.dlcGenerate)}</>}
+                    {dlcBusy ? <><Loader2 size={14} className="spin" /> {tr(liveStep ? PUI.liveTitle : PUI.dlcGenerating)}</> : <><ShieldCheck size={14} /> {tr(PUI.dlcGenerate)}</>}
                 </button>
+
+                {/* Agent 11 — live camera capture (only while the check runs) */}
+                {liveStep && (
+                    <div style={{ marginTop: 12, textAlign: 'center' }}>
+                        <video ref={videoRef} muted playsInline
+                               style={{ width: '100%', maxWidth: 320, borderRadius: 12, transform: 'scaleX(-1)' }} />
+                        <p style={{ fontSize: 14, marginTop: 8, fontWeight: 600 }}>
+                            {liveStep === 'camera' && tr(PUI.liveGetReady)}
+                            {liveStep === 'action' && <>{tr(PUI.liveDo)} <span className="text-saffron">{CHALLENGE_TEXT[liveChallenge?.challenge] || liveChallenge?.challenge}</span></>}
+                            {liveStep === 'checking' && <><Loader2 size={13} className="spin" /> {tr(PUI.liveChecking)}</>}
+                        </p>
+                        <button type="button" className="btn btn-ghost btn-sm" style={{ marginTop: 6 }}
+                                onClick={() => { stopLiveness(); setDlcBusy(false) }}>
+                            {tr(PUI.liveCancel)}
+                        </button>
+                    </div>
+                )}
 
                 {dlcMsg && (
                     <p className="text-muted" style={{ fontSize: 12.5, marginTop: 10 }}>{tr(dlcMsg)}</p>
