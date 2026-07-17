@@ -25,10 +25,11 @@ import logging
 import secrets
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 
 from ai_service.db.mongo import get_db
 from ai_service.utils.jwt_auth import get_current_citizen_id
+from ai_service.utils.rate_limiter import biometric_limiter
 from ai_service.vision.agent11_biometric.interface import (
     get_detector,
     is_implemented,
@@ -39,17 +40,20 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/agents/biometric", tags=["agent11-biometric"])
 
-MAX_FRAMES = 60                    # ~2s at 30fps — bounds memory; reject floods
-MAX_FRAME_BYTES = 2 * 1024 * 1024  # 2MB/frame ceiling
-CHALLENGE_TTL_SECONDS = 90         # capture window; nonce dies after this
+MAX_FRAMES = 20                    # frontend sends ~10; bounds memory + GPU work
+MAX_FRAME_BYTES = 1 * 1024 * 1024  # 1MB/frame ceiling (640x480 JPEG is ~50-150KB)
+MAX_TOTAL_BYTES = 12 * 1024 * 1024 # hard cap on the whole burst — anti memory-DoS
+CHALLENGE_TTL_SECONDS = 90         # capture window; an unused/failed nonce dies after this
+LIVENESS_BIND_DAYS = 7             # a PASSED nonce lives this long so a (delayed/offline) DLC can bind to it
 _CHALLENGES = ["blink", "turn_left", "turn_right"]
 
 
 @router.post("/challenge")
-async def issue_challenge(citizen_id: str = Depends(get_current_citizen_id)):
+async def issue_challenge(request: Request, citizen_id: str = Depends(get_current_citizen_id)):
     """Issues a random liveness action + a single-use nonce (short TTL). The
     client must perform THIS action; it can't choose it, and the nonce is only
     valid once — which is what stops a recorded burst being replayed."""
+    biometric_limiter.check(biometric_limiter.get_client_ip(request))
     if not is_implemented():
         raise HTTPException(status_code=501, detail="Face liveness is not available in this environment.")
 
@@ -69,12 +73,14 @@ async def issue_challenge(citizen_id: str = Depends(get_current_citizen_id)):
 
 @router.post("/liveness")
 async def check_liveness(
+    request: Request,
     frames: list[UploadFile] = File(..., description="Short burst of camera frames (JPEG/PNG)"),
     nonce: str = Form(..., description="The nonce from POST /challenge"),
     citizen_id: str = Depends(get_current_citizen_id),
 ):
     """Validates the nonce, runs the liveness check against the issued challenge,
     and returns a verdict + a claim the frontend embeds into the DLC payload."""
+    biometric_limiter.check(biometric_limiter.get_client_ip(request))
     if not is_implemented():
         raise HTTPException(status_code=501, detail="Face liveness is not available in this environment.")
     if not frames:
@@ -93,12 +99,18 @@ async def check_liveness(
         raise HTTPException(status_code=409, detail="Invalid or expired liveness challenge. Request a new one.")
     challenge = claimed["challenge"]
 
-    # ── Read frames into RAM only (never persisted) ──
+    # ── Read frames into RAM only (never persisted). Enforce a per-frame AND a
+    # whole-burst byte cap so a caller can't OOM the box with 20 huge frames. ──
     frame_bytes: list[bytes] = []
+    total = 0
     for f in frames:
         data = await f.read()
         if len(data) > MAX_FRAME_BYTES:
             raise HTTPException(status_code=413, detail="A frame exceeds the size limit.")
+        total += len(data)
+        if total > MAX_TOTAL_BYTES:
+            frame_bytes.clear()
+            raise HTTPException(status_code=413, detail="Frame burst exceeds the total size limit.")
         frame_bytes.append(data)
 
     detector = get_detector()
@@ -110,8 +122,23 @@ async def check_liveness(
     finally:
         frame_bytes.clear()  # drop biometric bytes ASAP
 
+    # ── Record the SERVER's verdict durably on the challenge record. This is what
+    # closes the fabrication hole: /dlc/verify checks THIS, not the client's JSON.
+    # A client that skips the camera and writes "verified:true" itself will have
+    # no matching passed=true record, so its certificate is rejected.
+    #
+    # On a PASS, extend the record's lifetime to LIVENESS_BIND_DAYS so it survives
+    # the (possibly offline, delayed) DLC submission that binds to it — the raw
+    # 90s challenge TTL would otherwise delete it before verification. ──
+    verdict = {"passed": bool(result.is_live), "confidence": round(result.confidence, 4), "verdictAt": now}
+    if result.is_live:
+        verdict["expiresAt"] = now + timedelta(days=LIVENESS_BIND_DAYS)
+    await get_db()["biometric_challenges"].update_one(
+        {"nonce": nonce, "citizenId": citizen_id}, {"$set": verdict},
+    )
+
     # The claim carries the challenge + nonce so the signed DLC payload is bound
-    # to THIS specific, single-use liveness check.
+    # to THIS specific, single-use, server-verified liveness check.
     claim = liveness_claim(result)
     claim["challenge"] = challenge
     claim["nonce"] = nonce
