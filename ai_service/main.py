@@ -86,7 +86,6 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 # ── Mount routers ─────────────────────────────────────────────────────────────
 from ai_service.routers.status_tracker import router as status_router
-from ai_service.routers.agent_router import router as agent_router
 from ai_service.routers.voice_conversation import router as voice_conv_router
 from ai_service.routers.help_discovery import router as help_router
 from ai_service.routers.apply_guide import router as apply_router
@@ -109,7 +108,10 @@ app.include_router(translate_router)
 app.include_router(dlc_router)
 app.include_router(biometric_router)
 app.include_router(status_router, prefix="/status")
-app.include_router(agent_router)
+# Legacy /agent/* interview surface deliberately NOT mounted — it was
+# unauthenticated with no ownership checks (IDOR on /agent/session/{id}) and the
+# frontend no longer calls it (voice/text both go through the orchestrator). The
+# module stays for ocr_router's inert _feed_to_agent import; the routes are gone.
 app.include_router(voice_conv_router)
 app.include_router(help_router)
 app.include_router(apply_router)
@@ -124,7 +126,7 @@ async def root():
         "version": "1.0.0",
         "endpoints": {
             "chat":           "/orchestrator/chat (REST) + /ws/session/{id} (WebSocket, token streaming) — 12-agent LangGraph orchestrator",
-            "agent":          "/agent/start + /agent/answer — legacy adaptive interview (pre-v5.0, still live for voice-mode text fallback)",
+            "voice_ws":       "/ws/voice/{session_id} — real-time Pipecat voice pipeline",
             "voice":          "/voice/conversation/start + /voice/conversation/answer — voice interview",
             "status_tracker": "/status/check — Live scheme application status",
             "help_csc":       "/help/csc/nearby — CSC Centre locator (OpenStreetMap)",

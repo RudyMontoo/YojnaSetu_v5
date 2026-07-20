@@ -170,12 +170,6 @@ async def voice_answer(
     )
 
 
-@router.get("/test-tts")
-async def test_tts(text: str = "Namaskar! Main Sathi hun.", state: Optional[str] = None):
-    """Debug utility — no auth, no data access, just synthesizes arbitrary
-    text. Kept from the previous version for manual Sarvam voice testing."""
-    audio_bytes = _speak(text, state=state)
-    return Response(
-        content=audio_bytes, media_type="audio/mpeg",
-        headers={"Content-Disposition": "inline; filename=test.mp3"},
-    )
+# /test-tts removed (security sweep 2026-07-17): an UNAUTHENTICATED endpoint that
+# ran paid Sarvam TTS on arbitrary caller text — a cost/quota-abuse vector with no
+# callers. If manual voice testing is needed, use a local script, not a live route.
