@@ -57,6 +57,12 @@ export const ai = {
   // Agent 3 — read-only live portal reconnaissance
   portalRecon: (schemeCode) =>
     request("/agents/application/portal-recon", { method: "POST", body: { scheme_code: schemeCode } }),
+  // Agent 4 — scan one doc: verify validity + match against profile, get read-back fields
+  verifyDocument: (file) => {
+    const fd = new FormData()
+    fd.append("file", file)
+    return request("/agents/document/verify", { method: "POST", formData: fd })
+  },
   verifyPpo: (aadhaarFile, ppoFile) => {
     const fd = new FormData();
     fd.append("aadhaar_file", aadhaarFile);

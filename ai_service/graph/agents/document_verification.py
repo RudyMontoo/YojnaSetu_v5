@@ -22,7 +22,92 @@ import logging
 from ai_service.graph.llm import ainvoke_with_fallback
 from ai_service.graph.state import GraphState
 from ai_service.utils.identity_extractor import extract_identity_fields
-from ai_service.utils.ppo_matcher import PpoMismatchResult, compute_ppo_mismatch
+from ai_service.utils.ppo_matcher import PpoMismatchResult, compute_ppo_mismatch, levenshtein, normalize_date, normalize_name
+
+logger = logging.getLogger(__name__)
+
+# Name distance above this = a real mismatch (same threshold as the PPO check).
+_NAME_MISMATCH_THRESHOLD = 0.15
+
+_DOC_LABELS = {
+    "aadhaar": "Aadhaar Card", "pan": "PAN Card", "voter_id": "Voter ID",
+    "ration_card": "Ration Card", "driving_license": "Driving Licence",
+    "income_certificate": "Income Certificate", "caste_certificate": "Caste Certificate",
+    "ppo": "Pension Payment Order", "other": "Document",
+}
+
+
+def _name_matches(doc_name: str | None, profile_name: str | None):
+    """Returns (matches: bool|None, doc_norm, profile_norm). None when either side
+    is missing — we can't check what we don't have, and shouldn't cry mismatch."""
+    a, b = normalize_name(doc_name or ""), normalize_name(profile_name or "")
+    if not a or not b:
+        return None, a, b
+    score = levenshtein(a, b) / max(len(a), len(b))
+    return score <= _NAME_MISMATCH_THRESHOLD, a, b
+
+
+def verify_document_against_profile(fields: dict, profile: dict) -> dict:
+    """The repurposed Lens: tells a citizen what they CAN'T self-check —
+    is this document valid, and does its name/DOB match the profile on record?
+    A name/DOB mismatch is the #1 silent cause of application/pension rejection.
+
+    `fields` is vision_ocr.extract_document_fields output (doc_type, name, dob,
+    id_number, aadhaar_checksum_valid). `profile` is the decrypted citizen
+    profile (name, dob). Returns a citizen-facing verdict — no raw PII beyond a
+    masked id."""
+    doc_type = fields.get("doc_type") or "other"
+    readable = bool(fields.get("name") or fields.get("id_number"))
+
+    checksum_valid = fields.get("aadhaar_checksum_valid") if doc_type == "aadhaar" else None
+
+    name_ok, _, _ = _name_matches(fields.get("name"), profile.get("name"))
+    d_dob, p_dob = normalize_date(fields.get("dob") or ""), normalize_date(profile.get("dob") or "")
+    dob_ok = (d_dob == p_dob) if (d_dob and p_dob) else None
+
+    warnings: list[str] = []
+    if not readable:
+        warnings.append("Document theek se padha nahi ja saka — saaf photo dobara lein.")
+    if checksum_valid is False:
+        warnings.append("Aadhaar number valid nahi lag raha (checksum fail) — number galat padha gaya ya card mein galti hai.")
+    if name_ok is False:
+        warnings.append(f"Document par naam ('{fields.get('name')}') aapke profile ke naam se alag hai — apply karne se pehle theek karwayein, warna application reject ho sakti hai.")
+    if dob_ok is False:
+        warnings.append("Document par janm-tithi (DOB) aapke profile se alag hai — ise theek karwayein.")
+    if profile.get("name") is None and profile.get("dob") is None:
+        warnings.append("Aapka profile abhi adhura hai — naam/DOB bharें taaki hum document se milaan kar sakein.")
+
+    # Green only when nothing failed AND at least one real match happened.
+    checks_done = [c for c in (checksum_valid, name_ok, dob_ok) if c is not None]
+    ok_to_apply = readable and (checksum_valid is not False) and (name_ok is not False) and (dob_ok is not False) and bool(checks_done)
+
+    idn = (fields.get("id_number") or "").replace(" ", "")
+    masked = (("XXXX-XXXX-" + idn[-4:]) if doc_type == "aadhaar" and len(idn) >= 4
+              else ("XXXXX" + idn[-4:] + "X") if doc_type == "pan" and len(idn) >= 4
+              else ("XXXX" + idn[-4:]) if len(idn) >= 4 else None)
+
+    if not readable:
+        status = "unreadable"
+    elif warnings and (name_ok is False or dob_ok is False or checksum_valid is False):
+        status = "mismatch"
+    elif not checks_done:
+        status = "no_profile"
+    else:
+        status = "verified"
+
+    return {
+        "doc_type": doc_type,
+        "doc_type_label": _DOC_LABELS.get(doc_type, "Document"),
+        "readable": readable,
+        "checksum_valid": checksum_valid,
+        "name_on_doc": fields.get("name"),
+        "name_matches_profile": name_ok,
+        "dob_matches_profile": dob_ok,
+        "masked_id": masked,
+        "status": status,
+        "ok_to_apply": ok_to_apply,
+        "warnings": warnings,
+    }
 
 logger = logging.getLogger(__name__)
 

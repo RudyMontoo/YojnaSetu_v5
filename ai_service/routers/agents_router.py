@@ -18,7 +18,7 @@ from pydantic import BaseModel
 from ai_service.db.mongo import get_db
 from ai_service.graph.agents.analytics import generate_weekly_report
 from ai_service.graph.agents.csc_assist import suggest_doc_alternatives
-from ai_service.graph.agents.document_verification import verify_ppo_aadhaar_match
+from ai_service.graph.agents.document_verification import verify_document_against_profile, verify_ppo_aadhaar_match
 from ai_service.graph.agents.financial_planning import build_financial_plan
 from ai_service.graph.agents.grievance import attach_cpgrams_reference, list_grievances, record_grievance
 from ai_service.routers.ocr_router import _run_ocr
@@ -78,6 +78,53 @@ async def verify_ppo(
 
     result = await verify_ppo_aadhaar_match(aadhaar_text, ppo_text)
     return PpoVerifyResponse(**result)
+
+
+@router.post("/document/verify")
+async def verify_document(
+    request: Request,
+    file: Annotated[UploadFile, File(description="A government ID (Aadhaar/PAN/etc.) image")],
+    citizen_id: str = Depends(get_current_citizen_id),
+):
+    """The repurposed Lens: scan ONE document → (1) verify it's valid + matches
+    the citizen's profile on record (catches the name/DOB mismatch that silently
+    causes rejections — something the citizen can't self-check), and (2) return
+    the read-back fields so the frontend can offer to auto-fill the profile
+    (scan once, never type a 12-digit Aadhaar again).
+
+    Zero-retention: the image is read + analysed in memory and discarded; only
+    the verdict + read-back fields (id masked) leave here. NOTE this is a
+    profile-match check, NOT issuer verification — genuine 'is this a real govt
+    document' needs DigiLocker/UIDAI, which require a registered org (the
+    interface here is where that slots in later)."""
+    from ai_service.utils.vision_ocr import extract_document_fields
+
+    ocr_limiter.check(ocr_limiter.get_client_ip(request))
+    raw = await file.read()
+    if not raw:
+        raise HTTPException(status_code=400, detail="Empty file.")
+    if len(raw) > 20 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="File too large. Max 20MB.")
+
+    fields = await extract_document_fields(raw)
+    del raw
+    if fields is None:
+        raise HTTPException(status_code=422, detail="Could not read the document. Try a clearer photo.")
+
+    profile = await fetch_citizen_profile(citizen_id)
+    verdict = verify_document_against_profile(fields, profile)
+
+    # Read-back fields the citizen can save to their profile (no raw Aadhaar
+    # number — only the safe identity fields Spring will encrypt on write).
+    verdict["autofill"] = {
+        k: v for k, v in {
+            "name": fields.get("name"),
+            "dob": fields.get("dob"),
+            "gender": (fields.get("gender") or "").lower() or None,
+        }.items() if v
+    }
+    logger.info("Agent 4 doc-verify: citizen=%s doc=%s status=%s", citizen_id, verdict["doc_type"], verdict["status"])
+    return verdict
 
 
 class FinancialPlanResponse(BaseModel):

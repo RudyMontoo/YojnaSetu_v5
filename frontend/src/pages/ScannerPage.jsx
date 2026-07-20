@@ -1,19 +1,28 @@
 import { useState, useRef, useCallback } from 'react'
 import {
     Camera, Upload, CheckCircle, XCircle, HelpCircle,
-    RefreshCw, Shield, FileText, Loader2, CameraOff, SwitchCamera, Lock
+    RefreshCw, Shield, FileText, Loader2, CameraOff, SwitchCamera, Lock,
+    AlertTriangle, UserCheck
 } from 'lucide-react'
 import { Navbar, BottomNav } from '../components/Navbar'
 import { Reveal } from '../components/motion'
 import { Sparkles } from 'lucide-react'
+import { ai, gateway } from '../lib/api'
 import { useAutoTranslate } from '../lib/i18n'
 import '../components/components.css'
 import './ScannerPage.css'
 
 const UI = {
     tag: 'Agent 4 · Document Seva', title: 'Jan-Sahayak Lens',
-    sub: 'Scan a document — unique ID will be detected automatically',
+    sub: 'Scan a document — we verify it & auto-fill your profile',
     privacy: 'Documents are never saved to our servers — processed in memory only',
+    // repurposed: verify + autofill
+    stVerified: 'Document verified ✓', stMismatch: 'Details do not match your profile',
+    stNoProfile: 'Read successfully', stUnreadable: 'Could not read clearly',
+    chkChecksum: 'Valid Aadhaar number', chkName: 'Name matches your profile', chkDob: 'Date of birth matches',
+    weRead: 'We read from your document:', nameLabel: 'Name', dobLabel: 'Date of Birth',
+    saveToProfile: 'Save to my profile', saving: 'Saving…', savedOk: 'Saved to your profile ✓ — no need to type it again.',
+    okToApply: 'You can use this document to apply.',
     tapUpload: 'Tap here or use the buttons to upload', scanCamera: 'Scan with Camera',
     galleryUpload: 'Gallery / File Upload',
     supported: 'Aadhaar, PAN, Voter ID, Ration Card, Passport, Driving Licence, PDF supported.',
@@ -45,6 +54,20 @@ export default function ScannerPage() {
     const [state, setState] = useState('idle')  // idle | camera | scanning | result | error
     const [result, setResult] = useState(null)
     const [error, setError] = useState('')
+    const [saving, setSaving] = useState(false)
+    const [saved, setSaved] = useState(false)
+
+    // Auto-fill the citizen's profile from the read-back fields — scan once,
+    // never type a 12-digit Aadhaar again. Goes through Spring (encrypts PII).
+    const saveToProfile = async (autofill) => {
+        setSaving(true)
+        try {
+            await gateway.updateProfile(autofill)
+            setSaved(true)
+        } catch (err) {
+            setError(err.message || 'Could not save to profile')
+        } finally { setSaving(false) }
+    }
     const [stepIdx, setStepIdx] = useState(0)
     const [facingMode, setFacingMode] = useState('environment')  // environment = back cam
 
@@ -79,28 +102,17 @@ export default function ScannerPage() {
         setError('')
 
         try {
-            const form = new FormData()
-            form.append('file', file)
-            // No session_id for standalone scanner
-
-            const res = await fetch(`/ocr/scan`, {
-                method: 'POST',
-                body: form,
-            })
-
+            // Repurposed: verify the document + get read-back fields to auto-fill
+            // the profile (needs the citizen cookie — this is a logged-in tool).
+            const data = await ai.verifyDocument(file)
             stopStepAnimation()
-
-            if (!res.ok) {
-                const err = await res.json().catch(() => ({}))
-                throw new Error(err.detail || `Server error ${res.status}`)
-            }
-
-            const data = await res.json()
             setResult(data)
             setState('result')
         } catch (err) {
             stopStepAnimation()
-            setError(err.message || 'Document scan failed. Please try a clearer image.')
+            setError(err.status === 401 || err.status === 403
+                ? 'Please login first to verify a document.'
+                : (err.message || 'Document scan failed. Please try a clearer image.'))
             setState('error')
         }
     }, [startStepAnimation, stopStepAnimation])
@@ -180,6 +192,7 @@ export default function ScannerPage() {
         setState('idle')
         setResult(null)
         setError('')
+        setSaved(false)
     }
 
     // ── Render ───────────────────────────────────────────────────────────────
@@ -318,105 +331,79 @@ export default function ScannerPage() {
                     </div>
                 )}
 
-                {/* ── RESULT STATE ── */}
-                {state === 'result' && result && (
+                {/* ── RESULT STATE (verify + auto-fill) ── */}
+                {state === 'result' && result && (() => {
+                    const ok = result.status === 'verified'
+                    const mismatch = result.status === 'mismatch'
+                    const Row = ({ label, val }) => val === null || val === undefined ? null : (
+                        <div className="validity-row">
+                            <span className="validity-label">{tr(label)}</span>
+                            {val ? <CheckCircle size={16} style={{ color: '#4ade80' }} />
+                                 : <AlertTriangle size={16} style={{ color: '#f59e0b' }} />}
+                        </div>
+                    )
+                    return (
                     <>
-                        {/* Doc type + validity */}
+                        {/* Verdict header */}
                         <div className="glass-card glass-card-glow scanner-result-header">
                             <div className="scanner-result-badge">
-                                {result.validity?.is_valid
-                                    ? <CheckCircle size={20} className="text-green" />
-                                    : <HelpCircle size={20} className="text-amber" />
-                                }
-                                <span className={`badge ${result.validity?.is_valid ? 'badge-green' : 'badge-amber'}`}>
-                                    {tr(result.validity?.is_valid ? UI.validDoc : UI.partialDoc)}
+                                {ok ? <CheckCircle size={20} className="text-green" />
+                                    : mismatch ? <AlertTriangle size={20} style={{ color: '#f59e0b' }} />
+                                    : <HelpCircle size={20} className="text-amber" />}
+                                <span className={`badge ${ok ? 'badge-green' : mismatch ? 'badge-amber' : 'badge-muted'}`}>
+                                    {tr(ok ? UI.stVerified : mismatch ? UI.stMismatch
+                                        : result.status === 'unreadable' ? UI.stUnreadable : UI.stNoProfile)}
                                 </span>
                             </div>
-                            <h2 className="scanner-doc-type">
-                                {tr(DOC_LABELS[result.detected_ids?.[0]?.id_type] || result.doc_type)}
-                            </h2>
-                            {result.page_count > 1 && (
-                                <p className="text-muted" style={{ fontSize: 13 }}>
-                                    {result.page_count} {tr(UI.pagesScanned)}
-                                </p>
-                            )}
+                            <h2 className="scanner-doc-type">{tr(result.doc_type_label || result.doc_type)}</h2>
+                            {result.masked_id && <p className="text-muted" style={{ fontSize: 13 }}><Lock size={10} /> {result.masked_id}</p>}
+                            {result.ok_to_apply && <p className="text-green" style={{ fontSize: 13, marginTop: 4 }}>{tr(UI.okToApply)}</p>}
                         </div>
 
-                        {/* Detected IDs — masked values */}
-                        {result.detected_ids?.length > 0 && (
-                            <div className="glass-card scanner-ids-card">
-                                <h3 className="scanner-fields-title">
-                                    {tr(UI.detectedIds)}
-                                </h3>
-                                <p className="id-privacy-note">
-                                    <Lock size={10} />
-                                    {tr(UI.only4)}
-                                </p>
-                                {result.detected_ids.map((id, i) => (
-                                    <div key={i} className="scanner-id-row">
-                                        <div className="id-type-label">
-                                            <span className="badge badge-muted">{id.doc_hint}</span>
-                                            <span
-                                                className="confidence-dot"
-                                                title={`Confidence: ${Math.round(id.confidence * 100)}%`}
-                                                style={{
-                                                    background: id.confidence >= 0.85
-                                                        ? '#22c55e'
-                                                        : id.confidence >= 0.65
-                                                        ? '#f59e0b'
-                                                        : '#ef4444'
-                                                }}
-                                            />
-                                        </div>
-                                        <div className="masked-id-display">
-                                            {id.masked_value}
-                                        </div>
-                                    </div>
+                        {/* Checks the citizen can't self-verify */}
+                        {(result.checksum_valid !== null || result.name_matches_profile !== null || result.dob_matches_profile !== null) && (
+                            <div className="glass-card scanner-validity">
+                                <Row label={UI.chkChecksum} val={result.checksum_valid} />
+                                <Row label={UI.chkName} val={result.name_matches_profile} />
+                                <Row label={UI.chkDob} val={result.dob_matches_profile} />
+                            </div>
+                        )}
+
+                        {/* Warnings (Hinglish) */}
+                        {result.warnings?.length > 0 && (
+                            <div className="glass-card" style={{ padding: 14 }}>
+                                {result.warnings.map((w, i) => (
+                                    <p key={i} style={{ fontSize: 13, marginBottom: 6, display: 'flex', gap: 6 }}>
+                                        <AlertTriangle size={14} style={{ color: '#f59e0b', flexShrink: 0, marginTop: 2 }} /> {tr(w)}
+                                    </p>
                                 ))}
                             </div>
                         )}
 
-                        {/* No IDs found */}
-                        {(!result.detected_ids || result.detected_ids.length === 0) && (
-                            <div className="glass-card scanner-missing">
-                                <h3 className="scanner-fields-title">
-                                    <HelpCircle size={16} className="text-amber" /> {tr(UI.noId)}
-                                </h3>
-                                <p className="text-muted" style={{ fontSize: 14 }}>
-                                    {tr(UI.unclear)}
-                                </p>
+                        {/* Read-back → save to profile (scan once, never type again) */}
+                        {result.autofill && Object.keys(result.autofill).length > 0 && (
+                            <div className="glass-card" style={{ padding: 16 }}>
+                                <p className="scanner-fields-title" style={{ marginBottom: 8 }}>{tr(UI.weRead)}</p>
+                                {result.autofill.name && <p style={{ fontSize: 14 }}><b>{tr(UI.nameLabel)}:</b> {result.autofill.name}</p>}
+                                {result.autofill.dob && <p style={{ fontSize: 14 }}><b>{tr(UI.dobLabel)}:</b> {result.autofill.dob}</p>}
+                                {saved ? (
+                                    <p className="text-green" style={{ fontSize: 13.5, marginTop: 10 }}><CheckCircle size={13} /> {tr(UI.savedOk)}</p>
+                                ) : (
+                                    <button className="btn btn-primary btn-aarti btn-sm" style={{ marginTop: 12 }}
+                                            disabled={saving} onClick={() => saveToProfile(result.autofill)}>
+                                        {saving ? <><Loader2 size={14} className="spin" /> {tr(UI.saving)}</>
+                                                : <><UserCheck size={14} /> {tr(UI.saveToProfile)}</>}
+                                    </button>
+                                )}
                             </div>
                         )}
-
-                        {/* Validity details */}
-                        <div className="glass-card scanner-validity">
-                            <div className="validity-row">
-                                <span className="validity-label">{tr(UI.officialSeal)}</span>
-                                {result.validity?.has_official_seal
-                                    ? <CheckCircle size={16} style={{ color: '#4ade80' }} />
-                                    : <XCircle size={16} className="text-subtle" />
-                                }
-                            </div>
-                            <div className="validity-row">
-                                <span className="validity-label">{tr(UI.expiryInfo)}</span>
-                                {result.validity?.has_expiry_info
-                                    ? <CheckCircle size={16} style={{ color: '#4ade80' }} />
-                                    : <XCircle size={16} className="text-subtle" />
-                                }
-                            </div>
-                            <div className="validity-row">
-                                <span className="validity-label">{tr(UI.ocrConfidence)}</span>
-                                <span className="confidence-pct">
-                                    {Math.round((result.validity?.confidence || 0) * 100)}%
-                                </span>
-                            </div>
-                        </div>
 
                         <button className="btn btn-ghost scanner-reset-btn" onClick={reset}>
                             <RefreshCw size={16} /> {tr(UI.scanAgain)}
                         </button>
                     </>
-                )}
+                    )
+                })()}
 
                 {/* ── ERROR STATE ── */}
                 {state === 'error' && (
