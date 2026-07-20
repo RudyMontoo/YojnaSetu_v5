@@ -152,6 +152,35 @@ graph TD
 
 ---
 
+## 📱 Inside the app
+
+<table>
+<tr>
+<td width="50%"><img src="docs/screenshots/home.png" alt="Home"/></td>
+<td width="50%"><img src="docs/screenshots/sathi.png" alt="Sathi chat"/></td>
+</tr>
+<tr>
+<td valign="top"><b>🏠 Home — <i>Namaste, Bharat</i></b><br/>The landing: <i>Find My Scheme</i> or explore all, a live feed of newly-added schemes across states, and a one-tap door to Sathi (chat or voice).</td>
+<td valign="top"><b>💬 Sathi — the AI guide</b><br/>Ask about any scheme by <b>voice or text in any Indian language</b>. One message routes through the 13-agent LangGraph brain — eligibility, financial planning, comparison, grievances — grounded in real data.</td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/screenshots/schemes.png" alt="Schemes catalogue"/></td>
+<td width="50%"><img src="docs/screenshots/status.png" alt="Status tracker"/></td>
+</tr>
+<tr>
+<td valign="top"><b>📚 Schemes — Yojana Catalogue</b><br/>All <b>4,901 central & state schemes</b>, searchable with sector filters (Agriculture, Housing, Health, Pension…). Each card shows the real benefit + eligibility, extracted into structured rules.</td>
+<td valign="top"><b>📊 Status — Application Tracker</b><br/>Every saved application through its lifecycle (Saved → In&nbsp;Progress → Submitted → Approved → Disbursed), plus <b>My Grievances</b> with their CPGRAMS reference numbers.</td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/screenshots/lens.png" alt="Jan-Sahayak Lens"/></td>
+<td valign="top"><b>🔎 Lens — Jan-Sahayak (Agent 4)</b><br/>Scan an <b>Aadhaar, PAN, Voter ID, Ration Card, Passport or DL</b> — the ID is auto-detected by a local vision model that reads any Indian script. <b>Never saved to a server — processed in memory only.</b></td>
+</tr>
+</table>
+
+<sub>Not shown: real-time voice call, offline Digital Life Certificate with face-liveness (Pension Seva), WhatsApp nudges, and the CSC-operator dashboard.</sub>
+
+---
+
 ## 🎬 One citizen journey, end to end
 
 ```mermaid
