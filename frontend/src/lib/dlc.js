@@ -36,7 +36,15 @@ function idb(store, mode, fn) {
   return openDb().then(db => new Promise((resolve, reject) => {
     const tx = db.transaction(store, mode)
     const result = fn(tx.objectStore(store))
-    tx.oncomplete = () => resolve(result?._value !== undefined ? result._value : result)
+    tx.oncomplete = () => {
+      // A reqValue() box always carries a `_value` key — unwrap it (which is
+      // `undefined` when the record doesn't exist). Anything else (e.g. a put)
+      // resolves as-is. The old `_value !== undefined` test wrongly returned the
+      // BOX itself for a missing record, so getOrCreateDevice() got a truthy
+      // `{_value:undefined}` and never generated a keypair → dev.keyPair undefined.
+      if (result && typeof result === 'object' && '_value' in result) resolve(result._value)
+      else resolve(result)
+    }
     tx.onerror = () => reject(tx.error)
   }))
 }
