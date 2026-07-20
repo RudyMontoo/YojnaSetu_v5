@@ -86,8 +86,17 @@ public class SchemeCatalogueController {
         Query countQuery = new Query(criteria);
         long total = mongoTemplate.count(countQuery, "schemes");
 
+        // Rank: trending / most-applied FIRST (popularityScore, written by
+        // ai_service/scripts/recompute_popularity.py from real trend_events +
+        // applications), then newest (lastUpdated), then name as a stable
+        // tie-break. Applies WITHIN whatever category/search filter is active,
+        // so every sector surfaces its hottest + freshest schemes at the top
+        // instead of an alphabetical directory. Schemes with no activity have
+        // popularityScore 0 and simply fall back to newest-first.
         Query query = new Query(criteria)
-                .with(Sort.by(Sort.Direction.ASC, "name"))
+                .with(Sort.by(Sort.Direction.DESC, "popularityScore")
+                        .and(Sort.by(Sort.Direction.DESC, "lastUpdated"))
+                        .and(Sort.by(Sort.Direction.ASC, "name")))
                 .skip((long) safePage * safeSize)
                 .limit(safeSize);
         query.fields().include("schemeCode", "name", "benefitAmount", "sector",
