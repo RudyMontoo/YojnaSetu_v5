@@ -22,8 +22,9 @@ async function request(path, { method = "GET", body, formData } = {}) {
 }
 
 export const gateway = {
-  sendOtp: (phone) => request("/api/v2/auth/otp/send", { method: "POST", body: { phone } }),
-  verifyOtp: (phone, otp) => request("/api/v2/auth/otp/verify", { method: "POST", body: { phone, otp } }),
+  // identifier is { phone } or { email } — the backend accepts either channel.
+  sendOtp: (identifier) => request("/api/v2/auth/otp/send", { method: "POST", body: identifier }),
+  verifyOtp: (identifier, otp) => request("/api/v2/auth/otp/verify", { method: "POST", body: { ...identifier, otp } }),
   logout: () => request("/api/v2/auth/logout", { method: "POST" }),
   giveConsent: () => request("/api/v2/consent", { method: "POST" }),
   getProfile: () => request("/api/v2/profile/me"),

@@ -1,25 +1,29 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowRight, Smartphone, KeyRound, ChevronLeft } from 'lucide-react'
+import { ArrowRight, Smartphone, KeyRound, ChevronLeft, Mail } from 'lucide-react'
 import { gateway } from '../lib/api'
 import { useAutoTranslate } from '../lib/i18n'
 import './SignInPage.css'
 
 const UI = {
-    tagline: 'Login with your mobile number. An OTP will be sent by SMS.',
-    mobile: 'Mobile Number', sendOtp: 'Send OTP',
-    privacy: 'No password needed. Your number stays private and encrypted.',
+    tagline: 'Login with your mobile number or email. An OTP will be sent to you.',
+    mobile: 'Mobile Number', email: 'Email Address', sendOtp: 'Send OTP',
+    useEmail: 'Use email instead', useMobile: 'Use mobile instead',
+    privacy: 'No password needed. Your details stay private and encrypted.',
     otpSentTo: 'Enter the 6-digit OTP sent to', verifyLogin: 'Verify & Login',
-    changeNumber: 'Change number',
+    changeContact: 'Change',
     errSend: 'Could not send OTP. Try again.', errOtp: 'Incorrect OTP',
 }
 
-// v5.0 auth: phone → OTP → httpOnly cookies from the Spring Boot gateway.
-// No email, no password, no Supabase — matches how the backend actually works.
+// v5.0 auth: phone OR email → OTP → httpOnly cookies from the Spring Boot gateway.
+// No password, no Supabase — matches how the backend actually works. Email is the
+// working channel today (SMS needs India DLT registration; wired for later).
 export default function SignInPage() {
     const navigate = useNavigate()
-    const [step, setStep] = useState('phone')   // phone | otp
+    const [mode, setMode] = useState('mobile')  // mobile | email
+    const [step, setStep] = useState('contact')  // contact | otp
     const [phone, setPhone] = useState('')
+    const [email, setEmail] = useState('')
     const [otp, setOtp] = useState('')
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
@@ -27,12 +31,18 @@ export default function SignInPage() {
 
     const digits = phone.replace(/\D/g, '')
     const fullPhone = phone.startsWith('+') ? phone : `+91${digits}`
+    const isEmail = mode === 'email'
+    const emailValid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())
+    // what we show back to the user + send to the backend
+    const contactLabel = isEmail ? email.trim() : fullPhone
+    const identifier = isEmail ? { email: email.trim() } : { phone: fullPhone }
+    const canSend = isEmail ? emailValid : digits.length >= 10
 
     const sendOtp = async (e) => {
         e.preventDefault()
         setError(''); setLoading(true)
         try {
-            await gateway.sendOtp(fullPhone)
+            await gateway.sendOtp(identifier)
             setStep('otp')
         } catch (err) {
             setError(err.message || UI.errSend)
@@ -43,11 +53,12 @@ export default function SignInPage() {
         e.preventDefault()
         setError(''); setLoading(true)
         try {
-            const res = await gateway.verifyOtp(fullPhone, otp.trim())
+            const res = await gateway.verifyOtp(identifier, otp.trim())
             try { await gateway.giveConsent() } catch { /* retried on first profile save */ }
             localStorage.setItem('yojna_user', JSON.stringify({
                 id: res.user?.id,
-                phone: res.user?.phone || fullPhone,
+                phone: res.user?.phone || (isEmail ? '' : fullPhone),
+                email: res.user?.email || (isEmail ? email.trim() : ''),
                 name: '',
                 language: res.user?.language || 'en',
             }))
@@ -56,6 +67,11 @@ export default function SignInPage() {
             setError(err.message || UI.errOtp)
             setLoading(false)
         }
+    }
+
+    const switchMode = () => {
+        setMode(isEmail ? 'mobile' : 'email')
+        setError('')
     }
 
     return (
@@ -77,20 +93,37 @@ export default function SignInPage() {
 
                 {error && <p className="signin-error">{tr(error)}</p>}
 
-                {step === 'phone' ? (
+                {step === 'contact' ? (
                     <form onSubmit={sendOtp} className="signin-form">
-                        <p className="signin-label">{tr(UI.mobile)}</p>
+                        <p className="signin-label">{tr(isEmail ? UI.email : UI.mobile)}</p>
                         <div className="signin-input-row">
-                            <span className="signin-prefix"><Smartphone size={15} /> +91</span>
-                            <input
-                                type="tel" inputMode="numeric" placeholder="98765 43210"
-                                value={phone} onChange={e => setPhone(e.target.value)}
-                                className="input-glass signin-input" autoFocus required
-                            />
+                            {isEmail ? (
+                                <>
+                                    <span className="signin-prefix"><Mail size={15} /></span>
+                                    <input
+                                        type="email" inputMode="email" placeholder="you@example.com"
+                                        value={email} onChange={e => setEmail(e.target.value)}
+                                        className="input-glass signin-input" autoFocus required
+                                    />
+                                </>
+                            ) : (
+                                <>
+                                    <span className="signin-prefix"><Smartphone size={15} /> +91</span>
+                                    <input
+                                        type="tel" inputMode="numeric" placeholder="98765 43210"
+                                        value={phone} onChange={e => setPhone(e.target.value)}
+                                        className="input-glass signin-input" autoFocus required
+                                    />
+                                </>
+                            )}
                         </div>
                         <button type="submit" className="btn btn-primary btn-lg signin-btn btn-aarti"
-                                disabled={loading || digits.length < 10}>
+                                disabled={loading || !canSend}>
                             {loading ? <span className="btn-spinner" /> : <><span>{tr(UI.sendOtp)}</span> <ArrowRight size={16} /></>}
+                        </button>
+                        <button type="button" className="btn btn-ghost btn-sm" style={{ width: '100%', marginTop: 8 }}
+                                onClick={switchMode}>
+                            {isEmail ? <><Smartphone size={14} /> {tr(UI.useMobile)}</> : <><Mail size={14} /> {tr(UI.useEmail)}</>}
                         </button>
                         <p className="text-subtle" style={{ fontSize: 12, textAlign: 'center', marginTop: 10 }}>
                             {tr(UI.privacy)}
@@ -98,7 +131,7 @@ export default function SignInPage() {
                     </form>
                 ) : (
                     <form onSubmit={verifyOtp} className="signin-form">
-                        <p className="signin-label">{tr(UI.otpSentTo)} {fullPhone}</p>
+                        <p className="signin-label">{tr(UI.otpSentTo)} {contactLabel}</p>
                         <div className="signin-input-row">
                             <span className="signin-prefix"><KeyRound size={15} /></span>
                             <input
@@ -114,8 +147,8 @@ export default function SignInPage() {
                             {loading ? <span className="btn-spinner" /> : <><span>{tr(UI.verifyLogin)}</span> <ArrowRight size={16} /></>}
                         </button>
                         <button type="button" className="btn btn-ghost btn-sm" style={{ width: '100%', marginTop: 8 }}
-                                onClick={() => { setStep('phone'); setOtp(''); setError('') }}>
-                            <ChevronLeft size={14} /> {tr(UI.changeNumber)}
+                                onClick={() => { setStep('contact'); setOtp(''); setError('') }}>
+                            <ChevronLeft size={14} /> {tr(UI.changeContact)}
                         </button>
                     </form>
                 )}

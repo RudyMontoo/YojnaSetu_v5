@@ -23,8 +23,10 @@ public class OtpSession {
     @Id
     private String id;
 
+    /** The OTP destination — a phone (E.164) OR an email address. Generic so the
+     *  same OTP machinery serves both login channels. */
     @Indexed(unique = true)
-    private String phone;
+    private String identifier;
 
     /** BCrypt hash of the 6-digit OTP — never store the raw OTP. */
     private String otpHash;

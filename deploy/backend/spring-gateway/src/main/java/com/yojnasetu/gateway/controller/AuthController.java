@@ -48,22 +48,48 @@ public class AuthController {
         this.jwtUtils = jwtUtils;
     }
 
-    public record OtpSendRequest(
-            @NotBlank @Pattern(regexp = "^\\+[1-9]\\d{9,14}$", message = "phone must be E.164 format e.g. +919876543210")
-            String phone) {}
+    // Exactly one of phone / email is required (validated in resolveTarget).
+    public record OtpSendRequest(String phone, String email) {}
+    public record OtpVerifyRequest(String phone, String email, String otp) {}
 
-    public record OtpVerifyRequest(@NotBlank String phone, @NotBlank String otp) {}
+    private static final java.util.regex.Pattern PHONE_RE =
+            java.util.regex.Pattern.compile("^\\+[1-9]\\d{9,14}$");
+    private static final java.util.regex.Pattern EMAIL_RE =
+            java.util.regex.Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
+
+    private record Target(String identifier, OtpService.Channel channel) {}
+
+    /** Resolve the request to a single (identifier, channel), or null if neither,
+     *  both, or an invalid value was supplied. */
+    private Target resolveTarget(String phone, String email) {
+        boolean hasPhone = phone != null && !phone.isBlank();
+        boolean hasEmail = email != null && !email.isBlank();
+        if (hasPhone == hasEmail) return null;                 // need exactly one
+        if (hasPhone) {
+            String p = phone.trim();
+            return PHONE_RE.matcher(p).matches() ? new Target(p, OtpService.Channel.SMS) : null;
+        }
+        String e = email.trim().toLowerCase();
+        return EMAIL_RE.matcher(e).matches() ? new Target(e, OtpService.Channel.EMAIL) : null;
+    }
 
     @PostMapping("/otp/send")
-    public ResponseEntity<?> sendOtp(@Valid @RequestBody OtpSendRequest req, HttpServletRequest httpReq) {
-        otpService.generateAndSend(req.phone());
+    public ResponseEntity<?> sendOtp(@RequestBody OtpSendRequest req, HttpServletRequest httpReq) {
+        Target t = resolveTarget(req.phone(), req.email());
+        if (t == null) return ResponseEntity.badRequest()
+                .body(Map.of("error", "Provide a valid phone (E.164, e.g. +919876543210) or email"));
+        otpService.generateAndSend(t.identifier(), t.channel());
         auditLogRepository.save(AuditLog.of(null, "otp_send", "/api/v2/auth/otp/send", clientIp(httpReq)));
         return ResponseEntity.ok(Map.of("success", true, "expires_in", 600));
     }
 
     @PostMapping("/otp/verify")
-    public ResponseEntity<?> verifyOtp(@Valid @RequestBody OtpVerifyRequest req, HttpServletRequest httpReq, HttpServletResponse res) {
-        OtpService.VerifyResult result = otpService.verify(req.phone(), req.otp());
+    public ResponseEntity<?> verifyOtp(@RequestBody OtpVerifyRequest req, HttpServletRequest httpReq, HttpServletResponse res) {
+        Target t = resolveTarget(req.phone(), req.email());
+        if (t == null || req.otp() == null || req.otp().isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Provide phone/email and the OTP"));
+        }
+        OtpService.VerifyResult result = otpService.verify(t.identifier(), req.otp());
 
         if (result == OtpService.VerifyResult.WRONG_OTP || result == OtpService.VerifyResult.LOCKED) {
             auditLogRepository.save(AuditLog.of(null, "otp_verify_fail", "/api/v2/auth/otp/verify", clientIp(httpReq)));
@@ -76,23 +102,29 @@ public class AuthController {
             case LOCKED -> ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                     .body(Map.of("error", "Too many failed attempts — request a new OTP"));
             case SUCCESS -> {
-                User user = userRepository.findByPhone(req.phone()).orElseGet(() -> {
-                    User u = new User();
-                    u.setPhone(req.phone());
-                    u.setCreatedAt(LocalDateTime.now());
-                    return u;
-                });
+                boolean isEmail = t.channel() == OtpService.Channel.EMAIL;
+                User user = (isEmail ? userRepository.findByEmail(t.identifier())
+                                     : userRepository.findByPhone(t.identifier()))
+                        .orElseGet(() -> {
+                            User u = new User();
+                            if (isEmail) u.setEmail(t.identifier()); else u.setPhone(t.identifier());
+                            u.setCreatedAt(LocalDateTime.now());
+                            return u;
+                        });
                 user.setLastLoginAt(LocalDateTime.now());
                 user = userRepository.save(user);
 
                 issueCookies(res, user);
                 auditLogRepository.save(AuditLog.of(user.getId(), "otp_verify_success", "/api/v2/auth/otp/verify", clientIp(httpReq)));
 
-                yield ResponseEntity.ok(Map.of(
-                        "success", true,
-                        "user", Map.of("id", user.getId(), "phone", user.getPhone(),
-                                "role", user.getRole(), "language", user.getLanguage() != null ? user.getLanguage() : "hi")
-                ));
+                // HashMap (not Map.of) — phone/email may be null and Map.of rejects nulls.
+                Map<String, Object> userInfo = new java.util.HashMap<>();
+                userInfo.put("id", user.getId());
+                userInfo.put("phone", user.getPhone());
+                userInfo.put("email", user.getEmail());
+                userInfo.put("role", user.getRole());
+                userInfo.put("language", user.getLanguage() != null ? user.getLanguage() : "hi");
+                yield ResponseEntity.ok(Map.of("success", true, "user", userInfo));
             }
         };
     }

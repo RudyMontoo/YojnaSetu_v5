@@ -21,9 +21,15 @@ public class User {
     @Id
     private String id;
 
-    /** E.164 format: +919876543210 */
-    @Indexed(unique = true)
+    /** E.164 format: +919876543210. Sparse: email-only users have no phone,
+     *  and a non-sparse unique index would reject a second null phone. */
+    @Indexed(unique = true, sparse = true)
     private String phone;
+
+    /** Email login identity (alternative to phone). Sparse-unique for the same
+     *  reason as phone — phone-only users have no email. */
+    @Indexed(unique = true, sparse = true)
+    private String email;
 
     /** CITIZEN | CSC_OPERATOR | ADMIN */
     private String role = "CITIZEN";

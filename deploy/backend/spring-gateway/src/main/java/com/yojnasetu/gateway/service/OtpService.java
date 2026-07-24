@@ -32,8 +32,12 @@ public class OtpService {
     private static final int MAX_ATTEMPTS = 5;
 
     private final OtpSessionRepository otpSessionRepository;
+    private final EmailService emailService;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final SecureRandom random = new SecureRandom();
+
+    /** Which channel to deliver the OTP over — decides SMS/log vs email. */
+    public enum Channel { SMS, EMAIL }
 
     @Value("${twilio.account-sid:}")
     private String twilioAccountSid;
@@ -46,8 +50,9 @@ public class OtpService {
 
     private boolean twilioInitialized = false;
 
-    public OtpService(OtpSessionRepository otpSessionRepository) {
+    public OtpService(OtpSessionRepository otpSessionRepository, EmailService emailService) {
         this.otpSessionRepository = otpSessionRepository;
+        this.emailService = emailService;
     }
 
     private synchronized void ensureTwilioInit() {
@@ -57,23 +62,25 @@ public class OtpService {
         }
     }
 
-    public String generateAndSend(String phone) {
+    public String generateAndSend(String identifier, Channel channel) {
         String otp = String.format("%0" + OTP_LENGTH + "d", random.nextInt((int) Math.pow(10, OTP_LENGTH)));
 
-        OtpSession session = otpSessionRepository.findByPhone(phone).orElse(new OtpSession());
-        session.setPhone(phone);
+        OtpSession session = otpSessionRepository.findByIdentifier(identifier).orElse(new OtpSession());
+        session.setIdentifier(identifier);
         session.setOtpHash(passwordEncoder.encode(otp));
         session.setAttemptCount(0);
         session.setExpiresAt(LocalDateTime.now().plusMinutes(TTL_MINUTES));
         otpSessionRepository.save(session);
 
-        if (twilioAccountSid.isBlank() || twilioAuthToken.isBlank() || twilioFromNumber.isBlank()) {
+        if (channel == Channel.EMAIL) {
+            emailService.sendOtp(identifier, otp);
+        } else if (twilioAccountSid.isBlank() || twilioAuthToken.isBlank() || twilioFromNumber.isBlank()) {
             System.err.println("WARNING: Twilio not configured (TWILIO_ACCOUNT_SID/AUTH_TOKEN/FROM_NUMBER) — "
-                    + "OTP for " + phone + " is: " + otp + " (logged instead of sent, dev-only fallback)");
+                    + "OTP for " + identifier + " is: " + otp + " (logged instead of sent, dev-only fallback)");
         } else {
             ensureTwilioInit();
             Message.creator(
-                    new PhoneNumber(phone),
+                    new PhoneNumber(identifier),
                     new PhoneNumber(twilioFromNumber),
                     "Aapka Yojna Setu OTP: " + otp + ". 10 minute mein expire ho jayega. Kisi ke saath share na karein."
             ).create();
@@ -84,13 +91,13 @@ public class OtpService {
 
     public enum VerifyResult { SUCCESS, EXPIRED_OR_NOT_FOUND, WRONG_OTP, LOCKED }
 
-    public VerifyResult verify(String phone, String otp) {
-        Optional<OtpSession> maybeSession = otpSessionRepository.findByPhone(phone);
+    public VerifyResult verify(String identifier, String otp) {
+        Optional<OtpSession> maybeSession = otpSessionRepository.findByIdentifier(identifier);
         if (maybeSession.isEmpty()) return VerifyResult.EXPIRED_OR_NOT_FOUND;
 
         OtpSession session = maybeSession.get();
         if (session.getExpiresAt().isBefore(LocalDateTime.now())) {
-            otpSessionRepository.deleteByPhone(phone);
+            otpSessionRepository.deleteByIdentifier(identifier);
             return VerifyResult.EXPIRED_OR_NOT_FOUND;
         }
         if (session.getAttemptCount() >= MAX_ATTEMPTS) {
@@ -98,7 +105,7 @@ public class OtpService {
         }
 
         if (passwordEncoder.matches(otp, session.getOtpHash())) {
-            otpSessionRepository.deleteByPhone(phone);
+            otpSessionRepository.deleteByIdentifier(identifier);
             return VerifyResult.SUCCESS;
         } else {
             session.setAttemptCount(session.getAttemptCount() + 1);
