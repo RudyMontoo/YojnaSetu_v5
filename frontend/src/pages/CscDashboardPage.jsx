@@ -1,9 +1,9 @@
-import { useState } from 'react'
-import { Search, ShieldAlert, CheckCircle2, XCircle, Loader2, Building2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Search, ShieldAlert, CheckCircle2, XCircle, Loader2, Building2, PhoneCall, UserCheck, RefreshCw } from 'lucide-react'
 import { Navbar, BottomNav } from '../components/Navbar'
 import { Reveal } from '../components/motion'
 import { Sparkles } from 'lucide-react'
-import { ai } from '../lib/api'
+import { ai, gateway } from '../lib/api'
 import { useAutoTranslate } from '../lib/i18n'
 import '../components/components.css'
 import './CscDashboardPage.css'
@@ -19,6 +19,10 @@ const UI = {
     err403: "This tool is for CSC operators only. Your account isn't marked as an operator.",
     err401: 'Please login again — your session has expired.',
     errGeneric: 'Could not reach the alternatives service.',
+    // callback queue
+    queueTitle: 'Incoming Help Requests', refresh: 'Refresh',
+    queueEmpty: 'No pending callback requests right now.',
+    citizen: 'Citizen', call: 'Call', claim: 'Claim', resolve: 'Resolve',
 }
 
 // Agent 9 — CSC Assist. Real operator tool: a citizen at the counter is
@@ -47,6 +51,17 @@ export default function CscDashboardPage() {
     const [loading, setLoading] = useState(false)
     const [result, setResult] = useState(null)
     const [error, setError] = useState('')
+    const [queue, setQueue] = useState([])
+    const [queueError, setQueueError] = useState('')
+
+    const loadQueue = async () => {
+        try { const res = await gateway.helpQueue(); setQueue(res.requests || []); setQueueError('') }
+        catch (err) { setQueueError(err.status === 403 ? UI.err403 : (err.message || UI.errGeneric)) }
+    }
+    useEffect(() => { loadQueue() }, [])
+    const claim = async (id) => { try { await gateway.claimHelp(id) } finally { loadQueue() } }
+    const resolveReq = async (id) => { try { await gateway.resolveHelp(id) } finally { loadQueue() } }
+
     const tr = useAutoTranslate([
         ...Object.values(UI), ...DOC_TYPES.map(d => d.label),
         error, result?.scheme_name, result?.operator_advice,
@@ -90,6 +105,44 @@ export default function CscDashboardPage() {
                         </p>
                     </div>
                 </div>
+
+                {/* ── Incoming callback requests from citizens ── */}
+                {!queueError && (
+                <Reveal><div className="glass-card" style={{ padding: 18, marginBottom: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                        <PhoneCall size={16} className="text-saffron" />
+                        <h2 style={{ margin: 0, fontSize: 16 }}>{tr(UI.queueTitle)}{queue.length > 0 ? ` (${queue.length})` : ''}</h2>
+                        <button type="button" className="btn btn-ghost btn-sm" style={{ marginLeft: 'auto' }} onClick={loadQueue}>
+                            <RefreshCw size={13} /> {tr(UI.refresh)}
+                        </button>
+                    </div>
+                    {queue.length === 0 ? (
+                        <p className="text-muted" style={{ fontSize: 13 }}>{tr(UI.queueEmpty)}</p>
+                    ) : queue.map(q => (
+                        <div key={q.id} className="glass-card" style={{ padding: 12, marginBottom: 8 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                <div>
+                                    <p style={{ margin: 0, fontWeight: 600 }}>{q.citizenName || tr(UI.citizen)}</p>
+                                    <a href={`tel:${q.phone}`} className="text-muted" style={{ fontSize: 13 }}>{q.phone}</a>
+                                </div>
+                                <span className={`badge ${q.status === 'assigned' ? 'badge-green' : 'badge-muted'}`}>{q.status}</span>
+                            </div>
+                            {q.message && <p style={{ fontSize: 13, marginTop: 6 }}>{q.message}</p>}
+                            <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+                                <a href={`tel:${q.phone}`} className="btn btn-primary btn-sm"><PhoneCall size={13} /> {tr(UI.call)}</a>
+                                {q.status === 'waiting' && (
+                                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => claim(q.id)}>
+                                        <UserCheck size={13} /> {tr(UI.claim)}
+                                    </button>
+                                )}
+                                <button type="button" className="btn btn-ghost btn-sm" onClick={() => resolveReq(q.id)}>
+                                    <CheckCircle2 size={13} /> {tr(UI.resolve)}
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div></Reveal>
+                )}
 
                 <Reveal><form onSubmit={submit} className="glass-card csc-form">
                     <label className="csc-field">
