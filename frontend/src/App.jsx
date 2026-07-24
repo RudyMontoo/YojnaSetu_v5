@@ -20,6 +20,9 @@ const ScannerPage = lazy(() => import('./pages/ScannerPage'))
 const CSCFinderPage = lazy(() => import('./pages/CSCFinderPage'))
 const CscDashboardPage = lazy(() => import('./pages/CscDashboardPage'))
 const ProfilePage = lazy(() => import('./pages/ProfilePage'))
+const BecomeHelperPage = lazy(() => import('./pages/BecomeHelperPage'))
+const HelperPortalPage = lazy(() => import('./pages/HelperPortalPage'))
+const AdminPortalPage = lazy(() => import('./pages/AdminPortalPage'))
 const MythosPreview = lazy(() => import('./pages/preview/MythosPreview'))
 const MandalaTower3D = lazy(() => import('./components/MandalaTower3D'))
 
@@ -63,6 +66,9 @@ export default function App() {
           <Route path="/csc-finder" element={<CSCFinderPage />} />
           <Route path="/csc-dashboard" element={<CscDashboardPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/become-helper" element={<BecomeHelperPage />} />
+          <Route path="/helper" element={<HelperPortalPage />} />
+          <Route path="/admin" element={<AdminPortalPage />} />
           <Route path="/preview/mythos" element={<MythosPreview />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

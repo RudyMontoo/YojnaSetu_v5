@@ -59,6 +59,7 @@ export default function SignInPage() {
                 id: res.user?.id,
                 phone: res.user?.phone || (isEmail ? '' : fullPhone),
                 email: res.user?.email || (isEmail ? email.trim() : ''),
+                role: res.user?.role || 'CITIZEN',
                 name: '',
                 language: res.user?.language || 'en',
             }))

@@ -45,4 +45,28 @@ public class EmailService {
                 + "\n\n10 minute mein expire ho jayega. Kisi ke saath share na karein.\n\n— Yojna Setu");
         sender.send(msg);
     }
+
+    /** Emails an approved helper their login credentials. Same log-fallback as above. */
+    public void sendCredentials(String email, String name, String helperId, String tempPassword) {
+        JavaMailSender sender = mailSenderProvider.getIfAvailable();
+        String body = "Namaste " + (name != null ? name : "") + ",\n\n"
+                + "Aapki Yojna Setu Helper application APPROVE ho gayi hai! 🎉\n\n"
+                + "Aapke helper portal login details:\n"
+                + "  Helper ID: " + helperId + "\n"
+                + "  Temporary password: " + tempPassword + "\n\n"
+                + "Pehli baar login karne par aapko apna password reset karna hoga.\n"
+                + "Login: <your-site>/helper\n\n"
+                + "Kisi ke saath ye details share na karein.\n\n— Yojna Setu";
+        if (!enabled || from == null || from.isBlank() || sender == null) {
+            System.err.println("WARNING: Email not configured — Helper credentials for " + email
+                    + " => id=" + helperId + " password=" + tempPassword + " (logged instead of sent)");
+            return;
+        }
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom(from);
+        msg.setTo(email);
+        msg.setSubject("Yojna Setu Helper — your login credentials");
+        msg.setText(body);
+        sender.send(msg);
+    }
 }

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
     LayoutDashboard, FileText, Bookmark, Bell, Settings, LogOut,
     CheckCircle, Clock, ChevronRight, User, Globe, Smartphone, Shield,
-    HeartHandshake, Upload, Loader2, IndianRupee, AlertTriangle, ShieldCheck, WifiOff
+    HeartHandshake, Upload, Loader2, IndianRupee, AlertTriangle, ShieldCheck, WifiOff, HandHelping
 } from 'lucide-react'
 import { getLocalUser, clearLocalUser } from '../lib/auth'
 import { gateway, ai } from '../lib/api'
@@ -54,6 +54,7 @@ const PUI = {
     deleteAccount: 'Delete my account & data',
     deleteDesc: 'Right to erasure (DPDP Act 2023): profile, applications and chat history are permanently removed.',
     deletePermanently: 'Delete permanently', helpSupport: 'Help & Support', hours: 'Mon–Sat, 9am–6pm',
+    becomeHelper: 'Become a Helper', becomeHelperSub: 'Help others in your area apply for schemes — get verified by our team.', applyNow: 'Apply',
     // DLC (Agent 12 — Offline Survival Proof)
     dlcTitle: 'Life Certificate (works offline)',
     dlcDesc: 'Prove you are alive to keep your pension flowing — even with no network. Your phone signs the proof securely; it syncs when you are back online, or show the QR to a helper who has network.',
@@ -724,6 +725,20 @@ export default function ProfilePage() {
                         )}
 
                     </div>
+                </div>
+
+                {/* Become a Helper — pinned at the bottom of the profile page */}
+                <div className="glass-card" style={{ padding: 18, marginTop: 16, display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 12, background: 'var(--grad-aarti)', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                        <HandHelping size={22} style={{ color: '#14100a' }} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ margin: 0, fontWeight: 700 }}>{tr(PUI.becomeHelper)}</p>
+                        <p className="text-muted" style={{ margin: 0, fontSize: 13 }}>{tr(PUI.becomeHelperSub)}</p>
+                    </div>
+                    <button className="btn btn-primary btn-aarti btn-sm" style={{ flexShrink: 0 }} onClick={() => navigate('/become-helper')}>
+                        {tr(PUI.applyNow)} <ChevronRight size={14} />
+                    </button>
                 </div>
 
             </main>

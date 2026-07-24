@@ -30,6 +30,27 @@ export const gateway = {
   getProfile: () => request("/api/v2/profile/me"),
   updateProfile: (updates) => request("/api/v2/profile/me", { method: "PATCH", body: updates }),
   deleteAccount: () => request("/api/v2/user/me", { method: "DELETE" }),
+  // Offline-help callback queue
+  requestHelp: (payload) => request("/api/v2/help/request", { method: "POST", body: payload }),
+  myHelpRequests: () => request("/api/v2/help/my-requests"),
+  helpQueue: () => request("/api/v2/help/requests"),                                  // operator only
+  claimHelp: (id) => request(`/api/v2/help/requests/${id}/claim`, { method: "POST" }), // operator only
+  resolveHelp: (id) => request(`/api/v2/help/requests/${id}/resolve`, { method: "POST" }), // operator only
+  // Become-a-helper onboarding
+  applyHelper: (payload) => request("/api/v2/helper/apply", { method: "POST", body: payload }),
+  myHelperApplication: () => request("/api/v2/helper/my-application"),
+  helperApplications: () => request("/api/v2/helper/applications"),                             // admin only
+  approveHelper: (id) => request(`/api/v2/helper/applications/${id}/approve`, { method: "POST" }), // admin only
+  rejectHelper: (id) => request(`/api/v2/helper/applications/${id}/reject`, { method: "POST" }),   // admin only
+  // Helper PORTAL auth (separate ID+password identity)
+  helperLogin: (helperId, password) => request("/api/v2/helper-portal/login", { method: "POST", body: { helperId, password } }),
+  helperMe: () => request("/api/v2/helper-portal/me"),
+  helperChangePassword: (currentPassword, newPassword) => request("/api/v2/helper-portal/change-password", { method: "POST", body: { currentPassword, newPassword } }),
+  helperLogout: () => request("/api/v2/helper-portal/logout", { method: "POST" }),
+  // Registered kendras (Option B)
+  kendrasNearby: (lat, lng) => request(`/api/v2/kendras/nearby?lat=${lat}&lng=${lng}`),
+  registerKendra: (payload) => request("/api/v2/kendras", { method: "POST", body: payload }), // helper only
+  myKendras: () => request("/api/v2/kendras/mine"),                                            // helper only
   listApplications: (status) => request(`/api/v2/applications${status ? `?status=${status}` : ""}`),
   createApplication: (schemeCode) => request("/api/v2/applications", { method: "POST", body: { schemeCode } }),
   updateApplication: (id, body) => request(`/api/v2/applications/${id}`, { method: "PATCH", body }),

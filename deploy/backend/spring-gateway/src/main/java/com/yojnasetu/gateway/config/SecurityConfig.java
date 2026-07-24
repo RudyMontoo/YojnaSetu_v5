@@ -63,6 +63,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/v2/auth/**",
+                                "/api/v2/helper-portal/login", // helper portal login (ID+password); /me + /change-password stay authenticated
                                 "/api/health",
                                 "/api/chat/**", // proxied to FastAPI, public for demo per existing ProxyController
                                 "/api/agent/**",
