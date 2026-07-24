@@ -60,6 +60,8 @@ _EXTRACT_PROMPT = (
     "it is the 10-character code (5 letters, 4 digits, 1 letter). Keep spaces as printed.\n"
     '  "gender": "male"/"female"/"other"/null,\n'
     '  "address": full address as printed, or null,\n'
+    '  "state": the Indian STATE name from the address (e.g. "Uttar Pradesh", "Maharashtra"), or null,\n'
+    '  "district": the district or city from the address, or null,\n'
     '  "languages_detected": list of language names you see on the document,\n'
     '  "raw_text": all visible text, preserving the original scripts.\n'
     "Do not guess or hallucinate any field that is not clearly visible — use null. "
