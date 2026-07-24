@@ -96,6 +96,20 @@ DPDP-2023 compliant from day one: AES-256 field encryption, SHA-256 Aadhaar hash
 
 </td>
 </tr>
+<tr>
+<td width="50%" valign="top">
+
+### 🤝 A human helper is one tap away
+Can't do it alone? Request a **callback** — a verified CSC helper phones you back. Helpers onboard via KYC (Aadhaar Verhoeff-checksum + PAN, stored encrypted), get **admin-approved**, and are emailed a login to their **own portal** — separate identity and pages from the citizen app. Registered kendras show up "connected with us" on the finder.
+
+</td>
+<td width="50%" valign="top">
+
+### ☁️ Live on the cloud
+Deployed on **Azure Container Apps** (serverless, scale-to-zero, WebSockets): the React PWA, the FastAPI AI hub, and the Spring gateway, backed by **MongoDB Atlas**. Sign in by **mobile *or* email OTP**; the Lens falls back to Gemini vision where a GPU isn't available.
+
+</td>
+</tr>
 </table>
 
 ---
