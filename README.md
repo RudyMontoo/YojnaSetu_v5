@@ -286,6 +286,31 @@ cd frontend && npm install && npm run dev
 
 </details>
 
+<details>
+<summary><b>Deploy to the cloud</b></summary>
+
+<br/>
+
+One command builds all three containers locally and ships them to **Azure Container Apps** (serverless, scale-to-zero, WebSockets), backed by MongoDB Atlas:
+
+```bash
+cp deploy/azure/.env.deploy.example deploy/azure/.env.deploy   # fill secrets (gitignored)
+bash deploy/azure/deploy.sh
+```
+
+Full runbook + the gotchas solved along the way → [`deploy/azure/DEPLOY.md`](deploy/azure/DEPLOY.md).
+
+</details>
+
+### 🧩 Three surfaces, one design system
+| Surface | Route | Who | Auth |
+|---|---|---|---|
+| **Citizen app** | `/` | the public | mobile **or** email OTP |
+| **Helper portal** | `/helper` | verified CSC helpers | admin-issued ID + password |
+| **Admin console** | `/admin` | the operator | admin OTP (`ROLE_ADMIN`) |
+
+The helper & admin surfaces are unlisted from the citizen app and gated by signed RS256 role claims — separate identities, separate pages.
+
 ---
 
 ## 🛡️ Security & compliance
@@ -293,8 +318,9 @@ cd frontend && npm install && npm run dev
 | Guarantee | How |
 |---|---|
 | **No PII in the clear** | AES-256-GCM on name/dob/phone before every write |
-| **Aadhaar never stored raw** | SHA-256 + server salt, one-way, never decrypted |
-| **No tokens in JavaScript** | RS256 JWT lives only in httpOnly cookies |
+| **Aadhaar never stored raw** | SHA-256 + server salt, one-way, never decrypted (Verhoeff-checked on entry) |
+| **Helper KYC encrypted** | Applicant name/phone/PAN AES-256-GCM at rest — never a raw number or document image |
+| **No tokens in JavaScript** | RS256 JWT lives only in httpOnly cookies; role claims signed, checked server-side |
 | **Nothing leaks to logs** | PII-redaction filter strips Aadhaar/phone/PAN/email from every log line |
 | **Voice is ephemeral** | Audio processed in memory, never written to disk — only the transcript persists |
 | **Right to erasure** | DPDP cascade wipes a citizen across every collection in seconds |
