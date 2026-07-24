@@ -123,14 +123,9 @@ def preprocess_for_vision(image_bytes: bytes, *, max_side: int = 1600) -> bytes:
         return image_bytes
 
 
-async def extract_document_fields(image_bytes: bytes) -> dict | None:
-    """Runs the vision model on a document image and returns structured fields,
-    or None if the model is unavailable / the call fails (caller then falls back
-    to EasyOCR). Adds `aadhaar_checksum_valid` when an Aadhaar number is read."""
-    if not vision_model_available():
-        return None
-
-    prepared = preprocess_for_vision(image_bytes)
+async def _extract_via_ollama(prepared: bytes) -> dict | None:
+    """LOCAL GPU path — the qwen2.5vl vision model via Ollama. Preferred wherever
+    it's available (private, on-device, no per-call cost)."""
     b64 = base64.b64encode(prepared).decode("ascii")
     payload = {
         "model": VISION_MODEL,
@@ -145,11 +140,44 @@ async def extract_document_fields(image_bytes: bytes) -> dict | None:
             resp = await client.post(f"{OLLAMA_BASE_URL}/api/generate", json=payload)
             resp.raise_for_status()
             raw = resp.json().get("response", "")
-        fields = json.loads(raw)
+        return json.loads(raw)
     except Exception as e:  # noqa: BLE001
-        logger.warning("vision OCR failed (%s: %s) — caller will fall back", e.__class__.__name__, e)
+        logger.warning("Ollama vision OCR failed (%s: %s)", e.__class__.__name__, e)
         return None
 
+
+async def _extract_via_gemini(prepared: bytes) -> dict | None:
+    """CLOUD path — Gemini 2.5 Flash multimodal. Used when Ollama isn't available
+    (a GPU-less cloud container). PRIVACY NOTE: the document image is sent to
+    Google's API — acceptable for a cloud deploy without a GPU, but the local
+    Ollama path above keeps everything on-device. Requires GEMINI_API_KEY."""
+    key = os.getenv("GEMINI_API_KEY", "").strip()
+    if not key:
+        return None
+    try:
+        from langchain_google_genai import ChatGoogleGenerativeAI
+        from langchain_core.messages import HumanMessage
+        b64 = base64.b64encode(prepared).decode("ascii")
+        llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=key,
+                                     temperature=0, max_retries=1)
+        msg = HumanMessage(content=[
+            {"type": "text", "text": _EXTRACT_PROMPT},
+            {"type": "image_url", "image_url": f"data:image/jpeg;base64,{b64}"},
+        ])
+        resp = await llm.ainvoke([msg])
+        raw = (resp.content if isinstance(resp.content, str) else str(resp.content)).strip()
+        if raw.startswith("```"):                    # strip a ```json … ``` fence if present
+            raw = raw.strip("`")
+            raw = raw[4:].strip() if raw.lower().startswith("json") else raw.strip()
+        return json.loads(raw)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Gemini vision OCR failed (%s: %s)", e.__class__.__name__, e)
+        return None
+
+
+def _postprocess_fields(fields: dict, engine: str) -> dict:
+    """Shared post-processing for either OCR engine: normalize doc_type, then
+    resolve + Verhoeff-validate the Aadhaar number."""
     _correct_doc_type(fields)
 
     if fields.get("doc_type") == "aadhaar":
@@ -167,8 +195,28 @@ async def extract_document_fields(image_bytes: bytes) -> dict | None:
         if idn.isdigit() and len(idn) == 12:
             fields["aadhaar_checksum_valid"] = verhoeff_validate(idn)
 
-    fields["engine"] = f"vision:{VISION_MODEL}"
+    fields["engine"] = engine
     return fields
+
+
+async def extract_document_fields(image_bytes: bytes) -> dict | None:
+    """Reads a document image into structured fields, or None if no engine could.
+    Prefers the LOCAL Ollama GPU model (private, free); falls back to Gemini's
+    cloud vision API when Ollama isn't available — e.g. a GPU-less cloud
+    container (see _extract_via_gemini's privacy note). Adds
+    `aadhaar_checksum_valid` when an Aadhaar number is read."""
+    prepared = preprocess_for_vision(image_bytes)
+
+    if vision_model_available():
+        fields = await _extract_via_ollama(prepared)
+        if fields is not None:
+            return _postprocess_fields(fields, f"vision:{VISION_MODEL}")
+
+    fields = await _extract_via_gemini(prepared)
+    if fields is not None:
+        return _postprocess_fields(fields, "vision:gemini-2.5-flash")
+
+    return None
 
 
 def _find_aadhaar_number(*texts) -> str | None:
