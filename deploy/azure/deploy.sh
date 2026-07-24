@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+# deploy/azure/deploy.sh — deploy all 3 Yojna Setu services to Azure Container Apps.
+#
+# Cloud Run equivalent: serverless containers, scale-to-zero, WebSocket support
+# (needed for voice + chat). Images are built LOCALLY with Docker and pushed to
+# ACR, because `az acr build` (ACR Tasks) is blocked on Azure for Students subs.
+#
+# Secrets are read from deploy/azure/.env.deploy (gitignored — copy the .example
+# and fill it in). Nothing secret is passed on the command line.
+#
+#   cp deploy/azure/.env.deploy.example deploy/azure/.env.deploy   # then edit
+#   bash deploy/azure/deploy.sh
+#
+# Re-running redeploys with the latest source. Idempotent (create-or-update).
+set -euo pipefail
+
+HERE="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$HERE/../.." && pwd)"
+[ -f "$HERE/.env.deploy" ] && set -a && . "$HERE/.env.deploy" && set +a
+
+RG="${RG:-yojna-setu}"
+LOCATION="${LOCATION:-centralindia}"
+ENVNAME="${ENVNAME:-yojna-env}"
+ACR="${ACR:-}"                      # set/reused via .env.deploy so redeploys hit the same registry
+
+: "${MONGODB_URI:?set MONGODB_URI in deploy/azure/.env.deploy (Atlas connection string)}"
+: "${FIELD_ENCRYPTION_KEY:?set FIELD_ENCRYPTION_KEY}"
+: "${AADHAAR_SALT:?set AADHAAR_SALT}"
+: "${INTERNAL_API_KEY:?set INTERNAL_API_KEY (shared FastAPI<->Spring secret)}"
+: "${GEMINI_API_KEY:=}" ; : "${GROQ_API_KEY:=}" ; : "${SARVAM_API_KEY:=}"
+MONGODB_DB="${MONGODB_DB:-yojnasetu}"
+
+echo "==> Resource group: $RG ($LOCATION)"
+az group create -n "$RG" -l "$LOCATION" -o none
+
+if [ -z "$ACR" ]; then
+  ACR="yojnasetu$RANDOM"
+  echo "!!  No ACR set — created a new one: $ACR"
+  echo "!!  Add  ACR=$ACR  to deploy/azure/.env.deploy so redeploys reuse it."
+fi
+echo "==> Container Registry: $ACR"
+az acr create -g "$RG" -n "$ACR" --sku Basic --admin-enabled true -o none 2>/dev/null || true
+ACR_SERVER="$(az acr show -g "$RG" -n "$ACR" --query loginServer -o tsv)"
+ACR_USER="$(az acr credential show -n "$ACR" --query username -o tsv)"
+ACR_PASS="$(az acr credential show -n "$ACR" --query 'passwords[0].value' -o tsv)"
+
+echo "==> Container Apps environment: $ENVNAME"
+az containerapp env create -g "$RG" -n "$ENVNAME" -l "$LOCATION" -o none 2>/dev/null || true
+
+# ── 1) Build the 3 images LOCALLY and push them ──
+# NOTE: `az acr build` (ACR Tasks) is BLOCKED on Azure for Students subscriptions
+# (TasksOperationsNotAllowed), so we build here with Docker and push. Bonus:
+# Docker's build honors .dockerignore correctly (MatchesOrParentMatches), so the
+# 7GB venv and .env secrets stay OUT of the image — unlike az's source-packer.
+echo "==> Logging Docker in to ACR"
+az acr login -n "$ACR"
+
+echo "==> Building + pushing ai-service (large — torch/mediapipe/easyocr; first build slow)"
+DOCKER_BUILDKIT=0 docker build -t "$ACR_SERVER/ai-service:latest"     -f "$REPO_ROOT/ai_service/Dockerfile" "$REPO_ROOT"
+docker push "$ACR_SERVER/ai-service:latest"
+
+# --no-cache on these two: the legacy builder (BuildKit off) unreliably caches the
+# mvn/npm build step that runs AFTER the source COPY, shipping stale jars/bundles.
+# They're fast (~1-2 min) so always building clean is worth the correctness.
+echo "==> Building + pushing spring-gateway"
+DOCKER_BUILDKIT=0 docker build --no-cache -t "$ACR_SERVER/spring-gateway:latest" -f "$REPO_ROOT/deploy/backend/spring-gateway/Dockerfile" "$REPO_ROOT/deploy/backend/spring-gateway"
+docker push "$ACR_SERVER/spring-gateway:latest"
+
+echo "==> Building + pushing frontend"
+DOCKER_BUILDKIT=0 docker build --no-cache -t "$ACR_SERVER/frontend:latest"       -f "$REPO_ROOT/frontend/Dockerfile" "$REPO_ROOT"
+docker push "$ACR_SERVER/frontend:latest"
+
+reg=(--registry-server "$ACR_SERVER" --registry-username "$ACR_USER" --registry-password "$ACR_PASS")
+
+# ── 2) ai_service (internal ingress — only the frontend nginx reaches it) ──
+echo "==> Deploying ai-service"
+az containerapp create -g "$RG" -n ai-service --environment "$ENVNAME" \
+  --image "$ACR_SERVER/ai-service:latest" "${reg[@]}" \
+  --target-port 8080 --ingress internal --transport auto \
+  --min-replicas 1 --max-replicas 3 --cpu 2 --memory 4Gi \
+  --secrets mongodb-uri="$MONGODB_URI" gemini-key="$GEMINI_API_KEY" groq-key="$GROQ_API_KEY" \
+            sarvam-key="$SARVAM_API_KEY" internal-key="$INTERNAL_API_KEY" \
+  --env-vars ENVIRONMENT=production MONGODB_DB="$MONGODB_DB" OLLAMA_ENABLED=0 \
+             JWT_PUBLIC_KEY_PATH=/app/keys/jwt_public.pem \
+             MONGODB_URI=secretref:mongodb-uri GEMINI_API_KEY=secretref:gemini-key \
+             GROQ_API_KEY=secretref:groq-key SARVAM_API_KEY=secretref:sarvam-key \
+             INTERNAL_API_KEY=secretref:internal-key -o none
+AI_FQDN="$(az containerapp show -g "$RG" -n ai-service --query properties.configuration.ingress.fqdn -o tsv)"
+
+# ── 3) spring-gateway (internal ingress) ──
+echo "==> Deploying spring-gateway"
+az containerapp create -g "$RG" -n spring-gateway --environment "$ENVNAME" \
+  --image "$ACR_SERVER/spring-gateway:latest" "${reg[@]}" \
+  --target-port 8080 --ingress internal --transport auto \
+  --min-replicas 1 --max-replicas 3 --cpu 1 --memory 2Gi \
+  --secrets mongodb-uri="$MONGODB_URI" enc-key="$FIELD_ENCRYPTION_KEY" \
+            aadhaar-salt="$AADHAAR_SALT" internal-key="$INTERNAL_API_KEY" \
+            smtp-user="${SMTP_USERNAME:-}" smtp-pass="${SMTP_PASSWORD:-}" \
+  --env-vars MONGODB_DB="$MONGODB_DB" COOKIE_SECURE=true \
+             JWT_PRIVATE_KEY_PATH=/app/keys/jwt_private.pem JWT_PUBLIC_KEY_PATH=/app/keys/jwt_public.pem \
+             FASTAPI_URL="http://$AI_FQDN" \
+             SMTP_HOST="${SMTP_HOST:-smtp.gmail.com}" SMTP_PORT="${SMTP_PORT:-587}" \
+             MAIL_FROM="${MAIL_FROM:-}" MAIL_ENABLED="${MAIL_ENABLED:-false}" \
+             SMTP_USERNAME=secretref:smtp-user SMTP_PASSWORD=secretref:smtp-pass \
+             MONGODB_URI=secretref:mongodb-uri FIELD_ENCRYPTION_KEY=secretref:enc-key \
+             AADHAAR_SALT=secretref:aadhaar-salt INTERNAL_SERVICE_KEY=secretref:internal-key -o none
+SPRING_FQDN="$(az containerapp show -g "$RG" -n spring-gateway --query properties.configuration.ingress.fqdn -o tsv)"
+
+# ACA's internal ingress (Envoy) must accept plaintext HTTP/1.1 from the nginx
+# hop: the frontend proxies over http:// to these FQDNs. Without allow-insecure +
+# transport http, Envoy answers 426 "Upgrade Required" (and TLS without SNI 502s).
+# The nginx side is handled in frontend/nginx.conf.template (proxy_http_version
+# 1.1 + proxy_ssl_server_name on). Learned the hard way — do not revert.
+for b in ai-service spring-gateway; do
+  az containerapp ingress enable -g "$RG" -n "$b" --type internal --target-port 8080 --transport http --allow-insecure -o none
+done
+
+# ── 4) frontend (EXTERNAL ingress — public app; nginx reverse-proxies backends) ──
+echo "==> Deploying frontend (public)"
+az containerapp create -g "$RG" -n frontend --environment "$ENVNAME" \
+  --image "$ACR_SERVER/frontend:latest" "${reg[@]}" \
+  --target-port 8080 --ingress external --transport auto \
+  --min-replicas 1 --max-replicas 3 --cpu 0.5 --memory 1Gi \
+  --env-vars AI_SERVICE_URL="http://$AI_FQDN" SPRING_URL="http://$SPRING_FQDN" -o none
+APP_URL="$(az containerapp show -g "$RG" -n frontend --query properties.configuration.ingress.fqdn -o tsv)"
+
+# ── 5) Backfill cross-references now that all 3 URLs exist ──
+echo "==> Wiring cross-service URLs (FRONTEND_URL for CORS/cookies, ai->spring)"
+az containerapp update -g "$RG" -n ai-service \
+  --set-env-vars SPRING_BOOT_INTERNAL_URL="http://$SPRING_FQDN" FRONTEND_URL="https://$APP_URL" -o none
+az containerapp update -g "$RG" -n spring-gateway \
+  --set-env-vars FRONTEND_URL="https://$APP_URL" -o none
+
+echo ""
+echo "==> DONE.  App is live at:  https://$APP_URL"
+echo "    ai-service (internal): $AI_FQDN"
+echo "    spring     (internal): $SPRING_FQDN"
+echo "    Login OTPs (dev fallback) print here:"
+echo "      az containerapp logs show -g $RG -n spring-gateway --follow"

@@ -1,0 +1,24 @@
+# Root .dockerignore — applies to the ai_service and frontend image builds,
+# whose build context is the repo root (see deploy/azure/deploy.sh). The Spring
+# build uses its own sub-context (deploy/backend/spring-gateway) and is not
+# affected by this file.
+#
+# SECURITY: keeps .env (real secrets) and the multi-GB venv/node_modules OUT of
+# the images. Do NOT remove the .env lines.
+**/__pycache__/
+**/*.pyc
+**/venv/
+**/.venv/
+**/node_modules/
+**/.env
+**/.env.*
+**/*.log
+**/.pytest_cache/
+**/dist/
+**/.vite/
+.git/
+.github/
+docs/
+ai_service/tests/
+# NB: deploy/backend/spring-gateway/keys/jwt_public.pem is intentionally NOT
+# ignored — the ai_service image bakes the PUBLIC key to verify citizen JWTs.

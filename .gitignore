@@ -82,3 +82,6 @@ CLAUDE.md
 
 # course/eval doc — not part of the public repo
 MSE 2 Guidelines.docx
+
+# Azure deploy secrets
+deploy/azure/.env.deploy

@@ -8,10 +8,23 @@ server {
     root /usr/share/nginx/html;
     index index.html;
 
+    # Azure Container Apps' internal ingress terminates TLS per-app and routes by
+    # SNI. nginx does NOT send SNI on upstream TLS by default, so the handshake is
+    # reset (502) — this makes it send SNI (= the upstream host). Server-level, so
+    # it applies to every proxied location below.
+    proxy_ssl_server_name on;
+
+    # ACA's ingress (Envoy) rejects HTTP/1.0 with "426 Upgrade Required". nginx
+    # proxies as HTTP/1.0 by DEFAULT, so every proxied location must force 1.1.
+    # (The /ws block already set this; /api and /agents did not — hence the 426.)
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";   # /ws overrides this with "upgrade"
+
     # Spring Boot gateway — all REST (auth, profile, applications, schemes, trending).
     location /api/ {
         proxy_pass ${SPRING_URL};
-        proxy_set_header Host $host;
+        proxy_set_header Host $proxy_host;        # ACA internal ingress routes by Host — must be the backend FQDN, not $host
+        proxy_set_header X-Forwarded-Host $host;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
@@ -22,14 +35,16 @@ server {
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
+        proxy_set_header Host $proxy_host;        # ACA internal ingress routes by Host — must be the backend FQDN, not $host
+        proxy_set_header X-Forwarded-Host $host;
         proxy_read_timeout 3600s;   # long-lived voice/chat sockets
     }
 
     # FastAPI ai_service — the rest of the AI/agent REST surface.
     location ~ ^/(orchestrator|agents|ocr|voice|translate)/ {
         proxy_pass ${AI_SERVICE_URL};
-        proxy_set_header Host $host;
+        proxy_set_header Host $proxy_host;        # ACA internal ingress routes by Host — must be the backend FQDN, not $host
+        proxy_set_header X-Forwarded-Host $host;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_read_timeout 120s;    # some agent calls (financial plan) are slow
