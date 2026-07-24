@@ -114,16 +114,30 @@ async def verify_document(
     profile = await fetch_citizen_profile(citizen_id)
     verdict = verify_document_against_profile(fields, profile)
 
-    # Read-back fields the citizen can save to their profile (no raw Aadhaar
-    # number — only the safe identity fields Spring will encrypt on write).
-    verdict["autofill"] = {
-        k: v for k, v in {
-            "name": fields.get("name"),
-            "dob": fields.get("dob"),
-            "gender": (fields.get("gender") or "").lower() or None,
-        }.items() if v
+    # Read-back fields the citizen can save to their profile — EVERYTHING useful
+    # the document gave us, so they scan once and never type it. Works for any
+    # doc type (a PAN has no address → just name/dob; an Aadhaar/ration card adds
+    # state+district). No raw Aadhaar number here — only fields Spring encrypts
+    # on write; the state name is mapped to the 2-char code the profile stores.
+    from ai_service.utils.states import _NAME_TO_CODE, parse_state_district
+    # The model's dedicated state/district fields are unreliable on a small model,
+    # so fall back to parsing the address string it always fills.
+    state_code = _NAME_TO_CODE.get((fields.get("state") or "").strip().lower())
+    district = (fields.get("district") or "").strip() or None
+    if not state_code or not district:
+        p_state, p_district = parse_state_district(fields.get("address") or "")
+        state_code = state_code or p_state
+        district = district or p_district
+    autofill = {
+        "name": fields.get("name"),
+        "dob": fields.get("dob"),
+        "gender": (fields.get("gender") or "").lower() or None,
+        "state": state_code,
+        "district": district,
     }
-    logger.info("Agent 4 doc-verify: citizen=%s doc=%s status=%s", citizen_id, verdict["doc_type"], verdict["status"])
+    verdict["autofill"] = {k: v for k, v in autofill.items() if v}
+    logger.info("Agent 4 doc-verify: citizen=%s doc=%s status=%s fields=%s",
+                citizen_id, verdict["doc_type"], verdict["status"], list(verdict["autofill"].keys()))
     return verdict
 
 

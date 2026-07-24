@@ -52,6 +52,25 @@ STATE_CODE_TO_NAME = {
 _NAME_TO_CODE = {name.lower(): code for code, name in STATE_CODE_TO_NAME.items()}
 
 
+def parse_state_district(text: str) -> tuple[str | None, str | None]:
+    """Best-effort (state_code, district) from a free-text address — a small
+    vision model reliably writes the full address but often leaves the separate
+    state/district fields null, so we recover them here. Longest state name
+    first so 'West Bengal' wins over a stray 'Bengal'. District = the segment
+    just before the state mention (fuzzy, but good enough to prefill)."""
+    if not text:
+        return None, None
+    low = text.lower()
+    state_name = next((n for n in sorted(STATE_CODE_TO_NAME.values(), key=len, reverse=True)
+                       if n.lower() in low), None)
+    if not state_name:
+        return None, None
+    code = _NAME_TO_CODE[state_name.lower()]
+    before = text[:low.rfind(state_name.lower())].rstrip(" ,-–")
+    district = before.split(",")[-1].strip() if "," in before else None
+    return code, (district or None)
+
+
 def state_match_variants(state: str) -> list[str]:
     """Given either a 2-char code or a full name, returns every string form
     that should be treated as the same state in a Mongo match. Unknown
