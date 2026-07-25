@@ -11,4 +11,9 @@ public interface HelpRequestRepository extends MongoRepository<HelpRequest, Stri
 
     /** A citizen's own requests, newest first. */
     List<HelpRequest> findByCitizenIdOrderByCreatedAtDesc(String citizenId);
+
+    /** Requests a given helper claimed/resolved, newest first. */
+    List<HelpRequest> findByAssignedOperatorIdOrderByUpdatedAtDesc(String assignedOperatorId);
+
+    long countByStatus(String status);
 }

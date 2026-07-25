@@ -67,6 +67,13 @@ public class HelpRequestController {
         return ResponseEntity.ok(Map.of("requests", repo.findByCitizenIdOrderByCreatedAtDesc(auth.getName())));
     }
 
+    /** Helper sees the requests they've claimed/resolved. */
+    @GetMapping("/my-handled")
+    public ResponseEntity<?> myHandled(Authentication auth) {
+        if (!isOperator(auth)) return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Operator access only"));
+        return ResponseEntity.ok(Map.of("requests", repo.findByAssignedOperatorIdOrderByUpdatedAtDesc(auth.getName())));
+    }
+
     /** Operator queue: everything still open (waiting + assigned), oldest first. */
     @GetMapping("/requests")
     public ResponseEntity<?> queue(Authentication auth) {

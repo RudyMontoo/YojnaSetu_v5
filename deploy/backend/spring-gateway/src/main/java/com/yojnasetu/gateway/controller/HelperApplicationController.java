@@ -3,8 +3,10 @@ package com.yojnasetu.gateway.controller;
 import com.yojnasetu.gateway.model.Helper;
 import com.yojnasetu.gateway.model.HelperApplication;
 import com.yojnasetu.gateway.model.User;
+import com.yojnasetu.gateway.repository.HelpRequestRepository;
 import com.yojnasetu.gateway.repository.HelperApplicationRepository;
 import com.yojnasetu.gateway.repository.HelperRepository;
+import com.yojnasetu.gateway.repository.KendraRepository;
 import com.yojnasetu.gateway.repository.UserRepository;
 import com.yojnasetu.gateway.security.FieldEncryptionService;
 import com.yojnasetu.gateway.service.EmailService;
@@ -38,6 +40,8 @@ public class HelperApplicationController {
 
     private final HelperApplicationRepository repo;
     private final HelperRepository helperRepo;
+    private final HelpRequestRepository helpRequestRepo;
+    private final KendraRepository kendraRepo;
     private final UserRepository userRepository;
     private final FieldEncryptionService encryption;
     private final EmailService emailService;
@@ -49,10 +53,13 @@ public class HelperApplicationController {
     private String aadhaarSalt;
 
     public HelperApplicationController(HelperApplicationRepository repo, HelperRepository helperRepo,
+                                       HelpRequestRepository helpRequestRepo, KendraRepository kendraRepo,
                                        UserRepository userRepository, FieldEncryptionService encryption,
                                        EmailService emailService) {
         this.repo = repo;
         this.helperRepo = helperRepo;
+        this.helpRequestRepo = helpRequestRepo;
+        this.kendraRepo = kendraRepo;
         this.userRepository = userRepository;
         this.encryption = encryption;
         this.emailService = emailService;
@@ -204,5 +211,82 @@ public class HelperApplicationController {
             repo.save(a);
             return ResponseEntity.ok(Map.of("success", true, "status", "rejected"));
         }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Application not found")));
+    }
+
+    // ─────────────────────────── Admin: manage helpers + stats ──────────────────────────
+
+    private Map<String, Object> helperView(Helper h) {
+        Map<String, Object> m = new HashMap<>();
+        m.put("id", h.getId());
+        m.put("helperId", h.getHelperId());
+        m.put("name", encryption.decrypt(h.getName()));   // stored encrypted
+        m.put("phone", encryption.decrypt(h.getPhone()));
+        m.put("active", h.isActive());
+        m.put("mustResetPassword", h.isMustResetPassword());
+        m.put("createdAt", h.getCreatedAt());
+        m.put("lastLoginAt", h.getLastLoginAt());
+        return m;
+    }
+
+    /** Admin: all helpers, newest first. */
+    @GetMapping("/helpers")
+    public ResponseEntity<?> helpers(Authentication auth) {
+        if (!isAdmin(auth)) return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Admin only"));
+        return ResponseEntity.ok(Map.of("helpers", helperRepo.findByOrderByCreatedAtDesc().stream().map(this::helperView).toList()));
+    }
+
+    /** Admin: deactivate / reactivate a helper (deactivated = can't log in). */
+    @PostMapping("/helpers/{id}/deactivate")
+    public ResponseEntity<?> deactivate(Authentication auth, @PathVariable String id) { return setActive(auth, id, false); }
+
+    @PostMapping("/helpers/{id}/activate")
+    public ResponseEntity<?> activate(Authentication auth, @PathVariable String id) { return setActive(auth, id, true); }
+
+    private ResponseEntity<?> setActive(Authentication auth, String id, boolean active) {
+        if (!isAdmin(auth)) return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Admin only"));
+        return helperRepo.findById(id).<ResponseEntity<?>>map(h -> {
+            h.setActive(active);
+            helperRepo.save(h);
+            return ResponseEntity.ok(Map.of("success", true, "active", active));
+        }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Helper not found")));
+    }
+
+    /** Admin: reset a helper's password — new temp password, emailed + returned, forces a reset. */
+    @PostMapping("/helpers/{id}/reset-password")
+    public ResponseEntity<?> resetHelperPassword(Authentication auth, @PathVariable String id) {
+        if (!isAdmin(auth)) return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Admin only"));
+        return helperRepo.findById(id).<ResponseEntity<?>>map(h -> {
+            String tempPassword = randomToken(10);
+            h.setPasswordHash(passwordEncoder.encode(tempPassword));
+            h.setMustResetPassword(true);
+            helperRepo.save(h);
+            String email = userRepository.findById(h.getCitizenUserId()).map(User::getEmail).orElse(null);
+            boolean emailed = false;
+            if (email != null && !email.isBlank()) {
+                emailService.sendCredentials(email, encryption.decrypt(h.getName()), h.getHelperId(), tempPassword);
+                emailed = true;
+            }
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("success", true);
+            resp.put("helperId", h.getHelperId());
+            resp.put("tempPassword", tempPassword);
+            resp.put("emailedTo", emailed ? email : null);
+            return ResponseEntity.ok(resp);
+        }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Helper not found")));
+    }
+
+    /** Admin: at-a-glance counts. */
+    @GetMapping("/stats")
+    public ResponseEntity<?> stats(Authentication auth) {
+        if (!isAdmin(auth)) return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Admin only"));
+        Map<String, Object> s = new HashMap<>();
+        s.put("helpersTotal", helperRepo.count());
+        s.put("helpersActive", helperRepo.countByActiveTrue());
+        s.put("applicationsPending", repo.countByStatus("pending"));
+        s.put("requestsWaiting", helpRequestRepo.countByStatus("waiting"));
+        s.put("requestsAssigned", helpRequestRepo.countByStatus("assigned"));
+        s.put("requestsResolved", helpRequestRepo.countByStatus("resolved"));
+        s.put("kendras", kendraRepo.countByActiveTrue());
+        return ResponseEntity.ok(s);
     }
 }

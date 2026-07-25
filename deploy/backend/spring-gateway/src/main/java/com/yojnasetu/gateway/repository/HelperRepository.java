@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface HelperRepository extends MongoRepository<Helper, String> {
     Optional<Helper> findByHelperId(String helperId);
     List<Helper> findByOrderByCreatedAtDesc();
+    long countByActiveTrue();
 }

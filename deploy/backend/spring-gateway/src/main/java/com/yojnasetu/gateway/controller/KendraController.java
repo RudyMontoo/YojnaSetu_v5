@@ -99,4 +99,18 @@ public class KendraController {
         if (!isHelper(auth)) return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Helpers only"));
         return ResponseEntity.ok(Map.of("kendras", repo.findByHelperId(auth.getName()).stream().map(k -> view(k, null)).toList()));
     }
+
+    /** Helper removes (deactivates) one of THEIR OWN kendras — ownership checked. */
+    @PostMapping("/{id}/deactivate")
+    public ResponseEntity<?> deactivate(Authentication auth, @PathVariable String id) {
+        if (!isHelper(auth)) return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Helpers only"));
+        return repo.findById(id).<ResponseEntity<?>>map(k -> {
+            if (!auth.getName().equals(k.getHelperId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Not your kendra"));
+            }
+            k.setActive(false);
+            repo.save(k);
+            return ResponseEntity.ok(Map.of("success", true));
+        }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Kendra not found")));
+    }
 }

@@ -51,6 +51,15 @@ export const gateway = {
   kendrasNearby: (lat, lng) => request(`/api/v2/kendras/nearby?lat=${lat}&lng=${lng}`),
   registerKendra: (payload) => request("/api/v2/kendras", { method: "POST", body: payload }), // helper only
   myKendras: () => request("/api/v2/kendras/mine"),                                            // helper only
+  deactivateKendra: (id) => request(`/api/v2/kendras/${id}/deactivate`, { method: "POST" }),   // helper only (own)
+  // Admin: manage helpers + stats
+  adminStats: () => request("/api/v2/helper/stats"),                                            // admin only
+  adminHelpers: () => request("/api/v2/helper/helpers"),                                        // admin only
+  deactivateHelper: (id) => request(`/api/v2/helper/helpers/${id}/deactivate`, { method: "POST" }),
+  activateHelper: (id) => request(`/api/v2/helper/helpers/${id}/activate`, { method: "POST" }),
+  resetHelperPassword: (id) => request(`/api/v2/helper/helpers/${id}/reset-password`, { method: "POST" }),
+  // Helper workspace
+  myHandled: () => request("/api/v2/help/my-handled"),                                          // helper only
   listApplications: (status) => request(`/api/v2/applications${status ? `?status=${status}` : ""}`),
   createApplication: (schemeCode) => request("/api/v2/applications", { method: "POST", body: { schemeCode } }),
   updateApplication: (id, body) => request(`/api/v2/applications/${id}`, { method: "PATCH", body }),

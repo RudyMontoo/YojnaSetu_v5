@@ -12,4 +12,6 @@ public interface HelperApplicationRepository extends MongoRepository<HelperAppli
 
     /** Admin review queue by status, oldest first. */
     List<HelperApplication> findByStatusOrderByCreatedAtAsc(String status);
+
+    long countByStatus(String status);
 }

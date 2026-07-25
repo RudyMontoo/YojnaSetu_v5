@@ -113,7 +113,7 @@ def citizen_id_from_websocket_cookies(cookies: dict) -> str:
     return _citizen_id_from_token(cookies.get(ACCESS_TOKEN_COOKIE))
 
 
-_OPERATOR_ROLES = {"CSC_OPERATOR", "ADMIN"}
+_OPERATOR_ROLES = {"HELPER", "CSC_OPERATOR", "ADMIN"}
 
 
 def get_current_operator_id(request: Request) -> str:

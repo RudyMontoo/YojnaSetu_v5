@@ -8,4 +8,5 @@ import java.util.List;
 public interface KendraRepository extends MongoRepository<Kendra, String> {
     List<Kendra> findByActiveTrue();
     List<Kendra> findByHelperId(String helperId);
+    long countByActiveTrue();
 }
