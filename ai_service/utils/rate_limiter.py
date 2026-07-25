@@ -43,6 +43,13 @@ class RateLimiter:
             )
         self._store[ip].append(now)
 
+    def check_key(self, key: str) -> None:
+        """Same sliding window, but keyed by an arbitrary identity (e.g. citizen_id)
+        instead of IP. Prefer this for authenticated endpoints: under India's heavy
+        CGNAT, per-IP limiting both false-throttles many citizens on one IP and lets
+        an abuser rotate IPs — per-citizen is fair and rotation-proof."""
+        self.check(key)
+
     def get_client_ip(self, request: Request) -> str:
         """Extract real client IP, respecting X-Forwarded-For from reverse proxies."""
         forwarded_for = request.headers.get("X-Forwarded-For")
@@ -59,3 +66,11 @@ agent_limiter  = RateLimiter(max_requests=20, window_seconds=60)   # 20/min
 status_limiter = RateLimiter(max_requests=15, window_seconds=60)   # 15/min
 ocr_limiter    = RateLimiter(max_requests=10, window_seconds=60)   # 10/min (heavy CPU)
 biometric_limiter = RateLimiter(max_requests=8, window_seconds=60)  # 8/min (GPU face-liveness; anti brute-force)
+# Per-CITIZEN (not per-IP) — keyed by citizen_id via check_key(). Each call fans out
+# to the LangGraph agents + a Gemini turn, so this is the cost/abuse cap on the main
+# chat surface. Generous enough for real back-and-forth, tight enough to stop a script.
+chat_limiter   = RateLimiter(max_requests=20, window_seconds=60)   # 20/min per citizen
+
+# NOTE: limiters are in-memory per process. ai-service runs 1–3 replicas, so the
+# effective ceiling is (limit × live replicas). Fine as an abuse/cost backstop at
+# pilot scale; a hard global cap would need a shared store (Redis) — deferred.

@@ -26,6 +26,7 @@ from ai_service.discovery.agent2 import run_discovery
 from ai_service.graph.chat_turn import run_chat_turn
 from ai_service.utils.auth import require_api_key
 from ai_service.utils.jwt_auth import get_current_citizen_id
+from ai_service.utils.rate_limiter import chat_limiter
 from ai_service.utils.spring_client import fetch_citizen_profile
 
 logger = logging.getLogger(__name__)
@@ -52,6 +53,9 @@ _indexes_ready = False
 
 @router.post("/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest, citizen_id: str = Depends(get_current_citizen_id)):
+    # Per-citizen cap: each turn fans out to the agents + a Gemini call, so this
+    # is the cost/abuse backstop on the main chat surface (429 if exceeded).
+    chat_limiter.check_key(citizen_id)
     global _indexes_ready
     db = get_db()
     if not _indexes_ready:
