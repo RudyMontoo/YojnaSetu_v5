@@ -12,6 +12,8 @@ import logging
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
+import magic
+
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from pydantic import BaseModel
 
@@ -63,14 +65,21 @@ async def verify_ppo(
     """
     ocr_limiter.check(ocr_limiter.get_client_ip(request))  # shared with /ocr/scan — 10/min, heavy CPU
 
-    for f in (aadhaar_file, ppo_file):
-        if f.content_type not in {"image/jpeg", "image/png", "image/webp", "image/jpg"}:
-            raise HTTPException(status_code=415, detail=f"{f.filename}: unsupported type {f.content_type}. Use JPEG/PNG/WEBP.")
-
     aadhaar_bytes = await aadhaar_file.read()
     ppo_bytes = await ppo_file.read()
     if len(aadhaar_bytes) > 20 * 1024 * 1024 or len(ppo_bytes) > 20 * 1024 * 1024:
         raise HTTPException(status_code=413, detail="File too large. Max 20MB per file.")
+
+    # Security rule #2: trust the real byte signature, never the client-supplied
+    # content_type/filename (both are just strings the caller chose). Same
+    # python-magic inspection /ocr/scan uses.
+    _ALLOWED_IMG = {"image/jpeg", "image/png", "image/webp"}
+    for f, raw in ((aadhaar_file, aadhaar_bytes), (ppo_file, ppo_bytes)):
+        if not raw:
+            raise HTTPException(status_code=400, detail=f"{f.filename}: empty file.")
+        detected = magic.from_buffer(raw, mime=True)
+        if detected not in _ALLOWED_IMG:
+            raise HTTPException(status_code=415, detail=f"{f.filename}: unsupported type {detected}. Use JPEG/PNG/WEBP.")
 
     aadhaar_text = await _run_ocr(aadhaar_bytes)
     ppo_text = await _run_ocr(ppo_bytes)

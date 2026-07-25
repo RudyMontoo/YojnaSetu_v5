@@ -31,6 +31,18 @@ public class OtpService {
     private static final int TTL_MINUTES = 10;
     private static final int MAX_ATTEMPTS = 5;
 
+    /** Anti-bombing throttle, per identifier (phone/email). `/auth/otp/send` is a
+     *  public endpoint, so without this a victim's inbox/phone can be flooded and,
+     *  for SMS, run up toll-fraud charges. 30s minimum between sends, 5 per rolling hour. */
+    private static final int RESEND_COOLDOWN_SECONDS = 30;
+    private static final int MAX_SENDS_PER_WINDOW = 5;
+    private static final int SEND_WINDOW_MINUTES = 60;
+
+    /** Thrown when an identifier exceeds the send throttle; AuthController maps it to HTTP 429. */
+    public static class OtpRateLimitException extends RuntimeException {
+        public OtpRateLimitException(String message) { super(message); }
+    }
+
     private final OtpSessionRepository otpSessionRepository;
     private final EmailService emailService;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -63,13 +75,32 @@ public class OtpService {
     }
 
     public String generateAndSend(String identifier, Channel channel) {
+        OtpSession session = otpSessionRepository.findByIdentifier(identifier).orElse(new OtpSession());
+        LocalDateTime now = LocalDateTime.now();
+
+        // Anti-bombing: enforce cooldown + rolling-hour cap BEFORE generating/sending.
+        if (session.getLastSentAt() != null
+                && session.getLastSentAt().plusSeconds(RESEND_COOLDOWN_SECONDS).isAfter(now)) {
+            throw new OtpRateLimitException("Please wait a few seconds before requesting another OTP.");
+        }
+        if (session.getWindowStartAt() == null
+                || session.getWindowStartAt().plusMinutes(SEND_WINDOW_MINUTES).isBefore(now)) {
+            session.setWindowStartAt(now);
+            session.setSendCount(0);
+        }
+        int sent = session.getSendCount() == null ? 0 : session.getSendCount();
+        if (sent >= MAX_SENDS_PER_WINDOW) {
+            throw new OtpRateLimitException("Too many OTP requests for this number/email. Try again in an hour.");
+        }
+
         String otp = String.format("%0" + OTP_LENGTH + "d", random.nextInt((int) Math.pow(10, OTP_LENGTH)));
 
-        OtpSession session = otpSessionRepository.findByIdentifier(identifier).orElse(new OtpSession());
         session.setIdentifier(identifier);
         session.setOtpHash(passwordEncoder.encode(otp));
         session.setAttemptCount(0);
-        session.setExpiresAt(LocalDateTime.now().plusMinutes(TTL_MINUTES));
+        session.setLastSentAt(now);
+        session.setSendCount(sent + 1);
+        session.setExpiresAt(now.plusMinutes(TTL_MINUTES));
         otpSessionRepository.save(session);
 
         if (channel == Channel.EMAIL) {

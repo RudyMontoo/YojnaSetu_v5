@@ -33,6 +33,15 @@ public class OtpSession {
 
     private Integer attemptCount = 0;
 
+    /** Anti-abuse (OTP/email bombing): timestamp of the most recent send and a
+     *  rolling hourly send counter, both keyed by identifier. Enforced in
+     *  OtpService.generateAndSend — a 30s cooldown between sends plus a hard cap
+     *  per rolling hour. `/auth/otp/send` is public, so this per-recipient throttle
+     *  is the real defence; RateLimitFilter's 60/min-per-IP is only a coarse backstop. */
+    private LocalDateTime lastSentAt;
+    private LocalDateTime windowStartAt;
+    private Integer sendCount = 0;
+
     @Indexed(name = "expiresAt_ttl", expireAfterSeconds = 0)
     private LocalDateTime expiresAt;
 }

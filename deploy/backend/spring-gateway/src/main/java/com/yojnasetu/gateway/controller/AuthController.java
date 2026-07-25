@@ -78,7 +78,12 @@ public class AuthController {
         Target t = resolveTarget(req.phone(), req.email());
         if (t == null) return ResponseEntity.badRequest()
                 .body(Map.of("error", "Provide a valid phone (E.164, e.g. +919876543210) or email"));
-        otpService.generateAndSend(t.identifier(), t.channel());
+        try {
+            otpService.generateAndSend(t.identifier(), t.channel());
+        } catch (OtpService.OtpRateLimitException e) {
+            auditLogRepository.save(AuditLog.of(null, "otp_send_throttled", "/api/v2/auth/otp/send", clientIp(httpReq)));
+            return ResponseEntity.status(429).body(Map.of("error", e.getMessage()));
+        }
         auditLogRepository.save(AuditLog.of(null, "otp_send", "/api/v2/auth/otp/send", clientIp(httpReq)));
         return ResponseEntity.ok(Map.of("success", true, "expires_in", 600));
     }
