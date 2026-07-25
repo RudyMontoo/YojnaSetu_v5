@@ -157,6 +157,33 @@ else
 fi
 echo "    discovery-cron: daily 02:00 IST (manual run: az containerapp job start -g $RG -n discovery-cron)"
 
+# ── 6b) Nightly Mongo backup Job — Atlas M0 has no automated backups ──
+# Dumps the whole DB (gzipped) to a private Blob container via a write-only SAS.
+# Needs BACKUP_BLOB_BASE + BACKUP_SAS in .env.deploy (storage account + container
+# + SAS provisioned once — see EMAIL_SETUP.md-style note / git history). Skipped
+# if those aren't set. Daily 03:30 IST = 22:00 UTC (after the discovery run).
+if [ -n "${BACKUP_SAS:-}" ] && [ -n "${BACKUP_BLOB_BASE:-}" ]; then
+  echo "==> Build+push mongo-backup image"
+  DOCKER_BUILDKIT=0 docker build -t "$ACR_SERVER/mongo-backup:latest" -f "$HERE/backup/Dockerfile" "$HERE/backup"
+  docker push "$ACR_SERVER/mongo-backup:latest"
+  echo "==> Deploying backup-cron Job (daily 03:30 IST)"
+  BJOB=create; az containerapp job show -g "$RG" -n backup-cron -o none 2>/dev/null && BJOB=update
+  if [ "$BJOB" = create ]; then
+    az containerapp job create -g "$RG" -n backup-cron --environment "$ENVNAME" \
+      --trigger-type Schedule --cron-expression "0 22 * * *" \
+      --image "$ACR_SERVER/mongo-backup:latest" "${reg[@]}" \
+      --cpu 0.5 --memory 1Gi \
+      --replica-timeout 1800 --replica-retry-limit 1 --parallelism 1 --replica-completion-count 1 \
+      --secrets mongodb-uri="$MONGODB_URI" backup-sas="$BACKUP_SAS" \
+      --env-vars MONGODB_URI=secretref:mongodb-uri BACKUP_BLOB_BASE="$BACKUP_BLOB_BASE" BACKUP_SAS=secretref:backup-sas -o none
+  else
+    az containerapp job update -g "$RG" -n backup-cron --image "$ACR_SERVER/mongo-backup:latest" -o none
+  fi
+  echo "    backup-cron: daily 03:30 IST (manual run: az containerapp job start -g $RG -n backup-cron)"
+else
+  echo "==> Skipping backup-cron (BACKUP_SAS/BACKUP_BLOB_BASE not set in .env.deploy)"
+fi
+
 # ── 7) Post-deploy smoke test — real public user path through nginx ──
 echo "==> Running post-deploy smoke test"
 if bash "$HERE/smoke_test.sh" "https://$APP_URL"; then
