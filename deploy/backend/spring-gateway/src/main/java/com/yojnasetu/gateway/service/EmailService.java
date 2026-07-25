@@ -63,6 +63,28 @@ public class EmailService {
         sender.send(msg);
     }
 
+    /**
+     * Sends an operational alert to the admin (AlertNotifier calls this). Returns
+     * true if actually emailed, false if it fell back to logging — the caller uses
+     * that to decide whether to mark the alert notified (don't mark on log-only,
+     * so it retries once email is really configured).
+     */
+    public boolean sendAlert(String to, String subject, String body) {
+        JavaMailSender sender = mailSenderProvider.getIfAvailable();
+        if (!enabled || from == null || from.isBlank() || sender == null || to == null || to.isBlank()) {
+            System.err.println("WARNING: Email not configured / no alert recipient — ALERT not sent: "
+                    + subject + " (logged instead)\n" + body);
+            return false;
+        }
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom(fromHeader());
+        msg.setTo(to);
+        msg.setSubject(subject);
+        msg.setText(body);
+        sender.send(msg);
+        return true;
+    }
+
     /** Emails an approved helper their login credentials. Same log-fallback as above. */
     public void sendCredentials(String email, String name, String helperId, String tempPassword) {
         JavaMailSender sender = mailSenderProvider.getIfAvailable();

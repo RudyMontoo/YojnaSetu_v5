@@ -43,15 +43,16 @@ SMTP key (password). Create a **verified sender** like `no-reply@yojsarthi.in`.
 
 ## 4. Update `deploy/azure/.env.deploy` (gitignored — never commit)
 
-```
-SMTP_HOST=smtp-relay.brevo.com
-SMTP_PORT=587
-SMTP_USERNAME=<the SMTP login the dashboard shows>
-SMTP_PASSWORD=<the SMTP key>
-MAIL_FROM=no-reply@yojsarthi.in
-MAIL_FROM_NAME=Yojna Sarthi
-MAIL_ENABLED=true
-```
+Set these keys in `.env.deploy` (values come from the Brevo SMTP page — do **not**
+paste any real key into this doc or any tracked file):
+
+- `SMTP_HOST` → `smtp-relay.brevo.com`
+- `SMTP_PORT` → `587`
+- `SMTP_USERNAME` → the SMTP login the Brevo dashboard shows
+- `SMTP_PASSWORD` → the generated Brevo SMTP key *(secret — .env.deploy only)*
+- `MAIL_FROM` → `no-reply@yojsarthi.in`
+- `MAIL_FROM_NAME` → `Yojna Sarthi`
+- `MAIL_ENABLED` → `true`  *(only after the domain shows fully authenticated)*
 
 ## 5. Redeploy the gateway + verify
 

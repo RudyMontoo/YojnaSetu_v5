@@ -101,6 +101,7 @@ az containerapp create -g "$RG" -n spring-gateway --environment "$ENVNAME" \
              FASTAPI_URL="http://$AI_FQDN" \
              SMTP_HOST="${SMTP_HOST:-smtp.gmail.com}" SMTP_PORT="${SMTP_PORT:-587}" \
              MAIL_FROM="${MAIL_FROM:-}" MAIL_FROM_NAME="${MAIL_FROM_NAME:-Yojna Sarthi}" MAIL_ENABLED="${MAIL_ENABLED:-false}" \
+             ALERT_EMAIL="${ALERT_EMAIL:-}" \
              SMTP_USERNAME=secretref:smtp-user SMTP_PASSWORD=secretref:smtp-pass \
              MONGODB_URI=secretref:mongodb-uri FIELD_ENCRYPTION_KEY=secretref:enc-key \
              AADHAAR_SALT=secretref:aadhaar-salt INTERNAL_SERVICE_KEY=secretref:internal-key -o none
