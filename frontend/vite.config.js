@@ -1,10 +1,22 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import legacy from '@vitejs/plugin-legacy'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  // Lower the modern bundle's floor so ESM-capable-but-older mobile Chrome
+  // (this app's core audience) runs it without a missing-API crash.
+  build: { target: ['es2019', 'chrome80', 'safari13', 'firefox78'] },
   plugins: [
     react(),
+    // Compatibility build for old phones. `modernPolyfills` injects the polyfills
+    // the modern bundle needs (fixes the "w is not a function" on older Chrome
+    // that still loads ESM); `targets` produces a fully-transpiled nomodule
+    // fallback for browsers without ESM at all.
+    legacy({
+      targets: ['defaults', 'chrome >= 80', 'android >= 80', 'ios >= 12', 'not dead'],
+      modernPolyfills: true,
+    }),
     // Installable PWA + offline support. Target users often have patchy
     // connectivity, so the app shell must load offline and already-seen
     // scheme data must survive a dropped connection. Workbox precaches the
