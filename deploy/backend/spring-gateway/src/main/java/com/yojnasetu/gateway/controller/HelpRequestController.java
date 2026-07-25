@@ -2,6 +2,7 @@ package com.yojnasetu.gateway.controller;
 
 import com.yojnasetu.gateway.model.HelpRequest;
 import com.yojnasetu.gateway.repository.HelpRequestRepository;
+import com.yojnasetu.gateway.repository.HelperRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -26,9 +27,11 @@ import java.util.Map;
 public class HelpRequestController {
 
     private final HelpRequestRepository repo;
+    private final HelperRepository helperRepo;
 
-    public HelpRequestController(HelpRequestRepository repo) {
+    public HelpRequestController(HelpRequestRepository repo, HelperRepository helperRepo) {
         this.repo = repo;
+        this.helperRepo = helperRepo;
     }
 
     private static boolean isOperator(Authentication auth) {
@@ -92,6 +95,10 @@ public class HelpRequestController {
     public ResponseEntity<?> claim(Authentication auth, @PathVariable String id) {
         if (!isOperator(auth)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Operator access only"));
+        }
+        // An "away" helper can't pick up new work (admins are exempt).
+        if (!isAdmin(auth) && helperRepo.findById(auth.getName()).map(h -> !h.isAvailable()).orElse(false)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "You are marked Away — go On duty to claim requests"));
         }
         return repo.findById(id).map(hr -> {
             hr.setStatus("assigned");

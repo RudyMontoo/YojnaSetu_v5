@@ -18,6 +18,7 @@ export default function AdminPortalPage() {
     const [requests, setRequests] = useState([])
     const [issued, setIssued] = useState({})       // appId -> creds (on approve)
     const [reset, setReset] = useState({})         // helperId -> new creds (on reset-pw)
+    const [expanded, setExpanded] = useState(null) // helper id whose detail is open
     const [error, setError] = useState('')
     const [busy, setBusy] = useState(false)
 
@@ -101,7 +102,8 @@ export default function AdminPortalPage() {
                 {tab === 'overview' && stats && (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
                         {[
-                            { label: 'Active helpers', v: `${stats.helpersActive} / ${stats.helpersTotal}` },
+                            { label: 'On duty now', v: `${stats.helpersOnDuty ?? 0} / ${stats.helpersActive}` },
+                            { label: 'Total helpers', v: stats.helpersTotal },
                             { label: 'Pending applications', v: stats.applicationsPending },
                             { label: 'Requests waiting', v: stats.requestsWaiting },
                             { label: 'Requests assigned', v: stats.requestsAssigned },
@@ -154,12 +156,25 @@ export default function AdminPortalPage() {
                                     <p style={{ margin: 0, fontWeight: 600 }}>{h.name} <span className="text-muted" style={{ fontSize: 12 }}>· {h.helperId}</span></p>
                                     <a href={`tel:${h.phone}`} className="text-muted" style={{ fontSize: 13 }}>{h.phone}</a>
                                 </div>
-                                <span className={`badge ${h.active ? 'badge-green' : 'badge-muted'}`}>{h.active ? 'active' : 'inactive'}</span>
+                                <div style={{ display: 'flex', gap: 6 }}>
+                                    {h.active && <span className={`badge ${h.available ? 'badge-green' : 'badge-muted'}`}>{h.available ? 'on duty' : 'away'}</span>}
+                                    <span className={`badge ${h.active ? 'badge-green' : 'badge-muted'}`}>{h.active ? 'active' : 'inactive'}</span>
+                                </div>
                             </div>
                             <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+                                <button className="btn btn-ghost btn-sm" onClick={() => setExpanded(expanded === h.id ? null : h.id)}>{expanded === h.id ? 'Hide' : 'View'} activity</button>
                                 <button className="btn btn-ghost btn-sm" onClick={() => toggleHelper(h)}><Power size={13} /> {h.active ? 'Deactivate' : 'Activate'}</button>
                                 <button className="btn btn-ghost btn-sm" onClick={() => resetPw(h)}><RotateCcw size={13} /> Reset password</button>
                             </div>
+                            {expanded === h.id && (
+                                <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--border-glass)', fontSize: 13 }}>
+                                    <p style={{ margin: '0 0 4px', fontWeight: 600 }}>Kendras ({kendras.filter(k => k.helperId === h.id && k.active).length})</p>
+                                    {kendras.filter(k => k.helperId === h.id && k.active).map(k => <p key={k.id} className="text-muted" style={{ margin: 0 }}>• {k.name}</p>)}
+                                    <p style={{ margin: '8px 0 4px', fontWeight: 600 }}>Handled requests ({requests.filter(r => r.assignedOperatorId === h.id).length})</p>
+                                    {requests.filter(r => r.assignedOperatorId === h.id).slice(0, 5).map(r => <p key={r.id} className="text-muted" style={{ margin: 0 }}>• {r.citizenName || 'Citizen'} — {r.status}</p>)}
+                                    <p className="text-muted" style={{ margin: '8px 0 0', fontSize: 12 }}>Last login: {h.lastLoginAt ? new Date(h.lastLoginAt).toLocaleString() : '—'}</p>
+                                </div>
+                            )}
                             {reset[h.id] && (
                                 <div className="glass-card glass-card-glow" style={{ padding: 10, marginTop: 8, fontSize: 13 }}>
                                     New password: <b>{reset[h.id].tempPassword}</b> — {reset[h.id].emailedTo ? `emailed to ${reset[h.id].emailedTo}` : 'share it with the helper'}

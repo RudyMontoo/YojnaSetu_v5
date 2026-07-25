@@ -182,6 +182,9 @@ export default function HelperPortalPage() {
                 </>}
 
                 {/* ── Requests queue ── */}
+                {tab === 'requests' && !available && (
+                    <div className="glass-card" style={{ padding: 12, marginBottom: 12 }}><p className="text-muted" style={{ margin: 0, fontSize: 13 }}>⚠️ You're <b>Away</b> — go <b>On duty</b> (top-right) to claim requests.</p></div>
+                )}
                 {tab === 'requests' && (queue.length === 0
                     ? <div className="glass-card" style={{ padding: 22, textAlign: 'center' }}><p className="text-muted">No pending callback requests. 🎉</p></div>
                     : queue.map(q => (
@@ -193,7 +196,7 @@ export default function HelperPortalPage() {
                             {q.message && <p style={{ fontSize: 14, marginTop: 8 }}>{q.message}</p>}
                             <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
                                 <a href={`tel:${q.phone}`} className="btn btn-primary btn-sm"><PhoneCall size={13} /> Call</a>
-                                {q.status === 'waiting' && <button className="btn btn-ghost btn-sm" onClick={() => claim(q.id)}><UserCheck size={13} /> Claim</button>}
+                                {q.status === 'waiting' && <button className="btn btn-ghost btn-sm" onClick={() => claim(q.id)} disabled={!available} title={available ? '' : 'Go On duty to claim'}><UserCheck size={13} /> Claim</button>}
                                 <button className="btn btn-ghost btn-sm" onClick={() => resolve(q.id)}><CheckCircle2 size={13} /> Resolve</button>
                             </div>
                         </div>

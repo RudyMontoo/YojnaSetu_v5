@@ -283,6 +283,7 @@ public class HelperApplicationController {
         Map<String, Object> s = new HashMap<>();
         s.put("helpersTotal", helperRepo.count());
         s.put("helpersActive", helperRepo.countByActiveTrue());
+        s.put("helpersOnDuty", helperRepo.countByActiveTrueAndAvailableTrue());
         s.put("applicationsPending", repo.countByStatus("pending"));
         s.put("requestsWaiting", helpRequestRepo.countByStatus("waiting"));
         s.put("requestsAssigned", helpRequestRepo.countByStatus("assigned"));
