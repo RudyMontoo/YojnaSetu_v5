@@ -26,8 +26,23 @@ public class EmailService {
     @Value("${app.mail.from:}")
     private String from;
 
+    /** Display name on the From header. A named sender ("Yojna Sarthi <addr>") lands
+     *  in the inbox more reliably than a bare address. */
+    @Value("${app.mail.from-name:Yojna Sarthi}")
+    private String fromName;
+
+    /** Public site URL, for links in emails (helper login). */
+    @Value("${app.frontend-url:}")
+    private String frontendUrl;
+
     public EmailService(ObjectProvider<JavaMailSender> mailSenderProvider) {
         this.mailSenderProvider = mailSenderProvider;
+    }
+
+    /** "Yojna Sarthi <no-reply@yojsarthi.in>" — unless MAIL_FROM already carries a display name. */
+    private String fromHeader() {
+        return (from.contains("<") || fromName == null || fromName.isBlank())
+                ? from : fromName + " <" + from + ">";
     }
 
     public void sendOtp(String email, String otp) {
@@ -38,9 +53,11 @@ public class EmailService {
             return;
         }
         SimpleMailMessage msg = new SimpleMailMessage();
-        msg.setFrom(from);
+        msg.setFrom(fromHeader());
         msg.setTo(email);
-        msg.setSubject("Yojna Sarthi OTP: " + otp);
+        // OTP stays OUT of the subject: keeps it off lock-screen previews and
+        // avoids the "code in subject" spam-filter signal.
+        msg.setSubject("Your Yojna Sarthi login code");
         msg.setText("Aapka Yojna Sarthi login OTP: " + otp
                 + "\n\n10 minute mein expire ho jayega. Kisi ke saath share na karein.\n\n— Yojna Sarthi");
         sender.send(msg);
@@ -55,7 +72,7 @@ public class EmailService {
                 + "  Helper ID: " + helperId + "\n"
                 + "  Temporary password: " + tempPassword + "\n\n"
                 + "Pehli baar login karne par aapko apna password reset karna hoga.\n"
-                + "Login: <your-site>/helper\n\n"
+                + "Login: " + (frontendUrl != null && !frontendUrl.isBlank() ? frontendUrl : "https://yojsarthi.in") + "/helper\n\n"
                 + "Kisi ke saath ye details share na karein.\n\n— Yojna Sarthi";
         if (!enabled || from == null || from.isBlank() || sender == null) {
             System.err.println("WARNING: Email not configured — Helper credentials for " + email
@@ -63,7 +80,7 @@ public class EmailService {
             return;
         }
         SimpleMailMessage msg = new SimpleMailMessage();
-        msg.setFrom(from);
+        msg.setFrom(fromHeader());
         msg.setTo(email);
         msg.setSubject("Yojna Sarthi Helper — your login credentials");
         msg.setText(body);
