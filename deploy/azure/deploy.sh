@@ -156,6 +156,14 @@ else
 fi
 echo "    discovery-cron: daily 02:00 IST (manual run: az containerapp job start -g $RG -n discovery-cron)"
 
+# ── 7) Post-deploy smoke test — real public user path through nginx ──
+echo "==> Running post-deploy smoke test"
+if bash "$HERE/smoke_test.sh" "https://$APP_URL"; then
+  echo "    smoke test passed"
+else
+  echo "!!  SMOKE TEST FAILED — deploy completed but something isn't healthy (see above)"
+fi
+
 echo ""
 echo "==> DONE.  App is live at:  https://$APP_URL"
 echo "    ai-service (internal): $AI_FQDN"
