@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { ArrowLeft, CheckCircle, XCircle, ExternalLink, MapPin, FileText, Zap, Eye, Loader2 } from 'lucide-react'
 import { Navbar, BottomNav } from '../components/Navbar'
 import ApplyMethodModal from '../components/ApplyMethodModal'
+import Disclaimer from '../components/Disclaimer'
 import { ai } from '../lib/api'
 import { useAutoTranslate } from '../lib/i18n'
 import '../components/components.css'
@@ -291,6 +292,8 @@ export default function SchemeDetailPage() {
                         <MapPin size={16} /> {tr(UI.offlineHelp)}
                     </button>
                 </div>
+
+                <Disclaimer variant="site" style={{ marginTop: 16 }} />
 
                 {showApplyModal && (
                     <ApplyMethodModal scheme={scheme} onClose={() => setShowApplyModal(false)} />

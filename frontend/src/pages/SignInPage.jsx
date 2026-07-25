@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowRight, Smartphone, KeyRound, ChevronLeft, Mail } from 'lucide-react'
 import { gateway } from '../lib/api'
 import { useAutoTranslate } from '../lib/i18n'
+import Disclaimer from '../components/Disclaimer'
 import './SignInPage.css'
 
 const UI = {
@@ -153,6 +154,7 @@ export default function SignInPage() {
                         </button>
                     </form>
                 )}
+                <Disclaimer variant="site" style={{ marginTop: 16 }} />
             </div>
         </div>
     )

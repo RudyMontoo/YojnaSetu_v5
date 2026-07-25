@@ -6,6 +6,7 @@ import { BubbleIn } from '../components/motion'
 import AgentCouncil from '../components/AgentCouncil'
 import { gateway } from '../lib/api'
 import { useLang } from '../lib/i18n'
+import Disclaimer from '../components/Disclaimer'
 import '../components/components.css'
 import './ChatPage.css'
 
@@ -552,6 +553,8 @@ export default function ChatPage() {
                     if (f) handleDocScan(f)
                 }}
             />
+
+            <Disclaimer variant="ai" className="inline" />
 
             <form className="chat-input-bar glass-card" onSubmit={handleFormSubmit}>
                 <div style={{ position: 'relative' }}>

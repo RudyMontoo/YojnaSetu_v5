@@ -1,0 +1,32 @@
+.ys-disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0;
+  padding: 8px 12px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.62);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  text-align: left;
+}
+
+.ys-disclaimer svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  opacity: 0.8;
+}
+
+/* Compact inline variant for tight spots (e.g. above the chat input bar) */
+.ys-disclaimer.inline {
+  padding: 5px 10px;
+  font-size: 10.5px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  color: rgba(255, 255, 255, 0.5);
+  justify-content: center;
+  text-align: center;
+}
