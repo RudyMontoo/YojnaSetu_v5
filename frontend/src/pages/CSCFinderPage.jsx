@@ -33,7 +33,7 @@ const CSC_CENTRES = [
         phone: '+91-98765-43210',
         hours: 'Mon–Sat: 9AM – 6PM',
         rating: 4.5,
-        connected: true,   // registered through Yojna Setu → shows the "connected with us" icon
+        connected: true,   // registered through Yojna Sarthi → shows the "connected with us" icon
         services: ['PM-Kisan', 'Aadhaar', 'PAN Card', 'Passport'],
     },
     {

@@ -16,7 +16,7 @@ async def run_placeholder(state: GraphState) -> GraphState:
     intent = state.get("intent", "unknown")
     if intent == "blocked":
         return state  # reply already set by the injection guard
-    state["reply"] = "Yeh feature abhi Yojna Setu v5.0 rebuild mein build ho raha hai."
+    state["reply"] = "Yeh feature abhi Yojna Sarthi v5.0 rebuild mein build ho raha hai."
     state.setdefault("reasoning_trace", []).append({
         "agent_name": "orchestrator.placeholder",
         "tool_called": "none",

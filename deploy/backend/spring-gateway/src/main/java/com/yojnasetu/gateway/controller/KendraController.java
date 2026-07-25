@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Registry of Jan Seva Kendras registered through Yojna Setu (Option B). Any
+ * Registry of Jan Seva Kendras registered through Yojna Sarthi (Option B). Any
  * signed-in citizen can list the ones nearest their location; approved helpers
  * (ROLE_HELPER) register their own kendra with coordinates.
  */

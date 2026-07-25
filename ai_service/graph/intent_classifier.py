@@ -29,7 +29,7 @@ INTENTS = [
     "small_talk",
 ]
 
-_CLASSIFY_PROMPT = """You are an intent classifier for Yojna Setu, an Indian government welfare scheme assistant.
+_CLASSIFY_PROMPT = """You are an intent classifier for Yojna Sarthi, an Indian government welfare scheme assistant.
 Classify the citizen's message into exactly one of these intents:
 - eligibility_query: asking what schemes they qualify for, or describing their situation to find schemes
 - application_request: wants help applying/filling a form for a specific scheme

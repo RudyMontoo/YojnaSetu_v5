@@ -82,11 +82,11 @@ export default function SignInPage() {
 
                 <div className="signin-logo" style={{ justifyContent: 'center', marginBottom: 4 }}>
                     <div className="logo-img-circle" style={{ width: 72, height: 72 }}>
-                        <img src="/logo.png" alt="Yojna Setu" className="logo-img" />
+                        <img src="/logo.png" alt="Yojna Sarthi" className="logo-img" />
                     </div>
                 </div>
                 <h1 className="signin-brand font-display" style={{ textAlign: 'center', marginTop: 0 }}>
-                    Yojna<span className="text-saffron">Setu</span>
+                    Yojna<span className="text-saffron">Sarthi</span>
                 </h1>
                 <p className="signin-sub" style={{ textAlign: 'center', marginBottom: 18 }}>
                     {tr(UI.tagline)}

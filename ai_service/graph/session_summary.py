@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 _MAX_TRANSCRIPT_CHARS = 6000  # keep the summary call cheap; old turns matter less
 
-_SUMMARY_PROMPT = """Summarize this Yojna Setu conversation between a citizen and Sathi (a government welfare scheme assistant) in 2-3 sentences, in English.
+_SUMMARY_PROMPT = """Summarize this Yojna Sarthi conversation between a citizen and Sathi (a government welfare scheme assistant) in 2-3 sentences, in English.
 
 Cover: the citizen's situation (state, occupation, income etc. if mentioned), which schemes were discussed, and any pending next step (e.g. "wants to apply for PM Kisan", "asked to compare two schemes").
 

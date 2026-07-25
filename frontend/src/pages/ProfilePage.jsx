@@ -419,7 +419,7 @@ function SettingsPanel({ onDeleteAccount }) {
                 </div>
                 <div style={{ marginLeft: 28 }}>
                     <p className="text-muted" style={{ fontSize: 13 }}>📞 Toll-free: <strong>1800-111-555</strong></p>
-                    <p className="text-muted" style={{ fontSize: 13 }}>📧 support@yojnasetu.in</p>
+                    <p className="text-muted" style={{ fontSize: 13 }}>📧 support@yojsarthi.in</p>
                     <p className="text-muted" style={{ fontSize: 12, marginTop: 2 }}>{tr(PUI.hours)}</p>
                 </div>
             </div>

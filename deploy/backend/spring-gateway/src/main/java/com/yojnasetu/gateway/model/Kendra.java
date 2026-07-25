@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * A Jan Seva Kendra registered THROUGH Yojna Setu by an approved helper — so it
+ * A Jan Seva Kendra registered THROUGH Yojna Sarthi by an approved helper — so it
  * carries the "connected with us" mark on the CSC finder. Stores coordinates so
  * the finder can show the ones nearest a citizen's live location.
  */

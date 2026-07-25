@@ -30,7 +30,7 @@ public class ProxyController {
     @GetMapping("/health")
     public ResponseEntity<Map<String, String>> health() {
         return ResponseEntity.ok(Map.of(
-                "service", "Yojna Setu Gateway",
+                "service", "Yojna Sarthi Gateway",
                 "status", "ok",
                 "version", "2.0.0"));
     }

@@ -41,7 +41,7 @@ def _compose_reminder(scheme_name: str) -> str:
     name = scheme_name or "ek sarkari yojana"
     return (
         f"🙏 Namaste! Aapne *{name}* ke liye application shuru ki thi lekin abhi tak "
-        f"complete nahi hui. Ise poora karne mein sirf kuch minute lagenge — Yojna Setu "
+        f"complete nahi hui. Ise poora karne mein sirf kuch minute lagenge — Yojna Sarthi "
         f"app kholein aur 'Applications' mein jaakar aage badhein. Madad chahiye toh "
         f"reply karein. (Aap 'STOP' bhejkar ya app mein opt-out karke ye reminders band kar sakte hain.)"
     )

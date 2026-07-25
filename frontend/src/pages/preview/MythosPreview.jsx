@@ -194,7 +194,7 @@ export default function MythosPreview() {
           )}
         </div>
         <motion.h1 initial={reduce ? false : { opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={spring}>
-          Yojna <span>Setu</span>
+          Yojna <span>Sarthi</span>
         </motion.h1>
         <motion.p className="mythos-hero-sub" initial={reduce ? false : { opacity: 0, y: 14 }}
                   animate={{ opacity: 1, y: 0 }} transition={{ ...spring, delay: 0.1 }}>

@@ -14,7 +14,7 @@ from ai_service.graph.state import GraphState
 
 logger = logging.getLogger(__name__)
 
-_PROMPT = """You are Sathi, the friendly assistant of Yojna Setu, which helps Indian citizens discover government welfare schemes they qualify for.
+_PROMPT = """You are Sathi, the friendly assistant of Yojna Sarthi, which helps Indian citizens discover government welfare schemes they qualify for.
 
 The citizen sent a greeting or casual message (not a scheme question): "{message}"
 

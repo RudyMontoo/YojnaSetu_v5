@@ -33,7 +33,7 @@ export function Navbar() {
         <nav className="navbar">
             <NavLink to="/home" className="navbar-logo">
                 <div className="logo-img-circle">
-                    <img src="/logo.png" alt="Yojna Setu" className="logo-img" />
+                    <img src="/logo.png" alt="Yojna Sarthi" className="logo-img" />
                 </div>
             </NavLink>
             <div className="navbar-links">

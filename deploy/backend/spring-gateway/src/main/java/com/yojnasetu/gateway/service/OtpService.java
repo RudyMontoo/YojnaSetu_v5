@@ -82,7 +82,7 @@ public class OtpService {
             Message.creator(
                     new PhoneNumber(identifier),
                     new PhoneNumber(twilioFromNumber),
-                    "Aapka Yojna Setu OTP: " + otp + ". 10 minute mein expire ho jayega. Kisi ke saath share na karein."
+                    "Aapka Yojna Sarthi OTP: " + otp + ". 10 minute mein expire ho jayega. Kisi ke saath share na karein."
             ).create();
         }
 

@@ -122,7 +122,7 @@ def _template_narrative(r: dict) -> str:
 
 
 async def _compose_narrative(report: dict) -> str:
-    prompt = f"""You are writing the narrative section of a weekly analytics report for the admins of Yojna Setu, an Indian welfare-scheme assistant. Be factual and concise (4-6 sentences), flag what needs human attention, do not invent numbers not present below.
+    prompt = f"""You are writing the narrative section of a weekly analytics report for the admins of Yojna Sarthi, an Indian welfare-scheme assistant. Be factual and concise (4-6 sentences), flag what needs human attention, do not invent numbers not present below.
 
 New citizens this week: {report['new_citizens']}
 Schemes with citizens stuck at 'saved' (dropoff): {report['top_dropoff_schemes'] or 'none'}

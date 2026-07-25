@@ -21,14 +21,14 @@ export default function SplashScreen() {
                 {/* Logo */}
                 <div className="splash-logo">
                     <div className="splash-logo-circle">
-                        <img src="/logo.png" alt="Yojna Setu" className="splash-logo-img" />
+                        <img src="/logo.png" alt="Yojna Sarthi" className="splash-logo-img" />
                     </div>
                     <div className="splash-logo-ring" />
                 </div>
 
                 {/* Brand */}
                 <h1 className="splash-brand font-display">
-                    Yojna<span className="text-saffron">Setu</span>
+                    Yojna<span className="text-saffron">Sarthi</span>
                 </h1>
                 <p className="splash-tagline-sub">JAN JAN KO YOJANA SE JODO</p>
 

@@ -7,7 +7,7 @@ import { useAutoTranslate } from '../lib/i18n'
 import '../components/components.css'
 
 const UI = {
-    tag: 'Helper Programme', title: 'Become a Yojna Setu Helper',
+    tag: 'Helper Programme', title: 'Become a Yojna Sarthi Helper',
     intro: 'Help citizens near you apply for schemes. Submit your KYC — an admin will verify and approve you.',
     privacy: 'Your Aadhaar is hashed (never stored raw) and no document image is kept.',
     fullName: 'Full name (as on Aadhaar)', phone: 'Phone number',
