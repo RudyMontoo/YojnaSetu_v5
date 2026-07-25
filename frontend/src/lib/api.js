@@ -2,14 +2,36 @@
 // Auth is the httpOnly cookie pair set by the OTP flow; no token ever
 // touches JS. Everything rides the Vite proxy (same origin).
 
-async function request(path, { method = "GET", body, formData } = {}) {
+// timeoutMs: abort a hung request so the UI never spins forever. Default 45s
+// (above the orchestrator's 30s agent budget); heavy calls like OCR can pass more.
+async function request(path, { method = "GET", body, formData, timeoutMs = 45000 } = {}) {
   const opts = { method, credentials: "same-origin", headers: {} };
   if (formData) opts.body = formData;
   else if (body !== undefined) {
     opts.headers["Content-Type"] = "application/json";
     opts.body = JSON.stringify(body);
   }
-  const res = await fetch(path, opts);
+
+  const controller = new AbortController();
+  opts.signal = controller.signal;
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  let res;
+  try {
+    res = await fetch(path, opts);
+  } catch (e) {
+    // Distinguish "we gave up waiting" from "network is down" — both otherwise
+    // surface as an opaque "Failed to fetch" that tells the user nothing.
+    const friendly = e.name === "AbortError"
+      ? "The server took too long to respond. Please try again."
+      : "Can't reach the server. Check your connection and try again.";
+    const err = new Error(friendly);
+    err.status = e.name === "AbortError" ? 408 : 0;
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+
   let data = null;
   try { data = await res.json(); } catch { /* non-JSON */ }
   if (!res.ok) {
@@ -90,20 +112,21 @@ export const ai = {
   // Agent 6 — nudge preferences (WhatsApp)
   nudgeStatus: () => request("/agents/nudge/status"),
   setNudgeOptOut: (optedOut) => request("/agents/nudge/optout", { method: "POST", body: { opted_out: optedOut } }),
-  // Agent 3 — read-only live portal reconnaissance
+  // Agent 3 — read-only live portal reconnaissance (opens a live gov portal — slow)
   portalRecon: (schemeCode) =>
-    request("/agents/application/portal-recon", { method: "POST", body: { scheme_code: schemeCode } }),
+    request("/agents/application/portal-recon", { method: "POST", body: { scheme_code: schemeCode }, timeoutMs: 90000 }),
   // Agent 4 — scan one doc: verify validity + match against profile, get read-back fields
+  // (image upload + OCR/Gemini vision — give it 90s before we give up)
   verifyDocument: (file) => {
     const fd = new FormData()
     fd.append("file", file)
-    return request("/agents/document/verify", { method: "POST", formData: fd })
+    return request("/agents/document/verify", { method: "POST", formData: fd, timeoutMs: 90000 })
   },
   verifyPpo: (aadhaarFile, ppoFile) => {
     const fd = new FormData();
     fd.append("aadhaar_file", aadhaarFile);
     fd.append("ppo_file", ppoFile);
-    return request("/agents/document/verify-ppo", { method: "POST", formData: fd });
+    return request("/agents/document/verify-ppo", { method: "POST", formData: fd, timeoutMs: 90000 });
   },
   cscAlternatives: (schemeCode, missingDocType) =>
     request("/agents/csc/alternatives", {

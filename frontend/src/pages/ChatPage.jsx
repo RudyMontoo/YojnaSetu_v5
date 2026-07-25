@@ -310,11 +310,24 @@ export default function ChatPage() {
         return new Promise((resolve, reject) => {
             let streamed = ''
             let settled = false
-            const settle = (fn, arg) => { if (!settled) { settled = true; fn(arg) } }
+            let silent
+            // Guard a socket that goes silent (server stuck, no token/done): if no
+            // activity for 45s, give up instead of an endless spinner. Reset on every
+            // token so a slow-but-streaming reply is never wrongly killed.
+            const armSilent = () => {
+                clearTimeout(silent)
+                silent = setTimeout(() => {
+                    if (streamed) { addMsg('assistant', 'The reply stalled midway — please send that again.'); settle(resolve) }
+                    else settle(reject, new Error('ws silent timeout'))
+                }, 45000)
+            }
+            const settle = (fn, arg) => { if (!settled) { settled = true; clearTimeout(silent); fn(arg) } }
+            armSilent()
             ws.onmessage = (ev) => {
                 let frame
                 try { frame = JSON.parse(ev.data) } catch { return }
                 if (frame.type === 'token') {
+                    armSilent()             // activity — reset the silence timer
                     streamed += frame.text
                     setLoading(false)       // council bubble out, live bubble in
                     setMessages(m => {
@@ -349,12 +362,27 @@ export default function ChatPage() {
     }
 
     const sendViaRest = async (text) => {
-        const res = await fetch(`/orchestrator/chat`, {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: text, session_id: sessionIdRef.current })
-        })
+        // Abort a hung backend (agent stuck past its 30s budget) so we surface a
+        // message instead of spinning forever. 40s = just above the server budget.
+        const controller = new AbortController()
+        const timer = setTimeout(() => controller.abort(), 40000)
+        let res
+        try {
+            res = await fetch(`/orchestrator/chat`, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text, session_id: sessionIdRef.current }),
+                signal: controller.signal,
+            })
+        } catch (e) {
+            addMsg('assistant', e.name === 'AbortError'
+                ? 'That took too long to answer. Please try again, or browse schemes from the Schemes tab.'
+                : 'Could not connect to backend. Browse schemes from the Schemes tab.')
+            return
+        } finally {
+            clearTimeout(timer)
+        }
         if (res.ok) {
             const data = await res.json()
             sessionIdRef.current = data.session_id
