@@ -131,6 +131,31 @@ az containerapp update -g "$RG" -n ai-service \
 az containerapp update -g "$RG" -n spring-gateway \
   --set-env-vars FRONTEND_URL="https://$APP_URL" -o none
 
+# ── 6) Scheduled discovery Job (Agent 2) — keeps the scheme catalogue fresh ──
+# Separate Container Apps Job (not an in-process scheduler): a rate-limited
+# 2s/request MyScheme sweep has no business blocking the request-serving app.
+# Daily 02:00 IST = 20:30 UTC (matches CLAUDE.md SCRAPE_HOUR_IST=2). Self-healing
+# diff-upsert: freshness over completeness — schemes upsert even when LLM quota is
+# tight; empty eligibility rules re-extract on a later run. Idempotent (create-or-update).
+echo "==> Deploying discovery-cron Job (daily 02:00 IST)"
+JOB_VERB=create; az containerapp job show -g "$RG" -n discovery-cron -o none 2>/dev/null && JOB_VERB=update
+if [ "$JOB_VERB" = create ]; then
+  az containerapp job create -g "$RG" -n discovery-cron --environment "$ENVNAME" \
+    --trigger-type Schedule --cron-expression "30 20 * * *" \
+    --image "$ACR_SERVER/ai-service:latest" "${reg[@]}" \
+    --cpu 1 --memory 2Gi \
+    --replica-timeout 3600 --replica-retry-limit 1 --parallelism 1 --replica-completion-count 1 \
+    --secrets mongodb-uri="$MONGODB_URI" gemini-key="$GEMINI_API_KEY" groq-key="$GROQ_API_KEY" \
+    --env-vars MONGODB_URI=secretref:mongodb-uri MONGODB_DB="$MONGODB_DB" \
+               GEMINI_API_KEY=secretref:gemini-key GROQ_API_KEY=secretref:groq-key \
+               OLLAMA_ENABLED=0 DISCOVERY_MYSCHEME_LIMIT=300 PYTHONPATH=/app \
+    --command "python" --args "/app/ai_service/scripts/run_discovery_job.py" -o none
+else
+  # Refresh only the image on redeploys; schedule/secrets already set.
+  az containerapp job update -g "$RG" -n discovery-cron --image "$ACR_SERVER/ai-service:latest" -o none
+fi
+echo "    discovery-cron: daily 02:00 IST (manual run: az containerapp job start -g $RG -n discovery-cron)"
+
 echo ""
 echo "==> DONE.  App is live at:  https://$APP_URL"
 echo "    ai-service (internal): $AI_FQDN"
