@@ -1,7 +1,9 @@
 package com.yojnasetu.gateway.controller;
 
 import com.yojnasetu.gateway.model.Kendra;
+import com.yojnasetu.gateway.repository.HelperRepository;
 import com.yojnasetu.gateway.repository.KendraRepository;
+import com.yojnasetu.gateway.security.FieldEncryptionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -23,14 +25,22 @@ import java.util.Map;
 public class KendraController {
 
     private final KendraRepository repo;
+    private final HelperRepository helperRepo;
+    private final FieldEncryptionService encryption;
 
-    public KendraController(KendraRepository repo) {
+    public KendraController(KendraRepository repo, HelperRepository helperRepo, FieldEncryptionService encryption) {
         this.repo = repo;
+        this.helperRepo = helperRepo;
+        this.encryption = encryption;
     }
 
     private static boolean isHelper(Authentication auth) {
         return auth.getAuthorities().stream().anyMatch(a ->
                 a.getAuthority().equals("ROLE_HELPER") || a.getAuthority().equals("ROLE_ADMIN"));
+    }
+
+    private static boolean isAdmin(Authentication auth) {
+        return auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
     }
 
     /** Great-circle distance in km. */
@@ -100,17 +110,33 @@ public class KendraController {
         return ResponseEntity.ok(Map.of("kendras", repo.findByHelperId(auth.getName()).stream().map(k -> view(k, null)).toList()));
     }
 
-    /** Helper removes (deactivates) one of THEIR OWN kendras — ownership checked. */
+    /** Deactivate a kendra: the OWNING helper, or an ADMIN (oversight over the network). */
     @PostMapping("/{id}/deactivate")
     public ResponseEntity<?> deactivate(Authentication auth, @PathVariable String id) {
         if (!isHelper(auth)) return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Helpers only"));
         return repo.findById(id).<ResponseEntity<?>>map(k -> {
-            if (!auth.getName().equals(k.getHelperId())) {
+            if (!isAdmin(auth) && !auth.getName().equals(k.getHelperId())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Not your kendra"));
             }
             k.setActive(false);
             repo.save(k);
             return ResponseEntity.ok(Map.of("success", true));
         }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Kendra not found")));
+    }
+
+    /** Admin: every kendra (active + inactive) with the registering helper's name. */
+    @GetMapping("/all")
+    public ResponseEntity<?> all(Authentication auth) {
+        if (!isAdmin(auth)) return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Admin only"));
+        List<Map<String, Object>> out = repo.findAll().stream().map(k -> {
+            Map<String, Object> m = view(k, null);
+            m.put("active", k.isActive());
+            m.put("helperId", k.getHelperId());
+            String hn = (k.getHelperId() == null) ? null
+                    : helperRepo.findById(k.getHelperId()).map(h -> encryption.decrypt(h.getName())).orElse(null);
+            m.put("helperName", hn);
+            return m;
+        }).toList();
+        return ResponseEntity.ok(Map.of("kendras", out));
     }
 }

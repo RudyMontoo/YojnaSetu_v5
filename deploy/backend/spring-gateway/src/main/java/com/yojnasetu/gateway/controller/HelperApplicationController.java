@@ -222,6 +222,7 @@ public class HelperApplicationController {
         m.put("name", encryption.decrypt(h.getName()));   // stored encrypted
         m.put("phone", encryption.decrypt(h.getPhone()));
         m.put("active", h.isActive());
+        m.put("available", h.isAvailable());
         m.put("mustResetPassword", h.isMustResetPassword());
         m.put("createdAt", h.getCreatedAt());
         m.put("lastLoginAt", h.getLastLoginAt());

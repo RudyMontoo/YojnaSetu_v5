@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Mail, KeyRound, LogIn, ShieldCheck, CheckCircle2, XCircle, RefreshCw, BadgeCheck, Users, LayoutGrid, ClipboardList, Power, RotateCcw } from 'lucide-react'
+import { Mail, KeyRound, LogIn, ShieldCheck, CheckCircle2, XCircle, RefreshCw, BadgeCheck, Users, LayoutGrid, ClipboardList, Power, RotateCcw, Building2, Inbox, Trash2, PhoneCall } from 'lucide-react'
 import { gateway } from '../lib/api'
 import './SignInPage.css'
 
@@ -14,6 +14,8 @@ export default function AdminPortalPage() {
     const [stats, setStats] = useState(null)
     const [apps, setApps] = useState([])
     const [helpers, setHelpers] = useState([])
+    const [kendras, setKendras] = useState([])
+    const [requests, setRequests] = useState([])
     const [issued, setIssued] = useState({})       // appId -> creds (on approve)
     const [reset, setReset] = useState({})         // helperId -> new creds (on reset-pw)
     const [error, setError] = useState('')
@@ -23,11 +25,18 @@ export default function AdminPortalPage() {
 
     const loadAll = async () => {
         try {
-            const [s, a, h] = await Promise.all([gateway.adminStats(), gateway.helperApplications(), gateway.adminHelpers()])
+            const [s, a, h, k, r] = await Promise.all([
+                gateway.adminStats(), gateway.helperApplications(), gateway.adminHelpers(),
+                gateway.adminKendras(), gateway.adminAllRequests(),
+            ])
             setStats(s); setApps(a.applications || []); setHelpers(h.helpers || [])
+            setKendras(k.kendras || []); setRequests(r.requests || [])
             return true
         } catch (e) { if (e.status === 403) setMode('notadmin'); return false }
     }
+    const deactivateKendra = async (id) => { try { await gateway.deactivateKendra(id) } finally { loadAll() } }
+    const resolveReq = async (id) => { try { await gateway.resolveHelp(id) } finally { loadAll() } }
+    const reopenReq = async (id) => { try { await gateway.reopenRequest(id) } finally { loadAll() } }
 
     const sendOtp = async (e) => { e.preventDefault(); setError(''); setBusy(true); try { await gateway.sendOtp({ email: email.trim() }); setStep('otp') } catch (err) { setError(err.message || 'Could not send OTP') } finally { setBusy(false) } }
     const verifyOtp = async (e) => { e.preventDefault(); setError(''); setBusy(true); try { await gateway.verifyOtp({ email: email.trim() }, otp.trim()); const ok = await loadAll(); setMode(ok ? 'dashboard' : 'notadmin') } catch (err) { setError(err.message || 'Incorrect OTP') } finally { setBusy(false) } }
@@ -66,7 +75,13 @@ export default function AdminPortalPage() {
         return <div className="signin-wrapper"><div className="signin-card glass-card" style={{ textAlign: 'center' }}><XCircle size={40} className="text-saffron" /><h1 className="signin-brand font-display">Not an admin account</h1><p className="signin-sub">This console is restricted to administrators.</p></div></div>
     }
 
-    const TABS = [{ id: 'overview', label: 'Overview', Icon: LayoutGrid }, { id: 'applications', label: `Applications${apps.length ? ` (${apps.length})` : ''}`, Icon: ClipboardList }, { id: 'helpers', label: `Helpers${helpers.length ? ` (${helpers.length})` : ''}`, Icon: Users }]
+    const TABS = [
+        { id: 'overview', label: 'Overview', Icon: LayoutGrid },
+        { id: 'applications', label: `Applications${apps.length ? ` (${apps.length})` : ''}`, Icon: ClipboardList },
+        { id: 'helpers', label: `Helpers${helpers.length ? ` (${helpers.length})` : ''}`, Icon: Users },
+        { id: 'kendras', label: `Kendras${kendras.length ? ` (${kendras.length})` : ''}`, Icon: Building2 },
+        { id: 'requests', label: `Requests${requests.length ? ` (${requests.length})` : ''}`, Icon: Inbox },
+    ]
 
     return (
         <div className="page-wrapper">
@@ -148,6 +163,43 @@ export default function AdminPortalPage() {
                             {reset[h.id] && (
                                 <div className="glass-card glass-card-glow" style={{ padding: 10, marginTop: 8, fontSize: 13 }}>
                                     New password: <b>{reset[h.id].tempPassword}</b> — {reset[h.id].emailedTo ? `emailed to ${reset[h.id].emailedTo}` : 'share it with the helper'}
+                                </div>
+                            )}
+                        </div>
+                    ))
+                )}
+
+                {tab === 'kendras' && (
+                    kendras.length === 0 ? <div className="glass-card" style={{ padding: 22, textAlign: 'center' }}><p className="text-muted">No registered kendras.</p></div>
+                    : kendras.map(k => (
+                        <div key={k.id} className="glass-card" style={{ padding: 14, marginBottom: 10 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
+                                <div style={{ minWidth: 0 }}>
+                                    <p style={{ margin: 0, fontWeight: 600 }}>{k.name}</p>
+                                    {k.address && <p className="text-muted" style={{ margin: 0, fontSize: 12 }}>{k.address}</p>}
+                                    <p className="text-muted" style={{ margin: '2px 0 0', fontSize: 12 }}>by {k.helperName || k.helperId}</p>
+                                </div>
+                                <span className={`badge ${k.active ? 'badge-green' : 'badge-muted'}`}>{k.active ? 'active' : 'removed'}</span>
+                            </div>
+                            {k.active && <div style={{ marginTop: 10 }}><button className="btn btn-ghost btn-sm" onClick={() => deactivateKendra(k.id)}><Trash2 size={13} /> Deactivate</button></div>}
+                        </div>
+                    ))
+                )}
+
+                {tab === 'requests' && (
+                    requests.length === 0 ? <div className="glass-card" style={{ padding: 22, textAlign: 'center' }}><p className="text-muted">No help requests.</p></div>
+                    : requests.map(q => (
+                        <div key={q.id} className="glass-card" style={{ padding: 14, marginBottom: 10 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                <div><p style={{ margin: 0, fontWeight: 600 }}>{q.citizenName || 'Citizen'}</p><a href={`tel:${q.phone}`} className="text-muted" style={{ fontSize: 13 }}>{q.phone}</a></div>
+                                <span className={`badge ${q.status === 'waiting' ? 'badge-muted' : 'badge-green'}`}>{q.status}</span>
+                            </div>
+                            {q.message && <p style={{ fontSize: 13.5, marginTop: 8 }}>{q.message}</p>}
+                            {q.status !== 'resolved' && (
+                                <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+                                    <a href={`tel:${q.phone}`} className="btn btn-ghost btn-sm"><PhoneCall size={13} /> Call</a>
+                                    <button className="btn btn-ghost btn-sm" onClick={() => resolveReq(q.id)}><CheckCircle2 size={13} /> Force resolve</button>
+                                    {q.status === 'assigned' && <button className="btn btn-ghost btn-sm" onClick={() => reopenReq(q.id)}><RotateCcw size={13} /> Reopen</button>}
                                 </div>
                             )}
                         </div>

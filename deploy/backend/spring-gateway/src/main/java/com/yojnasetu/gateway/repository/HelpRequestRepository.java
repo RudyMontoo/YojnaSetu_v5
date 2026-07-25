@@ -16,4 +16,7 @@ public interface HelpRequestRepository extends MongoRepository<HelpRequest, Stri
     List<HelpRequest> findByAssignedOperatorIdOrderByUpdatedAtDesc(String assignedOperatorId);
 
     long countByStatus(String status);
+
+    /** Admin: every request, newest first. */
+    List<HelpRequest> findByOrderByCreatedAtDesc();
 }

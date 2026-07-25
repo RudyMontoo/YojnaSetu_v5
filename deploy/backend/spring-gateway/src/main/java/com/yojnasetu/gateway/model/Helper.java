@@ -43,6 +43,10 @@ public class Helper {
      *  forces a reset on first login. */
     private boolean mustResetPassword = true;
 
+    /** On-duty flag the helper toggles themselves. Away helpers stay logged in
+     *  but are flagged for the admin. */
+    private boolean available = true;
+
     private LocalDateTime createdAt;
     private LocalDateTime lastLoginAt;
 }

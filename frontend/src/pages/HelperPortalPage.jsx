@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import {
     KeyRound, LogIn, ShieldCheck, PhoneCall, UserCheck, CheckCircle2, RefreshCw, LogOut, Lock,
-    MapPin, Plus, Building2, Trash2, Search, XCircle, Sparkles, History, Inbox, FileText,
+    MapPin, Plus, Building2, Trash2, Search, XCircle, Sparkles, History, Inbox, FileText, LayoutGrid, Power,
 } from 'lucide-react'
 import { gateway, ai } from '../lib/api'
 import './SignInPage.css'
@@ -25,15 +25,21 @@ export default function HelperPortalPage() {
     const [me, setMe] = useState(null)
     const [error, setError] = useState('')
     const [busy, setBusy] = useState(false)
-    const [tab, setTab] = useState('requests')    // requests | kendras | doc | account
+    const [tab, setTab] = useState('home')        // home | requests | kendras | doc | account
+    const [available, setAvailable] = useState(true)
 
     const [queue, setQueue] = useState([])
     const [myKendras, setMyKendras] = useState([])
     const [handled, setHandled] = useState([])
 
     useEffect(() => {
-        gateway.helperMe().then(h => { setMe(h); loadAll(); setMode('dashboard') }).catch(() => setMode('login'))
+        gateway.helperMe().then(h => { setMe(h); setAvailable(h.available !== false); loadAll(); setMode('dashboard') }).catch(() => setMode('login'))
     }, [])
+
+    const toggleAvailability = async () => {
+        const next = !available; setAvailable(next)
+        try { await gateway.setAvailability(next) } catch { setAvailable(!next) }
+    }
 
     const loadAll = async () => {
         try { const q = await gateway.helpQueue(); setQueue(q.requests || []) } catch { /* */ }
@@ -45,7 +51,7 @@ export default function HelperPortalPage() {
         e.preventDefault(); setError(''); setBusy(true)
         try {
             const r = await gateway.helperLogin(helperId.trim(), password)
-            setMe(r.helper)
+            setMe(r.helper); setAvailable(r.helper.available !== false)
             if (r.mustResetPassword) setMode('reset'); else { await loadAll(); setMode('dashboard') }
         } catch (err) { setError(err.message || 'Invalid helper ID or password') } finally { setBusy(false) }
     }
@@ -133,6 +139,7 @@ export default function HelperPortalPage() {
     }
 
     const TABS = [
+        { id: 'home', label: 'Home', Icon: LayoutGrid },
         { id: 'requests', label: `Requests${queue.length ? ` (${queue.length})` : ''}`, Icon: Inbox },
         { id: 'kendras', label: 'My Kendras', Icon: Building2 },
         { id: 'doc', label: 'Doc Helper', Icon: FileText },
@@ -144,6 +151,7 @@ export default function HelperPortalPage() {
             <header className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: 12, margin: 16, padding: '12px 16px' }}>
                 <div className="logo-img-circle" style={{ width: 40, height: 40 }}><img src="/logo.png" alt="" className="logo-img" /></div>
                 <div style={{ flex: 1 }}><p style={{ margin: 0, fontWeight: 700 }}>Helper Portal</p><p className="text-muted" style={{ margin: 0, fontSize: 12 }}>{me?.name} · {me?.helperId}</p></div>
+                <button className={`btn btn-sm ${available ? 'btn-primary btn-aarti' : 'btn-ghost'}`} onClick={toggleAvailability} title="Toggle on-duty"><Power size={13} /> {available ? 'On duty' : 'Away'}</button>
                 <button className="btn btn-ghost btn-sm" onClick={loadAll}><RefreshCw size={14} /></button>
                 <button className="btn btn-ghost btn-sm" onClick={logout}><LogOut size={14} /> Logout</button>
             </header>
@@ -151,6 +159,27 @@ export default function HelperPortalPage() {
                 <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
                     {TABS.map(t => <button key={t.id} className={`btn btn-sm ${tab === t.id ? 'btn-primary btn-aarti' : 'btn-ghost'}`} onClick={() => setTab(t.id)}><t.Icon size={14} /> {t.label}</button>)}
                 </div>
+
+                {/* ── Home overview ── */}
+                {tab === 'home' && <>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 12, marginBottom: 16 }}>
+                        {[
+                            { label: 'Waiting requests', v: queue.filter(q => q.status === 'waiting').length },
+                            { label: 'Handled', v: handled.length },
+                            { label: 'My kendras', v: myKendras.length },
+                        ].map(c => (
+                            <div key={c.label} className="glass-card" style={{ padding: 18, textAlign: 'center' }}>
+                                <p className="text-saffron" style={{ margin: 0, fontSize: 28, fontWeight: 800 }}>{c.v}</p>
+                                <p className="text-muted" style={{ margin: 0, fontSize: 12 }}>{c.label}</p>
+                            </div>
+                        ))}
+                    </div>
+                    <p className="text-muted" style={{ fontSize: 13, marginBottom: 10 }}>You are <b>{available ? 'on duty' : 'away'}</b>. {available ? 'Citizens can be routed to you.' : 'Toggle "On duty" in the header to take requests.'}</p>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        <button className="btn btn-primary btn-aarti btn-sm" onClick={() => setTab('requests')}><Inbox size={14} /> Go to queue</button>
+                        <button className="btn btn-ghost btn-sm" onClick={() => setTab('kendras')}><Building2 size={14} /> Register kendra</button>
+                    </div>
+                </>}
 
                 {/* ── Requests queue ── */}
                 {tab === 'requests' && (queue.length === 0

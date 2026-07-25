@@ -64,7 +64,8 @@ public class HelperAuthController {
 
         return ResponseEntity.ok(Map.of("success", true,
                 "mustResetPassword", helper.isMustResetPassword(),
-                "helper", Map.of("id", helper.getId(), "helperId", helper.getHelperId(), "name", encryption.decrypt(helper.getName()))));
+                "helper", Map.of("id", helper.getId(), "helperId", helper.getHelperId(),
+                        "name", encryption.decrypt(helper.getName()), "available", helper.isAvailable())));
     }
 
     public record ChangePasswordRequest(String currentPassword, String newPassword) {}
@@ -91,8 +92,21 @@ public class HelperAuthController {
     @GetMapping("/me")
     public ResponseEntity<?> me(Authentication auth) {
         return helperRepository.findById(auth.getName())
-                .<ResponseEntity<?>>map(h -> ResponseEntity.ok(Map.of("id", h.getId(), "helperId", h.getHelperId(), "name", encryption.decrypt(h.getName()))))
+                .<ResponseEntity<?>>map(h -> ResponseEntity.ok(Map.of("id", h.getId(), "helperId", h.getHelperId(),
+                        "name", encryption.decrypt(h.getName()), "available", h.isAvailable())))
                 .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Not a helper session")));
+    }
+
+    public record AvailabilityRequest(boolean available) {}
+
+    /** Helper toggles their own on-duty / away status. */
+    @PostMapping("/availability")
+    public ResponseEntity<?> availability(Authentication auth, @RequestBody AvailabilityRequest req) {
+        return helperRepository.findById(auth.getName()).<ResponseEntity<?>>map(h -> {
+            h.setAvailable(req.available());
+            helperRepository.save(h);
+            return ResponseEntity.ok(Map.of("success", true, "available", h.isAvailable()));
+        }).orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Not a helper session")));
     }
 
     @PostMapping("/logout")

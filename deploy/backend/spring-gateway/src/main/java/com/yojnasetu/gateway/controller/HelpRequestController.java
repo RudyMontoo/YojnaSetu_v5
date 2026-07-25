@@ -38,6 +38,10 @@ public class HelpRequestController {
                         || a.getAuthority().equals("ROLE_ADMIN"));
     }
 
+    private static boolean isAdmin(Authentication auth) {
+        return auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+    }
+
     public record CreateHelpRequest(String message, String phone, String citizenName,
                                     String schemeCode, String schemeName) {}
 
@@ -109,6 +113,26 @@ public class HelpRequestController {
             hr.setUpdatedAt(LocalDateTime.now());
             repo.save(hr);
             return ResponseEntity.ok(Map.of("success", true, "status", hr.getStatus()));
+        }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Request not found")));
+    }
+
+    /** Admin: every request (any status), newest first. */
+    @GetMapping("/all")
+    public ResponseEntity<?> all(Authentication auth) {
+        if (!isAdmin(auth)) return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Admin only"));
+        return ResponseEntity.ok(Map.of("requests", repo.findByOrderByCreatedAtDesc()));
+    }
+
+    /** Admin: reopen a stuck/assigned request back to the waiting queue (unassign). */
+    @PostMapping("/requests/{id}/reopen")
+    public ResponseEntity<?> reopen(Authentication auth, @PathVariable String id) {
+        if (!isAdmin(auth)) return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Admin only"));
+        return repo.findById(id).map(hr -> {
+            hr.setStatus("waiting");
+            hr.setAssignedOperatorId(null);
+            hr.setUpdatedAt(LocalDateTime.now());
+            repo.save(hr);
+            return ResponseEntity.ok(Map.of("success", true, "status", "waiting"));
         }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Request not found")));
     }
 }

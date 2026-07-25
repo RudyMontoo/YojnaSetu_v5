@@ -60,6 +60,11 @@ export const gateway = {
   resetHelperPassword: (id) => request(`/api/v2/helper/helpers/${id}/reset-password`, { method: "POST" }),
   // Helper workspace
   myHandled: () => request("/api/v2/help/my-handled"),                                          // helper only
+  setAvailability: (available) => request("/api/v2/helper-portal/availability", { method: "POST", body: { available } }),
+  // Admin oversight
+  adminKendras: () => request("/api/v2/kendras/all"),                                            // admin only
+  adminAllRequests: () => request("/api/v2/help/all"),                                           // admin only
+  reopenRequest: (id) => request(`/api/v2/help/requests/${id}/reopen`, { method: "POST" }),      // admin only
   listApplications: (status) => request(`/api/v2/applications${status ? `?status=${status}` : ""}`),
   createApplication: (schemeCode) => request("/api/v2/applications", { method: "POST", body: { schemeCode } }),
   updateApplication: (id, body) => request(`/api/v2/applications/${id}`, { method: "PATCH", body }),
