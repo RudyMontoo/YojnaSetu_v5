@@ -95,8 +95,13 @@ class MediaPipeLivenessDetector(LivenessDetector):
             return await asyncio.to_thread(self._analyze_sync, frames, challenge)
         except Exception as e:  # noqa: BLE001 — ANY failure fails closed (README §6.3)
             logger.warning("liveness analysis error, failing closed: %s: %s", e.__class__.__name__, e)
+            # Always carry a `reason` (not just `error`) so downstream + tests get a
+            # consistent, human-readable field. OSError here is typically a missing
+            # native lib (e.g. libGLESv2 for MediaPipe) rather than a spoof.
             return LivenessResult(is_live=False, confidence=0.0, model_version=MODEL_VERSION,
-                                  frames_analyzed=len(frames), checks={"error": e.__class__.__name__})
+                                  frames_analyzed=len(frames),
+                                  checks={"error": e.__class__.__name__,
+                                          "reason": f"liveness check failed to run ({e.__class__.__name__})"})
 
     def _analyze_sync(self, frames: list[bytes], challenge: str | None = None) -> LivenessResult:
         import mediapipe as mp

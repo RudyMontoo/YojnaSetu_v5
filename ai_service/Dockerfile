@@ -25,7 +25,7 @@ COPY deploy/backend/spring-gateway/keys/jwt_public.pem /app/keys/jwt_public.pem
 # slim base doesn't ship (libxcb.so.1, libGL.so.1, libgthread). Installed AFTER
 # pip so a rebuild reuses the large cached torch layer instead of re-pushing it.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        libgl1 libglib2.0-0 libxcb1 libsm6 libxext6 libxrender1 libgomp1 \
+        libgl1 libgles2 libglib2.0-0 libxcb1 libsm6 libxext6 libxrender1 libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
 ENV PYTHONUNBUFFERED=1 PORT=8080
