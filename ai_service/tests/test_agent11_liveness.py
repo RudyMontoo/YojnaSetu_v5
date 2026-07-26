@@ -24,6 +24,26 @@ mp = pytest.importorskip("mediapipe")
 from ai_service.vision.agent11_biometric.mediapipe_detector import MediaPipeLivenessDetector
 
 
+@pytest.fixture(autouse=True)
+def _stub_mp_image(monkeypatch):
+    """Keep these unit tests free of MediaPipe's native GL runtime.
+
+    The fake landmarker ignores the frame, so a real GPU/GL-backed `mp.Image`
+    is never needed — but constructing one initialises MediaPipe's GL backend,
+    which needs libGLESv2/libEGL that CI runners don't ship (OSError → the
+    detector fail-closes with no `reason`, breaking these assertions). Stubbing
+    `mp.Image` lets the decision logic run on the scripted results while the
+    real GL path stays exercised only in production. `create_from_options` is
+    also stubbed so no test accidentally loads the native model.
+    """
+    monkeypatch.setattr(mp, "Image", lambda *a, **k: None)
+    from mediapipe.tasks.python import vision
+    monkeypatch.setattr(
+        vision.FaceLandmarker, "create_from_options",
+        staticmethod(lambda *a, **k: (_ for _ in ()).throw(AssertionError("real model must not load in tests"))),
+    )
+
+
 def _jpeg() -> bytes:
     return cv2.imencode(".jpg", np.full((64, 64, 3), 200, np.uint8))[1].tobytes()
 
