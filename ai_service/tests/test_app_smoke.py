@@ -29,15 +29,40 @@ EXPECTED_ROUTES = {
 }
 
 
+def _all_route_paths(routes):
+    """Every route path in the app, recursing into included sub-routers.
+
+    FastAPI >=0.140 no longer flattens `include_router()` routes into
+    `app.routes`; each include becomes one `_IncludedRouter` mount (path=None)
+    whose real routes hang off `.original_router`. Walk both that and the older
+    flat/Mount layouts so this test works across FastAPI versions. (Router
+    prefixes aren't reflected on the child `.path`, so HTTP assertions use the
+    OpenAPI schema instead — this recursion is for prefix-less routes like WS.)
+    """
+    paths = set()
+    for r in routes:
+        p = getattr(r, "path", None)
+        if p:
+            paths.add(p)
+        orig = getattr(r, "original_router", None)  # FastAPI >=0.140 _IncludedRouter
+        if orig is not None and hasattr(orig, "routes"):
+            paths |= _all_route_paths(orig.routes)
+        elif not p and hasattr(r, "routes"):        # Mount / sub-app (older layout)
+            paths |= _all_route_paths(r.routes)
+    return paths
+
+
 def test_expected_http_routes_are_mounted():
-    paths = {getattr(r, "path", None) for r in app.routes}
+    # OpenAPI paths reflect every mounted HTTP route WITH its router prefix,
+    # and are stable across FastAPI's internal route-storage changes.
+    paths = set(app.openapi().get("paths", {}))
     missing = EXPECTED_ROUTES - paths
     assert not missing, f"expected routes missing from the app: {missing}"
 
 
 def test_voice_websocket_route_mounted():
-    # WebSocket routes carry a path too; the live-voice endpoint must be present.
-    paths = {getattr(r, "path", None) for r in app.routes}
+    # WebSocket routes aren't in the OpenAPI schema; find them by walking routes.
+    paths = _all_route_paths(app.routes)
     assert "/ws/voice/{session_id}" in paths
     assert "/ws/session/{session_id}" in paths
 
