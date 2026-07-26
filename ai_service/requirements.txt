@@ -1,45 +1,50 @@
-langchain>=0.3
-langchain-groq>=0.1
-langchain-community>=0.3
-langchain-core>=0.3
-chromadb>=0.5
-sentence-transformers>=2.2
-fastapi>=0.110
-uvicorn[standard]>=0.28
-pydantic>=2.0
-python-dotenv>=1.0
-requests>=2.31
-beautifulsoup4>=4.12
-lxml>=5.0
-pypdf>=4.0
-pillow>=10.0
+# Pinned to the versions the app is actually developed, tested (104 pytest), and
+# deployed against. Previously these were all `>=`, so CI's clean install pulled
+# newer, untested releases — which broke the build twice (FastAPI 0.140 changed
+# how include_router() stores routes; a newer stack shifted transitive behavior).
+# Pinning makes CI == dev == prod reproducible. Bump deliberately, then re-run CI.
+langchain==1.2.15
+langchain-groq==1.1.2
+langchain-community==0.4.1
+langchain-core==1.4.8
+chromadb==1.5.7
+sentence-transformers==5.4.1
+fastapi==0.135.3
+uvicorn[standard]==0.44.0
+pydantic==2.13.1
+python-dotenv==1.2.2
+requests==2.33.1
+beautifulsoup4==4.14.3
+lxml==6.0.4
+pypdf==6.10.2
+pillow==12.2.0
 
 # ── OCR + Document Scanning ────────────────────────────────────────────────────
-easyocr>=1.7                # primary OCR engine (ocr_router.py) — was installed but
+easyocr==1.7.2              # primary OCR engine (ocr_router.py) — was installed but
                             # missing from this file entirely; a fresh install would
                             # have silently broken the document scanner (found
                             # 2026-07-04 while validating a CI pipeline against a
                             # truly clean install, not the long-lived dev venv)
-opencv-python-headless>=4.9 # OpenCV without GUI — lighter, server-safe
-numpy>=1.24                 # Array ops (likely already transitive)
-python-multipart>=0.0.9     # FastAPI file upload (multipart/form-data)
-python-magic>=0.4.27         # real file-byte MIME sniffing (CLAUDE.md security rule #2) — needs system libmagic1
-pdf2image>=1.17             # PDF → image (requires poppler system package)
+opencv-python-headless==4.13.0.92  # OpenCV without GUI — lighter, server-safe
+numpy==2.4.4                # Array ops (likely already transitive)
+python-multipart==0.0.26    # FastAPI file upload (multipart/form-data)
+python-magic==0.4.27        # real file-byte MIME sniffing (CLAUDE.md security rule #2) — needs system libmagic1
+pdf2image==1.17.0           # PDF → image (requires poppler system package)
 # Install poppler separately: sudo apt install poppler-utils
 
 # ── v5.0 voice: real-time pipeline (WSS /ws/voice/{id}) ───────────────────────
-pipecat-ai[sarvam,silero]>=1.5   # streaming STT/TTS pipeline; sarvam extra = sarvamai SDK
+pipecat-ai[sarvam,silero]==1.5.0   # streaming STT/TTS pipeline; sarvam extra = sarvamai SDK
 
 # ── v5.0 rebuild: LangGraph orchestrator + MongoDB Atlas ──────────────────────
-langgraph>=0.2
-langchain-google-genai>=2.0  # Gemini 2.5 Flash client
-motor>=3.5                   # async MongoDB driver
-pyjwt[crypto]>=2.8          # verifies Spring Boot's RS256 citizen JWT; [crypto] makes the
+langgraph==1.1.6
+langchain-google-genai==4.2.6  # Gemini 2.5 Flash client
+motor==3.7.1                 # async MongoDB driver
+pyjwt[crypto]==2.13.0       # verifies Spring Boot's RS256 citizen JWT; [crypto] makes the
                             # cryptography backend an EXPLICIT dep (RS256 needs it) instead of
                             # relying on it arriving transitively via google-auth
 
 # ── Test suite (CI: python -m pytest) ─────────────────────────────────────────
-pytest>=8.0
-pytest-asyncio>=0.23         # asyncio_mode=auto in pytest.ini
-twilio>=9.0  # Agent 6 WhatsApp nudges — only needed for real delivery; dry-run works without it
-mediapipe>=0.10.9        # Agent 11 face-liveness (FaceLandmarker); needs the model file in vision/agent11_biometric/models/
+pytest==9.1.1
+pytest-asyncio==1.4.0        # asyncio_mode=auto in pytest.ini
+twilio==9.10.9  # Agent 6 WhatsApp nudges — only needed for real delivery; dry-run works without it
+mediapipe==0.10.35       # Agent 11 face-liveness (FaceLandmarker); needs the model file in vision/agent11_biometric/models/
