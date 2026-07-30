@@ -76,7 +76,10 @@ export default function SignInPage() {
             } else {
                 // Firebase: one invisible reCAPTCHA per page, reused across retries.
                 if (!recaptchaRef.current) {
-                    recaptchaRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', { size: 'invisible' })
+                    // badge:'inline' renders the reCAPTCHA badge inside our own
+                    // container (which we center) instead of Google's fixed
+                    // bottom-right float.
+                    recaptchaRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', { size: 'invisible', badge: 'inline' })
                 }
                 confirmationRef.current = await signInWithPhoneNumber(auth, fullPhone, recaptchaRef.current)
             }
@@ -192,8 +195,8 @@ export default function SignInPage() {
                         </button>
                     </form>
                 )}
-                {/* Firebase invisible reCAPTCHA anchors here (mobile OTP only). */}
-                <div id="recaptcha-container" />
+                {/* Firebase reCAPTCHA badge renders here (inline mode), centered. */}
+                <div id="recaptcha-container" style={{ display: 'flex', justifyContent: 'center', marginTop: 14 }} />
                 <Disclaimer variant="site" style={{ marginTop: 16 }} />
             </div>
         </div>
