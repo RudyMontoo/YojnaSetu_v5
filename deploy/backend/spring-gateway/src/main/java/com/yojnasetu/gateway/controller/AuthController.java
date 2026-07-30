@@ -6,6 +6,7 @@ import com.yojnasetu.gateway.repository.AuditLogRepository;
 import com.yojnasetu.gateway.repository.UserRepository;
 import com.yojnasetu.gateway.security.JwtAuthFilter;
 import com.yojnasetu.gateway.security.JwtUtils;
+import com.yojnasetu.gateway.service.FirebaseTokenService;
 import com.yojnasetu.gateway.service.OtpService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,16 +37,19 @@ public class AuthController {
     private final UserRepository userRepository;
     private final AuditLogRepository auditLogRepository;
     private final JwtUtils jwtUtils;
+    private final FirebaseTokenService firebaseTokenService;
 
     @Value("${app.cookie.secure:true}")
     private boolean cookieSecure;
 
     public AuthController(OtpService otpService, UserRepository userRepository,
-                           AuditLogRepository auditLogRepository, JwtUtils jwtUtils) {
+                           AuditLogRepository auditLogRepository, JwtUtils jwtUtils,
+                           FirebaseTokenService firebaseTokenService) {
         this.otpService = otpService;
         this.userRepository = userRepository;
         this.auditLogRepository = auditLogRepository;
         this.jwtUtils = jwtUtils;
+        this.firebaseTokenService = firebaseTokenService;
     }
 
     // Exactly one of phone / email is required (validated in resolveTarget).
@@ -132,6 +136,48 @@ public class AuthController {
                 yield ResponseEntity.ok(Map.of("success", true, "user", userInfo));
             }
         };
+    }
+
+    public record PhoneVerifyRequest(String idToken) {}
+
+    /**
+     * Phone login via Firebase. The browser did the SMS-OTP with Firebase (Google
+     * sends the code), then hands us the resulting ID token. We verify it, read the
+     * proven phone number, and issue the SAME session cookies as email OTP — so the
+     * rest of the app doesn't care which channel logged the citizen in.
+     */
+    @PostMapping("/phone/verify")
+    public ResponseEntity<?> verifyPhone(@RequestBody PhoneVerifyRequest req,
+                                         HttpServletRequest httpReq, HttpServletResponse res) {
+        if (!firebaseTokenService.isEnabled()) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body(Map.of("error", "Phone login isn't available right now — please use email."));
+        }
+        String phone = firebaseTokenService.verifiedPhone(req == null ? null : req.idToken());
+        if (phone == null) {
+            auditLogRepository.save(AuditLog.of(null, "phone_verify_fail", "/api/v2/auth/phone/verify", clientIp(httpReq)));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Phone verification failed"));
+        }
+
+        User user = userRepository.findByPhone(phone).orElseGet(() -> {
+            User u = new User();
+            u.setPhone(phone);
+            u.setCreatedAt(LocalDateTime.now());
+            return u;
+        });
+        user.setLastLoginAt(LocalDateTime.now());
+        user = userRepository.save(user);
+
+        issueCookies(res, user);
+        auditLogRepository.save(AuditLog.of(user.getId(), "phone_verify_success", "/api/v2/auth/phone/verify", clientIp(httpReq)));
+
+        Map<String, Object> userInfo = new java.util.HashMap<>();
+        userInfo.put("id", user.getId());
+        userInfo.put("phone", user.getPhone());
+        userInfo.put("email", user.getEmail());
+        userInfo.put("role", user.getRole());
+        userInfo.put("language", user.getLanguage() != null ? user.getLanguage() : "hi");
+        return ResponseEntity.ok(Map.of("success", true, "user", userInfo));
     }
 
     @PostMapping("/refresh")

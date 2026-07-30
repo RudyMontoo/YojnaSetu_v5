@@ -72,6 +72,14 @@
             <version>10.4.1</version>
         </dependency>
 
+        <!-- Firebase Admin SDK — verifies the Firebase phone-auth ID token server-side.
+             Google sends the SMS OTP (no DLT, no SIM, no business account); we just verify. -->
+        <dependency>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>9.4.3</version>
+        </dependency>
+
         <!-- OTP hashing (BCrypt) -->
         <dependency>
             <groupId>org.springframework.security</groupId>

@@ -96,6 +96,7 @@ az containerapp create -g "$RG" -n spring-gateway --environment "$ENVNAME" \
   --secrets mongodb-uri="$MONGODB_URI" enc-key="$FIELD_ENCRYPTION_KEY" \
             aadhaar-salt="$AADHAAR_SALT" internal-key="$INTERNAL_API_KEY" \
             smtp-user="${SMTP_USERNAME:-}" smtp-pass="${SMTP_PASSWORD:-}" \
+            firebase-creds="${FIREBASE_CREDENTIALS_JSON:-}" \
   --env-vars MONGODB_DB="$MONGODB_DB" COOKIE_SECURE=true \
              JWT_PRIVATE_KEY_PATH=/app/keys/jwt_private.pem JWT_PUBLIC_KEY_PATH=/app/keys/jwt_public.pem \
              FASTAPI_URL="http://$AI_FQDN" \
@@ -103,6 +104,7 @@ az containerapp create -g "$RG" -n spring-gateway --environment "$ENVNAME" \
              MAIL_FROM="${MAIL_FROM:-}" MAIL_FROM_NAME="${MAIL_FROM_NAME:-Yojna Sarthi}" MAIL_ENABLED="${MAIL_ENABLED:-false}" \
              ALERT_EMAIL="${ALERT_EMAIL:-}" \
              SMTP_USERNAME=secretref:smtp-user SMTP_PASSWORD=secretref:smtp-pass \
+             FIREBASE_CREDENTIALS_JSON=secretref:firebase-creds \
              MONGODB_URI=secretref:mongodb-uri FIELD_ENCRYPTION_KEY=secretref:enc-key \
              AADHAAR_SALT=secretref:aadhaar-salt INTERNAL_SERVICE_KEY=secretref:internal-key -o none
 SPRING_FQDN="$(az containerapp show -g "$RG" -n spring-gateway --query properties.configuration.ingress.fqdn -o tsv)"

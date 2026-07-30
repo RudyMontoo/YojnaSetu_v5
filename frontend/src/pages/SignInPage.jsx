@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowRight, Smartphone, KeyRound, ChevronLeft, Mail } from 'lucide-react'
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'
 import { gateway } from '../lib/api'
+import { auth } from '../lib/firebase'
 import { useAutoTranslate } from '../lib/i18n'
 import Disclaimer from '../components/Disclaimer'
 import './SignInPage.css'
@@ -14,11 +16,15 @@ const UI = {
     otpSentTo: 'Enter the 6-digit OTP sent to', verifyLogin: 'Verify & Login',
     changeContact: 'Change',
     errSend: 'Could not send OTP. Try again.', errOtp: 'Incorrect OTP',
+    errPhone: 'Please enter a valid mobile number.',
+    errTooMany: 'Too many attempts — please wait a while and try again.',
+    errRecaptcha: 'Verification check failed. Reload the page and try again.',
 }
 
-// v5.0 auth: phone OR email → OTP → httpOnly cookies from the Spring Boot gateway.
-// No password, no Supabase — matches how the backend actually works. Email is the
-// working channel today (SMS needs India DLT registration; wired for later).
+// v5.0 auth: EMAIL OTP goes through our Spring gateway (Brevo). MOBILE OTP goes
+// through Firebase Phone Auth — Google sends the SMS (no DLT / SIM / WhatsApp
+// Business needed); the browser gets a Firebase token, our backend verifies it
+// (/auth/phone/verify) and issues the SAME httpOnly cookie session. No password.
 export default function SignInPage() {
     const navigate = useNavigate()
     const [mode, setMode] = useState('mobile')  // mobile | email
@@ -30,23 +36,56 @@ export default function SignInPage() {
     const [loading, setLoading] = useState(false)
     const tr = useAutoTranslate([...Object.values(UI), error].filter(Boolean))
 
+    const confirmationRef = useRef(null)  // Firebase confirmationResult (mobile)
+    const recaptchaRef = useRef(null)     // invisible reCAPTCHA verifier
+
     const digits = phone.replace(/\D/g, '')
     const fullPhone = phone.startsWith('+') ? phone : `+91${digits}`
     const isEmail = mode === 'email'
     const emailValid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())
-    // what we show back to the user + send to the backend
     const contactLabel = isEmail ? email.trim() : fullPhone
-    const identifier = isEmail ? { email: email.trim() } : { phone: fullPhone }
     const canSend = isEmail ? emailValid : digits.length >= 10
+
+    // ── shared post-login: store user + go home ──
+    const finishLogin = (user) => {
+        localStorage.setItem('yojna_user', JSON.stringify({
+            id: user?.id,
+            phone: user?.phone || (isEmail ? '' : fullPhone),
+            email: user?.email || (isEmail ? email.trim() : ''),
+            role: user?.role || 'CITIZEN',
+            name: '',
+            language: user?.language || 'en',
+        }))
+        navigate('/home')
+    }
+
+    const mapFirebaseError = (code) => {
+        if (code === 'auth/invalid-phone-number') return UI.errPhone
+        if (code === 'auth/too-many-requests') return UI.errTooMany
+        if (code === 'auth/invalid-verification-code') return UI.errOtp
+        if (code && code.includes('recaptcha')) return UI.errRecaptcha
+        return UI.errSend
+    }
 
     const sendOtp = async (e) => {
         e.preventDefault()
         setError(''); setLoading(true)
         try {
-            await gateway.sendOtp(identifier)
+            if (isEmail) {
+                await gateway.sendOtp({ email: email.trim() })
+            } else {
+                // Firebase: one invisible reCAPTCHA per page, reused across retries.
+                if (!recaptchaRef.current) {
+                    recaptchaRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', { size: 'invisible' })
+                }
+                confirmationRef.current = await signInWithPhoneNumber(auth, fullPhone, recaptchaRef.current)
+            }
             setStep('otp')
         } catch (err) {
-            setError(err.message || UI.errSend)
+            setError(isEmail ? (err.message || UI.errSend) : mapFirebaseError(err.code))
+            // a failed reCAPTCHA can't be reused — drop it so the next try makes a fresh one
+            try { recaptchaRef.current?.clear() } catch { /* noop */ }
+            recaptchaRef.current = null
         } finally { setLoading(false) }
     }
 
@@ -54,19 +93,18 @@ export default function SignInPage() {
         e.preventDefault()
         setError(''); setLoading(true)
         try {
-            const res = await gateway.verifyOtp(identifier, otp.trim())
+            let res
+            if (isEmail) {
+                res = await gateway.verifyOtp({ email: email.trim() }, otp.trim())
+            } else {
+                const cred = await confirmationRef.current.confirm(otp.trim())
+                const idToken = await cred.user.getIdToken()
+                res = await gateway.verifyPhone(idToken)   // backend verifies + issues our cookie
+            }
             try { await gateway.giveConsent() } catch { /* retried on first profile save */ }
-            localStorage.setItem('yojna_user', JSON.stringify({
-                id: res.user?.id,
-                phone: res.user?.phone || (isEmail ? '' : fullPhone),
-                email: res.user?.email || (isEmail ? email.trim() : ''),
-                role: res.user?.role || 'CITIZEN',
-                name: '',
-                language: res.user?.language || 'en',
-            }))
-            navigate('/home')
+            finishLogin(res.user)
         } catch (err) {
-            setError(err.message || UI.errOtp)
+            setError(isEmail ? (err.message || UI.errOtp) : mapFirebaseError(err.code))
             setLoading(false)
         }
     }
@@ -154,6 +192,8 @@ export default function SignInPage() {
                         </button>
                     </form>
                 )}
+                {/* Firebase invisible reCAPTCHA anchors here (mobile OTP only). */}
+                <div id="recaptcha-container" />
                 <Disclaimer variant="site" style={{ marginTop: 16 }} />
             </div>
         </div>

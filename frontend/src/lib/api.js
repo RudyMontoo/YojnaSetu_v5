@@ -47,6 +47,8 @@ export const gateway = {
   // identifier is { phone } or { email } — the backend accepts either channel.
   sendOtp: (identifier) => request("/api/v2/auth/otp/send", { method: "POST", body: identifier }),
   verifyOtp: (identifier, otp) => request("/api/v2/auth/otp/verify", { method: "POST", body: { ...identifier, otp } }),
+  // Firebase phone login: send the Firebase ID token; backend verifies + issues our cookie.
+  verifyPhone: (idToken) => request("/api/v2/auth/phone/verify", { method: "POST", body: { idToken } }),
   logout: () => request("/api/v2/auth/logout", { method: "POST" }),
   giveConsent: () => request("/api/v2/consent", { method: "POST" }),
   getProfile: () => request("/api/v2/profile/me"),
