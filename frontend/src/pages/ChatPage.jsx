@@ -109,7 +109,11 @@ export default function ChatPage() {
     }, [t])
 
     const scrollBottom = () => bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-    useEffect(scrollBottom, [messages, loading])
+    // Wrap in a block — do NOT pass scrollBottom directly. useEffect(scrollBottom, …)
+    // would store scrollIntoView()'s return value as the effect's cleanup; on some
+    // engines that isn't undefined, so React later calls it -> "destroy is not a
+    // function" and the whole page crashes (the real cause of the Sathi black page).
+    useEffect(() => { scrollBottom() }, [messages, loading])
 
     const addMsg = (role, text, extra = {}) =>
         setMessages(m => [...m, { role, text, schemes: [], ...extra }])
