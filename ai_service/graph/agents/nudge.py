@@ -26,7 +26,10 @@ from datetime import datetime, timedelta, timezone
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from ai_service.utils.spring_client import fetch_citizen_profile
+from ai_service.utils.email_sender import send_email
+from ai_service.utils.email_sender import is_live as email_is_live
 from ai_service.utils.whatsapp_sender import send_whatsapp
+from ai_service.utils.whatsapp_sender import is_live as whatsapp_is_live
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +41,7 @@ MESSAGE_TYPE_APPLICATION_REMINDER = "application_reminder"
 
 
 def _compose_reminder(scheme_name: str) -> str:
+    """WhatsApp body (Twilio channel). Uses *asterisk* bold — WhatsApp markup."""
     name = scheme_name or "ek sarkari yojana"
     return (
         f"🙏 Namaste! Aapne *{name}* ke liye application shuru ki thi lekin abhi tak "
@@ -45,6 +49,39 @@ def _compose_reminder(scheme_name: str) -> str:
         f"app kholein aur 'Applications' mein jaakar aage badhein. Madad chahiye toh "
         f"reply karein. (Aap 'STOP' bhejkar ya app mein opt-out karke ye reminders band kar sakte hain.)"
     )
+
+
+def _compose_email(scheme_name: str) -> tuple[str, str]:
+    """Email (subject, body) for the same reminder — plain text, no WhatsApp
+    markup. Scheme name kept OUT of nothing sensitive; it's public info."""
+    name = scheme_name or "ek sarkari yojana"
+    subject = f"Reminder: {name} ki application poori karein — Yojna Sarthi"
+    body = (
+        f"Namaste,\n\n"
+        f"Aapne \"{name}\" ke liye application shuru ki thi lekin woh abhi tak poori nahi hui hai.\n"
+        f"Ise complete karne mein sirf kuch minute lagenge:\n\n"
+        f"  1. Yojna Sarthi app/website kholein\n"
+        f"  2. 'Applications' section mein jaayein\n"
+        f"  3. Aage badhein aur application submit karein\n\n"
+        f"Madad chahiye toh is email ka reply karein ya app mein Sathi se poochein.\n\n"
+        f"Ye reminders band karne ke liye app ke Profile mein jaakar nudges opt-out kar sakte hain.\n\n"
+        f"— Yojna Sarthi"
+    )
+    return subject, body
+
+
+async def _fetch_email(db, citizen_id) -> str:
+    """Citizen's login email from the `users` collection (stored plaintext,
+    indexed unique — same field the email-OTP login queries). Returns '' if
+    the citizen has no email on file (e.g. phone-only signup)."""
+    from bson import ObjectId
+    from bson.errors import InvalidId
+    try:
+        query = {"_id": ObjectId(citizen_id)}
+    except (InvalidId, TypeError):
+        query = {"_id": citizen_id}  # test/non-ObjectId ids
+    user = await db["users"].find_one(query, {"email": 1})
+    return (user or {}).get("email") or ""
 
 
 async def _recently_nudged(db, citizen_id: str, scheme_id, message_type: str) -> bool:
@@ -84,10 +121,16 @@ async def run_nudge_batch(db: AsyncIOMotorDatabase, *, dry_run: bool = True, lim
     )
     candidates = await cursor.to_list(length=limit)
 
+    # live_delivery is honest: real sending needs BOTH the caller opting out of
+    # dry_run AND at least one channel actually configured (SMTP for email, or
+    # Twilio for WhatsApp). Email is the one that's live today.
+    can_deliver = email_is_live() or whatsapp_is_live()
     summary = {
         "candidates": len(candidates), "sent": 0, "dry_run_count": 0,
         "skipped_optout": 0, "skipped_dedup": 0, "no_contact": 0, "failed": 0,
-        "live_delivery": not dry_run,
+        "live_delivery": (not dry_run) and can_deliver,
+        "email_channel_live": email_is_live(),
+        "whatsapp_channel_live": whatsapp_is_live(),
     }
     seen_citizens: set[str] = set()
 
@@ -104,23 +147,40 @@ async def run_nudge_batch(db: AsyncIOMotorDatabase, *, dry_run: bool = True, lim
             summary["skipped_dedup"] += 1
             continue
 
-        body = _compose_reminder(app.get("schemeName"))
+        scheme_name = app.get("schemeName")
+        email = await _fetch_email(db, citizen_id)
         profile = await fetch_citizen_profile(citizen_id)
         phone = (profile.get("phone") or "").strip()
 
-        if dry_run:
-            result = {"status": "dry_run", "delivered": False} if phone else {"status": "no_contact", "delivered": False}
-            if phone:
-                logger.info("[NUDGE dry-run] citizen=%s scheme=%s", citizen_id, app.get("schemeName"))
+        # Channel selection: EMAIL is the primary channel — it needs no Twilio
+        # WhatsApp Business approval and no DLT registration, and the exact SMTP
+        # account is already proven by the login OTP. WhatsApp is a fallback for
+        # phone-only citizens, and only truly delivers once Twilio is approved.
+        if email:
+            channel = "email"
+        elif phone:
+            channel = "whatsapp"
         else:
-            result = await send_whatsapp(phone, body)
+            channel = None
 
-        # record every attempt (CLAUDE.md nudge_log schema)
+        if channel is None:
+            result = {"status": "no_contact", "delivered": False}
+        elif dry_run:
+            result = {"status": "dry_run", "delivered": False}
+            logger.info("[NUDGE dry-run] citizen=%s scheme=%s channel=%s", citizen_id, scheme_name, channel)
+        elif channel == "email":
+            subject, email_body = _compose_email(scheme_name)
+            result = await send_email(email, subject, email_body)
+        else:  # whatsapp
+            result = await send_whatsapp(phone, _compose_reminder(scheme_name))
+
+        # record every attempt (CLAUDE.md nudge_log schema + channel)
         await db["nudge_log"].insert_one({
             "citizen_id": citizen_id,
             "message_type": MESSAGE_TYPE_APPLICATION_REMINDER,
             "scheme_id": app.get("schemeId"),
-            "scheme_name": app.get("schemeName"),
+            "scheme_name": scheme_name,
+            "channel": channel,
             "sent_at": datetime.now(timezone.utc),
             "delivered": result.get("delivered", False),
             "replied": False,

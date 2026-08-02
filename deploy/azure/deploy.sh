@@ -80,8 +80,12 @@ az containerapp create -g "$RG" -n ai-service --environment "$ENVNAME" \
   --min-replicas 1 --max-replicas 3 --cpu 2 --memory 4Gi \
   --secrets mongodb-uri="$MONGODB_URI" gemini-key="$GEMINI_API_KEY" groq-key="$GROQ_API_KEY" \
             sarvam-key="$SARVAM_API_KEY" internal-key="$INTERNAL_API_KEY" \
+            smtp-user="${SMTP_USERNAME:-}" smtp-pass="${SMTP_PASSWORD:-}" \
   --env-vars ENVIRONMENT=production MONGODB_DB="$MONGODB_DB" OLLAMA_ENABLED=0 \
              JWT_PUBLIC_KEY_PATH=/app/keys/jwt_public.pem \
+             SMTP_HOST="${SMTP_HOST:-smtp.gmail.com}" SMTP_PORT="${SMTP_PORT:-587}" \
+             MAIL_FROM="${MAIL_FROM:-}" MAIL_FROM_NAME="${MAIL_FROM_NAME:-Yojna Sarthi}" MAIL_ENABLED="${MAIL_ENABLED:-false}" \
+             SMTP_USERNAME=secretref:smtp-user SMTP_PASSWORD=secretref:smtp-pass \
              MONGODB_URI=secretref:mongodb-uri GEMINI_API_KEY=secretref:gemini-key \
              GROQ_API_KEY=secretref:groq-key SARVAM_API_KEY=secretref:sarvam-key \
              INTERNAL_API_KEY=secretref:internal-key -o none

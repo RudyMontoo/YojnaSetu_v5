@@ -174,7 +174,7 @@ _AGENT_REGISTRY = {
     "agent3_guidance": {"built": True, "trace_names": ["agent3_guidance"]},
     "agent4_document": {"built": True, "trace_names": ["agent4_document"]},
     "agent5_grievance": {"built": True, "trace_names": ["agent5_grievance"]},
-    "agent6_nudge": {"built": False, "trace_names": []},
+    "agent6_nudge": {"built": True, "trace_names": []},  # liveness from nudge_log.sent_at
     "agent7_financial": {"built": True, "trace_names": ["agent7_financial"]},
     "agent8_comparison": {"built": True, "trace_names": ["agent8_comparison"]},
     "agent9_csc": {"built": True, "trace_names": ["agent9_csc"]},
@@ -229,6 +229,9 @@ async def agents_health():
         elif agent_name == "orchestrator":
             trace = await db["reasoning_traces"].find_one({}, {"at": 1}, sort=[("at", -1)])
             last_active = trace["at"] if trace else None
+        elif agent_name == "agent6_nudge":
+            doc = await db["nudge_log"].find_one({}, {"sent_at": 1}, sort=[("sent_at", -1)])
+            last_active = doc.get("sent_at") if doc else None
         elif agent_name == "agent12_offline_proof":
             doc = await db["dlc_proofs"].find_one({}, {"verifiedAt": 1}, sort=[("verifiedAt", -1)])
             last_active = doc.get("verifiedAt") if doc else None
@@ -356,22 +359,26 @@ async def set_cpgrams_ref(
 @router.get("/nudge/status")
 async def nudge_status(citizen_id: str = Depends(get_current_citizen_id)):
     """Agent 6 — CLAUDE.md: 'nudge preferences + last 5 nudges sent'. Also
-    reports honestly whether WhatsApp delivery is actually live (Twilio
-    configured) or still dry-run pending approval."""
+    reports honestly which delivery channels are actually live: email (SMTP/
+    Brevo — the primary channel, no Twilio/DLT needed) and/or WhatsApp (Twilio,
+    dry-run until Business approval lands)."""
     from bson import ObjectId
     from bson.errors import InvalidId
-    from ai_service.utils.whatsapp_sender import is_live
+    from ai_service.utils.whatsapp_sender import is_live as whatsapp_live
+    from ai_service.utils.email_sender import is_live as email_live
     db = get_db()
     try:
         user = await db["users"].find_one({"_id": ObjectId(citizen_id)}, {"nudgeOptedOut": 1})
     except (InvalidId, TypeError):
         user = await db["users"].find_one({"_id": citizen_id}, {"nudgeOptedOut": 1})
     recent = await db["nudge_log"].find(
-        {"citizen_id": citizen_id}, {"_id": 0, "message_type": 1, "scheme_name": 1, "sent_at": 1, "delivered": 1}
+        {"citizen_id": citizen_id}, {"_id": 0, "message_type": 1, "scheme_name": 1, "channel": 1, "sent_at": 1, "delivered": 1}
     ).sort("sent_at", -1).limit(5).to_list(length=5)
     return {
         "opted_out": bool(user and user.get("nudgeOptedOut")),
-        "delivery_live": is_live(),  # False = dry-run until Twilio WhatsApp approval lands
+        "delivery_live": email_live() or whatsapp_live(),  # True once ANY channel can send
+        "email_channel_live": email_live(),
+        "whatsapp_channel_live": whatsapp_live(),  # False = dry-run until Twilio WhatsApp approval
         "recent_nudges": recent,
     }
 
