@@ -85,3 +85,6 @@ MSE 2 Guidelines.docx
 
 # Azure deploy secrets
 deploy/azure/.env.deploy
+
+# Local scratch: lists the live deploy URL — kept out of the public repo
+YOJNA_SARTHI_URLS.txt
