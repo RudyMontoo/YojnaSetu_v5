@@ -14,6 +14,20 @@ WORKDIR /app
 COPY ai_service/requirements.txt ./ai_service/requirements.txt
 RUN pip install --no-cache-dir -r ai_service/requirements.txt
 
+# Pre-download the 384-dim embedding model into the image. Without this,
+# sentence-transformers fetches all-MiniLM-L6-v2 from huggingface.co on the FIRST
+# scheme query of every cold container — ~40 HTTP round-trips, ~15s of user-visible
+# latency, plus an unauthenticated-HF rate limit and a hard runtime dependency on
+# HF being reachable (measured in prod 2026-08-05). Baking it makes the first query
+# as fast as the rest and keeps the app working if HF is down.
+ENV HF_HOME=/opt/hf
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+# Baking the weights alone isn't enough: sentence-transformers still HEAD-revalidates
+# every file against the Hub on load, which is where most of those round-trips go.
+# HF_HUB_OFFLINE makes it read the baked cache directly. Safe because the model is
+# pinned into the image above — there is nothing to fetch at runtime.
+ENV HF_HUB_OFFLINE=1
+
 # App code. .dockerignore (repo root) keeps venv/.env/tests/__pycache__ out.
 COPY ai_service ./ai_service
 

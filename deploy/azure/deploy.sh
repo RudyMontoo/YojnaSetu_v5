@@ -82,6 +82,7 @@ az containerapp create -g "$RG" -n ai-service --environment "$ENVNAME" \
             sarvam-key="$SARVAM_API_KEY" internal-key="$INTERNAL_API_KEY" \
             smtp-user="${SMTP_USERNAME:-}" smtp-pass="${SMTP_PASSWORD:-}" \
   --env-vars ENVIRONMENT=production MONGODB_DB="$MONGODB_DB" OLLAMA_ENABLED=0 \
+             LLM_PREFER="${LLM_PREFER:-groq}" \
              JWT_PUBLIC_KEY_PATH=/app/keys/jwt_public.pem \
              SMTP_HOST="${SMTP_HOST:-smtp.gmail.com}" SMTP_PORT="${SMTP_PORT:-587}" \
              MAIL_FROM="${MAIL_FROM:-}" MAIL_FROM_NAME="${MAIL_FROM_NAME:-Yojna Sarthi}" MAIL_ENABLED="${MAIL_ENABLED:-false}" \

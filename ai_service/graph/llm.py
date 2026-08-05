@@ -35,6 +35,13 @@ GROQ_FALLBACK_MODEL = "llama-3.3-70b-versatile"
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 
+# Which provider interactive callers try FIRST. Env-driven rather than hardcoded
+# because a provider outage is transient but costly: while Gemini was returning
+# 503 on every call (2026-08-05), each chat turn paid a full failed round-trip
+# before falling back to Groq — 2+ wasted calls per turn. Flipping this to "groq"
+# via env removes that tax with no rebuild, and flips back when Gemini recovers.
+DEFAULT_PREFER = os.getenv("LLM_PREFER", "gemini").strip().lower()
+
 
 def _gemini_llm(temperature: float):
     gemini_key = os.getenv("GEMINI_API_KEY", "").strip()
@@ -72,14 +79,14 @@ def get_llm(temperature: float = 0.3):
     return llm
 
 
-async def ainvoke_with_fallback(prompt: str, temperature: float = 0.3, prefer: str = "gemini"):
-    """Tries `prefer` first (default Gemini); on ANY error (invalid key, quota,
-    timeout) falls back to the other provider. This is the call site every
-    agent/node should use instead of get_llm().ainvoke() directly.
+async def ainvoke_with_fallback(prompt: str, temperature: float = 0.3, prefer: str | None = None):
+    """Tries `prefer` first (defaults to LLM_PREFER env, else Gemini); on ANY error
+    (invalid key, quota, timeout) falls back to the other provider. This is the call
+    site every agent/node should use instead of get_llm().ainvoke() directly.
 
     Interactive, per-chat-turn callers (intent classifier, Agent 1/8 replies)
-    should use the default prefer="gemini" — one call per turn stays well
-    under the 5rpm free-tier quota. Bulk callers (normalizer.py, processing
+    should leave `prefer` unset so LLM_PREFER decides — one call per turn stays
+    well under the 5rpm free-tier quota. Bulk callers (normalizer.py, processing
     hundreds of schemes concurrently) should pass prefer="ollama" (local, no
     quota, no cost) or prefer="groq". The chosen provider is tried first, then
     the remaining providers in a sensible fallback order — so a single call
@@ -87,6 +94,12 @@ async def ainvoke_with_fallback(prompt: str, temperature: float = 0.3, prefer: s
     """
     _factories = {"gemini": _gemini_llm, "groq": _groq_llm, "ollama": _ollama_llm}
     _label = {"gemini": "Gemini", "groq": "Groq", "ollama": "Ollama"}
+
+    if prefer is None:
+        prefer = DEFAULT_PREFER
+    if prefer not in _factories:
+        logger.warning("Unknown LLM preference %r — falling back to gemini", prefer)
+        prefer = "gemini"
 
     # preferred first, then the other two in a default order
     order = [prefer] + [p for p in ("gemini", "groq", "ollama") if p != prefer]
