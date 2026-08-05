@@ -59,13 +59,23 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 app.add_middleware(SecurityHeadersMiddleware)
 
 # ── CORS (allow React frontend on port 3000 and Spring Boot on 8080) ──────────
+# PUBLIC_ORIGINS carries every public origin the app answers on (custom domain +
+# Azure FQDN). A single FRONTEND_URL isn't enough: the browser sends an Origin
+# header even on same-origin POSTs, so an origin missing from this list is
+# rejected before the handler runs — the failure mode that broke phone-OTP login
+# on the custom domain while the Azure URL kept working (2026-08-05).
+_public_origins = [
+    o.strip()
+    for o in os.getenv("PUBLIC_ORIGINS", os.getenv("FRONTEND_URL", "http://localhost:5173")).split(",")
+    if o.strip()
+]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
         "http://localhost:5173",  # Vite dev server
         "http://localhost:8080",
-        os.getenv("FRONTEND_URL", "http://localhost:5173"),
+        *_public_origins,
     ],
     allow_credentials=True,
     allow_methods=["*"],

@@ -16,8 +16,11 @@ const UI = {
     otpSentTo: 'Enter the 6-digit OTP sent to', verifyLogin: 'Verify & Login',
     changeContact: 'Change',
     errSend: 'Could not send OTP. Try again.', errOtp: 'Incorrect OTP',
+    errVerify: 'Could not complete login. Please try again.',
     errPhone: 'Please enter a valid mobile number.',
     errTooMany: 'Too many attempts — please wait a while and try again.',
+    errExpired: 'That OTP has expired. Tap Change and request a new one.',
+    errDomain: 'Login is not enabled for this web address. Please contact support.',
     errRecaptcha: 'Verification check failed. Reload the page and try again.',
 }
 
@@ -59,12 +62,21 @@ export default function SignInPage() {
         navigate('/home')
     }
 
-    const mapFirebaseError = (code) => {
+    // `fallback` matters: a Firebase code we don't recognise during VERIFY must not
+    // claim "could not send OTP" — the SMS already went out by then. A gateway
+    // error (from verifyPhone) carries .status, never .code, so it lands here too;
+    // surfacing its real message is what makes a backend failure diagnosable
+    // instead of masquerading as a send failure (2026-08-05 CORS 403).
+    const mapFirebaseError = (err, fallback = UI.errSend) => {
+        const code = err?.code
         if (code === 'auth/invalid-phone-number') return UI.errPhone
         if (code === 'auth/too-many-requests') return UI.errTooMany
         if (code === 'auth/invalid-verification-code') return UI.errOtp
+        if (code === 'auth/code-expired') return UI.errExpired
+        if (code === 'auth/unauthorized-domain') return UI.errDomain
         if (code && code.includes('recaptcha')) return UI.errRecaptcha
-        return UI.errSend
+        if (!code && err?.message) return err.message   // gateway error — show what it said
+        return fallback
     }
 
     const sendOtp = async (e) => {
@@ -85,7 +97,7 @@ export default function SignInPage() {
             }
             setStep('otp')
         } catch (err) {
-            setError(isEmail ? (err.message || UI.errSend) : mapFirebaseError(err.code))
+            setError(isEmail ? (err.message || UI.errSend) : mapFirebaseError(err, UI.errSend))
             // a failed reCAPTCHA can't be reused — drop it so the next try makes a fresh one
             try { recaptchaRef.current?.clear() } catch { /* noop */ }
             recaptchaRef.current = null
@@ -107,7 +119,7 @@ export default function SignInPage() {
             try { await gateway.giveConsent() } catch { /* retried on first profile save */ }
             finishLogin(res.user)
         } catch (err) {
-            setError(isEmail ? (err.message || UI.errOtp) : mapFirebaseError(err.code))
+            setError(isEmail ? (err.message || UI.errOtp) : mapFirebaseError(err, UI.errVerify))
             setLoading(false)
         }
     }

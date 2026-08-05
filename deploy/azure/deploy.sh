@@ -132,11 +132,20 @@ az containerapp create -g "$RG" -n frontend --environment "$ENVNAME" \
 APP_URL="$(az containerapp show -g "$RG" -n frontend --query properties.configuration.ingress.fqdn -o tsv)"
 
 # ── 5) Backfill cross-references now that all 3 URLs exist ──
-echo "==> Wiring cross-service URLs (FRONTEND_URL for CORS/cookies, ai->spring)"
+# The app answers on BOTH the custom domain and the Azure FQDN, so the gateway's
+# CORS allowlist must name all of them. Chrome sends an Origin header even on
+# same-origin POSTs, so an origin missing here is rejected with 403 "Invalid CORS
+# request" BEFORE reaching the handler — that silently broke phone-OTP login on
+# yojsarthi.in while it still worked on the Azure URL (2026-08-05).
+# PUBLIC_ORIGINS is the allowlist; FRONTEND_URL stays the canonical link base
+# used in outbound emails, so it points at the custom domain.
+PUBLIC_ORIGINS="https://yojsarthi.in,https://www.yojsarthi.in,https://$APP_URL"
+CANONICAL_URL="https://yojsarthi.in"
+echo "==> Wiring cross-service URLs (CORS allowlist + canonical link base)"
 az containerapp update -g "$RG" -n ai-service \
-  --set-env-vars SPRING_BOOT_INTERNAL_URL="http://$SPRING_FQDN" FRONTEND_URL="https://$APP_URL" -o none
+  --set-env-vars SPRING_BOOT_INTERNAL_URL="http://$SPRING_FQDN" FRONTEND_URL="$CANONICAL_URL" PUBLIC_ORIGINS="$PUBLIC_ORIGINS" -o none
 az containerapp update -g "$RG" -n spring-gateway \
-  --set-env-vars FRONTEND_URL="https://$APP_URL" -o none
+  --set-env-vars FRONTEND_URL="$CANONICAL_URL" APP_CORS_ALLOWED_ORIGINS="$PUBLIC_ORIGINS" -o none
 
 # ── 6) Scheduled discovery Job (Agent 2) — keeps the scheme catalogue fresh ──
 # Separate Container Apps Job (not an in-process scheduler): a rate-limited
