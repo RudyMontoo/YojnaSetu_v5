@@ -31,11 +31,43 @@ from typing import Optional
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from ai_service.discovery.sources.datagov import fetch_datagov_candidates
-from ai_service.discovery.sources.myscheme import fetch_myscheme_candidates
+from ai_service.discovery.sources.myscheme import fetch_catalog_total, fetch_myscheme_candidates
 from ai_service.discovery.sources.pib_rss import fetch_pib_candidates
 from ai_service.discovery.upsert import diff_upsert_schemes
 
 logger = logging.getLogger(__name__)
+
+# Single-document collection holding the nightly MyScheme cursor.
+_CURSOR_COLL = "discovery_state"
+_CURSOR_ID = "myscheme_cursor"
+
+
+async def _next_offset(db: AsyncIOMotorDatabase) -> int:
+    doc = await db[_CURSOR_COLL].find_one({"_id": _CURSOR_ID})
+    return int(doc.get("offset", 0)) if doc else 0
+
+
+async def _advance_cursor(db: AsyncIOMotorDatabase, consumed: int, total: int) -> int:
+    """Moves the cursor forward by however many slugs this run actually consumed,
+    wrapping to 0 at the end of the catalog so the next sweep re-checks the
+    schemes synced longest ago (they're the most likely to have drifted).
+
+    Wrapping on `total` rather than the count we hold locally matters: MyScheme
+    shrinks as well as grows, and a cursor parked past the end silently fetches
+    nothing forever — exactly the failure this whole cursor exists to fix."""
+    start = await _next_offset(db)
+    nxt = start + consumed
+    wrapped = total > 0 and nxt >= total
+    if wrapped:
+        nxt = 0
+    await db[_CURSOR_COLL].update_one(
+        {"_id": _CURSOR_ID},
+        {"$set": {"offset": nxt, "total": total, "at": datetime.now(timezone.utc)}},
+        upsert=True,
+    )
+    if wrapped:
+        logger.info("MyScheme cursor wrapped past catalog end (%d) — next run restarts at 0", total)
+    return nxt
 
 
 def _slugify(*parts: str) -> str:
@@ -67,10 +99,33 @@ def _to_scheme_doc(candidate: dict) -> dict:
 async def run_discovery(db: AsyncIOMotorDatabase, myscheme_limit: Optional[int] = None) -> dict:
     """One discovery pass across all configured sources. Returns a summary dict.
     myscheme_limit=None skips MyScheme entirely (keeps this fast/on-demand-safe);
-    pass a number to include a bounded MyScheme batch in this run."""
+    pass a number to include a bounded MyScheme batch in this run.
+
+    The MyScheme batch starts from a persisted cursor, not from 0. Without it
+    every nightly run re-fetched the same first `myscheme_limit` schemes, the
+    content-hash diff correctly skipped all of them, and the job exited 0 having
+    written nothing — which is why scheme writes flatlined after 2026-07-27
+    while the cron kept reporting success."""
     pib_candidates = fetch_pib_candidates()
     datagov_candidates = fetch_datagov_candidates()
-    myscheme_candidates = fetch_myscheme_candidates(limit=myscheme_limit) if myscheme_limit else []
+
+    myscheme_candidates: list[dict] = []
+    myscheme_offset = None
+    if myscheme_limit:
+        myscheme_offset = await _next_offset(db)
+        total = fetch_catalog_total()
+        # A cursor past the (possibly shrunken) end would fetch nothing forever.
+        if total and myscheme_offset >= total:
+            logger.info("MyScheme cursor %d past catalog end %d — restarting at 0", myscheme_offset, total)
+            myscheme_offset = 0
+        myscheme_candidates = fetch_myscheme_candidates(
+            limit=myscheme_limit, start_offset=myscheme_offset
+        )
+        # Advance by the batch WIDTH, not by how many candidates came back: a
+        # detail fetch that 404s or times out still consumed its slot, and
+        # advancing by the smaller number would re-walk those slots forever.
+        consumed = min(myscheme_limit, max(total - myscheme_offset, 0)) if total else len(myscheme_candidates)
+        await _advance_cursor(db, consumed, total)
 
     all_candidates = pib_candidates + datagov_candidates + myscheme_candidates
     scheme_docs = [_to_scheme_doc(c) for c in all_candidates]
@@ -81,6 +136,7 @@ async def run_discovery(db: AsyncIOMotorDatabase, myscheme_limit: Optional[int] 
         "pib_candidates": len(pib_candidates),
         "datagov_candidates": len(datagov_candidates),
         "myscheme_candidates": len(myscheme_candidates),
+        "myscheme_offset": myscheme_offset,
         **counts,
         "at": datetime.now(timezone.utc),
     }

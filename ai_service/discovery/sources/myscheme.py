@@ -122,6 +122,18 @@ def _to_candidate(slug: str, detail: dict) -> dict:
     }
 
 
+def fetch_catalog_total() -> int:
+    """How many schemes MyScheme currently lists, in one cheap size=1 call.
+    The nightly cursor needs this to know where to wrap; 0 on any failure, which
+    callers treat as "don't advance the cursor" rather than "the catalog is empty"."""
+    try:
+        page = _search_page(0, 1)
+        return int(page.get("data", {}).get("summary", {}).get("total", 0))
+    except Exception as e:
+        logger.warning("MyScheme total lookup failed (%s: %s)", e.__class__.__name__, e)
+        return 0
+
+
 def fetch_myscheme_candidates(limit: Optional[int] = None, dry_run: bool = False,
                                start_offset: int = 0) -> list[dict]:
     """Paginates MyScheme's search index for slugs, then fetches full detail
