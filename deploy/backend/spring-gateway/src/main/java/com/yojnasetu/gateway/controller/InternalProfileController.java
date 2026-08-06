@@ -1,5 +1,6 @@
 package com.yojnasetu.gateway.controller;
 
+import com.yojnasetu.gateway.util.ClientIp;
 import com.yojnasetu.gateway.model.AuditLog;
 import com.yojnasetu.gateway.model.CitizenProfile;
 import com.yojnasetu.gateway.model.Scheme;
@@ -107,8 +108,6 @@ public class InternalProfileController {
     }
 
     private String clientIp(HttpServletRequest req) {
-        String forwardedFor = req.getHeader("X-Forwarded-For");
-        if (forwardedFor != null && !forwardedFor.isBlank()) return forwardedFor.split(",")[0].trim();
-        return req.getRemoteAddr();
+        return ClientIp.of(req);
     }
 }

@@ -12,8 +12,8 @@ service-level gate, plus get_current_citizen_id (utils/jwt_auth.py) which
 verifies Spring Boot's RS256 access_token cookie and derives citizen_id from
 the signature-verified token — this used to be a client-supplied field on
 ChatRequest, trusted at face value, letting any caller act as any citizen.
-If `profile` isn't supplied in the body, it's fetched from Spring Boot's
-internal profile endpoint instead of defaulting to empty.
+The profile is ALWAYS loaded server-side from Spring Boot's internal endpoint
+using that citizen_id — never accepted from the request body.
 """
 import logging
 from uuid import uuid4
@@ -38,7 +38,6 @@ class ChatRequest(BaseModel):
     session_id: str | None = None
     channel: str = "web"
     lang: str = "hi"
-    profile: dict = {}
 
 
 class ChatResponse(BaseModel):
@@ -63,7 +62,11 @@ async def chat(req: ChatRequest, citizen_id: str = Depends(get_current_citizen_i
         _indexes_ready = True
     session_id = req.session_id or str(uuid4())
 
-    profile = req.profile or await fetch_citizen_profile(citizen_id)
+    # ALWAYS server-side. The request used to accept a `profile` dict and prefer it
+    # over the DB, so a citizen could post {"annualIncome":0,"isBpl":true,...} and
+    # get eligibility verdicts computed on invented data — which they'd then rely on,
+    # and which feeds trend_events and Agent 10's admin report.
+    profile = await fetch_citizen_profile(citizen_id)
 
     result = await run_chat_turn(
         db,

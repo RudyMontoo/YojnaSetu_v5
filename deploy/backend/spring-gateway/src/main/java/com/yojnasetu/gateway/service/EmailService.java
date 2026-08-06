@@ -35,6 +35,12 @@ public class EmailService {
     @Value("${app.frontend-url:}")
     private String frontendUrl;
 
+    /** Opt-in ONLY: echo OTPs/credentials to stderr when mail is unconfigured, for
+     *  local dev. Defaults false and deploy.sh never sets it, so production can
+     *  never log a live credential even if mail breaks. */
+    @Value("${app.dev-credential-echo:false}")
+    private boolean devEcho;
+
     public EmailService(ObjectProvider<JavaMailSender> mailSenderProvider) {
         this.mailSenderProvider = mailSenderProvider;
     }
@@ -48,8 +54,17 @@ public class EmailService {
     public void sendOtp(String email, String otp) {
         JavaMailSender sender = mailSenderProvider.getIfAvailable();
         if (!enabled || from == null || from.isBlank() || sender == null) {
-            System.err.println("WARNING: Email not configured (app.mail.enabled/from + spring.mail.*) — "
-                    + "OTP for " + email + " is: " + otp + " (logged instead of sent, dev-only fallback)");
+            // NEVER print the OTP unless a developer explicitly asked for it. This
+            // branch fires whenever mail is unconfigured — and MAIL_ENABLED defaults
+            // to false, so it was the *production* path: every login code landed in
+            // Azure Log Analytics next to the address it authenticates, which is
+            // account takeover for anyone holding log-read access.
+            if (devEcho) {
+                System.err.println("DEV: OTP for " + email + " is: " + otp);
+            } else {
+                System.err.println("ERROR: Email not configured (app.mail.enabled/from + spring.mail.*) — "
+                        + "OTP could not be sent and was NOT logged. Login is broken until mail is configured.");
+            }
             return;
         }
         SimpleMailMessage msg = new SimpleMailMessage();
@@ -97,8 +112,13 @@ public class EmailService {
                 + "Login: " + (frontendUrl != null && !frontendUrl.isBlank() ? frontendUrl : "https://yojsarthi.in") + "/helper\n\n"
                 + "Kisi ke saath ye details share na karein.\n\n— Yojna Sarthi";
         if (!enabled || from == null || from.isBlank() || sender == null) {
-            System.err.println("WARNING: Email not configured — Helper credentials for " + email
-                    + " => id=" + helperId + " password=" + tempPassword + " (logged instead of sent)");
+            if (devEcho) {
+                System.err.println("DEV: Helper credentials for " + email
+                        + " => id=" + helperId + " password=" + tempPassword);
+            } else {
+                System.err.println("ERROR: Email not configured — Helper credentials for helperId=" + helperId
+                        + " could not be sent and were NOT logged. Re-issue them once mail is configured.");
+            }
             return;
         }
         SimpleMailMessage msg = new SimpleMailMessage();

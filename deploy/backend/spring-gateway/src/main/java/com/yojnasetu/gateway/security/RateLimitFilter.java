@@ -1,5 +1,6 @@
 package com.yojnasetu.gateway.security;
 
+import com.yojnasetu.gateway.util.ClientIp;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import jakarta.servlet.FilterChain;
@@ -19,9 +20,21 @@ import java.util.concurrent.ConcurrentHashMap;
  * layer. OTP-specific tighter limits (5/hour per phone) live in
  * OtpService, not here — this filter is the coarse per-IP backstop, not
  * the phone-specific abuse guard.
+ *
+ * Identity comes from ClientIp (X-Real-IP, set by our nginx) — NOT from
+ * X-Forwarded-For[0], which any client can set and which made this filter
+ * trivially bypassable by rotating the header.
  */
 @Component
 public class RateLimitFilter extends OncePerRequestFilter {
+
+    /** Hard cap on tracked IPs. Buckets are ~100 bytes, so 100k ≈ 10MB — bounded.
+     *  Without a cap the map is an unbounded memory leak: under CGNAT a single
+     *  operator legitimately presents thousands of distinct addresses, and the map
+     *  never evicted anything. On overflow we clear rather than evict-LRU: losing
+     *  the counters briefly is a far smaller problem than an OOM, and a full map
+     *  only happens under genuinely abnormal traffic. */
+    private static final int MAX_TRACKED_IPS = 100_000;
 
     private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
 
@@ -35,6 +48,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
             throws ServletException, IOException {
         String ip = clientIp(req);
+        if (buckets.size() >= MAX_TRACKED_IPS) {
+            buckets.clear();
+        }
         Bucket bucket = buckets.computeIfAbsent(ip, k -> newBucket());
 
         if (bucket.tryConsume(1)) {
@@ -48,10 +64,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
     }
 
     private String clientIp(HttpServletRequest req) {
-        String forwardedFor = req.getHeader("X-Forwarded-For");
-        if (forwardedFor != null && !forwardedFor.isBlank()) {
-            return forwardedFor.split(",")[0].trim();
-        }
-        return req.getRemoteAddr();
+        return ClientIp.of(req);
     }
 }

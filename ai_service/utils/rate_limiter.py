@@ -51,11 +51,18 @@ class RateLimiter:
         self.check(key)
 
     def get_client_ip(self, request: Request) -> str:
-        """Extract real client IP, respecting X-Forwarded-For from reverse proxies."""
-        forwarded_for = request.headers.get("X-Forwarded-For")
-        if forwarded_for:
-            # X-Forwarded-For can be a comma-separated list; first is the real client
-            return forwarded_for.split(",")[0].strip()
+        """The caller's real IP, used as the rate-limit key.
+
+        Reads X-Real-IP (set by our nginx, which overwrites any client value) and
+        deliberately NOT X-Forwarded-For. XFF is client-writable and both our nginx
+        and Azure's ingress append rather than replace, so its first entry is
+        attacker-chosen: keying on it let anyone bypass every limit here by sending
+        a random X-Forwarded-For per request. There is no XFF fallback on purpose —
+        a fallback would reopen exactly that bypass.
+        """
+        real_ip = request.headers.get("X-Real-IP")
+        if real_ip and real_ip.strip():
+            return real_ip.strip()
         return request.client.host if request.client else "unknown"
 
 

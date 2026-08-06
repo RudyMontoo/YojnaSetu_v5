@@ -14,6 +14,24 @@ server {
     # it applies to every proxied location below.
     proxy_ssl_server_name on;
 
+    # ── Trustworthy client IP (security: rate limiting + audit logs depend on it) ──
+    # A client can send its own X-Forwarded-For, and Azure's ingress APPENDS the real
+    # socket address rather than replacing the header. So the header arriving here is
+    # [attacker-supplied junk..., real client] — the FIRST entry is forgeable and the
+    # LAST is not. Anything keying on entry [0] can be evaded by rotating the header,
+    # which uncaps every rate limit and lets audit_logs be poisoned.
+    #
+    # real_ip_recursive stays OFF (the default) deliberately: that makes nginx take
+    # exactly the last XFF entry — the one Azure wrote — and stop. Trusting 0.0.0.0/0
+    # is safe ONLY because of that: with recursion on it would walk left into the
+    # attacker's entries. nginx is reachable only via ACA ingress, so $remote_addr is
+    # always Envoy and the substitution always applies.
+    set_real_ip_from 0.0.0.0/0;
+    set_real_ip_from ::/0;
+    real_ip_header X-Forwarded-For;
+    # $remote_addr is now the real client. Backends read X-Real-IP, which we always
+    # overwrite below, so a client-supplied X-Real-IP can never survive.
+
     # ACA's ingress (Envoy) rejects HTTP/1.0 with "426 Upgrade Required". nginx
     # proxies as HTTP/1.0 by DEFAULT, so every proxied location must force 1.1.
     # (The /ws block already set this; /api and /agents did not — hence the 426.)
@@ -25,6 +43,7 @@ server {
         proxy_pass ${SPRING_URL};
         proxy_set_header Host $proxy_host;        # ACA internal ingress routes by Host — must be the backend FQDN, not $host
         proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Real-IP $remote_addr;   # unforgeable: overwrites any client value
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
@@ -37,6 +56,7 @@ server {
         proxy_set_header Connection "upgrade";
         proxy_set_header Host $proxy_host;        # ACA internal ingress routes by Host — must be the backend FQDN, not $host
         proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Real-IP $remote_addr;   # unforgeable: overwrites any client value
         proxy_read_timeout 3600s;   # long-lived voice/chat sockets
     }
 
@@ -45,6 +65,7 @@ server {
         proxy_pass ${AI_SERVICE_URL};
         proxy_set_header Host $proxy_host;        # ACA internal ingress routes by Host — must be the backend FQDN, not $host
         proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Real-IP $remote_addr;   # unforgeable: overwrites any client value
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_read_timeout 120s;    # some agent calls (financial plan) are slow

@@ -60,6 +60,10 @@ public class OtpService {
     @Value("${twilio.from-number:}")
     private String twilioFromNumber;
 
+    /** See EmailService.devEcho — opt-in dev-only credential echo, never set in prod. */
+    @Value("${app.dev-credential-echo:false}")
+    private boolean devEcho;
+
     private boolean twilioInitialized = false;
 
     public OtpService(OtpSessionRepository otpSessionRepository, EmailService emailService) {
@@ -106,8 +110,16 @@ public class OtpService {
         if (channel == Channel.EMAIL) {
             emailService.sendOtp(identifier, otp);
         } else if (twilioAccountSid.isBlank() || twilioAuthToken.isBlank() || twilioFromNumber.isBlank()) {
-            System.err.println("WARNING: Twilio not configured (TWILIO_ACCOUNT_SID/AUTH_TOKEN/FROM_NUMBER) — "
-                    + "OTP for " + identifier + " is: " + otp + " (logged instead of sent, dev-only fallback)");
+            // Same rule as EmailService: an SMS OTP is a live credential, so it is
+            // never logged unless a developer explicitly opts in. Otherwise an
+            // unconfigured Twilio silently turned the log into a list of valid
+            // login codes paired with the phone numbers they unlock.
+            if (devEcho) {
+                System.err.println("DEV: OTP for " + identifier + " is: " + otp);
+            } else {
+                System.err.println("ERROR: Twilio not configured (TWILIO_ACCOUNT_SID/AUTH_TOKEN/FROM_NUMBER) — "
+                        + "SMS OTP could not be sent and was NOT logged.");
+            }
         } else {
             ensureTwilioInit();
             Message.creator(

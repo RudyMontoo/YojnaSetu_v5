@@ -50,9 +50,9 @@ class PpoVerifyResponse(BaseModel):
 
 @router.post("/document/verify-ppo", response_model=PpoVerifyResponse)
 async def verify_ppo(
-    request: Request,
     aadhaar_file: Annotated[UploadFile, File(description="Aadhaar card image")],
     ppo_file: Annotated[UploadFile, File(description="PPO (Pension Payment Order) document image")],
+    citizen_id: str = Depends(get_current_citizen_id),
 ):
     """
     Agent 4's v5.0 PPO/Aadhaar mismatch check. Named distinctly from
@@ -63,7 +63,10 @@ async def verify_ppo(
     Zero-retention: both images are OCR'd in memory and discarded; only the
     extracted names/DOBs and the mismatch result are returned.
     """
-    ocr_limiter.check(ocr_limiter.get_client_ip(request))  # shared with /ocr/scan — 10/min, heavy CPU
+    # Rate-limit per CITIZEN, not per IP: this runs OCR plus a Gemini call, so it's
+    # the most expensive unauthenticated thing we could offer — and it previously WAS
+    # unauthenticated, leaving Gemini quota drainable by anyone who could reach nginx.
+    ocr_limiter.check_key(citizen_id)
 
     aadhaar_bytes = await aadhaar_file.read()
     ppo_bytes = await ppo_file.read()
