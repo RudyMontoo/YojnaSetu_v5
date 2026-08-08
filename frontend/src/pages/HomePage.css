@@ -100,7 +100,7 @@
 
 .hero-title-cultural {
     font-family: 'Cinzel', 'Georgia', serif;
-    font-size: 65px;
+    font-size: 80px;
     font-weight: 900;
     letter-spacing: 0.05em;
     line-height: 1.1;
@@ -117,7 +117,7 @@
 
 .hero-dharma-line {
     font-family: 'Cinzel', serif;
-    font-size: 16px;
+    font-size: 20px;
     letter-spacing: 0.18em;
     color: rgba(240, 232, 208, 0.5);
     margin-bottom: 45px;
@@ -140,11 +140,11 @@
     background: linear-gradient(135deg, #e88d0a, #c4720a);
     color: #000;
     font-family: 'Cinzel', serif;
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    padding: 15px 30px;
+    padding: 18px 36px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -161,11 +161,11 @@
     background: transparent;
     color: #e88d0a;
     font-family: 'Cinzel', serif;
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    padding: 15px 30px;
+    padding: 18px 36px;
     border: 1px solid rgba(232, 141, 10, 0.5);
     border-radius: 4px;
     cursor: pointer;
@@ -311,7 +311,7 @@
 
 .cat-heading-pre {
     font-family: 'Cinzel', serif;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 400;
     color: rgba(240, 232, 208, 0.7);
     letter-spacing: 0.1em;
@@ -319,7 +319,7 @@
 
 .cat-heading-main {
     font-family: 'Cinzel', serif;
-    font-size: 16px;
+    font-size: 32px;
     font-weight: 700;
     color: #f0e8d0;
     letter-spacing: 0.06em;
@@ -353,7 +353,7 @@
     -webkit-backdrop-filter: blur(14px);
     border: 1px solid rgba(232, 141, 10, 0.18);
     border-radius: 12px;
-    padding: 30px;
+    padding: 36px;
     cursor: pointer;
     transition: all 0.2s;
     position: relative;
@@ -378,15 +378,15 @@
 
 /* Category icon wrapper */
 .cat-icon-wrap {
-    width: 45px;
-    height: 45px;
+    width: 52px;
+    height: 52px;
     border-radius: 10px;
     background: rgba(232, 141, 10, 0.08);
     border: 1px solid rgba(232, 141, 10, 0.2);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 24px;
     transition: all 0.2s;
     filter: drop-shadow(0 2px 6px rgba(232, 141, 10, 0.2));
 }
@@ -409,7 +409,7 @@
 }
 
 .cat-card-count {
-    font-size: 13px;
+    font-size: 15px;
     color: rgba(232, 141, 10, 0.8);
     font-weight: 600;
     letter-spacing: 0.05em;
@@ -421,7 +421,7 @@
 
 .cat-card-label {
     font-family: 'Cinzel', serif;
-    font-size: 19px;
+    font-size: 22px;
     font-weight: 700;
     color: #f0e8d0;
     letter-spacing: 0.04em;
@@ -429,7 +429,7 @@
 }
 
 .cat-card-sub {
-    font-size: 13px;
+    font-size: 14px;
     color: #e88d0a;
     font-weight: 600;
     letter-spacing: 0.08em;
@@ -438,7 +438,7 @@
 }
 
 .cat-card-desc {
-    font-size: 14px;
+    font-size: 16px;
     color: rgba(240, 232, 208, 0.55);
     line-height: 1.5;
     margin-bottom: 15px;
@@ -448,7 +448,7 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    font-size: 10px;
+    font-size: 12px;
     color: #e88d0a;
     font-weight: 600;
     letter-spacing: 0.06em;
@@ -485,7 +485,7 @@
 
 .sathi-tag {
     font-family: 'Cinzel', serif;
-    font-size: 11px;
+    font-size: 13px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: #e88d0a;
@@ -518,7 +518,7 @@
 
 .sathi-card-title {
     font-family: 'Cinzel', serif;
-    font-size: 23px;
+    font-size: 28px;
     font-weight: 700;
     color: #f0e8d0;
     letter-spacing: 0.04em;
@@ -526,7 +526,7 @@
 }
 
 .sathi-card-desc {
-    font-size: 15px;
+    font-size: 17px;
     color: rgba(240, 232, 208, 0.5);
     line-height: 1.6;
     margin-bottom: 18px;
@@ -542,7 +542,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 /* ═══════════════════════════════════════
@@ -617,7 +617,7 @@
 
 .stat-number {
     font-family: 'Cinzel', serif;
-    font-size: 36px;
+    font-size: 48px;
     font-weight: 900;
     color: #e88d0a;
     line-height: 1;
@@ -626,7 +626,7 @@
 }
 
 .stat-label {
-    font-size: 12px;
+    font-size: 14px;
     color: rgba(240, 232, 208, 0.5);
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -669,7 +669,7 @@
 }
 
 .testimonial-quote {
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.6;
     color: rgba(240, 232, 208, 0.75);
     font-style: italic;
@@ -684,7 +684,7 @@
 
 .testimonial-name {
     font-family: 'Cinzel', serif;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
     color: #e88d0a;
     letter-spacing: 0.03em;
