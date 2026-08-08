@@ -30,7 +30,7 @@ const UI = {
 // (/auth/phone/verify) and issues the SAME httpOnly cookie session. No password.
 export default function SignInPage() {
     const navigate = useNavigate()
-    const [mode, setMode] = useState('mobile')  // mobile | email
+    const [mode, setMode] = useState('email')  // mobile | email — email first per user request
     const [step, setStep] = useState('contact')  // contact | otp
     const [phone, setPhone] = useState('')
     const [email, setEmail] = useState('')
