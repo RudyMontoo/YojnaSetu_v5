@@ -72,7 +72,7 @@ const CATEGORIES = [
 ]
 
 const FEATURES = [
-    { icon: Languages, label: '22 Languages', desc: 'Hindi, Tamil, Bengali, Telugu & 18+ more', color: '#e88d0a' },
+    { icon: Languages, label: '6 Languages', desc: 'Hindi, Tamil, Bengali, Telugu, Marathi & English', color: '#e88d0a' },
     { icon: Mic, label: 'Voice Assistant', desc: 'Real-time speech in your language', color: '#16a34a' },
     { icon: Scan, label: 'Document Scanner', desc: 'Snap Aadhaar, income cert — instant read', color: '#0ea5e9' },
     { icon: Phone, label: 'WhatsApp Bot', desc: 'Get scheme updates via WhatsApp', color: '#8b5cf6' },
@@ -147,7 +147,7 @@ export default function HomePage() {
                     </div>
                     <div className="stat-divider" />
                     <div className="stat-item">
-                        <div className="stat-number">22</div>
+                        <div className="stat-number">6</div>
                         <div className="stat-label">Languages</div>
                     </div>
                     <div className="stat-divider" />
