@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Mic, MessageCircle, ArrowRight, Sparkles } from 'lucide-react'
+import { Mic, MessageCircle, ArrowRight, Sparkles, Languages, Scan, Phone } from 'lucide-react'
 import { Navbar, BottomNav } from '../components/Navbar'
 import { Reveal, Stagger, StaggerItem } from '../components/motion'
 import { useLang } from '../lib/i18n'
@@ -71,6 +71,19 @@ const CATEGORIES = [
     { icon: '⚙️', label: 'Rozgar', sub: 'Employment', desc: 'Job creation, self-employment & skill dev aid.', link: 'Employment', count: '15' },
 ]
 
+const FEATURES = [
+    { icon: Languages, label: '22 Languages', desc: 'Hindi, Tamil, Bengali, Telugu & 18+ more', color: '#e88d0a' },
+    { icon: Mic, label: 'Voice Assistant', desc: 'Real-time speech in your language', color: '#16a34a' },
+    { icon: Scan, label: 'Document Scanner', desc: 'Snap Aadhaar, income cert — instant read', color: '#0ea5e9' },
+    { icon: Phone, label: 'WhatsApp Bot', desc: 'Get scheme updates via WhatsApp', color: '#8b5cf6' },
+]
+
+const TESTIMONIALS = [
+    { name: 'Ramesh Kumar', state: 'Bihar', scheme: 'PM-KISAN', quote: 'पहली बार मुझे पता चला कि मैं 6,000 रुपये का हकदार हूँ। धन्यवाद!' },
+    { name: 'Lakshmi Devi', state: 'Tamil Nadu', scheme: 'Maternity Benefits', quote: 'என் குழந்தைக்கு 5,000 ரூபாய் கிடைத்தது. மிக்க நன்றி!' },
+    { name: 'Anil Sharma', state: 'Uttar Pradesh', scheme: 'Ayushman Bharat', quote: 'मेरी माँ का ₹2 लाख का इलाज फ्री हुआ। जीवन बदल गया।' },
+]
+
 export default function HomePage() {
     const navigate = useNavigate()
     const { t } = useLang()
@@ -125,6 +138,24 @@ export default function HomePage() {
                         </div>
                     </Reveal>
                 </section>
+
+                {/* ── Statistics Counter ── */}
+                <Reveal><section className="home-stats-bar">
+                    <div className="stat-item">
+                        <div className="stat-number">1,230+</div>
+                        <div className="stat-label">Schemes Indexed</div>
+                    </div>
+                    <div className="stat-divider" />
+                    <div className="stat-item">
+                        <div className="stat-number">22</div>
+                        <div className="stat-label">Languages</div>
+                    </div>
+                    <div className="stat-divider" />
+                    <div className="stat-item">
+                        <div className="stat-number">24/7</div>
+                        <div className="stat-label">Real-time Help</div>
+                    </div>
+                </section></Reveal>
 
                 <div className="home-lower-section">
                     {/* ── Trending (cultural template) ── */}
@@ -189,6 +220,36 @@ export default function HomePage() {
                                     <Mic size={13} /> {t('home.voice')}
                                 </button>
                             </div>
+                        </div>
+                    </section></Reveal>
+
+                    {/* ── Feature Highlights ── */}
+                    <Reveal><section className="sathi-cultural-card" style={{ marginBottom: 22 }}>
+                        <div className="sathi-tag"><Sparkles size={10} /> Powered Features</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, paddingTop: 8 }}>
+                            {FEATURES.map((feat) => (
+                                <div key={feat.label} className="feature-card-mini">
+                                    <feat.icon size={20} style={{ color: feat.color, marginBottom: 6 }} />
+                                    <div className="feature-card-label" style={{ fontWeight: 700, fontSize: 13, marginBottom: 2 }}>{feat.label}</div>
+                                    <div className="text-subtle" style={{ fontSize: 11, lineHeight: 1.3 }}>{feat.desc}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </section></Reveal>
+
+                    {/* ── Success Stories ── */}
+                    <Reveal><section className="sathi-cultural-card" style={{ marginBottom: 22 }}>
+                        <div className="sathi-tag"><Sparkles size={10} /> Real Stories</div>
+                        <div style={{ display: 'flex', gap: 12, overflowX: 'auto', padding: '8px 2px 2px', scrollbarWidth: 'none' }}>
+                            {TESTIMONIALS.map((t) => (
+                                <div key={t.name} className="testimonial-card-cultural" style={{ minWidth: 260, flexShrink: 0 }}>
+                                    <p className="testimonial-quote">"{t.quote}"</p>
+                                    <div className="testimonial-meta">
+                                        <div className="testimonial-name">{t.name}</div>
+                                        <div className="text-subtle" style={{ fontSize: 11 }}>{t.state} • {t.scheme}</div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </section></Reveal>
 

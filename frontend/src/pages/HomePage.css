@@ -590,3 +590,122 @@
     position: relative;
     z-index: 1;
 }
+
+/* ═══════════════════════════════════════
+   STATISTICS BAR
+═══════════════════════════════════════ */
+.home-stats-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    padding: 32px 20px;
+    margin: 0 auto;
+    max-width: 900px;
+    background: rgba(8, 9, 22, 0.4);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(232, 141, 10, 0.15);
+    border-radius: 12px;
+    margin-bottom: 32px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-family: 'Cinzel', serif;
+    font-size: 36px;
+    font-weight: 900;
+    color: #e88d0a;
+    line-height: 1;
+    margin-bottom: 6px;
+    text-shadow: 0 0 12px rgba(232, 141, 10, 0.3);
+}
+
+.stat-label {
+    font-size: 12px;
+    color: rgba(240, 232, 208, 0.5);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.stat-divider {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, transparent, rgba(232, 141, 10, 0.3), transparent);
+}
+
+/* ═══════════════════════════════════════
+   FEATURE CARDS
+═══════════════════════════════════════ */
+.feature-card-mini {
+    background: rgba(10, 10, 20, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.feature-card-mini:hover {
+    border-color: rgba(232, 141, 10, 0.25);
+    transform: translateY(-1px);
+}
+
+/* ═══════════════════════════════════════
+   TESTIMONIAL CARDS
+═══════════════════════════════════════ */
+.testimonial-card-cultural {
+    background: rgba(10, 10, 20, 0.5);
+    border: 1px solid rgba(232, 141, 10, 0.15);
+    border-radius: 10px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.testimonial-quote {
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(240, 232, 208, 0.75);
+    font-style: italic;
+    margin: 0;
+}
+
+.testimonial-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.testimonial-name {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #e88d0a;
+    letter-spacing: 0.03em;
+}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE - STATS BAR
+═══════════════════════════════════════ */
+@media (max-width: 360px) {
+    .home-stats-bar {
+        flex-direction: column;
+        gap: 16px;
+        padding: 20px;
+    }
+
+    .stat-divider {
+        width: 40px;
+        height: 1px;
+        background: linear-gradient(to right, transparent, rgba(232, 141, 10, 0.3), transparent);
+    }
+
+    .stat-number {
+        font-size: 28px;
+    }
+}
