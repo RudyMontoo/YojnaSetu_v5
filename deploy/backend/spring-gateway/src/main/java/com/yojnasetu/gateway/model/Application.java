@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Per CLAUDE.md's `applications` collection. */
+
 @Document(collection = "applications")
 @CompoundIndexes({
         @CompoundIndex(name = "user_status", def = "{'userId': 1, 'status': 1}"),

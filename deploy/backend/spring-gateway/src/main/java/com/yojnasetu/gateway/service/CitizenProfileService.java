@@ -9,11 +9,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-/**
- * Owns PII encryption for citizen_profiles — per PRANJAL_HANDOFF.md: "Use
- * this service in CitizenProfileService, never in the controller directly."
- * Every read decrypts, every write encrypts; callers never see ciphertext.
- */
 @Service
 public class CitizenProfileService {
 
