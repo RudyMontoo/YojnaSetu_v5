@@ -53,9 +53,10 @@ the dev vite proxy. No CORS setup needed.
    printf '%s' "<value>" | gcloud secrets create SARVAM_API_KEY         --data-file=-
    printf '%s' "<value>" | gcloud secrets create FIELD_ENCRYPTION_KEY   --data-file=-
    printf '%s' "<value>" | gcloud secrets create INTERNAL_API_KEY       --data-file=-
-   # JWT RS256 keypair (Spring signs, ai_service verifies):
-   gcloud secrets create JWT_PRIVATE_KEY --data-file=deploy/backend/spring-gateway/keys/jwt_private.pem
-   gcloud secrets create JWT_PUBLIC_KEY  --data-file=deploy/backend/spring-gateway/keys/jwt_public.pem
+  # JWT RS256 keypair (Spring signs, ai_service verifies). Use files stored
+  # outside this repository, for example /secure/path/*.pem:
+  gcloud secrets create JWT_PRIVATE_KEY --data-file=/secure/path/jwt_private.pem
+  gcloud secrets create JWT_PUBLIC_KEY  --data-file=/secure/path/jwt_public.pem
    # Twilio (only when WhatsApp is approved — Agent 6):
    # ...TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN / TWILIO_WHATSAPP_FROM
    ```

@@ -26,9 +26,9 @@ logger = logging.getLogger(__name__)
 ACCESS_TOKEN_COOKIE = "access_token"
 DEV_BYPASS_CITIZEN_ID = "dev-citizen-001"
 
-# Falls back to the sibling Spring Boot module's key if JWT_PUBLIC_KEY_PATH
-# isn't set — both services live in this monorepo, so this holds for local
-# dev without extra config; prod should set JWT_PUBLIC_KEY_PATH explicitly.
+# Falls back to the sibling Spring Boot module's key if no runtime key is
+# configured. Production deployments may provide either JWT_PUBLIC_KEY as PEM
+# content or JWT_PUBLIC_KEY_PATH as a mounted secret file.
 _DEFAULT_PUBLIC_KEY_PATH = (
     Path(__file__).resolve().parents[2]
     / "deploy" / "backend" / "spring-gateway" / "keys" / "jwt_public.pem"
@@ -44,7 +44,18 @@ def _load_public_key() -> str | None:
         return _public_key_cache
 
     configured = os.getenv("JWT_PUBLIC_KEY_PATH", "").strip()
-    path = Path(configured) if configured else _DEFAULT_PUBLIC_KEY_PATH
+    if configured:
+        path = Path(configured)
+        if path.exists():
+            _public_key_cache = path.read_text()
+            return _public_key_cache
+
+    configured_pem = os.getenv("JWT_PUBLIC_KEY", "").strip()
+    if configured_pem:
+        _public_key_cache = configured_pem
+        return _public_key_cache
+
+    path = _DEFAULT_PUBLIC_KEY_PATH
     if not path.exists():
         return None
 

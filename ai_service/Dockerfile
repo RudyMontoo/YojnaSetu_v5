@@ -31,9 +31,8 @@ ENV HF_HUB_OFFLINE=1
 # App code. .dockerignore (repo root) keeps venv/.env/tests/__pycache__ out.
 COPY ai_service ./ai_service
 
-# JWT PUBLIC key only — ai_service verifies citizen cookies (RS256) against it
-# via JWT_PUBLIC_KEY_PATH. A public key is not a secret, so baking it is fine.
-COPY deploy/backend/spring-gateway/keys/jwt_public.pem /app/keys/jwt_public.pem
+# JWT PUBLIC key is supplied at runtime via JWT_PUBLIC_KEY or
+# JWT_PUBLIC_KEY_PATH. The image stays independent from the signing keypair.
 
 # OpenCV (cv2, via easyocr) + mediapipe need X/GL runtime shared libs that the
 # slim base doesn't ship (libxcb.so.1, libGL.so.1, libgthread). Installed AFTER
