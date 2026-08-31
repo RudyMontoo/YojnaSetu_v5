@@ -5,6 +5,7 @@ import { Reveal } from '../components/motion'
 import { Sparkles } from 'lucide-react'
 import { gateway, ai } from '../lib/api'
 import { useAutoTranslate } from '../lib/i18n'
+import { applicationBadgeColor, grievanceBadgeColor } from '../lib/statusBadge'
 import '../components/components.css'
 import './StatusPage.css'
 
@@ -160,7 +161,7 @@ export default function StatusPage() {
                     <div className="glass-card glass-card-glow status-active-card" style={{ marginBottom: 16 }}>
                         <div className="status-active-header">
                             <div>
-                                <div className={`badge badge-${app.status === 'rejected' ? 'red' : app.status === 'approved' || app.status === 'disbursed' ? 'green' : 'saffron'}`} style={{ marginBottom: 8 }}>
+                                <div className={`badge badge-${applicationBadgeColor(app.status)}`} style={{ marginBottom: 8 }}>
                                     {tr(STAGE_LABEL[app.status] || app.status)}
                                 </div>
                                 <h2 className="status-scheme-name">{tr(app.schemeName)}</h2>
@@ -210,7 +211,7 @@ export default function StatusPage() {
                         {grievances.map((g) => (
                             <Reveal key={g.grievance_id}>
                             <div className="glass-card" style={{ marginBottom: 12, padding: 16 }}>
-                                <div className={`badge badge-${g.status === 'resolved' ? 'green' : g.status === 'filed_on_portal' ? 'saffron' : 'red'}`} style={{ marginBottom: 8 }}>
+                                <div className={`badge badge-${grievanceBadgeColor(g.status)}`} style={{ marginBottom: 8 }}>
                                     {tr(GRIEVANCE_LABEL[g.status] || g.status)}
                                 </div>
                                 {g.schemeName && <h3 className="status-scheme-name" style={{ fontSize: 16 }}>{tr(g.schemeName)}</h3>}

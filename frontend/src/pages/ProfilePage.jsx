@@ -10,6 +10,7 @@ import { gateway, ai } from '../lib/api'
 import { registerDevice, generateCertificate, submitOrQueue, syncQueued, getQueueCount, proofToQrDataUrl } from '../lib/dlc'
 import { requestChallenge, openCamera, closeCamera, captureFrames, checkLiveness, CHALLENGE_TEXT } from '../lib/liveness'
 import { useAutoTranslate } from '../lib/i18n'
+import { applicationBadgeColor } from '../lib/statusBadge'
 import { Navbar, BottomNav } from '../components/Navbar'
 import '../components/components.css'
 import './ProfilePage.css'
@@ -675,7 +676,7 @@ export default function ProfilePage() {
                                                 <p className="profile-app-name">{tr(app.schemeName)}</p>
                                                 <p className="text-muted" style={{ fontSize: 12 }}>ID: #{app.externalAppId || app.id.slice(0, 8)}</p>
                                             </div>
-                                            <span className={`badge badge-${app.status === 'approved' || app.status === 'disbursed' ? 'green' : app.status === 'rejected' ? 'red' : 'gold'}`}>
+                                            <span className={`badge badge-${applicationBadgeColor(app.status)}`}>
                                                 {tr(app.status)}
                                             </span>
                                             <ChevronRight size={16} className="text-subtle" />
@@ -707,7 +708,7 @@ export default function ProfilePage() {
                                                 <p className="profile-app-name">{tr(app.schemeName)}</p>
                                                 <p className="text-muted" style={{ fontSize: 12 }}>#{app.externalAppId || app.id.slice(0, 8)}</p>
                                             </div>
-                                            <span className={`badge badge-${app.status === 'approved' || app.status === 'disbursed' ? 'green' : app.status === 'rejected' ? 'red' : 'gold'}`}>{tr(app.status)}</span>
+                                            <span className={`badge badge-${applicationBadgeColor(app.status)}`}>{tr(app.status)}</span>
                                             <ChevronRight size={16} className="text-subtle" />
                                         </div>
                                     ))}

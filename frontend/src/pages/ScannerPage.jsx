@@ -350,7 +350,7 @@ export default function ScannerPage() {
                                 {ok ? <CheckCircle size={20} className="text-green" />
                                     : mismatch ? <AlertTriangle size={20} style={{ color: '#f59e0b' }} />
                                     : <HelpCircle size={20} className="text-amber" />}
-                                <span className={`badge ${ok ? 'badge-green' : mismatch ? 'badge-amber' : 'badge-muted'}`}>
+                                <span className={`badge ${ok ? 'badge-green' : mismatch ? 'badge-gold' : 'badge-muted'}`}>
                                     {tr(ok ? UI.stVerified : mismatch ? UI.stMismatch
                                         : result.status === 'unreadable' ? UI.stUnreadable : UI.stNoProfile)}
                                 </span>

@@ -591,19 +591,6 @@
     border-color: rgba(255,107,53,0.45) !important;
 }
 
-/* ── Badge extras ─────────────────────────────────────────────────────── */
-.badge-amber {
-    background: rgba(245, 158, 11, 0.12);
-    color: #fbbf24;
-    border: 1px solid rgba(245, 158, 11, 0.25);
-}
-
-.badge-green {
-    background: rgba(74, 222, 128, 0.12);
-    color: #4ade80;
-    border: 1px solid rgba(74, 222, 128, 0.25);
-}
-
 /* ── Shared animations ────────────────────────────────────────────────── */
 .spin {
     animation: spin 1s linear infinite;
