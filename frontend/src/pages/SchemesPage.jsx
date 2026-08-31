@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Bookmark, BookmarkCheck, Loader2 } from 'lucide-react'
+import { Search, Bookmark, BookmarkCheck, Loader2, Landmark, ArrowRight } from 'lucide-react'
 import { Navbar, BottomNav } from '../components/Navbar'
 import { gateway } from '../lib/api'
 import { useAutoTranslate } from '../lib/i18n'
@@ -91,23 +91,36 @@ export default function SchemesPage() {
     }, [search, activeCat])
 
     useEffect(() => {
-        const localSaved = (() => { try { return JSON.parse(localStorage.getItem('yojna_saved') || '[]') } catch { return [] } })()
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        if (localSaved.length > 0) setSavedIds(new Set(localSaved.map(r => r.scheme_id)))
+        // Real bookmark list from the backend (saved_schemes collection) — no
+        // longer a browser-local-only list, so it's visible from any device
+        // and matches what ProfilePage's Saved Schemes tab shows.
+        gateway.listSavedSchemes()
+            .then(list => setSavedIds(new Set(list.map(s => s.schemeCode))))
+            .catch(() => { /* not logged in / offline — save button still works, just starts unsaved */ })
     }, [])
 
-    const toggleSave = (e, scheme) => {
+    const toggleSave = async (e, scheme) => {
         e.stopPropagation()
-        const localSaved = (() => { try { return JSON.parse(localStorage.getItem('yojna_saved') || '[]') } catch { return [] } })()
-        let updated
-        if (savedIds.has(scheme.schemeCode)) {
-            updated = localSaved.filter(x => x.scheme_id !== scheme.schemeCode)
-            setSavedIds(s => { const n = new Set(s); n.delete(scheme.schemeCode); return n })
-        } else {
-            updated = [...localSaved, { scheme_id: scheme.schemeCode, scheme_name: scheme.name }]
-            setSavedIds(s => new Set([...s, scheme.schemeCode]))
+        const wasSaved = savedIds.has(scheme.schemeCode)
+        // optimistic UI, but reverted on a real failure — not a fire-and-forget
+        setSavedIds(s => {
+            const n = new Set(s)
+            wasSaved ? n.delete(scheme.schemeCode) : n.add(scheme.schemeCode)
+            return n
+        })
+        try {
+            if (wasSaved) await gateway.unsaveScheme(scheme.schemeCode)
+            else await gateway.saveScheme(scheme.schemeCode)
+        } catch (err) {
+            setSavedIds(s => {
+                const n = new Set(s)
+                wasSaved ? n.add(scheme.schemeCode) : n.delete(scheme.schemeCode)
+                return n
+            })
+            setNote(err.status === 401 || err.status === 403
+                ? 'Please login to save schemes.'
+                : `Could not save: ${err.message}`)
         }
-        localStorage.setItem('yojna_saved', JSON.stringify(updated))
     }
 
     const openScheme = (s) => {
@@ -135,6 +148,16 @@ export default function SchemesPage() {
                         {total !== null ? `${total.toLocaleString('en-IN')} ${tr(UI.schemes)}` : tr(UI.schemes)}
                     </p>
                 </div>
+
+                {/* NSFDC credit/education loan module — new, additive, doesn't touch general scheme discovery below */}
+                <button className="glass-card schemes-credit-banner" onClick={() => navigate('/credit-schemes')}>
+                    <Landmark size={20} />
+                    <div>
+                        <strong>NSFDC Credit &amp; Education Loans</strong>
+                        <span>Scheme recommender + EMI calculator for SC concessional financing</span>
+                    </div>
+                    <ArrowRight size={16} />
+                </button>
 
                 {/* Search */}
                 <div className="schemes-search glass-card">

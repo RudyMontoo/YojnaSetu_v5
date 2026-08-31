@@ -3,6 +3,10 @@ import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
 import { registerSW } from 'virtual:pwa-register'
+import { initTheme } from './lib/theme'
+
+// Applied before first paint so there's no dark-then-light flash on load.
+initTheme()
 
 // PWA service worker — auto-updates in the background when a new build ships
 // (Workbox skipWaiting + clientsClaim via registerType:'autoUpdate'). Guarded

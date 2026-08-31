@@ -53,6 +53,15 @@ export const gateway = {
   giveConsent: () => request("/api/v2/consent", { method: "POST" }),
   getProfile: () => request("/api/v2/profile/me"),
   updateProfile: (updates) => request("/api/v2/profile/me", { method: "PATCH", body: updates }),
+  uploadProfilePhoto: (file) => {
+    const fd = new FormData();
+    fd.append("photo", file);
+    return request("/api/v2/profile/me/photo", { method: "POST", formData: fd });
+  },
+  deleteProfilePhoto: () => request("/api/v2/profile/me/photo", { method: "DELETE" }),
+  // Real bank-branch lookup (OpenStreetMap, proxied server-side — no CORS from browser)
+  creditPartnersNearby: (lat, lng, radiusKm = 15) =>
+    request(`/api/v2/credit-partners/nearby?lat=${lat}&lng=${lng}&radiusKm=${radiusKm}`),
   deleteAccount: () => request("/api/v2/user/me", { method: "DELETE" }),
   // Offline-help callback queue
   requestHelp: (payload) => request("/api/v2/help/request", { method: "POST", body: payload }),
@@ -89,9 +98,15 @@ export const gateway = {
   adminKendras: () => request("/api/v2/kendras/all"),                                            // admin only
   adminAllRequests: () => request("/api/v2/help/all"),                                           // admin only
   reopenRequest: (id) => request(`/api/v2/help/requests/${id}/reopen`, { method: "POST" }),      // admin only
+  // Application Tracker — a REAL tracked application lifecycle (in_progress → submitted → approved/rejected/disbursed).
+  // Never a bookmark; see savedSchemes below for that.
   listApplications: (status) => request(`/api/v2/applications${status ? `?status=${status}` : ""}`),
   createApplication: (schemeCode) => request("/api/v2/applications", { method: "POST", body: { schemeCode } }),
   updateApplication: (id, body) => request(`/api/v2/applications/${id}`, { method: "PATCH", body }),
+  // Saved Schemes — a pure bookmark list, no lifecycle status. Separate collection from Applications above.
+  listSavedSchemes: () => request("/api/v2/saved-schemes"),
+  saveScheme: (schemeCode) => request("/api/v2/saved-schemes", { method: "POST", body: { schemeCode } }),
+  unsaveScheme: (schemeCode) => request(`/api/v2/saved-schemes/${schemeCode}`, { method: "DELETE" }),
   trending: (state) => request(`/api/v2/schemes/trending${state ? `?state=${state}` : ""}`),
   recentSchemes: () => request("/api/v2/schemes/recent"),
   listSchemes: ({ search, sector, page = 0, size = 24 } = {}) => {

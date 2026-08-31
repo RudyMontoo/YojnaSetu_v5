@@ -24,19 +24,19 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Citizen-facing application tracking, per CLAUDE.md's
- * `GET/POST /applications` endpoint table entries. Same auth pattern as
- * ProfileController — the JWT principal name IS the userId, no separate
- * lookup. Every handler re-checks `application.userId.equals(auth.getName())`
- * before returning/mutating a document, since Mongo ids are guessable and
- * there's no per-document ACL at the repository layer.
+ * Citizen-facing application LIFECYCLE tracking — not bookmarking (see
+ * SavedSchemeController for that). Same auth pattern as ProfileController —
+ * the JWT principal name IS the userId, no separate lookup. Every handler
+ * re-checks `application.userId.equals(auth.getName())` before
+ * returning/mutating a document, since Mongo ids are guessable and there's no
+ * per-document ACL at the repository layer.
  */
 @RestController
 @RequestMapping("/api/v2/applications")
 public class ApplicationController {
 
     private static final Set<String> VALID_STATUSES =
-            Set.of("saved", "in_progress", "submitted", "approved", "rejected", "disbursed");
+            Set.of("in_progress", "submitted", "approved", "rejected", "disbursed");
 
     private final ApplicationRepository applicationRepository;
     private final SchemeRepository schemeRepository;
@@ -92,8 +92,8 @@ public class ApplicationController {
         app.setSchemeId(scheme.getId());
         app.setSchemeCode(scheme.getSchemeCode());
         app.setSchemeName(scheme.getName());
-        app.setStatus("saved");
-        app.setStatusHistory(List.of(new Application.StatusEntry("saved", LocalDateTime.now())));
+        app.setStatus("in_progress");
+        app.setStatusHistory(List.of(new Application.StatusEntry("in_progress", LocalDateTime.now())));
         app.setAppliedAt(LocalDateTime.now());
 
         Application saved;

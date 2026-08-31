@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { X, Youtube, MapPin, Monitor, Users } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { gateway } from '../lib/api'
 import './ApplyMethodModal.css'
 
 /**
@@ -9,11 +10,26 @@ import './ApplyMethodModal.css'
  *
  * Props:
  *   scheme     — { name, applyUrl, applyPortal, youtubeQuery? }
+ *   schemeCode — the scheme's unique code, for tracking (may be undefined for demo/hardcoded schemes)
  *   onClose    — fn to close modal
  */
-export default function ApplyMethodModal({ scheme, onClose }) {
+export default function ApplyMethodModal({ scheme, schemeCode, onClose }) {
     const navigate = useNavigate()
     const [mode, setMode] = useState(null)  // null | 'online' | 'offline'
+
+    // Fire-and-forget: clicking through to the official portal is the
+    // strongest signal we have that someone actually started applying, so
+    // this creates a REAL tracked application (status "in_progress") — not a
+    // bookmark (saveScheme is the separate bookmark action, elsewhere). The
+    // existing Agent 6 nudge email reminder (applications stuck "in_progress"
+    // for 3+ days) reads this same collection, so it only fires for genuine
+    // apply-clicks. Best-effort: not logged in, an unrecognised demo scheme
+    // code, or an already-tracked scheme should never block or interrupt the
+    // actual portal navigation.
+    const trackApplicationStart = () => {
+        if (!schemeCode) return
+        gateway.createApplication(schemeCode).catch(() => { /* best-effort */ })
+    }
 
     // Derive a YouTube search URL if no specific video given
     const ytQuery = scheme.youtubeQuery || `${scheme.name} apply online tutorial India`
@@ -91,6 +107,7 @@ export default function ApplyMethodModal({ scheme, onClose }) {
                                 target="_blank"
                                 rel="noreferrer"
                                 className="btn btn-primary btn-lg apply-portal-btn"
+                                onClick={trackApplicationStart}
                             >
                                 <Monitor size={16} /> Open Official Portal
                             </a>

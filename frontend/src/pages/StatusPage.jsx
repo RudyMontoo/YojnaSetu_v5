@@ -11,16 +11,16 @@ import './StatusPage.css'
 // v5.0: real applications from the gateway (saved via Sathi chat), with the
 // same glass timeline visuals the demo version had. No more hardcoded data.
 
-const STAGES = ['saved', 'in_progress', 'submitted', 'approved', 'disbursed']
+const STAGES = ['in_progress', 'submitted', 'approved', 'disbursed']
 const STAGE_LABEL = {
-    saved: 'Saved', in_progress: 'In Progress', submitted: 'Submitted',
+    in_progress: 'In Progress', submitted: 'Submitted',
     approved: 'Approved', disbursed: 'Disbursed', rejected: 'Rejected',
 }
 const UI = {
     tracker: 'Application Tracker', myApps: 'My Applications', refresh: 'Refresh',
     loading: 'Loading your applications…',
-    empty: 'No applications yet. Ask Sathi about schemes — every scheme it suggests has a "Save to My Applications" button.',
-    started: 'I started applying', submitted: 'I submitted it', fileGrievance: 'File grievance',
+    empty: 'No applications being tracked yet. Click "Apply Now" on a scheme to start tracking it here. (Just bookmarking a scheme? See Saved Schemes on your Profile instead.)',
+    submitted: 'I submitted it', fileGrievance: 'File grievance',
     grievancePh: 'Describe the problem — e.g. installment not received for 3 months, bank details are correct…',
     submitGrievance: 'Submit grievance', cancel: 'Cancel',
     done: 'Completed ✓', nextStep: 'Next step', upcoming: 'Upcoming',
@@ -173,11 +173,6 @@ export default function StatusPage() {
                         {app.status !== 'rejected' && <Timeline status={app.status} tr={tr} />}
 
                         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 14 }}>
-                            {app.status === 'saved' && (
-                                <button className="btn btn-saffron-outline btn-sm" onClick={() => advance(app, 'in_progress')}>
-                                    {tr(UI.started)}
-                                </button>
-                            )}
                             {app.status === 'in_progress' && (
                                 <button className="btn btn-saffron-outline btn-sm" onClick={() => advance(app, 'submitted')}>
                                     {tr(UI.submitted)}

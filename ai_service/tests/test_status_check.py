@@ -18,8 +18,10 @@ from ai_service.graph.agents.status_check import (
 def test_all_documented_statuses_have_hinglish():
     # Mirrors Application.java's documented status set. If Spring adds a status,
     # this test forces a matching citizen-facing phrase (else it falls back to
-    # the raw machine value, which is ugly but not wrong).
-    documented = {"saved", "in_progress", "submitted", "approved", "rejected", "disbursed"}
+    # the raw machine value, which is ugly but not wrong). "saved" was removed
+    # as an Application status — it's now a separate bookmark (SavedScheme),
+    # never present in this collection.
+    documented = {"in_progress", "submitted", "approved", "rejected", "disbursed"}
     assert documented <= set(_STATUS_HINGLISH)
 
 
@@ -32,7 +34,7 @@ def test_status_line_uses_scheme_name_and_surfaces_ref():
 
 
 def test_status_line_no_ref_when_absent():
-    line = _status_line({"schemeName": "Ayushman", "status": "saved"})
+    line = _status_line({"schemeName": "Ayushman", "status": "in_progress"})
     assert "ref:" not in line
 
 
@@ -43,9 +45,9 @@ def test_status_line_falls_back_to_code_then_raw_status():
     assert "on_hold" in line
 
 
-def test_status_line_defaults_missing_status_to_saved():
+def test_status_line_defaults_missing_status_to_in_progress():
     line = _status_line({"schemeName": "Scheme A"})
-    assert _STATUS_HINGLISH["saved"] in line
+    assert _STATUS_HINGLISH["in_progress"] in line
 
 
 def test_compose_empty_is_honest_not_error():
@@ -57,7 +59,7 @@ def test_compose_empty_is_honest_not_error():
 
 def test_compose_lists_every_application_and_pluralizes():
     apps = [
-        {"schemeName": "A", "status": "saved"},
+        {"schemeName": "A", "status": "in_progress"},
         {"schemeName": "B", "status": "approved"},
     ]
     reply = _compose_deterministic(apps)

@@ -1,5 +1,14 @@
 .profile-content {
     padding-top: 80px;
+    padding-bottom: 24px;
+}
+
+@media (max-width: 767px) {
+    .profile-content {
+        /* Bottom nav is fixed and ~75px tall on mobile — without this,
+           the last card in the page (Become a Helper) renders underneath it. */
+        padding-bottom: calc(var(--bottom-nav-height) + 28px + env(safe-area-inset-bottom, 0px));
+    }
 }
 
 .profile-user-card {
@@ -9,6 +18,11 @@
     padding: 20px;
     margin-bottom: 16px;
     flex-wrap: wrap;
+}
+
+.profile-avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
 }
 
 .profile-avatar {
@@ -23,6 +37,68 @@
     font-size: 20px;
     font-weight: 800;
     color: white;
+    overflow: hidden;
+}
+
+.profile-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-avatar-edit-btn {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--navy-card-solid);
+    border: 2px solid var(--navy);
+    color: var(--saffron);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: var(--transition);
+}
+
+.profile-avatar-edit-btn:hover { color: var(--saffron-light); }
+.profile-avatar-edit-btn:disabled { cursor: not-allowed; opacity: 0.7; }
+
+.profile-avatar-remove-btn {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--red);
+    color: white;
+    border: none;
+    font-size: 13px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.profile-photo-error {
+    font-size: 12px;
+    color: var(--red);
+    margin-top: 4px;
+    width: 100%;
+}
+
+.spin {
+    animation: profileSpin 0.8s linear infinite;
+}
+
+@keyframes profileSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 .profile-user-info {
@@ -33,6 +109,7 @@
     font-size: 19px;
     font-weight: 800;
     margin-bottom: 3px;
+    color: var(--text-heading);
 }
 
 .profile-meta {
@@ -104,7 +181,7 @@
 }
 
 .profile-sidebar-item:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--border-glass);
     color: var(--text-primary);
 }
 
@@ -167,7 +244,7 @@
 }
 
 .profile-app-row:hover {
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--border-glass);
 }
 
 .profile-app-info {

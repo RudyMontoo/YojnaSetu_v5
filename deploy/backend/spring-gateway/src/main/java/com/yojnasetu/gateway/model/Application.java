@@ -12,7 +12,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Per CLAUDE.md's `applications` collection. */
+/**
+ * Tracks the real lifecycle of an application a citizen has actually started —
+ * NOT a bookmark (see SavedScheme.java for that). A row here is only created
+ * once a citizen has taken a genuine "I'm applying" action (clicking through
+ * to the official portal, or explicitly marking a scheme as started); the
+ * former "saved" pseudo-status that conflated bookmarking with tracking has
+ * been removed.
+ */
 @Document(collection = "applications")
 @CompoundIndexes({
         @CompoundIndex(name = "user_status", def = "{'userId': 1, 'status': 1}"),
@@ -32,8 +39,8 @@ public class Application {
     private String schemeCode;
     private String schemeName;
 
-    /** saved | in_progress | submitted | approved | rejected | disbursed */
-    private String status = "saved";
+    /** in_progress | submitted | approved | rejected | disbursed */
+    private String status = "in_progress";
 
     private List<StatusEntry> statusHistory = new ArrayList<>();
 

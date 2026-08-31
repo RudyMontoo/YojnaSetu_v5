@@ -71,6 +71,7 @@ function StarRating({ rating }) {
 export default function CSCFinderPage() {
     const [locStatus, setLocStatus] = useState('idle')   // idle | enabling | on | denied
     const [coords, setCoords] = useState(null)
+    const [locationLabel, setLocationLabel] = useState('')
     const [realKendras, setRealKendras] = useState([])   // registered kendras near the user (Option B)
     const savedUser = (() => { try { return JSON.parse(localStorage.getItem('yojna_user') || '{}') } catch { return {} } })()
     const [name, setName] = useState(savedUser.name || '')
@@ -93,7 +94,11 @@ export default function CSCFinderPage() {
                 const c = { lat: pos.coords.latitude, lng: pos.coords.longitude }
                 setCoords(c); setLocStatus('on')
                 // pull the kendras we've registered, nearest first
-                try { const r = await gateway.kendrasNearby(c.lat, c.lng); setRealKendras(r.kendras || []) } catch { /* none / offline */ }
+                try {
+                    const r = await gateway.kendrasNearby(c.lat, c.lng)
+                    setRealKendras(r.kendras || [])
+                    setLocationLabel(r.locationLabel || '')
+                } catch { /* none / offline */ }
             },
             () => setLocStatus('denied'),
             { enableHighAccuracy: true, timeout: 10000 },
@@ -174,7 +179,7 @@ export default function CSCFinderPage() {
                         <MapPin size={36} className="text-saffron" />
                         {locStatus === 'on' ? (
                             <>
-                                <p className="text-muted csc-map-text">📍 {tr(UI.locOn)}</p>
+                                <p className="text-muted csc-map-text">📍 {locationLabel ? `${tr(UI.locOn)} — ${locationLabel}` : tr(UI.locOn)}</p>
                                 <a href={mapsHref} target="_blank" rel="noreferrer" className="btn btn-primary btn-sm">
                                     <Navigation size={14} /> {tr(UI.openMaps)}
                                 </a>

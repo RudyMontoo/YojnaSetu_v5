@@ -136,7 +136,7 @@
     padding: 5px 14px;
     border-radius: var(--radius-full);
     font-size: 12px;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--border-glass);
     border: 1px solid var(--border-glass);
     color: var(--text-muted);
     cursor: pointer;

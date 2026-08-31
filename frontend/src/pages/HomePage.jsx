@@ -142,7 +142,7 @@ export default function HomePage() {
                 {/* ── Statistics Counter ── */}
                 <Reveal><section className="home-stats-bar">
                     <div className="stat-item">
-                        <div className="stat-number">1,230+</div>
+                        <div className="stat-number">4,996</div>
                         <div className="stat-label">Schemes Indexed</div>
                     </div>
                     <div className="stat-divider" />

@@ -33,10 +33,11 @@ logger = logging.getLogger(__name__)
 MAX_APPLICATIONS = 15  # a citizen with more than this is an edge case; bound the reply length
 
 # Machine status -> citizen-facing Hinglish. Kept exhaustive against
-# Application.java's documented status set (saved|in_progress|submitted|
-# approved|rejected|disbursed); an unknown value falls back to itself.
+# Application.java's documented status set (in_progress|submitted|
+# approved|rejected|disbursed) — this collection only ever holds a real
+# tracked application, never a bookmark (that's saved_schemes, a separate
+# collection this agent never reads). An unknown value falls back to itself.
 _STATUS_HINGLISH = {
-    "saved": "save ki hui hai (abhi apply nahi hua)",
     "in_progress": "chal rahi hai (process mein hai)",
     "submitted": "submit ho chuki hai — jawab ka intezaar hai",
     "approved": "approve ho gayi hai 🎉",
@@ -47,7 +48,7 @@ _STATUS_HINGLISH = {
 
 def _status_line(app: dict) -> str:
     name = app.get("schemeName") or app.get("schemeCode") or "ek scheme"
-    raw = (app.get("status") or "saved").lower()
+    raw = (app.get("status") or "in_progress").lower()
     phrase = _STATUS_HINGLISH.get(raw, raw)
     line = f"• {name}: {phrase}"
     if app.get("externalAppId"):

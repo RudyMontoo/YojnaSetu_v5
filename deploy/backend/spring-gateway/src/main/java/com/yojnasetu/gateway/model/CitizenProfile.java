@@ -63,6 +63,14 @@ public class CitizenProfile {
     private List<String> verifiedDocs;
     private Integer profileCompleteness = 0;
 
+    /** data: URI (base64), client-resized to a small avatar before upload —
+     *  no blob storage exists in this stack, and at avatar size (a few tens
+     *  of KB) inline storage in the document is simpler than standing up
+     *  Azure Blob for one field. Not AES-encrypted like name/dob/phone —
+     *  those are targeted at direct identity-text exposure; this is gated
+     *  the same way the rest of the document already is, by JWT auth. */
+    private String profilePhoto;
+
     // ── v5.0 pension fields ──────────────────────────────────────────────────
     private Boolean pensionEnrolled = false;
     private String pensionType; // SPARSH | NSAP | state | null

@@ -27,11 +27,14 @@ public class KendraController {
     private final KendraRepository repo;
     private final HelperRepository helperRepo;
     private final FieldEncryptionService encryption;
+    private final com.yojnasetu.gateway.service.GeoLabelService geoLabelService;
 
-    public KendraController(KendraRepository repo, HelperRepository helperRepo, FieldEncryptionService encryption) {
+    public KendraController(KendraRepository repo, HelperRepository helperRepo, FieldEncryptionService encryption,
+                             com.yojnasetu.gateway.service.GeoLabelService geoLabelService) {
         this.repo = repo;
         this.helperRepo = helperRepo;
         this.encryption = encryption;
+        this.geoLabelService = geoLabelService;
     }
 
     private static boolean isHelper(Authentication auth) {
@@ -76,7 +79,12 @@ public class KendraController {
                 .limit(Math.max(1, Math.min(limit, 100)))
                 .map(k -> view(k, haversineKm(lat, lng, k.getLat(), k.getLng())))
                 .toList();
-        return ResponseEntity.ok(Map.of("kendras", out));
+        // Best-effort — the kendra list still renders if this lookup fails.
+        String locationLabel = geoLabelService.label(lat, lng);
+        Map<String, Object> body = new HashMap<>();
+        body.put("kendras", out);
+        body.put("locationLabel", locationLabel);
+        return ResponseEntity.ok(body);
     }
 
     public record RegisterKendra(String name, String address, String phone,

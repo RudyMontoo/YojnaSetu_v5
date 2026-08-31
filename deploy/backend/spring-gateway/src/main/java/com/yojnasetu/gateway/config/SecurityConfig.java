@@ -71,6 +71,7 @@ public class SecurityConfig {
                                 "/api/apply/**",
                                 "/api/status/**",
                                 "/api/help/**",
+                                "/api/v2/credit-partners/**", // public geo lookup, no PII — rate-limited by the global filter below
                                 "/internal/**") // FastAPI service-to-service — key-checked in the controller itself, not here
                         .permitAll()
                         .anyRequest().authenticated())

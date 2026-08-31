@@ -5,13 +5,13 @@
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1b3e,45:1a3a6e,100:ff9933&height=210&section=header&text=Yojna%20Setu&fontSize=76&fontColor=ffffff&animation=fadeIn&fontAlignY=36&desc=%E0%A4%B8%E0%A5%87%E0%A4%A4%E0%A5%81%20%E2%80%94%20the%20bridge%20between%20a%20citizen%20and%20their%20rights&descAlignY=58&descSize=18" width="100%"/>
 
 <a href="https://github.com/RudyMontoo/YojnaSetu_v5">
-  <img src="https://readme-typing-svg.demolab.com/?font=Poppins&weight=600&size=21&pause=1200&color=FF9933&center=true&vCenter=true&width=820&lines=3%2C500%2B+welfare+schemes.+22+languages.+One+conversation.;Discover+%E2%86%92+Apply+%E2%86%92+Track+%E2%86%92+Get+paid.;Voice-first.+WhatsApp-native.+DPDP-2023+compliant." alt="tagline"/>
+  <img src="https://readme-typing-svg.demolab.com/?font=Poppins&weight=600&size=21&pause=1200&color=FF9933&center=true&vCenter=true&width=820&lines=4%2C900%2B+welfare+schemes.+6+languages.+One+conversation.;Discover+%E2%86%92+Apply+%E2%86%92+Track+%E2%86%92+Get+paid.;Voice-first.+WhatsApp-native.+DPDP-2023+compliant." alt="tagline"/>
 </a>
 
 <br/><br/>
 
-![Schemes](https://img.shields.io/badge/Schemes-3%2C500%2B-ff9933?style=for-the-badge)
-![Languages](https://img.shields.io/badge/Languages-22-138808?style=for-the-badge)
+![Schemes](https://img.shields.io/badge/Schemes-4%2C900%2B-ff9933?style=for-the-badge)
+![Languages](https://img.shields.io/badge/Languages-6-138808?style=for-the-badge)
 ![Agents](https://img.shields.io/badge/AI_Agents-13-000080?style=for-the-badge)
 ![Compliance](https://img.shields.io/badge/DPDP_Act-2023-blue?style=for-the-badge)
 
@@ -57,7 +57,7 @@ Just a conversation that ends with money in a bank account.
 ## 🎯 Why Yojna Setu exists
 
 > [!NOTE]
-> India runs **3,500+ welfare schemes** worth *lakhs of crores*. The people they were built for — farmers, students, widows, the elderly, daily-wage workers — often **never find them.** Buried in portals they can't navigate, written in a language that isn't theirs, gated behind forms and jargon and information they don't have.
+> India runs thousands of welfare schemes worth *lakhs of crores*. The people they were built for — farmers, students, widows, the elderly, daily-wage workers — often **never find them.** Buried in portals they can't navigate, written in a language that isn't theirs, gated behind forms and jargon and information they don't have.
 
 Yojna Setu closes that gap with **one multilingual conversation.** It takes a citizen from *"what am I even eligible for?"* → discovery → application guidance → document checks → grievance tracking → and, for pensioners, **fully-offline proof-of-life** — all in their own language, by voice or WhatsApp.
 
@@ -72,7 +72,7 @@ Not a search engine over scheme PDFs. A **fleet of 13 specialised AI agents** th
 <td width="50%" valign="top">
 
 ### 🗣️ Speaks your language — literally
-22 Indian languages, **voice-first**. Real-time speech in and out via Pipecat + Sarvam (Saaras v3 STT, Bulbul v3 TTS) — the *same* 13-agent brain answers whether you type, talk, or WhatsApp.
+6 Indian languages today (English, Hindi, Bengali, Tamil, Telugu, Marathi), **voice-first**, growing toward the full 22-language goal. Real-time speech in and out via Pipecat + Sarvam (Saaras v3 STT, Bulbul v3 TTS) — the *same* 13-agent brain answers whether you type, talk, or WhatsApp.
 
 </td>
 <td width="50%" valign="top">
@@ -152,7 +152,7 @@ graph TD
 |:--:|---|---|
 | 🧭 | **Orchestrator** | Reads intent, routes to the right specialist, screens for prompt-injection first |
 | 1 | **Eligibility** | Vector-searches real schemes + scores them against *your* profile |
-| 2 | **Discovery** | Keeps the catalogue fresh — 3,500+ schemes with structured eligibility rules |
+| 2 | **Discovery** | Keeps the catalogue fresh — 4,900+ schemes indexed, structured eligibility rules |
 | 3 | **Application Guidance** | Step-by-step how-to-apply + reads the *live* government form for you |
 | 4 | **Document Verify** | PPO ↔ Aadhaar name/DOB mismatch check for pensioners |
 | 5 | **Grievance** | Files & tracks complaints; guides CPGRAMS self-filing, records the reference |
@@ -182,7 +182,7 @@ graph TD
 <td width="50%"><img src="docs/screenshots/status.png" alt="Status tracker"/></td>
 </tr>
 <tr>
-<td valign="top"><b>📚 Schemes — Yojana Catalogue</b><br/>All <b>4,901 central & state schemes</b>, searchable with sector filters (Agriculture, Housing, Health, Pension…). Each card shows the real benefit + eligibility, extracted into structured rules.</td>
+<td valign="top"><b>📚 Schemes — Yojana Catalogue</b><br/><b>4,996 central & state schemes</b> indexed (973 central, the rest spread across every state), searchable with sector filters (Agriculture, Housing, Health, Pension…). Each card shows the real benefit + eligibility, extracted into structured rules.</td>
 <td valign="top"><b>📊 Status — Application Tracker</b><br/>Every saved application through its lifecycle (Saved → In&nbsp;Progress → Submitted → Approved → Disbursed), plus <b>My Grievances</b> with their CPGRAMS reference numbers.</td>
 </tr>
 <tr>
@@ -249,7 +249,7 @@ sequenceDiagram
 | **Voice** | Pipecat · Sarvam Saaras v3 (STT) · Bulbul v3 (TTS) · server-side VAD |
 | **Messaging** | Twilio WhatsApp (Business API) |
 | **Frontend** | React + Vite · installable PWA · code-split routes · Framer Motion |
-| **Testing** | 90 pytest + 15 JUnit · CI on every push |
+| **Testing** | 110 pytest + 15 JUnit · CI on every push |
 
 </details>
 

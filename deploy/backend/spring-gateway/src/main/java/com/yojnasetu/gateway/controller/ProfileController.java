@@ -11,8 +11,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.Map;
 
 /**
@@ -74,6 +79,70 @@ public class ProfileController {
         CitizenProfile saved = citizenProfileService.saveEncrypted(profile);
         auditLogRepository.save(AuditLog.of(userId, "profile_write", "/api/v2/profile/me", clientIp(req)));
         return ResponseEntity.ok(saved);
+    }
+
+    // Frontend resizes to ~480px JPEG before upload (typically tens of KB) — 3MB
+    // was a needlessly generous backstop for an avatar-sized image, wasting
+    // bandwidth and ImageIO-decode CPU on anything exploiting the gap between
+    // what the UI actually sends and what the API would accept.
+    private static final long MAX_PHOTO_BYTES = 800 * 1024; // 800KB
+    private static final int MAX_PHOTO_DIMENSION = 512;          // avatar use only, no reason to keep anything larger
+
+    @PostMapping(value = "/profile/me/photo", consumes = "multipart/form-data")
+    public ResponseEntity<?> uploadProfilePhoto(Authentication auth, @RequestParam("photo") MultipartFile photo,
+                                                 HttpServletRequest req) {
+        String userId = auth.getName();
+        CitizenProfile profile = citizenProfileService.findDecrypted(userId).orElse(null);
+        if (profile == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "Consent required before first profile write — call POST /consent first"));
+        }
+        if (photo.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "No file received"));
+        }
+        if (photo.getSize() > MAX_PHOTO_BYTES) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Photo exceeds 800KB limit"));
+        }
+
+        byte[] bytes;
+        BufferedImage image;
+        try {
+            bytes = photo.getBytes();
+            // ImageIO.read() decodes actual pixel data — unlike trusting the
+            // Content-Type header, a non-image file (or a renamed .exe) fails
+            // here rather than getting stored as someone's avatar.
+            image = ImageIO.read(new ByteArrayInputStream(bytes));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Could not read uploaded file"));
+        }
+        if (image == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "File is not a valid image"));
+        }
+        if (image.getWidth() > MAX_PHOTO_DIMENSION || image.getHeight() > MAX_PHOTO_DIMENSION) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "error", "Image too large — please crop to " + MAX_PHOTO_DIMENSION + "x" + MAX_PHOTO_DIMENSION + " or smaller"));
+        }
+
+        String mime = photo.getContentType() != null && photo.getContentType().startsWith("image/")
+                ? photo.getContentType() : "image/jpeg";
+        String dataUri = "data:" + mime + ";base64," + Base64.getEncoder().encodeToString(bytes);
+        profile.setProfilePhoto(dataUri);
+        CitizenProfile saved = citizenProfileService.saveEncrypted(profile);
+        auditLogRepository.save(AuditLog.of(userId, "profile_photo_write", "/api/v2/profile/me/photo", clientIp(req)));
+        return ResponseEntity.ok(Map.of("profilePhoto", saved.getProfilePhoto()));
+    }
+
+    @DeleteMapping("/profile/me/photo")
+    public ResponseEntity<?> deleteProfilePhoto(Authentication auth, HttpServletRequest req) {
+        String userId = auth.getName();
+        CitizenProfile profile = citizenProfileService.findDecrypted(userId).orElse(null);
+        if (profile == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Profile not found"));
+        }
+        profile.setProfilePhoto(null);
+        citizenProfileService.saveEncrypted(profile);
+        auditLogRepository.save(AuditLog.of(userId, "profile_photo_delete", "/api/v2/profile/me/photo", clientIp(req)));
+        return ResponseEntity.ok(Map.of("success", true));
     }
 
     // Partial update from a generic map — mirrors the old ProfileController's approach,

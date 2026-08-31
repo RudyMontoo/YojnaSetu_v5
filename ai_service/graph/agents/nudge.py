@@ -5,8 +5,11 @@ the delivery hop is utils/whatsapp_sender (dry-run until Twilio is approved).
 
 What it does today, end-to-end and verifiable WITHOUT Twilio:
 - Selects citizens with an actionable state — currently applications stuck at
-  "saved" for > STUCK_SAVED_DAYS (they started applying and stopped). This is
-  the highest-signal nudge: a warm reminder to finish something they began.
+  "in_progress" for > STUCK_IN_PROGRESS_DAYS (they started applying via the
+  official portal and haven't marked it submitted). This is the highest-signal
+  nudge: a warm reminder to finish something they began. Note: "in_progress"
+  here means a tracked APPLICATION, not a bookmark — bookmarking a scheme
+  (SavedScheme) never creates a row here and is never nudged.
 - Respects opt-out: a citizen with users.nudgeOptedOut == true is never nudged
   (DPDP-friendly; the opt-out endpoint sets it).
 - Dedups: never re-nudges the same (citizen, scheme, type) within
@@ -33,7 +36,7 @@ from ai_service.utils.whatsapp_sender import is_live as whatsapp_is_live
 
 logger = logging.getLogger(__name__)
 
-STUCK_SAVED_DAYS = 3      # a "saved" application older than this earns a completion nudge
+STUCK_IN_PROGRESS_DAYS = 3  # an "in_progress" application older than this earns a completion nudge
 NUDGE_DEDUP_DAYS = 7      # don't re-nudge the same citizen+scheme+type within this window
 MAX_BATCH = 200           # bound one run (CLAUDE.md: 10-min job budget)
 
@@ -111,10 +114,10 @@ async def run_nudge_batch(db: AsyncIOMotorDatabase, *, dry_run: bool = True, lim
     the caller (admin trigger) opts into real sending explicitly, and even then
     delivery only happens if Twilio is configured (else it stays a dry-run per
     whatsapp_sender). Returns a summary of what happened."""
-    cutoff = datetime.now(timezone.utc) - timedelta(days=STUCK_SAVED_DAYS)
+    cutoff = datetime.now(timezone.utc) - timedelta(days=STUCK_IN_PROGRESS_DAYS)
     cursor = (
         db["applications"]
-        .find({"status": "saved", "appliedAt": {"$lte": cutoff}},
+        .find({"status": "in_progress", "appliedAt": {"$lte": cutoff}},
               {"userId": 1, "schemeId": 1, "schemeName": 1})
         .sort("appliedAt", 1)
         .limit(limit)

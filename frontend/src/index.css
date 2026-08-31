@@ -16,6 +16,7 @@
   --saffron-glow-strong: rgba(255, 107, 53, 0.45);
   --white: #ffffff;
   --text-primary: rgba(255, 255, 255, 0.95);
+  --text-heading: rgba(255, 255, 255, 0.95); /* dark mode: identical to --text-primary, overridden in light theme */
   --text-muted: rgba(255, 255, 255, 0.72);
   --text-subtle: rgba(255, 255, 255, 0.45);
   --border-glass: rgba(255, 255, 255, 0.10);
@@ -39,6 +40,35 @@
   --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.3);
   --transition: 0.2s ease;
   --transition-slow: 0.4s ease;
+  /* Single source of truth for the mobile bottom-nav's height — anything
+     that needs to clear it (e.g. ChatPage's input bar) reads this instead
+     of an independently-guessed pixel value that can drift out of sync
+     with the nav's real rendered height. */
+  --bottom-nav-height: 62px;
+}
+
+/* ---------- LIGHT THEME OVERRIDES ---------- */
+/* Brand accent (saffron/gold/green) stays identical in both modes — only the
+   navy/text/border/shadow tokens flip, since almost every component is
+   already written against these variables rather than literal colors. */
+[data-theme="light"] {
+  /* Headline-only color, richer than flat body ink — pairs with the chakra's
+     navy+saffron glass palette instead of reading as plain gray text. Body
+     copy keeps --text-primary; only headings opt into this. */
+  --text-heading: #1a2f4d;
+  --navy: #faf8f4;
+  --navy-light: #f3efe6;
+  --navy-card: rgba(255, 255, 255, 0.72);
+  --navy-card-solid: #ffffff;
+  --white: #1a1a1a;
+  --text-primary: rgba(26, 22, 18, 0.92);
+  --text-muted: rgba(26, 22, 18, 0.68);
+  --text-subtle: rgba(26, 22, 18, 0.45);
+  --border-glass: rgba(26, 22, 18, 0.12);
+  --border-saffron: rgba(224, 85, 32, 0.45);
+  --shadow-glass: 0 8px 32px rgba(60, 45, 20, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --shadow-saffron: 0 0 30px rgba(255, 107, 53, 0.22);
+  --shadow-card: 0 4px 20px rgba(60, 45, 20, 0.10);
 }
 
 /* ---------- RESET & BASE ---------- */
@@ -265,7 +295,7 @@ h6 {
 }
 
 .badge-muted {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--border-glass);
   color: var(--text-muted);
   border: 1px solid var(--border-glass);
 }
@@ -274,7 +304,7 @@ h6 {
 .input-glass {
   width: 100%;
   padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--border-glass);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-md);
   color: var(--text-primary);
@@ -310,9 +340,9 @@ select.input-glass option {
 
 .shimmer {
   background: linear-gradient(90deg,
-      rgba(255, 255, 255, 0.04) 25%,
-      rgba(255, 255, 255, 0.10) 50%,
-      rgba(255, 255, 255, 0.04) 75%);
+      var(--border-glass) 25%,
+      var(--border-saffron) 50%,
+      var(--border-glass) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: var(--radius-md);
@@ -447,7 +477,7 @@ select.input-glass option {
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--border-glass);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-full);
   font-size: 13px;
@@ -535,5 +565,13 @@ select.input-glass option {
   z-index: 0;
   pointer-events: none;
   opacity: 0.75;
+}
+
+/* Dark mode tunes this at 0.75 to read as ambient glow against near-black.
+   The same opacity over the light theme's cream page reads as solid clutter
+   fighting the foreground content — even with the glass material, a much
+   lower opacity keeps it a background motif rather than a competing layer. */
+[data-theme="light"] .app-3d-bg {
+  opacity: 0.32;
 }
 .page-wrapper { position: relative; z-index: 1; }

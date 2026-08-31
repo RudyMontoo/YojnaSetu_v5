@@ -296,7 +296,7 @@ export default function SchemeDetailPage() {
                 <Disclaimer variant="site" style={{ marginTop: 16 }} />
 
                 {showApplyModal && (
-                    <ApplyMethodModal scheme={scheme} onClose={() => setShowApplyModal(false)} />
+                    <ApplyMethodModal scheme={scheme} schemeCode={id} onClose={() => setShowApplyModal(false)} />
                 )}
 
             </main>

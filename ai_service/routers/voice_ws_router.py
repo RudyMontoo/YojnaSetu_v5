@@ -158,11 +158,16 @@ async def voice_ws(websocket: WebSocket, session_id: str):
     try:
         citizen_id = citizen_id_from_websocket_cookies(websocket.cookies)
     except HTTPException as e:
+        logger.warning("[VOICE] session %s rejected: auth failed (%s)", session_id, e.detail)
         await websocket.accept()
         await websocket.close(code=1008, reason=e.detail)
         return
 
     if citizen_id in _active_voice_sessions:
+        logger.warning(
+            "[VOICE] session %s rejected: citizen %s already has active session %s",
+            session_id, citizen_id, _active_voice_sessions[citizen_id],
+        )
         await websocket.accept()
         await websocket.close(code=1008, reason="Voice session already active for this citizen.")
         return

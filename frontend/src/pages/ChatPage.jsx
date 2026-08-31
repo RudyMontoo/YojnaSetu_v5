@@ -12,6 +12,31 @@ import './ChatPage.css'
 
 const API = '/api'
 
+// Mobile Safari/Chrome suspend new AudioContexts unless one is resumed
+// synchronously inside a real user-gesture handler. startLiveVoice() reaches
+// its first AudioContext only after `await import(...)` + `await connect()` —
+// by then the tap's "user activation" window has often expired on mobile, so
+// the mic still works (its permission prompt is its own gesture) but Sathi's
+// TTS reply plays into a silently-suspended context. Unlocking a throwaway
+// context HERE, synchronously on tap, keeps audio playback armed for the
+// AudioContext Pipecat creates moments later.
+let _mobileAudioUnlocked = false
+function unlockMobileAudioPlayback() {
+    if (_mobileAudioUnlocked) return
+    try {
+        const Ctx = window.AudioContext || window.webkitAudioContext
+        if (!Ctx) return
+        const ctx = new Ctx()
+        const buffer = ctx.createBuffer(1, 1, 22050)
+        const source = ctx.createBufferSource()
+        source.buffer = buffer
+        source.connect(ctx.destination)
+        source.start(0)
+        if (ctx.state === 'suspended') ctx.resume()
+        _mobileAudioUnlocked = true
+    } catch { /* desktop browsers don't need this — safe to ignore */ }
+}
+
 const DOC_TYPE_LABELS = {
     aadhaar:          { label: 'Aadhaar Card',     emoji: '🪪' },
     pan:              { label: 'PAN Card',          emoji: '💳' },
@@ -47,6 +72,7 @@ export default function ChatPage() {
     const [input, setInput] = useState('')
     const [loading, setLoading] = useState(false)
     const [voiceMode, setVoiceMode] = useState(false)       // live voice call active
+    const [voiceConnecting, setVoiceConnecting] = useState(false) // opening the WS, before voiceMode
     const [userSpeaking, setUserSpeaking] = useState(false) // VAD: citizen talking now
     const [botSpeaking, setBotSpeaking] = useState(false)   // Sathi's reply audio playing
     const [dbSessionId, setDbSessionId] = useState(null)
@@ -120,14 +146,12 @@ export default function ChatPage() {
 
     const saveScheme = async (s) => {
         try {
-            await gateway.createApplication(s.code)
-            addMsg('assistant', `"${s.name}" saved to My Applications. Track it from the Status tab.`)
+            await gateway.saveScheme(s.code)
+            addMsg('assistant', `"${s.name}" saved. Find it under Saved Schemes on your Profile.`)
         } catch (err) {
-            addMsg('assistant', err.status === 409
-                ? `"${s.name}" is already in your applications.`
-                : err.status === 401 || err.status === 403
-                    ? 'Please login first to save schemes.'
-                    : `Could not save: ${err.message}`)
+            addMsg('assistant', err.status === 401 || err.status === 403
+                ? 'Please login first to save schemes.'
+                : `Could not save: ${err.message}`)
         }
     }
 
@@ -248,7 +272,7 @@ export default function ChatPage() {
     }
 
     const startLiveVoice = async () => {
-        setLoading(true)
+        setVoiceConnecting(true)
         try {
             // Lazy chunk: the Pipecat client (~400KB) loads only when a call starts
             const { createVoiceClient } = await import('../lib/voiceClient')
@@ -271,11 +295,14 @@ export default function ChatPage() {
             voiceClientRef.current = null
             addMsg('assistant', `\u26A0\uFE0F Could not start live voice: ${err.message || err}. Please check mic permission and login.`)
         } finally {
-            setLoading(false)
+            setVoiceConnecting(false)
         }
     }
 
-    const handleMicClick = () => (voiceMode ? endLiveVoice() : startLiveVoice())
+    const handleMicClick = () => {
+        if (!voiceMode) unlockMobileAudioPlayback()
+        return voiceMode ? endLiveVoice() : startLiveVoice()
+    }
 
     // ── v5.0 Sathi chat: WebSocket token streaming, REST fallback ────────────
     const ensureSessionId = () => {
@@ -438,7 +465,7 @@ export default function ChatPage() {
     }
 
     return (
-        <div className="page-wrapper chat-wrapper">
+        <div className={`page-wrapper chat-wrapper ${voiceMode ? 'voice-active' : ''}`}>
             {agentSplash > 0 && <div key={agentSplash} className="agent-splash" aria-hidden="true" />}
             <Navbar />
 
@@ -520,7 +547,7 @@ export default function ChatPage() {
                                             {s.code && (
                                                 <button className="btn btn-saffron-outline btn-sm" style={{ marginTop: 6 }}
                                                         onClick={(e) => { e.stopPropagation(); saveScheme(s) }}>
-                                                    Save to My Applications
+                                                    Save Scheme
                                                 </button>
                                             )}
                                         </div>
@@ -595,7 +622,7 @@ export default function ChatPage() {
                         className="chat-mic-btn"
                         onClick={() => setShowAttachMenu(!showAttachMenu)}
                         title="Upload Document"
-                        disabled={loading}
+                        disabled={loading || voiceConnecting}
                         style={{ border: showAttachMenu ? '1px solid var(--saffron)' : '', background: showAttachMenu ? 'rgba(255, 107, 53, 0.15)' : '', color: showAttachMenu ? 'var(--saffron)' : '' }}
                     >
                         <Paperclip size={18} />

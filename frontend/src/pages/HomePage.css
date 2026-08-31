@@ -104,7 +104,7 @@
     font-weight: 900;
     letter-spacing: 0.05em;
     line-height: 1.1;
-    color: #f0e8d0;
+    color: var(--text-primary);
     margin-bottom: 12px;
     text-transform: uppercase;
     position: relative;
@@ -119,7 +119,7 @@
     font-family: 'Cinzel', serif;
     font-size: 20px;
     letter-spacing: 0.18em;
-    color: rgba(240, 232, 208, 0.5);
+    color: var(--text-subtle);
     margin-bottom: 45px;
     text-transform: uppercase;
     position: relative;
@@ -179,11 +179,11 @@
 
 .btn-cultural-ghost {
     background: transparent;
-    color: rgba(240, 232, 208, 0.6);
+    color: var(--text-muted);
     font-size: 12px;
     font-weight: 500;
     padding: 10px 16px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-glass);
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s;
@@ -313,7 +313,7 @@
     font-family: 'Cinzel', serif;
     font-size: 18px;
     font-weight: 400;
-    color: rgba(240, 232, 208, 0.7);
+    color: var(--text-muted);
     letter-spacing: 0.1em;
 }
 
@@ -321,7 +321,7 @@
     font-family: 'Cinzel', serif;
     font-size: 32px;
     font-weight: 700;
-    color: #f0e8d0;
+    color: var(--text-primary);
     letter-spacing: 0.06em;
 }
 
@@ -348,7 +348,7 @@
 }
 
 .cat-card-cultural {
-    background: rgba(10, 10, 20, 0.55);
+    background: var(--navy-card);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     border: 1px solid rgba(232, 141, 10, 0.18);
@@ -423,7 +423,7 @@
     font-family: 'Cinzel', serif;
     font-size: 22px;
     font-weight: 700;
-    color: #f0e8d0;
+    color: var(--text-primary);
     letter-spacing: 0.04em;
     margin-bottom: 3px;
 }
@@ -439,7 +439,7 @@
 
 .cat-card-desc {
     font-size: 16px;
-    color: rgba(240, 232, 208, 0.55);
+    color: var(--text-subtle);
     line-height: 1.5;
     margin-bottom: 15px;
 }
@@ -462,7 +462,7 @@
     margin: 0 auto;
     max-width: 1200px;
     width: calc(100% - 32px);
-    background: rgba(8, 9, 22, 0.55);
+    background: var(--navy-card);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(232, 141, 10, 0.2);
@@ -520,14 +520,14 @@
     font-family: 'Cinzel', serif;
     font-size: 28px;
     font-weight: 700;
-    color: #f0e8d0;
+    color: var(--text-primary);
     letter-spacing: 0.04em;
     margin-bottom: 8px;
 }
 
 .sathi-card-desc {
     font-size: 17px;
-    color: rgba(240, 232, 208, 0.5);
+    color: var(--text-subtle);
     line-height: 1.6;
     margin-bottom: 18px;
 }
@@ -587,6 +587,10 @@
     pointer-events: none;
     opacity: 0.42;
 }
+
+[data-theme="light"] .home-3d-bg {
+    opacity: 0.26;
+}
 .home-main {
     position: relative;
     z-index: 1;
@@ -599,12 +603,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-wrap: wrap;
     gap: 32px;
     padding: 32px 20px;
     margin: 0 auto 32px;
     max-width: 1200px;
     width: calc(100% - 32px);
-    background: rgba(8, 9, 22, 0.4);
+    background: var(--navy-card);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(232, 141, 10, 0.15);
@@ -627,7 +632,7 @@
 
 .stat-label {
     font-size: 14px;
-    color: rgba(240, 232, 208, 0.5);
+    color: var(--text-subtle);
     letter-spacing: 0.08em;
     text-transform: uppercase;
 }
@@ -642,8 +647,8 @@
    FEATURE CARDS
 ═══════════════════════════════════════ */
 .feature-card-mini {
-    background: rgba(10, 10, 20, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--navy-card);
+    border: 1px solid var(--border-glass);
     border-radius: 8px;
     padding: 14px;
     text-align: center;
@@ -659,7 +664,7 @@
    TESTIMONIAL CARDS
 ═══════════════════════════════════════ */
 .testimonial-card-cultural {
-    background: rgba(10, 10, 20, 0.5);
+    background: var(--navy-card);
     border: 1px solid rgba(232, 141, 10, 0.15);
     border-radius: 10px;
     padding: 18px;
@@ -671,7 +676,7 @@
 .testimonial-quote {
     font-size: 16px;
     line-height: 1.6;
-    color: rgba(240, 232, 208, 0.75);
+    color: var(--text-muted);
     font-style: italic;
     margin: 0;
 }
@@ -693,20 +698,63 @@
 /* ═══════════════════════════════════════
    RESPONSIVE - STATS BAR
 ═══════════════════════════════════════ */
-@media (max-width: 360px) {
+/* Real phones sit in the 360-430px CSS-width range — the old 360px cutoff
+   missed almost every actual device, so the 4-item row overflowed its
+   rounded card and the large numbers visually poked outside the border. */
+@media (max-width: 640px) {
     .home-stats-bar {
-        flex-direction: column;
-        gap: 16px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 20px 28px;
         padding: 20px;
     }
 
+    .stat-item {
+        flex: 1 1 calc(50% - 14px);
+        min-width: 120px;
+    }
+
     .stat-divider {
-        width: 40px;
-        height: 1px;
-        background: linear-gradient(to right, transparent, rgba(232, 141, 10, 0.3), transparent);
+        display: none;
     }
 
     .stat-number {
-        font-size: 28px;
+        font-size: 32px;
+    }
+
+    .stat-label {
+        font-size: 12px;
     }
 }
+
+/* ═══════════════════════════════════════
+   LIGHT THEME OVERRIDES
+   This page was built with literal cream-on-dark colors instead of the
+   shared CSS variables, so it never responded to [data-theme="light"].
+   Text tokens map onto the same --text-primary/--text-muted/--text-subtle
+   scale the rest of the site already uses; card backgrounds map onto
+   --navy-card (which is already a light, translucent white in this theme)
+   so the "glass card" language survives the switch instead of turning into
+   dark boxes floating on a white page. The single saffron accent (#e88d0a)
+   is intentionally left untouched everywhere, per brand-fidelity.
+═══════════════════════════════════════ */
+[data-theme="light"] .hero-title-cultural { color: var(--text-heading); }
+[data-theme="light"] .hero-dharma-line { color: var(--text-muted); }
+[data-theme="light"] .btn-cultural-ghost { color: var(--text-muted); }
+
+[data-theme="light"] .cat-heading-pre { color: var(--text-muted); }
+[data-theme="light"] .cat-heading-main { color: var(--text-heading); }
+[data-theme="light"] .cat-card-cultural { background: var(--navy-card); }
+[data-theme="light"] .cat-card-label { color: var(--text-heading); }
+[data-theme="light"] .cat-card-desc { color: var(--text-muted); }
+
+[data-theme="light"] .sathi-cultural-card { background: var(--navy-card); }
+[data-theme="light"] .sathi-card-title { color: var(--text-heading); }
+[data-theme="light"] .sathi-card-desc { color: var(--text-muted); }
+
+[data-theme="light"] .home-stats-bar { background: var(--navy-card); }
+[data-theme="light"] .stat-label { color: var(--text-muted); }
+
+[data-theme="light"] .feature-card-mini { background: var(--navy-card); }
+[data-theme="light"] .testimonial-card-cultural { background: var(--navy-card); }
+[data-theme="light"] .testimonial-quote { color: var(--text-primary); }

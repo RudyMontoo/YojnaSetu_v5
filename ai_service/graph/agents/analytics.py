@@ -11,8 +11,10 @@ and it falls back to a plain template when that fails.
 
 Honest-metric notes (what each number actually means, not what it sounds
 like it means):
-- top_dropoff_schemes: schemes with applications stuck in "saved" that
-  never progressed — the citizen showed intent then stalled.
+- top_dropoff_schemes: schemes with applications stuck in "in_progress" that
+  never progressed to submitted — the citizen started applying then stalled.
+  (Bookmarking a scheme without starting an application is tracked separately
+  in `saved_schemes` and never counts as dropoff here.)
 - confusing_criteria: schemes frequently shown to citizens (trend_events
   "search") but never saved by anyone — a proxy for "looked at, walked
   away", which may mean confusing eligibility, poor benefit clarity, or
@@ -49,14 +51,14 @@ async def generate_weekly_report(db: AsyncIOMotorDatabase) -> dict:
     now = datetime.now(timezone.utc)
     since = now - timedelta(days=WINDOW_DAYS)
 
-    # -- dropoff: applications created in-window still sitting at "saved" --
+    # -- dropoff: applications created in-window still sitting at "in_progress" --
     dropoff = await db["applications"].aggregate([
-        {"$match": {"status": "saved", "appliedAt": {"$gte": since}}},
+        {"$match": {"status": "in_progress", "appliedAt": {"$gte": since}}},
         {"$group": {"_id": "$schemeCode", "name": {"$first": "$schemeName"}, "stuck": {"$sum": 1}}},
         {"$sort": {"stuck": -1}},
         {"$limit": TOP_N},
     ]).to_list(length=TOP_N)
-    top_dropoff_schemes = [f"{d['name'] or d['_id']} ({d['stuck']} stuck at saved)" for d in dropoff]
+    top_dropoff_schemes = [f"{d['name'] or d['_id']} ({d['stuck']} stuck in progress)" for d in dropoff]
 
     # -- confusing criteria: searched often, saved by no one --
     searched = await db["trend_events"].aggregate([

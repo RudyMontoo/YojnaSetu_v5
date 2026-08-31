@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
     LayoutDashboard, FileText, Bookmark, Bell, Settings, LogOut,
     CheckCircle, Clock, ChevronRight, User, Globe, Smartphone, Shield,
-    HeartHandshake, Upload, Loader2, IndianRupee, AlertTriangle, ShieldCheck, WifiOff, HandHelping
+    HeartHandshake, Upload, Loader2, IndianRupee, AlertTriangle, ShieldCheck, WifiOff, HandHelping, Camera
 } from 'lucide-react'
 import { getLocalUser, clearLocalUser } from '../lib/auth'
 import { gateway, ai } from '../lib/api'
@@ -460,6 +460,7 @@ export default function ProfilePage() {
                 occupation: p.occupation || '',
                 annualIncome: p.annualIncome,
                 completeness: p.profileCompleteness,
+                profilePhoto: p.profilePhoto || null,
             }
             setProfile(profileData)
             localStorage.setItem('yojna_user', JSON.stringify(profileData))
@@ -468,13 +469,12 @@ export default function ProfilePage() {
             // 404 = logged in, no profile document yet — that's fine
         }
 
-        // Real applications; "saved" ones double as the saved-schemes list
-        try {
-            const apps = await gateway.listApplications()
-            setApplications(apps)
-            setSavedSchemes(apps.filter(a => a.status === 'saved')
-                .map(a => ({ scheme_id: a.schemeCode, name: a.schemeName, benefit: '' })))
-        } catch { setApplications([]); setSavedSchemes([]) }
+        // Applications (real tracked lifecycle) and Saved Schemes (pure
+        // bookmarks) are separate collections/endpoints — never conflate them.
+        try { setApplications(await gateway.listApplications()) }
+        catch { setApplications([]) }
+        try { setSavedSchemes(await gateway.listSavedSchemes()) }
+        catch { setSavedSchemes([]) }
 
         setLoading(false)
     }
@@ -499,20 +499,85 @@ export default function ProfilePage() {
         } catch (e) { alert(`Could not delete: ${e.message}`) }
     }
 
-    const unsaveScheme = async (schemeId) => {
-        const updated = savedSchemes.filter(x => x.scheme_id !== schemeId)
-        setSavedSchemes(updated)
-        // TODO: Call API to remove saved scheme
+    const unsaveScheme = async (schemeCode) => {
+        const prev = savedSchemes
+        setSavedSchemes(s => s.filter(x => x.schemeCode !== schemeCode))
+        try { await gateway.unsaveScheme(schemeCode) }
+        catch { setSavedSchemes(prev) } // revert — the unsave didn't actually persist
     }
 
     const [editForm, setEditForm] = useState(null)
+    const [uploadingPhoto, setUploadingPhoto] = useState(false)
+    const [photoError, setPhotoError] = useState('')
+    const photoInputRef = useRef(null)
+
+    // Resizes/compresses client-side before upload — the backend caps at
+    // 512x512 as a backstop, but sending a raw 12MP phone photo would be a
+    // slow upload and unnecessary bytes for what's just an avatar.
+    const resizeImage = (file, maxDim = 480, quality = 0.85) => new Promise((resolve, reject) => {
+        const img = new Image()
+        const url = URL.createObjectURL(file)
+        img.onload = () => {
+            URL.revokeObjectURL(url)
+            let { width, height } = img
+            if (width > height && width > maxDim) { height = Math.round(height * (maxDim / width)); width = maxDim }
+            else if (height > maxDim) { width = Math.round(width * (maxDim / height)); height = maxDim }
+            const canvas = document.createElement('canvas')
+            canvas.width = width; canvas.height = height
+            canvas.getContext('2d').drawImage(img, 0, 0, width, height)
+            canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('Could not process image')),
+                'image/jpeg', quality)
+        }
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not read image file')) }
+        img.src = url
+    })
+
+    const handlePhotoSelect = async (e) => {
+        const file = e.target.files?.[0]
+        e.target.value = '' // allow re-selecting the same file next time
+        if (!file) return
+        if (!file.type.startsWith('image/')) { setPhotoError('Please select an image file'); return }
+
+        setPhotoError('')
+        setUploadingPhoto(true)
+        try {
+            const resized = await resizeImage(file)
+            const resizedFile = new File([resized], 'avatar.jpg', { type: 'image/jpeg' })
+            const res = await gateway.uploadProfilePhoto(resizedFile)
+            setProfile(p => {
+                const updated = { ...p, profilePhoto: res.profilePhoto }
+                localStorage.setItem('yojna_user', JSON.stringify(updated))
+                return updated
+            })
+        } catch (err) {
+            setPhotoError(err.message || 'Could not upload photo')
+        } finally {
+            setUploadingPhoto(false)
+        }
+    }
+
+    const handlePhotoRemove = async () => {
+        setUploadingPhoto(true)
+        try {
+            await gateway.deleteProfilePhoto()
+            setProfile(p => {
+                const updated = { ...p, profilePhoto: null }
+                localStorage.setItem('yojna_user', JSON.stringify(updated))
+                return updated
+            })
+        } catch (err) {
+            setPhotoError(err.message || 'Could not remove photo')
+        } finally {
+            setUploadingPhoto(false)
+        }
+    }
 
     const tr = useAutoTranslate([
         ...Object.values(PUI),
         ...SIDEBAR_ITEMS.map(i => i.label),
         ...ALERTS.map(a => a.text), ...ALERTS.map(a => a.time),
-        ...applications.map(a => a.scheme_name).filter(Boolean),
-        ...savedSchemes.map(s => s.scheme_name).filter(Boolean),
+        ...applications.map(a => a.schemeName).filter(Boolean),
+        ...savedSchemes.map(s => s.schemeName).filter(Boolean),
         ...applications.map(a => a.status).filter(Boolean),
     ])
 
@@ -529,7 +594,24 @@ export default function ProfilePage() {
                 {/* User Header */}
                 <div className="glass-card profile-user-card" style={{ position: 'relative' }}>
                     <div className="sathi-tag"><Shield size={10} /> {tr(PUI.citizenProfile)}</div>
-                    <div className="profile-avatar">{loading ? '…' : initials}</div>
+                    <div className="profile-avatar-wrap">
+                        <div className="profile-avatar">
+                            {loading ? '…' : profile?.profilePhoto
+                                ? <img src={profile.profilePhoto} alt="Profile" className="profile-avatar-img" />
+                                : initials}
+                        </div>
+                        <button type="button" className="profile-avatar-edit-btn"
+                            onClick={() => photoInputRef.current?.click()}
+                            disabled={uploadingPhoto} aria-label="Change profile photo">
+                            {uploadingPhoto ? <Loader2 size={13} className="spin" /> : <Camera size={13} />}
+                        </button>
+                        <input ref={photoInputRef} type="file" accept="image/*" hidden onChange={handlePhotoSelect} />
+                        {profile?.profilePhoto && !uploadingPhoto && (
+                            <button type="button" className="profile-avatar-remove-btn"
+                                onClick={handlePhotoRemove} aria-label="Remove profile photo">×</button>
+                        )}
+                    </div>
+                    {photoError && <p className="profile-photo-error">{photoError}</p>}
                     <div className="profile-user-info">
                         <h2 className="profile-name">{loading ? tr(PUI.loading) : profile?.name || getLocalUser()?.name || tr(PUI.guest)}</h2>
                         <p className="text-muted profile-meta">
@@ -547,7 +629,7 @@ export default function ProfilePage() {
                     <div className="profile-stats-row">
                         {[
                             { label: PUI.appliedSchemes, value: applications.length, color: 'var(--saffron)' },
-                            { label: PUI.pendingReview, value: applications.filter(a => a.status === 'pending').length, color: 'var(--gold)' },
+                            { label: PUI.pendingReview, value: applications.filter(a => a.status === 'in_progress' || a.status === 'submitted').length, color: 'var(--gold)' },
                             { label: PUI.approved, value: applications.filter(a => a.status === 'approved').length, color: 'var(--green)' },
                         ].map((stat) => (
                             <div key={stat.label} className="glass-card profile-stat-card">
@@ -590,10 +672,10 @@ export default function ProfilePage() {
                                     : applications.slice(0, 3).map((app, i) => (
                                         <div key={i} className="profile-app-row" onClick={() => navigate('/status')}>
                                             <div className="profile-app-info">
-                                                <p className="profile-app-name">{tr(app.scheme_name)}</p>
-                                                <p className="text-muted" style={{ fontSize: 12 }}>ID: #{app.app_ref_id || app.id.slice(0, 8)}</p>
+                                                <p className="profile-app-name">{tr(app.schemeName)}</p>
+                                                <p className="text-muted" style={{ fontSize: 12 }}>ID: #{app.externalAppId || app.id.slice(0, 8)}</p>
                                             </div>
-                                            <span className={`badge badge-${app.status === 'approved' ? 'green' : app.status === 'pending' ? 'gold' : 'muted'}`}>
+                                            <span className={`badge badge-${app.status === 'approved' || app.status === 'disbursed' ? 'green' : app.status === 'rejected' ? 'red' : 'gold'}`}>
                                                 {tr(app.status)}
                                             </span>
                                             <ChevronRight size={16} className="text-subtle" />
@@ -604,10 +686,10 @@ export default function ProfilePage() {
                                 {savedSchemes.length === 0
                                     ? <p className="text-muted" style={{ fontSize: 13 }}>{tr(PUI.noSaved)}</p>
                                     : savedSchemes.slice(0, 2).map((s, i) => (
-                                        <div key={i} className="profile-saved-row" onClick={() => navigate(`/schemes/${s.scheme_id}`)}>
+                                        <div key={i} className="profile-saved-row" onClick={() => navigate(`/schemes/${s.schemeCode}`)}>
                                             <Bookmark size={16} className="text-saffron" />
                                             <div>
-                                                <p className="profile-app-name">{tr(s.scheme_name)}</p>
+                                                <p className="profile-app-name">{tr(s.schemeName)}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -622,10 +704,10 @@ export default function ProfilePage() {
                                     : applications.map((app, i) => (
                                         <div key={i} className="profile-app-row" onClick={() => navigate('/status')}>
                                             <div className="profile-app-info">
-                                                <p className="profile-app-name">{tr(app.scheme_name)}</p>
-                                                <p className="text-muted" style={{ fontSize: 12 }}>#{app.app_ref_id || app.id.slice(0, 8)}</p>
+                                                <p className="profile-app-name">{tr(app.schemeName)}</p>
+                                                <p className="text-muted" style={{ fontSize: 12 }}>#{app.externalAppId || app.id.slice(0, 8)}</p>
                                             </div>
-                                            <span className={`badge badge-${app.status === 'approved' ? 'green' : 'gold'}`}>{tr(app.status)}</span>
+                                            <span className={`badge badge-${app.status === 'approved' || app.status === 'disbursed' ? 'green' : app.status === 'rejected' ? 'red' : 'gold'}`}>{tr(app.status)}</span>
                                             <ChevronRight size={16} className="text-subtle" />
                                         </div>
                                     ))}
@@ -639,9 +721,9 @@ export default function ProfilePage() {
                                     ? <p className="text-muted" style={{ fontSize: 13 }}>{tr(PUI.noSavedShort)}</p>
                                     : savedSchemes.map((s, i) => (
                                         <div key={i} className="profile-saved-row">
-                                            <Bookmark size={16} className="text-saffron" style={{ cursor: 'pointer' }} onClick={() => unsaveScheme(s.scheme_id)} />
-                                            <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => navigate(`/schemes/${s.scheme_id}`)}>
-                                                <p className="profile-app-name">{tr(s.scheme_name)}</p>
+                                            <Bookmark size={16} className="text-saffron" style={{ cursor: 'pointer' }} onClick={() => unsaveScheme(s.schemeCode)} />
+                                            <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => navigate(`/schemes/${s.schemeCode}`)}>
+                                                <p className="profile-app-name">{tr(s.schemeName)}</p>
                                             </div>
                                             <ChevronRight size={16} className="text-subtle" />
                                         </div>

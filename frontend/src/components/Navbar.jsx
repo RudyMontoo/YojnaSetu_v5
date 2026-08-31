@@ -1,6 +1,8 @@
 import { NavLink } from 'react-router-dom'
-import { Home, MessageCircle, FileText, Radio, User, Camera, Globe } from 'lucide-react'
+import { Home, MessageCircle, FileText, Radio, User, Camera, Globe, Sun, Moon } from 'lucide-react'
 import { useLang, LANGUAGES } from '../lib/i18n'
+import { useState, useEffect } from 'react'
+import { getTheme, setTheme } from '../lib/theme'
 import './Navbar.css'
 
 const NAV_ITEMS = [
@@ -11,6 +13,28 @@ const NAV_ITEMS = [
     { to: '/scanner', key: 'nav.lens', Icon: Camera },
     { to: '/profile', key: 'nav.profile', Icon: User },
 ]
+
+export function ThemeToggle({ compact = false }) {
+    const [theme, setThemeState] = useState(getTheme())
+
+    useEffect(() => {
+        setTheme(theme)
+    }, [theme])
+
+    const toggle = () => setThemeState((t) => (t === 'dark' ? 'light' : 'dark'))
+
+    return (
+        <button
+            type="button"
+            className={`theme-toggle ${compact ? 'compact' : ''}`}
+            onClick={toggle}
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+            {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+        </button>
+    )
+}
 
 export function LanguageSwitcher({ compact = false }) {
     const { lang, setLang } = useLang()
@@ -42,7 +66,20 @@ export function Navbar() {
                         {t(key)}
                     </NavLink>
                 ))}
+                <ThemeToggle />
                 <LanguageSwitcher />
+            </div>
+            {/* .navbar-links hides at mobile widths — this is its mobile
+                replacement, living inside the SAME already-reliably-fixed
+                navbar bar rather than as its own independent fixed-position
+                element. The standalone .mobile-lang-fab it replaces was
+                mis-positioning itself on some mobile contexts (a second
+                independent `position: fixed` layer is inherently more
+                fragile than reusing the one that's already proven to work
+                on every screen). */}
+            <div className="navbar-mobile-controls">
+                <ThemeToggle compact />
+                <LanguageSwitcher compact />
             </div>
         </nav>
     )
@@ -52,8 +89,6 @@ export function Navbar() {
 export function BottomNav() {
     const { t } = useLang()
     return (
-        <>
-        <div className="mobile-lang-fab"><LanguageSwitcher compact /></div>
         <nav className="bottom-nav">
             {NAV_ITEMS.map((item) => {
                 const NavIcon = item.Icon
@@ -65,6 +100,5 @@ export function BottomNav() {
                 )
             })}
         </nav>
-        </>
     )
 }
