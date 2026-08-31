@@ -27,8 +27,9 @@ import java.util.Date;
  * holding the signing secret.
  *
  * Keys are PEM files (PKCS8 private, X509 public) at the paths configured
- * by JWT_PRIVATE_KEY_PATH / JWT_PUBLIC_KEY_PATH. If they don't exist at
- * startup, a warning is logged and a dev-only ephemeral keypair is
+ * by JWT_PRIVATE_KEY_PATH / JWT_PUBLIC_KEY_PATH, or PEM values injected through
+ * JWT_PRIVATE_KEY / JWT_PUBLIC_KEY secret references. If neither is configured
+ * at startup, a warning is logged and a dev-only ephemeral keypair is
  * generated in memory instead — tokens issued that way are invalid after a
  * restart, which is fine for local dev and actively bad in prod, so this
  * is logged loudly, not silently.
@@ -41,6 +42,12 @@ public class JwtUtils {
 
     @Value("${app.jwt.public-key-path:}")
     private String publicKeyPath;
+
+    @Value("${app.jwt.private-key-pem:}")
+    private String privateKeyPem;
+
+    @Value("${app.jwt.public-key-pem:}")
+    private String publicKeyPem;
 
     @Value("${app.jwt.access-token-expiry-minutes:60}")
     private long accessTokenExpiryMinutes;
@@ -57,9 +64,13 @@ public class JwtUtils {
                 && publicKeyPath != null && !publicKeyPath.isBlank() && Files.exists(Path.of(publicKeyPath))) {
             this.privateKey = loadPrivateKey(privateKeyPath);
             this.publicKey = loadPublicKey(publicKeyPath);
+        } else if (privateKeyPem != null && !privateKeyPem.isBlank()
+                && publicKeyPem != null && !publicKeyPem.isBlank()) {
+            this.privateKey = loadPrivateKeyPem(privateKeyPem);
+            this.publicKey = loadPublicKeyPem(publicKeyPem);
         } else {
             System.err.println(
-                    "WARNING: JWT_PRIVATE_KEY_PATH/JWT_PUBLIC_KEY_PATH not configured or files missing. "
+                    "WARNING: JWT key paths/secret values are not configured or files are missing. "
                             + "Generating an EPHEMERAL in-memory RSA keypair — tokens will be invalid after restart. "
                             + "This is fine for local dev, NEVER acceptable in production. "
                             + "Generate real keys with: openssl genpkey -algorithm RSA -out private.pem -pkeyopt rsa_keygen_bits:2048 "
@@ -73,7 +84,11 @@ public class JwtUtils {
     }
 
     private PrivateKey loadPrivateKey(String path) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        String pem = Files.readString(Path.of(path))
+        return loadPrivateKeyPem(Files.readString(Path.of(path)));
+    }
+
+    private PrivateKey loadPrivateKeyPem(String pem) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        pem = pem
                 .replace("-----BEGIN PRIVATE KEY-----", "")
                 .replace("-----END PRIVATE KEY-----", "")
                 .replaceAll("\\s", "");
@@ -82,7 +97,11 @@ public class JwtUtils {
     }
 
     private PublicKey loadPublicKey(String path) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        String pem = Files.readString(Path.of(path))
+        return loadPublicKeyPem(Files.readString(Path.of(path)));
+    }
+
+    private PublicKey loadPublicKeyPem(String pem) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        pem = pem
                 .replace("-----BEGIN PUBLIC KEY-----", "")
                 .replace("-----END PUBLIC KEY-----", "")
                 .replaceAll("\\s", "");

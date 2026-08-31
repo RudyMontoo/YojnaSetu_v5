@@ -27,6 +27,8 @@ ACR="${ACR:-}"                      # set/reused via .env.deploy so redeploys hi
 : "${FIELD_ENCRYPTION_KEY:?set FIELD_ENCRYPTION_KEY}"
 : "${AADHAAR_SALT:?set AADHAAR_SALT}"
 : "${INTERNAL_API_KEY:?set INTERNAL_API_KEY (shared FastAPI<->Spring secret)}"
+: "${JWT_PRIVATE_KEY:?set JWT_PRIVATE_KEY (PEM contents)}"
+: "${JWT_PUBLIC_KEY:?set JWT_PUBLIC_KEY (PEM contents)}"
 : "${GEMINI_API_KEY:=}" ; : "${GROQ_API_KEY:=}" ; : "${SARVAM_API_KEY:=}"
 MONGODB_DB="${MONGODB_DB:-yojnasetu}"
 
@@ -78,18 +80,17 @@ az containerapp create -g "$RG" -n ai-service --environment "$ENVNAME" \
   --image "$ACR_SERVER/ai-service:latest" "${reg[@]}" \
   --target-port 8080 --ingress internal --transport auto \
   --min-replicas 1 --max-replicas 3 --cpu 2 --memory 4Gi \
-  --secrets mongodb-uri="$MONGODB_URI" gemini-key="$GEMINI_API_KEY" groq-key="$GROQ_API_KEY" \
+  --secrets mongodb-uri="$MONGODB_URI" gemini-key="$GEMINI_API_KEY" groq-key="$GROQ_API_KEY" jwt-public-key="$JWT_PUBLIC_KEY" \
             sarvam-key="$SARVAM_API_KEY" internal-key="$INTERNAL_API_KEY" \
             smtp-user="${SMTP_USERNAME:-}" smtp-pass="${SMTP_PASSWORD:-}" \
   --env-vars ENVIRONMENT=production MONGODB_DB="$MONGODB_DB" OLLAMA_ENABLED=0 \
              LLM_PREFER="${LLM_PREFER:-groq}" \
-             JWT_PUBLIC_KEY_PATH=/app/keys/jwt_public.pem \
              SMTP_HOST="${SMTP_HOST:-smtp.gmail.com}" SMTP_PORT="${SMTP_PORT:-587}" \
              MAIL_FROM="${MAIL_FROM:-}" MAIL_FROM_NAME="${MAIL_FROM_NAME:-Yojna Sarthi}" MAIL_ENABLED="${MAIL_ENABLED:-false}" \
              SMTP_USERNAME=secretref:smtp-user SMTP_PASSWORD=secretref:smtp-pass \
              MONGODB_URI=secretref:mongodb-uri GEMINI_API_KEY=secretref:gemini-key \
              GROQ_API_KEY=secretref:groq-key SARVAM_API_KEY=secretref:sarvam-key \
-             INTERNAL_API_KEY=secretref:internal-key -o none
+             INTERNAL_API_KEY=secretref:internal-key JWT_PUBLIC_KEY=secretref:jwt-public-key -o none
 AI_FQDN="$(az containerapp show -g "$RG" -n ai-service --query properties.configuration.ingress.fqdn -o tsv)"
 
 # ── 3) spring-gateway (internal ingress) ──
@@ -98,12 +99,12 @@ az containerapp create -g "$RG" -n spring-gateway --environment "$ENVNAME" \
   --image "$ACR_SERVER/spring-gateway:latest" "${reg[@]}" \
   --target-port 8080 --ingress internal --transport auto \
   --min-replicas 1 --max-replicas 3 --cpu 1 --memory 2Gi \
-  --secrets mongodb-uri="$MONGODB_URI" enc-key="$FIELD_ENCRYPTION_KEY" \
+  --secrets mongodb-uri="$MONGODB_URI" enc-key="$FIELD_ENCRYPTION_KEY" jwt-private-key="$JWT_PRIVATE_KEY" jwt-public-key="$JWT_PUBLIC_KEY" \
             aadhaar-salt="$AADHAAR_SALT" internal-key="$INTERNAL_API_KEY" \
             smtp-user="${SMTP_USERNAME:-}" smtp-pass="${SMTP_PASSWORD:-}" \
             firebase-creds="${FIREBASE_CREDENTIALS_JSON:-}" \
   --env-vars MONGODB_DB="$MONGODB_DB" COOKIE_SECURE=true \
-             JWT_PRIVATE_KEY_PATH=/app/keys/jwt_private.pem JWT_PUBLIC_KEY_PATH=/app/keys/jwt_public.pem \
+             JWT_PRIVATE_KEY=secretref:jwt-private-key JWT_PUBLIC_KEY=secretref:jwt-public-key \
              FASTAPI_URL="http://$AI_FQDN" \
              SMTP_HOST="${SMTP_HOST:-smtp.gmail.com}" SMTP_PORT="${SMTP_PORT:-587}" \
              MAIL_FROM="${MAIL_FROM:-}" MAIL_FROM_NAME="${MAIL_FROM_NAME:-Yojna Sarthi}" MAIL_ENABLED="${MAIL_ENABLED:-false}" \

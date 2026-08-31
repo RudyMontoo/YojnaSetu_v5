@@ -62,9 +62,8 @@ loads, chat replies, profile saves.
   is gone. Chat uses Gemini/Groq (free-tier quota). The Jan-Sahayak **Lens**
   (vision document verify) degrades — it needs the local vision model; expect a
   "couldn't read" response until a cloud vision model is wired.
-- **JWT private key is baked into the Spring image** (private ACR). Fine for a
-  demo; before real users, move it to a Container Apps **secret volume** and set
-  `JWT_PRIVATE_KEY_PATH` at it, then rebuild without the `COPY keys/` line.
+- **JWT keys are injected into the Spring container at runtime** from
+  `.env.deploy` secrets. They are not copied into the image.
 - **Atlas open to 0.0.0.0/0** — tighten before real users.
 - **`min-replicas 1`** keeps latency low but always-on burns Student credit.
   Drop ai-service to `--min-replicas 0` to scale-to-zero (cold starts ~30–60s while
