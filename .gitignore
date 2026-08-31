@@ -67,6 +67,16 @@ node_modules/
 .agents/
 skills-lock.json
 .swarm/
+CLAUDE_SKILLS_INVENTORY.md
+
+# ── One-off/superseded planning + test-gen scratch (repo-cleanup 2026-08-31) ─
+# Kept locally, untracked from the repo — not referenced by CI, README, or code.
+testsprite_tests/
+update/
+
+# ── Personal notes / local tooling, never part of the public repo ────────────
+.obsidian/
+docs/pitch/
 .claude/
 
 # ── Sensitive dev artifacts (never commit real uploads or local DBs) ─────────

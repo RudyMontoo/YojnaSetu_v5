@@ -253,6 +253,8 @@ sequenceDiagram
 
 </details>
 
+Full breakdown of every external API/service and open-source library actually in use: [`docs/TECH_STACK_AND_APIS.md`](docs/TECH_STACK_AND_APIS.md).
+
 ---
 
 ## 🚀 Run it locally
