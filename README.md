@@ -151,7 +151,7 @@ graph TD
 | # | Agent | What it does for the citizen |
 |:--:|---|---|
 | 🧭 | **Orchestrator** | Reads intent, routes to the right specialist, screens for prompt-injection first |
-| 1 | **Eligibility** | Vector-searches real schemes + scores them against *your* profile |
+| 1 | **Eligibility** | Vector-searches real schemes, then checks each one **criterion by criterion** against your actual profile — real eligible/not-eligible/needs-more-info verdicts, not a fuzzy score |
 | 2 | **Discovery** | Keeps the catalogue fresh — 4,900+ schemes indexed, structured eligibility rules |
 | 3 | **Application Guidance** | Step-by-step how-to-apply + reads the *live* government form for you |
 | 4 | **Document Verify** | PPO ↔ Aadhaar name/DOB mismatch check for pensioners |
@@ -183,7 +183,7 @@ graph TD
 </tr>
 <tr>
 <td valign="top"><b>📚 Schemes — Yojana Catalogue</b><br/><b>4,996 central & state schemes</b> indexed (973 central, the rest spread across every state), searchable with sector filters (Agriculture, Housing, Health, Pension…). Each card shows the real benefit + eligibility, extracted into structured rules.</td>
-<td valign="top"><b>📊 Status — Application Tracker</b><br/>Every saved application through its lifecycle (Saved → In&nbsp;Progress → Submitted → Approved → Disbursed), plus <b>My Grievances</b> with their CPGRAMS reference numbers.</td>
+<td valign="top"><b>📊 Status — Application Tracker</b><br/>Every application you've actually started, through its real lifecycle (In&nbsp;Progress → Submitted → Approved/Disbursed), plus <b>My Grievances</b> with their CPGRAMS reference numbers. Just bookmarking a scheme for later lives separately, in <b>Saved Schemes</b> on your Profile.</td>
 </tr>
 <tr>
 <td width="50%"><img src="docs/screenshots/lens.png" alt="Jan-Sahayak Lens"/></td>
@@ -208,10 +208,10 @@ sequenceDiagram
     G-->>C: httpOnly RS256 JWT 🍪
     C->>O: "kaunsi yojana milegi?" (cookie)
     O->>O: verify JWT · screen injection · classify intent
-    O->>D: vector search + eligibility score
-    D-->>O: real matching schemes
-    O-->>C: grounded reply — schemes + benefits
-    C->>G: Save application
+    O->>D: vector search + criteria-by-criteria eligibility check
+    D-->>O: real matching schemes, real verdicts
+    O-->>C: grounded reply — eligible/not-eligible/needs-more-info + benefits
+    C->>G: Apply Now → official portal (tracked as In Progress)
     C->>O: "meri application ka status?"
     O->>D: read citizen's own applications
     O-->>C: "PM Kisan — submitted ✓"
