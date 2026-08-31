@@ -23,44 +23,41 @@ Three simplifications, stated plainly rather than silently assumed:
    (more required documents generally does mean more citizen effort), an
    honest heuristic, not measured difficulty. Worth replacing once Agent 3
    (Application Guidance) exists and could supply a real effort signal.
+
+Eligibility gate fixed alongside Problem 4 (2026-08-31): this used to call
+score_eligibility() against a UserProfile built by remapping the citizen's
+real profile fields (annualIncome, category, isBpl, etc.) onto UserProfile's
+differently-named dataclass fields (income_lpa, caste_category, is_bpl...) —
+every one of those silently dropped to None, so income/category/BPL/
+disability were never actually used to gate which schemes counted toward the
+"guaranteed" total. Now uses the same real rules comparison as Agent 1
+(eligibility_rules_engine.py) against the citizen's actual field names.
 """
 import logging
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from ai_service.agent.yojna_sathi import UserProfile, score_eligibility
 from ai_service.db.vector_search import scheme_vector_search
+from ai_service.graph.agents.eligibility import build_query_string
+from ai_service.graph.agents.eligibility_rules_engine import evaluate_eligibility
 from ai_service.graph.llm import ainvoke_with_fallback
 from ai_service.graph.state import GraphState
 from ai_service.utils.benefit_parser import extract_benefit_amount
 
 logger = logging.getLogger(__name__)
 
-ELIGIBILITY_SCORE_THRESHOLD = 50
-MAX_SCHEMES_TO_PLAN = 10  # bounds LLM calls (one per scheme for benefit parsing) — top-N by eligibility score
-
-
-def _scheme_blob(scheme: dict) -> str:
-    return " ".join([
-        scheme.get("name", ""),
-        scheme.get("eligibilityText", ""),
-        scheme.get("benefitAmount", ""),
-        " ".join(scheme.get("category", [])),
-        scheme.get("state") or "",
-    ])
+MAX_SCHEMES_TO_PLAN = 10  # bounds LLM calls (one per scheme for benefit parsing)
 
 
 async def build_financial_plan(profile_dict: dict, db: AsyncIOMotorDatabase) -> dict:
-    known_fields = set(UserProfile.__dataclass_fields__.keys())
-    profile = UserProfile(**{k: v for k, v in profile_dict.items() if k in known_fields})
+    query_text = build_query_string(profile_dict)
+    candidates = await scheme_vector_search(db, query_text, state_filter=profile_dict.get("state"), limit=30)
 
-    query_text = profile.to_query_string()
-    candidates = await scheme_vector_search(db, query_text, state_filter=profile.state, limit=30)
-
-    scored = [(score_eligibility(_scheme_blob(s), profile), s) for s in candidates]
-    eligible = [(score, s) for score, s in scored if score >= ELIGIBILITY_SCORE_THRESHOLD]
-    eligible.sort(key=lambda t: t[0], reverse=True)
-    top_eligible = eligible[:MAX_SCHEMES_TO_PLAN]
+    # Only schemes the citizen is CONFIRMED eligible for count toward the
+    # "guaranteed" total — "insufficient_data" (a criterion couldn't be
+    # checked) is deliberately excluded here, not treated as a pass.
+    eligible_schemes = [s for s in candidates if evaluate_eligibility(profile_dict, s)["verdict"] == "eligible"]
+    top_eligible = eligible_schemes[:MAX_SCHEMES_TO_PLAN]
 
     breakdown = []
     total_annual = 0.0
@@ -68,14 +65,13 @@ async def build_financial_plan(profile_dict: dict, db: AsyncIOMotorDatabase) -> 
     annual_lump_sum_items = []
     contingent_benefits = []
 
-    for score, scheme in top_eligible:
+    for scheme in top_eligible:
         benefit = await extract_benefit_amount(scheme.get("benefitAmount", ""))
         effort = max(len(scheme.get("documents", [])), 1)
 
         item = {
             "schemeCode": scheme.get("schemeCode"),
             "name": scheme.get("name"),
-            "eligibilityScore": score,
             "benefitAmount": scheme.get("benefitAmount", ""),
             "benefit_type": benefit["benefit_type"],
             "amount_inr": benefit["amount_inr"],
@@ -105,7 +101,7 @@ async def build_financial_plan(profile_dict: dict, db: AsyncIOMotorDatabase) -> 
         reverse=True,
     )
 
-    reply = await _compose_summary(profile, total_annual, len(breakdown), ranked[:3], contingent_benefits)
+    reply = await _compose_summary(profile_dict, total_annual, len(breakdown), ranked[:3], contingent_benefits)
 
     return {
         "total_annual_benefit_inr": round(total_annual, 2),
@@ -121,14 +117,14 @@ async def build_financial_plan(profile_dict: dict, db: AsyncIOMotorDatabase) -> 
     }
 
 
-async def _compose_summary(profile: UserProfile, total_annual: float, count: int, top_3: list[dict], contingent: list[dict]) -> str:
+async def _compose_summary(profile_dict: dict, total_annual: float, count: int, top_3: list[dict], contingent: list[dict]) -> str:
     if count == 0:
         return "Abhi tak koi eligible scheme nahi mili jiska clear benefit amount ho. Apna profile aur complete karein — state, income, occupation batayein."
 
     top_names = ", ".join(f"{s['name']} (₹{s['amount_inr']:,.0f})" for s in top_3 if s.get("amount_inr")) or "koi nahi"
     contingent_note = f" Iske alawa {len(contingent)} schemes hain jo sirf kisi durghatna ya vishesh sthiti mein milengi." if contingent else ""
 
-    prompt = f"""Citizen's profile: {profile.to_query_string()}
+    prompt = f"""Citizen's profile: {build_query_string(profile_dict) or "not much on file yet"}
 Total guaranteed annual benefit across {count} eligible schemes: Rs {total_annual:,.0f}
 Best value-for-effort schemes: {top_names}
 {f"Also has {len(contingent)} conditional/contingency schemes (compensation paid only if a specific event occurs) — do not include these in the routine annual figure." if contingent else ""}

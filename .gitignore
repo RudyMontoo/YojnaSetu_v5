@@ -84,6 +84,7 @@ ai_service/secure_uploads/
 ai_service/sahayak.db
 ai_service/*.db
 ruvector.db
+ai_service/scripts/apply_url_audit_report.json
 
 testsprite_tests/tmp/config.json
 

@@ -29,60 +29,6 @@ const APPLY_STEPS = [
     'Track status under "My Applications"',
 ]
 
-const SCHEMES_DATA = {
-    'pm-kisan': {
-        name: 'Pradhan Mantri Kisan Samman Nidhi',
-        shortName: 'PM-Kisan',
-        ministry: 'Ministry of Agriculture',
-        category: 'Agriculture',
-        tag: 'Central',
-        icon: '🌾',
-        benefit: '₹6,000 per year in 3 equal instalments of ₹2,000 each',
-        overview: 'PM-KISAN is a Central Sector scheme with 100% funding from Government of India. Under this scheme, income support of ₹6000/- per year is provided to all farmer families across the country in three equal installments of ₹2000/- each every four months.',
-        eligibility: [
-            { text: 'Must be a farmer / cultivator family', pass: true },
-            { text: 'Must own cultivable land in your name', pass: true },
-            { text: 'Annual income below ₹1.5 Lakh', pass: true },
-            { text: 'Should not be a government employee', pass: null },
-            { text: 'Should not be an income tax payee', pass: null },
-        ],
-        documents: [
-            'Aadhaar Card (mandatory for eKYC)',
-            'Land ownership records (Khasra/Khatauni)',
-            'Bank account details linked to Aadhaar',
-            'Latest photograph (passport size)',
-            'Mobile number linked to Aadhaar',
-        ],
-        applyUrl: 'https://pmkisan.gov.in',
-        applyPortal: 'PM-Kisan Portal',
-    },
-    'pm-awas': {
-        name: 'Pradhan Mantri Awas Yojana (Gramin)',
-        shortName: 'PMAY-G',
-        ministry: 'Ministry of Rural Development',
-        category: 'Housing',
-        tag: 'Central',
-        icon: '🏠',
-        benefit: 'Financial assistance of ₹1.20 Lakh (plain) / ₹1.30 Lakh (hilly) for construction of a pucca house',
-        overview: 'Under PMAY-G, financial assistance is provided for construction of pucca houses to all houseless and those living in dilapidated houses. The houses are constructed on the basis of demand by the beneficiaries and funds are directly transferred to their bank accounts.',
-        eligibility: [
-            { text: 'Must belong to rural area', pass: true },
-            { text: 'Must be houseless or live in kutcha/dilapidated house', pass: null },
-            { text: 'Name in SECC 2011 Survey list', pass: null },
-            { text: 'Should not own a pucca house anywhere in India', pass: null },
-        ],
-        documents: [
-            'Aadhaar Card',
-            'Bank account details',
-            'BPL certificate / SECC 2011 data',
-            'Job card (if MGNREGA beneficiary)',
-            'Land documents',
-        ],
-        applyUrl: 'https://pmayg.nic.in',
-        applyPortal: 'PMAY-G Portal',
-    },
-}
-
 const DEFAULT_SCHEME = {
     name: 'Government Scheme', shortName: 'Scheme', ministry: 'Government of India',
     category: 'General', tag: 'Central', icon: '📋',
@@ -111,11 +57,10 @@ export default function SchemeDetailPage() {
         finally { setReconBusy(false) }
     }
 
-    // Priority: router state (from chat/agent) > hardcoded dict > default
+    // Priority: router state (from chat/agent, real scraped data) > default
     const routeState = location.state  // passed by ChatPage navigate()
-    const hardcoded = SCHEMES_DATA[id]
 
-    const scheme = hardcoded || {
+    const scheme = {
         ...DEFAULT_SCHEME,
         // Use real data from route state if available
         ...(routeState ? {
