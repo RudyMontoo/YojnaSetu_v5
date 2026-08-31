@@ -22,6 +22,22 @@ Trust rules:
     write PII (name/dob/phone are not extraction targets by design).
   - Values equal to the current profile are dropped (no writes, no audit
     noise, when nothing new was said).
+
+extract_profile_facts() is exported separately (pure — no DB/network I/O)
+so Agent 1 (eligibility.py) can call it SYNCHRONOUSLY at the start of a
+turn: previously this whole module only ran fire-and-forget AFTER the
+reply was already composed, so a citizen stating "main 65 saal ka UP se
+kisan hoon" in their very first message never actually influenced that
+same turn's scheme ranking — only a LATER turn would benefit, once the
+fact had been persisted. Extracting once, early, lets Agent 1 use it
+immediately; chat_turn.py then skips its own duplicate extraction for
+that turn (see chat_turn.py's use of agent_outputs["agent1_eligibility"]).
+
+Also extracts "age" now (previously missing entirely, despite age/dob
+being one of the eligibility engine's core criteria — e.g. every pension
+scheme's minAge check) — converted to an approximate dob (Jan 1 of the
+stated birth year), which is exactly the year-level precision
+eligibility_rules_engine.py's _age_from_dob() already works with.
 """
 import asyncio
 import json
@@ -58,6 +74,7 @@ Return ONLY a JSON object with any of these keys (omit a key entirely if that fa
 - district: district name in English
 - occupation: one of farmer|student|daily_wage|self_employed|unemployed
 - annualIncome: yearly income in rupees as a number (convert lakh/crore: 1 lakh = 100000)
+- age: age in years as a whole number (only if a specific age or birth year is stated, not "buddha"/"young" etc.)
 - category: one of general|obc|sc|st
 - gender: one of male|female|other
 - isBpl: true/false (only if BPL card / garibi rekha explicitly mentioned)
@@ -86,6 +103,11 @@ def _validated(raw: dict) -> dict:
         out["gender"] = raw["gender"].strip().lower()
     if isinstance(raw.get("annualIncome"), (int, float)) and 0 < raw["annualIncome"] <= 100_000_000:
         out["annualIncome"] = int(raw["annualIncome"])
+    if isinstance(raw.get("age"), (int, float)) and 0 < raw["age"] <= 120:
+        # Approximate dob (Jan 1 of birth year) — year-level precision is all
+        # eligibility_rules_engine.py's _age_from_dob() needs for minAge/maxAge checks.
+        birth_year = datetime.now(timezone.utc).year - int(raw["age"])
+        out["dob"] = f"{birth_year}-01-01"
     if isinstance(raw.get("familySize"), int) and 1 <= raw["familySize"] <= 30:
         out["familySize"] = raw["familySize"]
     if isinstance(raw.get("landAreaAcres"), (int, float)) and 0 < raw["landAreaAcres"] <= 10_000:
@@ -96,6 +118,23 @@ def _validated(raw: dict) -> dict:
     return out
 
 
+async def extract_profile_facts(message: str) -> dict:
+    """Pure extraction — one LLM call, no DB/network I/O. Returns validated
+    facts only (see _validated), {} on any failure or if nothing was stated.
+    Callers decide what to do with the result (persist, use for this turn's
+    ranking, or both)."""
+    try:
+        masked, _ = mask_pii(message)
+        response = await ainvoke_with_fallback(
+            _EXTRACT_PROMPT.format(message=masked), temperature=0.0, prefer="groq"
+        )
+        raw = response.content.strip().strip("`").removeprefix("json").strip()
+        return _validated(json.loads(raw))
+    except Exception as e:
+        logger.warning("profile extraction failed (non-fatal): %s: %s", e.__class__.__name__, e)
+        return {}
+
+
 async def learn_profile_from_message(
     db: AsyncIOMotorDatabase,
     *,
@@ -104,18 +143,11 @@ async def learn_profile_from_message(
     message: str,
     current_profile: dict,
 ) -> dict:
-    """Extract → validate → diff against current profile → PATCH Spring Boot
-    → record in conversation_sessions.profileUpdates. Returns the updates
-    written ({} if nothing new). Never raises."""
-    try:
-        masked, _ = mask_pii(message)
-        response = await ainvoke_with_fallback(
-            _EXTRACT_PROMPT.format(message=masked), temperature=0.0, prefer="groq"
-        )
-        raw = response.content.strip().strip("`").removeprefix("json").strip()
-        extracted = _validated(json.loads(raw))
-    except Exception as e:
-        logger.warning("profile extraction failed (non-fatal): %s: %s", e.__class__.__name__, e)
+    """Extract → diff against current profile → PATCH Spring Boot → record
+    in conversation_sessions.profileUpdates. Returns the updates written
+    ({} if nothing new). Never raises."""
+    extracted = await extract_profile_facts(message)
+    if not extracted:
         return {}
 
     updates = {

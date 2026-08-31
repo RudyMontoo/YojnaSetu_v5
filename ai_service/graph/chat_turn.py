@@ -191,17 +191,27 @@ async def _persist_turn(
     # ("main UP ka kisan hoon, income 1 lakh" should persist, not die with
     # the turn). Runs after the reply is already on its way — zero latency
     # cost, failures logged and swallowed inside the learner.
-    last_user_message = next(
-        (m["content"] for m in reversed(state["messages"]) if m["role"] == "user"), ""
+    #
+    # Skipped when Agent 1 already extracted+persisted this turn's facts
+    # SYNCHRONOUSLY (agent_outputs["agent1_eligibility"]["profile_learned"] —
+    # see eligibility.py's "ask before recommend" redesign): re-running the
+    # same extraction here would be a second, redundant LLM call and a
+    # second identical Spring PATCH for no benefit.
+    already_learned = (
+        result.get("agent_outputs", {}).get("agent1_eligibility", {}).get("profile_learned")
     )
-    schedule_profile_learning(
-        db,
-        citizen_id=citizen_id,
-        session_id=session_id,
-        message=last_user_message,
-        intent=result.get("intent", ""),
-        current_profile=profile,
-    )
+    if not already_learned:
+        last_user_message = next(
+            (m["content"] for m in reversed(state["messages"]) if m["role"] == "user"), ""
+        )
+        schedule_profile_learning(
+            db,
+            citizen_id=citizen_id,
+            session_id=session_id,
+            message=last_user_message,
+            intent=result.get("intent", ""),
+            current_profile=profile,
+        )
 
     return {
         "reply": reply,

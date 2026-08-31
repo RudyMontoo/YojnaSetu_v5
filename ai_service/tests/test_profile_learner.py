@@ -58,3 +58,17 @@ def test_district_length_bounds():
 
 def test_empty_extraction_returns_empty():
     assert _validated({}) == {}
+
+
+def test_age_converts_to_approximate_dob():
+    from datetime import datetime, timezone
+    out = _validated({"age": 65})
+    assert "dob" in out and "age" not in out  # age itself is never a stored profile field
+    expected_year = datetime.now(timezone.utc).year - 65
+    assert out["dob"] == f"{expected_year}-01-01"
+
+
+def test_out_of_range_age_dropped():
+    assert "dob" not in _validated({"age": 0})
+    assert "dob" not in _validated({"age": 121})
+    assert "dob" not in _validated({"age": -5})

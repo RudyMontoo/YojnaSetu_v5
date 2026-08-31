@@ -26,15 +26,42 @@ data or a Jan-Sahayak Lens document upload — rather than silently guessing.
 Never fabricates a criterion a scheme doesn't specify (see
 eligibility_rules_engine.py's own docstring for the missing_criteria vs
 missing_profile_data distinction).
+
+"Ask before recommending" redesign (2026-08-31): a broad query ("give me
+pension scheme") against a thin profile used to go straight to a wall of
+results tagged NEEDS MORE INFO for almost everything — technically honest,
+but not what a citizen wants from a first message. Now:
+  1. Facts stated in THIS message are extracted and merged in immediately
+     (via profile_learner.extract_profile_facts) — previously that only
+     happened fire-and-forget AFTER the reply, so stating your age/state/
+     income in your very first message never actually helped that message's
+     own results.
+  2. If a field is missing for a MAJORITY of the top candidates (not just
+     one scheme's idiosyncratic ask), that's treated as "the query is too
+     broad to rank meaningfully yet" — the reply asks for those 2-4 fields
+     instead of dumping results. If profile data is already sufficient
+     (nothing missing for most candidates), it goes straight to results —
+     never re-asks what's already known.
+  3. Which fields get asked is 100% derived from evaluate_eligibility's real
+     per-scheme missing_profile_data — never a hardcoded per-category
+     question list. A scheme category whose real criteria aren't in
+     eligibilityRules at all (this engine only knows maxIncome/minAge/
+     maxAge/category/occupation/isRural/isBpl/hasLand/state — nothing else)
+     simply never triggers a question about anything else; there is no
+     "existing pension coverage" or "student's class" field in this data
+     model, and this code does not invent one.
 """
 import logging
+from collections import Counter
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from ai_service.db.vector_search import scheme_vector_search
 from ai_service.graph.agents.eligibility_rules_engine import evaluate_eligibility
 from ai_service.graph.llm import ainvoke_with_fallback
+from ai_service.graph.profile_learner import extract_profile_facts
 from ai_service.graph.state import GraphState
+from ai_service.utils.spring_client import patch_citizen_profile
 
 logger = logging.getLogger(__name__)
 
@@ -73,19 +100,52 @@ def build_query_string(profile: dict) -> str:
     return " ".join(parts) if parts else ""
 
 
+def compute_systemic_gaps(missing_counts: Counter, top_count: int) -> list[str]:
+    """A field missing for a MAJORITY of the top candidates means the
+    profile is too thin to rank this query meaningfully — not just one
+    scheme's idiosyncratic requirement. Returns fields ranked most-missing
+    first; empty if no field clears the majority bar (or there are no
+    candidates at all). Pure function, no I/O — the actual decision logic
+    behind "ask before recommend", kept separate from run_eligibility_agent
+    so it's directly unit-testable without mocking the DB/LLM."""
+    if top_count == 0:
+        return []
+    majority_threshold = max(1, -(-top_count // 2))  # ceil(top_count/2), floor 1
+    return [f for f, c in missing_counts.most_common() if c >= majority_threshold]
+
+
+async def _learn_facts_this_turn(citizen_id: str, message: str, profile: dict) -> tuple[dict, dict]:
+    """Extracts facts from THIS message and merges them onto a profile copy
+    immediately, instead of only fire-and-forget after the reply (see module
+    docstring). Persists to Spring Boot too — cheap (~150ms), well within
+    Agent 1's 10s budget — so a later session/turn also remembers it, and
+    chat_turn.py skips its own duplicate extraction for this turn (checked
+    via agent_outputs["agent1_eligibility"]["profile_learned"])."""
+    extracted = await extract_profile_facts(message)
+    updates = {k: v for k, v in extracted.items() if (profile or {}).get(k) != v}
+    effective_profile = {**profile, **updates}
+    if updates and citizen_id:
+        await patch_citizen_profile(citizen_id, updates)
+    return effective_profile, updates
+
+
 async def run_eligibility_agent(state: GraphState, db: AsyncIOMotorDatabase) -> GraphState:
     profile = state.get("profile") or {}
     messages = state.get("messages", [])
     last_user_message = next((m["content"] for m in reversed(messages) if m["role"] == "user"), "")
 
-    query_text = build_query_string(profile) or last_user_message or "government welfare scheme"
+    effective_profile, learned_this_turn = await _learn_facts_this_turn(
+        state.get("citizen_id", ""), last_user_message, profile
+    )
 
-    state_filter = profile.get("state") or None
+    query_text = build_query_string(effective_profile) or last_user_message or "government welfare scheme"
+
+    state_filter = effective_profile.get("state") or None
     candidates = await scheme_vector_search(db, query_text, state_filter=state_filter, limit=15)
 
     evaluated = []
     for s in candidates:
-        result = evaluate_eligibility(profile, s)
+        result = evaluate_eligibility(effective_profile, s)
         s["_eligibility"] = result
         evaluated.append(s)
 
@@ -95,6 +155,37 @@ async def run_eligibility_agent(state: GraphState, db: AsyncIOMotorDatabase) -> 
     verdict_rank = {"eligible": 0, "insufficient_data": 1, "not_eligible": 2}
     evaluated.sort(key=lambda s: verdict_rank.get(s["_eligibility"]["verdict"], 3))
     top = evaluated[:5]
+
+    missing_counts = Counter(f for s in top for f in s["_eligibility"]["missing_profile_data"])
+    systemic_gaps = compute_systemic_gaps(missing_counts, len(top))
+
+    if top and systemic_gaps:
+        asks = ", ".join(_FIELD_ASK.get(f, f) for f in systemic_gaps[:4])
+        compose_prompt = f"""You are Sathi, a friendly Hinglish-speaking assistant helping an Indian citizen find government welfare schemes.
+Citizen's message: "{last_user_message}"
+
+Their profile is too thin to give a real, personalized answer yet — most matching schemes need to know: {asks}.
+
+Write a short, warm reply in Hinglish (2-3 sentences) asking ONLY for these {min(len(systemic_gaps), 4)} things, so you can give a precise answer. Do not list any scheme names yet. Do not ask about anything not in that list. Mention they can also just upload a document via Jan-Sahayak Lens instead of typing answers, or visit a CSC if that's easier."""
+        response = await ainvoke_with_fallback(compose_prompt, temperature=0.4)
+        reply = response.content.strip()
+
+        state["active_schemes"] = []
+        state["reply"] = reply
+        state.setdefault("agent_outputs", {})["agent1_eligibility"] = {
+            "matched_count": 0,
+            "query_text": query_text,
+            "asked_for": systemic_gaps[:4],
+            "profile_learned": bool(learned_this_turn),
+        }
+        state.setdefault("reasoning_trace", []).append({
+            "agent_name": "agent1_eligibility",
+            "tool_called": "clarify_before_recommend",
+            "input": query_text,
+            "output": f"asked for {systemic_gaps[:4]}",
+            "reasoning": f"{len(top)} candidates, systemic gaps: {systemic_gaps}",
+        })
+        return state
 
     lines = []
     for s in top:
@@ -113,20 +204,16 @@ async def run_eligibility_agent(state: GraphState, db: AsyncIOMotorDatabase) -> 
         lines.append(f"- {s.get('name')} [{tag}]: {s.get('benefitAmount', '')} — {detail}{note}")
     scheme_summary = "\n".join(lines) or "No matching schemes found."
 
-    # Path B trigger: the single most fixable "insufficient_data" gap across
-    # the top schemes, if any — ask for exactly that, don't guess.
-    missing_fields: list[str] = []
-    for s in top:
-        for f in s["_eligibility"]["missing_profile_data"]:
-            if f not in missing_fields:
-                missing_fields.append(f)
+    # A one-off gap on a single scheme (not a systemic one, already handled
+    # above) still gets a lightweight mention rather than silently dropped.
+    one_off_fields = [f for f in missing_counts if f not in systemic_gaps][:2]
     ask_hint = ""
-    if missing_fields:
-        asks = ", ".join(_FIELD_ASK.get(f, f) for f in missing_fields[:2])
-        ask_hint = (f"\n\nTo confirm eligibility precisely, ask the citizen for: {asks}. "
-                    f"They can answer directly, or upload a document via Jan-Sahayak Lens to fill it in "
-                    f"automatically. If they can't do either right now, mention they can get help in "
-                    f"person at their nearest CSC (Common Service Centre) instead.")
+    if one_off_fields:
+        asks = ", ".join(_FIELD_ASK.get(f, f) for f in one_off_fields)
+        ask_hint = (f"\n\nTo confirm eligibility precisely for the ones marked NEEDS MORE INFO, "
+                    f"ask the citizen for: {asks}. They can answer directly, or upload a document via "
+                    f"Jan-Sahayak Lens to fill it in automatically. If they can't do either right now, "
+                    f"mention they can get help in person at their nearest CSC (Common Service Centre) instead.")
 
     compose_prompt = f"""You are Sathi, a friendly Hinglish-speaking assistant helping an Indian citizen find government welfare schemes.
 Citizen's message: "{last_user_message}"
@@ -147,6 +234,7 @@ Write a short, warm reply in Hinglish (3-5 sentences). Be honest and specific: s
     state.setdefault("agent_outputs", {})["agent1_eligibility"] = {
         "matched_count": len(top),
         "query_text": query_text,
+        "profile_learned": bool(learned_this_turn),
     }
     state.setdefault("reasoning_trace", []).append({
         "agent_name": "agent1_eligibility",

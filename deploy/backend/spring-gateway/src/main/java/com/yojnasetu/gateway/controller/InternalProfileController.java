@@ -78,6 +78,12 @@ public class InternalProfileController {
         });
 
         if (updates.containsKey("annualIncome")) profile.setAnnualIncome(((Number) updates.get("annualIncome")).longValue());
+        // dob is encrypted at rest (CitizenProfileService.saveEncrypted already handles
+        // that transparently) — this was the only field genuinely missing from this
+        // whitelist despite ai_service's profile_learner extracting it (as an age ->
+        // approximate-dob conversion) since the eligibility engine needs it for
+        // minAge/maxAge checks. Without this line the PATCH silently no-op'd on dob.
+        if (updates.containsKey("dob")) profile.setDob((String) updates.get("dob"));
         if (updates.containsKey("state")) profile.setState((String) updates.get("state"));
         if (updates.containsKey("category")) profile.setCategory((String) updates.get("category"));
         if (updates.containsKey("occupation")) profile.setOccupation((String) updates.get("occupation"));
