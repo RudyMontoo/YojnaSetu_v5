@@ -102,7 +102,7 @@ async def build_status_summary(citizen_id: str, db: AsyncIOMotorDatabase) -> dic
     }
 
 
-async def _polish(deterministic: str, count: int) -> str:
+async def _polish(deterministic: str, count: int, citizen_message: str = "") -> str:
     """Optional warmth pass. Strictly rephrases the already-grounded summary —
     the prompt forbids inventing any status not present in the text. Falls back
     to the deterministic summary on any LLM error or empty response."""
@@ -110,7 +110,8 @@ async def _polish(deterministic: str, count: int) -> str:
         return deterministic  # the no-applications text is already friendly; don't spend an LLM call
     prompt = (
         "Neeche ek citizen ki government scheme applications ka factual status summary hai. "
-        "Ise ek short, warm Hinglish message mein dobara likho (2-3 lines). "
+        "Ise ek short, warm message mein dobara likho (2-3 lines), citizen ke apne message jaisi language/script mein "
+        f'(\'{citizen_message}\') — agar unhone plain English mein likha hai toh Hinglish mat use karo. '
         "IMPORTANT: koi bhi naya status ya scheme mat jodo — sirf jo neeche diya hai wahi rephrase karo. "
         "Agar koi application 'reject' hui hai toh usey CPGRAMS grievance file karne ka gentle suggestion de sakte ho.\n\n"
         f"Factual summary:\n{deterministic}"
@@ -128,8 +129,10 @@ async def run_status_check_agent(state: GraphState, db: AsyncIOMotorDatabase) ->
     """LangGraph node for the `status_check` intent. Replaces the placeholder
     that redirected the citizen to 'the Spring Boot gateway'."""
     citizen_id = state.get("citizen_id", "")
+    messages = state.get("messages", [])
+    last_user_message = next((m["content"] for m in reversed(messages) if m["role"] == "user"), "")
     result = await build_status_summary(citizen_id, db)
-    result["reply"] = await _polish(result["reply"], result["application_count"])
+    result["reply"] = await _polish(result["reply"], result["application_count"], last_user_message)
 
     state["reply"] = result["reply"]
     state.setdefault("agent_outputs", {})["status_check"] = {

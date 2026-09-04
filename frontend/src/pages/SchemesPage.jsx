@@ -32,6 +32,12 @@ const CATEGORY_FILTERS = [
     { label: 'Skill Dev', sector: 'skill,employment' },
     { label: 'Pension', search: 'pension' },
     { label: 'Business', sector: 'business,banking,entrepreneur' },
+    // SIH PS 26092: search (not sector) because these are ministry-named,
+    // not sector-tagged — "Social Justice" matches MoSJE-issued SC/NSFDC
+    // schemes by their real `ministry` field (search only checks name/
+    // ministry server-side, never a sector/category array — see
+    // SchemeCatalogueController.java's own doc comment).
+    { label: 'SC Credit & Education', search: 'Social Justice' },
 ]
 
 export default function SchemesPage() {

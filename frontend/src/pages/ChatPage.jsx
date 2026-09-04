@@ -146,7 +146,7 @@ export default function ChatPage() {
 
     const saveScheme = async (s) => {
         try {
-            await gateway.saveScheme(s.code)
+            await gateway.saveScheme(s.schemeCode)
             addMsg('assistant', `"${s.name}" saved. Find it under Saved Schemes on your Profile.`)
         } catch (err) {
             addMsg('assistant', err.status === 401 || err.status === 403
@@ -469,22 +469,6 @@ export default function ChatPage() {
             {agentSplash > 0 && <div key={agentSplash} className="agent-splash" aria-hidden="true" />}
             <Navbar />
 
-            {voiceMode && (
-                <div className="voice-mode-banner">
-                    <span className="voice-pulse-dot" />
-                    <span>
-                        {botSpeaking
-                            ? '🔊 Sathi bol raha hai… (bolkar interrupt kar sakte hain)'
-                            : userSpeaking
-                                ? '🎙️ Sun raha hoon…'
-                                : '🔴 Live — boliye, Sathi sun raha hai'}
-                    </span>
-                    <button className="btn btn-ghost btn-sm" onClick={endLiveVoice}>
-                        End
-                    </button>
-                </div>
-            )}
-
             {/* ── Inline camera overlay for doc capture ── */}
             {cameraOpen && (
                 <div className="doc-camera-overlay">
@@ -528,6 +512,21 @@ export default function ChatPage() {
             )}
 
             <div className="chat-messages">
+                {voiceMode && (
+                    <div className="voice-mode-banner">
+                        <span className="voice-pulse-dot" />
+                        <span>
+                            {botSpeaking
+                                ? '🔊 Sathi bol raha hai… (bolkar interrupt kar sakte hain)'
+                                : userSpeaking
+                                    ? '🎙️ Sun raha hoon…'
+                                    : '🔴 Live — boliye, Sathi sun raha hai'}
+                        </span>
+                        <button className="btn btn-ghost btn-sm" onClick={endLiveVoice}>
+                            End
+                        </button>
+                    </div>
+                )}
                 {messages.map((msg, i) => (
                     <BubbleIn key={i} className={`chat-bubble-row ${msg.role}`} fromUser={msg.role === 'user'}>
                         {msg.role === 'assistant' && (
@@ -539,17 +538,25 @@ export default function ChatPage() {
                             {msg.schemes && msg.schemes.length > 0 && (
                                 <div className="chat-schemes">
                                     {msg.schemes.map(s => (
-                                        <div key={s.id || s.name} className="chat-scheme-card">
-                                            <div onClick={() => navigate(`/schemes/${s.id || 'scheme'}`, { state: s })} style={{ cursor: 'pointer' }}>
+                                        <div key={s.schemeCode || s.name} className="chat-scheme-card">
+                                            <div onClick={() => navigate(`/schemes/${s.schemeCode || 'scheme'}`, { state: { ...s, benefit: s.benefitAmount, apply_url: s.applyUrl } })} style={{ cursor: 'pointer' }}>
                                                 <p className="scheme-card-title">{s.name}</p>
-                                                <p className="scheme-card-benefit">{s.benefit}</p>
+                                                <p className="scheme-card-benefit">{s.benefitAmount}</p>
                                             </div>
-                                            {s.code && (
-                                                <button className="btn btn-saffron-outline btn-sm" style={{ marginTop: 6 }}
-                                                        onClick={(e) => { e.stopPropagation(); saveScheme(s) }}>
-                                                    Save Scheme
-                                                </button>
-                                            )}
+                                            <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
+                                                {s.schemeCode && (
+                                                    <button className="btn btn-saffron-outline btn-sm"
+                                                            onClick={(e) => { e.stopPropagation(); saveScheme(s) }}>
+                                                        Save Scheme
+                                                    </button>
+                                                )}
+                                                {s.applyUrl && (
+                                                    <a className="btn btn-saffron btn-sm" href={s.applyUrl} target="_blank" rel="noopener noreferrer"
+                                                       onClick={(e) => e.stopPropagation()}>
+                                                        Apply
+                                                    </a>
+                                                )}
+                                            </div>
                                         </div>
                                     ))}
                                 </div>

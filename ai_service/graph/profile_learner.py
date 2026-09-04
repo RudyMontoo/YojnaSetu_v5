@@ -126,7 +126,7 @@ async def extract_profile_facts(message: str) -> dict:
     try:
         masked, _ = mask_pii(message)
         response = await ainvoke_with_fallback(
-            _EXTRACT_PROMPT.format(message=masked), temperature=0.0, prefer="groq"
+            _EXTRACT_PROMPT.format(message=masked), temperature=0.0, prefer="groq", tags=["internal"]
         )
         raw = response.content.strip().strip("`").removeprefix("json").strip()
         return _validated(json.loads(raw))

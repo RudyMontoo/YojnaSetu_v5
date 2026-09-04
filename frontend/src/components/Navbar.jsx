@@ -8,11 +8,29 @@ import './Navbar.css'
 const NAV_ITEMS = [
     { to: '/home', key: 'nav.home', Icon: Home },
     { to: '/chat', key: 'nav.sathi', Icon: MessageCircle },
-    { to: '/schemes', key: 'nav.schemes', Icon: FileText },
+    { to: '/schemes', key: 'nav.schemes', Icon: FileText, badge: true },
     { to: '/status', key: 'nav.status', Icon: Radio },
     { to: '/scanner', key: 'nav.lens', Icon: Camera },
     { to: '/profile', key: 'nav.profile', Icon: User },
 ]
+
+// One-time "NEW" pulse on the Schemes nav icon pointing at the new SIH
+// PS 26092 filter chip/banner — sessionStorage so it reappears each new
+// visit but never nags within one. Cleared on visiting /schemes or
+// /credit-schemes (either page it's advertising), not just on click.
+const SEEN_KEY = 'yojna_seen_credit_badge'
+function useCreditBadgeVisible() {
+    const [visible, setVisible] = useState(() => !sessionStorage.getItem(SEEN_KEY))
+    useEffect(() => {
+        if (!visible) return
+        const path = window.location.pathname
+        if (path === '/schemes' || path === '/credit-schemes') {
+            sessionStorage.setItem(SEEN_KEY, '1')
+            setVisible(false)
+        }
+    }, [visible])
+    return visible
+}
 
 export function ThemeToggle({ compact = false }) {
     const [theme, setThemeState] = useState(getTheme())
@@ -53,6 +71,7 @@ export function LanguageSwitcher({ compact = false }) {
 /* Top navigation for desktop */
 export function Navbar() {
     const { t } = useLang()
+    const creditBadgeVisible = useCreditBadgeVisible()
     return (
         <nav className="navbar">
             <NavLink to="/home" className="navbar-logo">
@@ -61,9 +80,10 @@ export function Navbar() {
                 </div>
             </NavLink>
             <div className="navbar-links">
-                {NAV_ITEMS.map(({ to, key }) => (
+                {NAV_ITEMS.map(({ to, key, badge }) => (
                     <NavLink key={to} to={to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
                         {t(key)}
+                        {badge && creditBadgeVisible && <span className="nav-badge-dot" title="New: SIH PS 26092 Channel Finance" />}
                     </NavLink>
                 ))}
                 <ThemeToggle />
@@ -88,13 +108,17 @@ export function Navbar() {
 /* Bottom tab bar for mobile */
 export function BottomNav() {
     const { t } = useLang()
+    const creditBadgeVisible = useCreditBadgeVisible()
     return (
         <nav className="bottom-nav">
             {NAV_ITEMS.map((item) => {
                 const NavIcon = item.Icon
                 return (
                     <NavLink key={item.to} to={item.to} className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}>
-                        <NavIcon size={20} />
+                        <span style={{ position: 'relative' }}>
+                            <NavIcon size={20} />
+                            {item.badge && creditBadgeVisible && <span className="nav-badge-dot" title="New: SIH PS 26092 Channel Finance" />}
+                        </span>
                         <span>{t(item.key)}</span>
                     </NavLink>
                 )

@@ -150,29 +150,45 @@ async def _extract_via_gemini(prepared: bytes) -> dict | None:
     """CLOUD path — Gemini 2.5 Flash multimodal. Used when Ollama isn't available
     (a GPU-less cloud container). PRIVACY NOTE: the document image is sent to
     Google's API — acceptable for a cloud deploy without a GPU, but the local
-    Ollama path above keeps everything on-device. Requires GEMINI_API_KEY."""
-    key = os.getenv("GEMINI_API_KEY", "").strip()
-    if not key:
+    Ollama path above keeps everything on-device.
+
+    Real bug fixed 2026-09-04, caught live: this was hardcoded to ONE Gemini
+    key with no fallback of any kind — unlike the text pipeline (which always
+    has Groq behind Gemini via ainvoke_with_fallback), Lens went completely
+    dark the moment the free-tier 20-req/day quota was hit (confirmed live:
+    same RESOURCE_EXHAUSTED error as the voice-latency incident this
+    morning), returning a misleading "could not read the document" that blamed
+    the photo instead of the quota. Ollama has no vision model on this
+    GPU-less container and Groq's account here has no vision-capable model to
+    fall back to, so the only real mitigation available today is a second,
+    independent Gemini key/project (each free tier is its own 20/day pool).
+    GEMINI_API_KEY_2 is optional — skipped silently if unset."""
+    keys = [k for k in (os.getenv("GEMINI_API_KEY", "").strip(), os.getenv("GEMINI_API_KEY_2", "").strip()) if k]
+    if not keys:
         return None
-    try:
-        from langchain_google_genai import ChatGoogleGenerativeAI
-        from langchain_core.messages import HumanMessage
-        b64 = base64.b64encode(prepared).decode("ascii")
-        llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=key,
-                                     temperature=0, max_retries=1)
-        msg = HumanMessage(content=[
-            {"type": "text", "text": _EXTRACT_PROMPT},
-            {"type": "image_url", "image_url": f"data:image/jpeg;base64,{b64}"},
-        ])
-        resp = await llm.ainvoke([msg])
-        raw = (resp.content if isinstance(resp.content, str) else str(resp.content)).strip()
-        if raw.startswith("```"):                    # strip a ```json … ``` fence if present
-            raw = raw.strip("`")
-            raw = raw[4:].strip() if raw.lower().startswith("json") else raw.strip()
-        return json.loads(raw)
-    except Exception as e:  # noqa: BLE001
-        logger.warning("Gemini vision OCR failed (%s: %s)", e.__class__.__name__, e)
-        return None
+    from langchain_google_genai import ChatGoogleGenerativeAI
+    from langchain_core.messages import HumanMessage
+    b64 = base64.b64encode(prepared).decode("ascii")
+    msg = HumanMessage(content=[
+        {"type": "text", "text": _EXTRACT_PROMPT},
+        {"type": "image_url", "image_url": f"data:image/jpeg;base64,{b64}"},
+    ])
+    last_error = None
+    for key in keys:
+        try:
+            llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=key,
+                                         temperature=0, max_retries=1)
+            resp = await llm.ainvoke([msg])
+            raw = (resp.content if isinstance(resp.content, str) else str(resp.content)).strip()
+            if raw.startswith("```"):                    # strip a ```json … ``` fence if present
+                raw = raw.strip("`")
+                raw = raw[4:].strip() if raw.lower().startswith("json") else raw.strip()
+            return json.loads(raw)
+        except Exception as e:  # noqa: BLE001
+            last_error = e
+            logger.warning("Gemini vision OCR failed on one key (%s: %s) — trying next if any", e.__class__.__name__, e)
+    logger.warning("Gemini vision OCR failed on all configured keys; last error: %s", last_error)
+    return None
 
 
 def _postprocess_fields(fields: dict, engine: str) -> dict:

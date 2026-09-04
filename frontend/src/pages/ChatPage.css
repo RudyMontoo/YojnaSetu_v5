@@ -5,18 +5,25 @@
     overflow: hidden;
 }
 
-/* Voice mode banner */
+/* Voice mode banner — real bug fixed 2026-09-03: this used to be
+   position:fixed relative to the viewport, floating above .chat-messages
+   with a compensating padding-top hack on the container. The padding only
+   reserved space at scrollTop:0 — as soon as the thread auto-scrolled (every
+   new turn), earlier bubbles scrolled up underneath the fixed banner and
+   got visually overlapped by its text. Making it position:sticky as the
+   FIRST CHILD of .chat-messages instead means it's a real flex item that
+   permanently occupies its own row and only "sticks" once scrolled to —
+   messages can never render behind it, at any scroll position. */
 .voice-mode-banner {
-    position: fixed;
-    top: 72px;
-    left: 0;
-    right: 0;
-    z-index: 90;
+    position: sticky;
+    top: 0;
+    z-index: 5;
     display: flex;
     align-items: center;
     gap: 10px;
+    margin: 0 -24px;
     padding: 10px 24px;
-    background: rgba(255, 107, 53, 0.12);
+    background: rgba(11, 15, 26, 0.92);
     border-bottom: 1px solid rgba(255, 107, 53, 0.25);
     backdrop-filter: blur(12px);
     font-size: 13px;
@@ -96,13 +103,6 @@
 
 .chat-messages::-webkit-scrollbar {
     display: none;                  /* Chrome / Safari */
-}
-
-/* Live-call banner is fixed at top:72px and adds its own height on top of
-   the navbar — without this, its first bubble sits underneath the banner
-   instead of below it (visible overlap on mobile widths). */
-.chat-wrapper.voice-active .chat-messages {
-    padding-top: 130px;
 }
 
 .chat-bubble-row {

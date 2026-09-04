@@ -52,13 +52,14 @@ but not what a citizen wants from a first message. Now:
      model, and this code does not invent one.
 """
 import logging
+import re
 from collections import Counter
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from ai_service.db.vector_search import scheme_vector_search
 from ai_service.graph.agents.eligibility_rules_engine import evaluate_eligibility
-from ai_service.graph.llm import ainvoke_with_fallback
+from ai_service.graph.llm import ainvoke_with_fallback, is_first_turn
 from ai_service.graph.profile_learner import extract_profile_facts
 from ai_service.graph.state import GraphState
 from ai_service.utils.spring_client import patch_citizen_profile
@@ -100,6 +101,69 @@ def build_query_string(profile: dict) -> str:
     return " ".join(parts) if parts else ""
 
 
+_SHOW_EVERYTHING_RE = re.compile(
+    r"\b(everything|sab\s+(schemes?|yojanas?)|all\s+schemes?|sabhi\s+schemes?)\b", re.IGNORECASE
+)
+
+
+def detect_show_everything(message: str) -> bool:
+    """Explicit override phrases ("show me everything", "sab schemes") mean
+    the citizen wants results NOT narrowed by their saved profile this turn."""
+    return bool(_SHOW_EVERYTHING_RE.search(message or ""))
+
+
+def find_topic_anchor(messages: list[dict]) -> str:
+    """"Show me everything" is a follow-up on whatever the citizen was ALREADY
+    asking about, not a fresh topic — real bug found 2026-09-03: searching
+    the literal phrase "show me everything" as the semantic query has no
+    topical meaning, so it matched near-random unrelated schemes instead of
+    the dairy-farming/etc. intent from the citizen's actual prior message.
+    Walks user messages newest-first, skipping the current one (the override
+    phrase itself) and any earlier ones that are ALSO just an override
+    phrase or too short/thin to carry a topic on their own (short answers
+    like "UP" or "yes" given to a clarifying question — real bug: without
+    this, the anchor recovered the state-answer message instead of the
+    actual "dairy farm business" question from further back), to find the
+    most recent real topical message."""
+    user_messages = [m["content"] for m in messages if m.get("role") == "user"]
+    for msg in reversed(user_messages[:-1]):  # skip the current (last) message
+        if msg and not detect_show_everything(msg) and len(msg.split()) >= 3:
+            return msg
+    return ""
+
+
+def build_retrieval_query(last_user_message: str, profile: dict, show_everything: bool) -> str:
+    """Real bug fixed here 2026-09-03: this used to be
+    `build_query_string(profile) or last_user_message or "..."` — `or`
+    short-circuiting meant the citizen's ACTUAL message was silently
+    discarded whenever the profile had ANY field set (true for almost every
+    real citizen), not just "over-weighted". A citizen with occupation=
+    student asking "dairy farm loan schemes" was searched as if they'd typed
+    nothing but "student <state>". Now the real message is always the
+    primary signal; profile terms are appended as secondary context, never a
+    silent replacement.
+
+    Second real bug fixed here 2026-09-04, caught live: a citizen with
+    profile occupation=student asked "मुझे पेंशन स्कीम्स के बारे में जानना
+    है" (pension schemes) and got education/scholarship results instead —
+    the bot's own reply literally said "instead of the pension schemes you
+    asked about, based on your profile...". The query text WAS built
+    correctly (message + "student UP" appended), but blending profile terms
+    into the SAME short embedded string still skews the vector search away
+    from a clear, substantive topic — "student UP" is dense/literal next to
+    one Hindi sentence and pulls the combined embedding toward education
+    content. Profile terms are genuinely useful ONLY when the message alone
+    is too thin to carry a topic (e.g. "koi scheme dikhao"/"show me
+    something") — for any substantive message, search on it alone and let
+    evaluate_eligibility() (already run post-retrieval, never filters
+    results out) surface profile-relevant eligibility, not the retrieval
+    step itself. An explicit "show me everything" request always skips the
+    profile hint too."""
+    is_thin = len((last_user_message or "").split()) < 4
+    profile_hint = build_query_string(profile) if (is_thin and not show_everything) else ""
+    return f"{last_user_message} {profile_hint}".strip() or "government welfare scheme"
+
+
 def compute_systemic_gaps(missing_counts: Counter, top_count: int) -> list[str]:
     """A field missing for a MAJORITY of the top candidates means the
     profile is too thin to rank this query meaningfully — not just one
@@ -138,7 +202,18 @@ async def run_eligibility_agent(state: GraphState, db: AsyncIOMotorDatabase) -> 
         state.get("citizen_id", ""), last_user_message, profile
     )
 
-    query_text = build_query_string(effective_profile) or last_user_message or "government welfare scheme"
+    show_everything = detect_show_everything(last_user_message)
+    retrieval_message = last_user_message
+    if show_everything:
+        # "show me everything" carries no topical meaning on its own — search
+        # on the real topic from earlier in the conversation instead of the
+        # literal override phrase (see find_topic_anchor docstring).
+        retrieval_message = find_topic_anchor(messages) or last_user_message
+    query_text = build_retrieval_query(retrieval_message, effective_profile, show_everything)
+    # Mirrors build_retrieval_query's own "thin message" threshold — used below to
+    # gate the profile_transparency prompt line honestly (it should only claim
+    # profile-narrowing happened when profile terms actually entered the query).
+    profile_assisted_retrieval = (not show_everything) and len((retrieval_message or "").split()) < 4
 
     state_filter = effective_profile.get("state") or None
     candidates = await scheme_vector_search(db, query_text, state_filter=state_filter, limit=15)
@@ -159,15 +234,24 @@ async def run_eligibility_agent(state: GraphState, db: AsyncIOMotorDatabase) -> 
     missing_counts = Counter(f for s in top for f in s["_eligibility"]["missing_profile_data"])
     systemic_gaps = compute_systemic_gaps(missing_counts, len(top))
 
+    intro_instruction = (
+        "This is the first message of the conversation — a brief self-introduction is fine."
+        if is_first_turn(messages) else
+        "This conversation is already under way — you have already introduced yourself earlier, "
+        "so do NOT reintroduce yourself or restate who you are. Just answer directly."
+    )
+
     if top and systemic_gaps:
         asks = ", ".join(_FIELD_ASK.get(f, f) for f in systemic_gaps[:4])
-        compose_prompt = f"""You are Sathi, a friendly Hinglish-speaking assistant helping an Indian citizen find government welfare schemes.
+        compose_prompt = f"""You are Sathi, a friendly assistant helping an Indian citizen find government welfare schemes.
 Citizen's message: "{last_user_message}"
 
 Their profile is too thin to give a real, personalized answer yet — most matching schemes need to know: {asks}.
 
-Write a short, warm reply in Hinglish (2-3 sentences) asking ONLY for these {min(len(systemic_gaps), 4)} things, so you can give a precise answer. Do not list any scheme names yet. Do not ask about anything not in that list. Mention they can also just upload a document via Jan-Sahayak Lens instead of typing answers, or visit a CSC if that's easier."""
-        response = await ainvoke_with_fallback(compose_prompt, temperature=0.4)
+{intro_instruction}
+
+Reply in the SAME language and script the citizen's message is written in (e.g. plain English if they wrote in English, Hinglish if they wrote in Hinglish, Hindi/Devanagari if they wrote in Hindi) — never default to Hinglish if they didn't use it. Write a short, warm reply (2-3 sentences) asking ONLY for these {min(len(systemic_gaps), 4)} things, so you can give a precise answer. Do not list any scheme names yet. Do not ask about anything not in that list. Mention they can also just upload a document via Jan-Sahayak Lens instead of typing answers, or visit a CSC if that's easier."""
+        response = await ainvoke_with_fallback(compose_prompt, temperature=0.2)
         reply = response.content.strip()
 
         state["active_schemes"] = []
@@ -215,15 +299,23 @@ Write a short, warm reply in Hinglish (2-3 sentences) asking ONLY for these {min
                     f"Jan-Sahayak Lens to fill it in automatically. If they can't do either right now, "
                     f"mention they can get help in person at their nearest CSC (Common Service Centre) instead.")
 
-    compose_prompt = f"""You are Sathi, a friendly Hinglish-speaking assistant helping an Indian citizen find government welfare schemes.
+    profile_transparency = "" if not profile_assisted_retrieval else (
+        "\n\nThis turn's message was too short/vague to search on alone, so the citizen's SAVED PROFILE "
+        "(occupation/state/etc.) was used to help find these — say so plainly in one short clause "
+        "(e.g. \"based on your saved profile as a...\") and mention they can ask to \"show everything\" "
+        "to see options outside that."
+    )
+    compose_prompt = f"""You are Sathi, a friendly assistant helping an Indian citizen find government welfare schemes.
 Citizen's message: "{last_user_message}"
 
 Matched schemes with REAL eligibility findings (do not contradict or re-guess these — they come from actual comparison against the scheme's criteria and the citizen's profile):
-{scheme_summary}{ask_hint}
+{scheme_summary}{ask_hint}{profile_transparency}
 
-Write a short, warm reply in Hinglish (3-5 sentences). Be honest and specific: say clearly which schemes they qualify for, which they don't (briefly why), and which need more information (and what, if the hint above names it). Do not invent eligibility criteria not listed above, and do not claim a scheme is "eligible" if it's tagged NOT ELIGIBLE or NEEDS MORE INFO."""
+{intro_instruction}
 
-    response = await ainvoke_with_fallback(compose_prompt, temperature=0.4)
+Reply in the SAME language and script the citizen's message is written in (e.g. plain English if they wrote in English, Hinglish if they wrote in Hinglish, Hindi/Devanagari if they wrote in Hindi) — never default to Hinglish if they didn't use it. Write a short, warm reply (3-5 sentences). Be honest and specific: say clearly which schemes they qualify for, which they don't (briefly why), and which need more information (and what, if the hint above names it). Do not invent eligibility criteria not listed above, and do not claim a scheme is "eligible" if it's tagged NOT ELIGIBLE or NEEDS MORE INFO."""
+
+    response = await ainvoke_with_fallback(compose_prompt, temperature=0.2)
     reply = response.content.strip()
 
     for s in top:

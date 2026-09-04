@@ -256,6 +256,17 @@ async def voice_ws(websocket: WebSocket, session_id: str):
                 audio_in_sample_rate=16000,   # Sarvam STT requirement
                 audio_out_sample_rate=24000,  # Bulbul-supported output rate
             ),
+            # Real incident, 2026-09-03: a citizen's browser tab dropped the
+            # WebSocket mid-reply (network blip). Pipecat's own send() caught
+            # the WebSocketDisconnect internally and just logged it — nothing
+            # propagates up to our try/except, so `_active_voice_sessions`
+            # (cleared in `finally`, below `runner.run(task)`) stayed locked
+            # until Pipecat's DEFAULT 300s idle_timeout_secs finally cancelled
+            # the orphaned pipeline. Every reconnect attempt in between was
+            # rejected 1008 "already active" — voice was dead for ~5 minutes
+            # after any blip. 60s is short enough to self-heal quickly but
+            # long enough to survive a normal silent thinking-pause turn.
+            idle_timeout_secs=60,
         )
 
         logger.info("[VOICE] live session %s connected (citizen %s, lang %s)",

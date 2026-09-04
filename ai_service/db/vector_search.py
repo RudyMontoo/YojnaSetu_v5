@@ -22,6 +22,17 @@ logger = logging.getLogger(__name__)
 
 VECTOR_INDEX_NAME = "schemes_vector_index"  # must match the Atlas Search index name once created
 
+# Below this cosine-similarity score, a "match" isn't a real topical match —
+# vector search always returns its closest available candidates even when
+# none of them are actually relevant (confirmed real case, 2026-09-03: "small
+# business related to medical" matched an education/dropout-support scheme).
+# Without a floor, evaluate_eligibility() would honestly-but-misleadingly
+# score an irrelevant scheme as "not eligible" rather than say there's no
+# good match. 0.35 is a reasonable starting default for all-MiniLM-L6-v2
+# normalized embeddings on short queries — not empirically tuned against
+# this catalogue yet; adjust once real query/match pairs can be reviewed.
+MIN_RELEVANCE_SCORE = 0.35
+
 
 def _state_filter_clause(state_filter: str) -> dict:
     """Matches the citizen's state in EITHER representation (2-char code or
@@ -51,26 +62,35 @@ async def scheme_vector_search(
 async def _atlas_vector_search(
     db: AsyncIOMotorDatabase, query_vec: list[float], state_filter: str | None, limit: int
 ) -> list[dict]:
+    # Real bug fixed 2026-09-04, caught live: `$vectorSearch`'s own `limit` capped
+    # results to the requested display count (e.g. 15) BEFORE the state `$match`
+    # ran — so with ~5,000 schemes spread across many states, the top-15 GLOBAL
+    # semantic matches for a query like "scheme related to student" easily landed
+    # mostly outside the citizen's state, leaving as few as 2 after filtering.
+    # Fetch a wide pool from $vectorSearch, filter by state, THEN trim to `limit`
+    # — filtering must never happen after an already-small cap.
+    pool_size = max(limit * 20, 100)
     pipeline = [
         {
             "$vectorSearch": {
                 "index": VECTOR_INDEX_NAME,
                 "path": "embedding",
                 "queryVector": query_vec,
-                "numCandidates": max(limit * 20, 100),
-                "limit": limit,
+                "numCandidates": pool_size,
+                "limit": pool_size,
             }
         },
     ]
     if state_filter:
         pipeline.append({"$match": _state_filter_clause(state_filter)})
-    pipeline.append({"$project": {"embedding": 0, "_id": 0}})
+    pipeline.append({"$project": {"embedding": 0, "_id": 0, "_similarity": {"$meta": "vectorSearchScore"}}})
 
     cursor = db["schemes"].aggregate(pipeline)
-    results = await cursor.to_list(length=limit)
+    results = await cursor.to_list(length=pool_size)
     if not results:
         raise RuntimeError("empty result — likely no Atlas Search index configured")
-    return results
+    relevant = [r for r in results if r.get("_similarity", 0) >= MIN_RELEVANCE_SCORE]
+    return relevant[:limit]
 
 
 async def _bruteforce_vector_search(
@@ -89,6 +109,7 @@ async def _bruteforce_vector_search(
         score = cosine_similarity(query_vec, emb)
         scored.append((score, doc))
 
+    scored = [(score, doc) for score, doc in scored if score >= MIN_RELEVANCE_SCORE]
     scored.sort(key=lambda t: t[0], reverse=True)
     top = scored[:limit]
     for score, doc in top:

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Mic, MessageCircle, ArrowRight, Sparkles, Languages, Scan, Phone } from 'lucide-react'
+import { Mic, MessageCircle, ArrowRight, Sparkles, Languages, Scan, Phone, Landmark } from 'lucide-react'
 import { Navbar, BottomNav } from '../components/Navbar'
 import { Reveal, Stagger, StaggerItem } from '../components/motion'
 import { useLang } from '../lib/i18n'
@@ -158,6 +158,25 @@ export default function HomePage() {
                 </section></Reveal>
 
                 <div className="home-lower-section">
+                    {/* ── NSFDC Channel Finance (SIH PS 26092) ── */}
+                    <Reveal><section className="sathi-cultural-card" style={{ marginBottom: 22 }}>
+                        <div className="sathi-tag"><Landmark size={10} /> SIH PS 26092 · Ministry of Social Justice &amp; Empowerment</div>
+                        <div className="sathi-card-inner">
+                            <div className="sathi-card-body">
+                                <h2 className="sathi-card-title font-display">NSFDC Credit &amp; Education Loans</h2>
+                                <p className="sathi-card-desc">
+                                    AI-driven scheme matching for SC entrepreneurs — a Smart Scheme Recommender, an EMI/Financial Calculator,
+                                    and a real-data Geo-Spatial Channel Partner Locator (SCAs, PSBs, RRBs, NBFC-MFIs), all in one place.
+                                </p>
+                            </div>
+                            <div className="sathi-card-btns">
+                                <button className="btn-cultural-primary sathi-btn" onClick={() => navigate('/credit-schemes')}>
+                                    <Landmark size={13} /> Explore Channel Finance
+                                </button>
+                            </div>
+                        </div>
+                    </section></Reveal>
+
                     {/* ── Trending (cultural template) ── */}
                     {trending.length > 0 && (
                         <Reveal><section className="sathi-cultural-card" style={{ marginBottom: 22 }}>

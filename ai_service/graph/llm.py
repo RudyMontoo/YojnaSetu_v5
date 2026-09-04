@@ -25,7 +25,7 @@ import os
 logger = logging.getLogger(__name__)
 
 GEMINI_MODEL = "gemini-2.5-flash"
-GROQ_FALLBACK_MODEL = "llama-3.3-70b-versatile"
+GROQ_FALLBACK_MODEL = "openai/gpt-oss-120b"  # llama-3.3-70b-versatile was retired from Groq's catalogue (confirmed via GET /v1/models, 2026-09-03) — this is Groq's current largest general-purpose model
 # Local Ollama model for bulk/offline work. The free cloud tiers (Gemini 20/day,
 # Groq's daily token cap) can't sustain a 1,300-scheme backfill; a local model
 # has NO daily limit and no per-call cost, and structured eligibility-rule
@@ -70,6 +70,24 @@ def _ollama_llm(temperature: float):
     return ChatOllama(model=OLLAMA_MODEL, base_url=OLLAMA_BASE_URL, temperature=temperature)
 
 
+def is_first_turn(messages: list[dict]) -> bool:
+    """True only when `messages` holds nothing but the citizen's current
+    message — i.e. this is truly the first turn of the session.
+
+    Real bug fixed 2026-09-04, caught live: every reply-composing prompt
+    (eligibility.py, small_talk.py) is a single flat string built ONLY from
+    the current message — `ainvoke_with_fallback` has no notion of chat
+    history, so the LLM has zero signal that a conversation is already under
+    way. Told "You are Sathi, a friendly assistant... introduce yourself if
+    greeted", it re-introduces itself nearly every turn — confirmed live: a
+    citizen said "Hmm" and "दिखाओ बताओ यही" mid-conversation (after profile
+    was already established and schemes already shown) and got a full
+    "Namaste! Main Sathi hoon..." re-introduction both times. Callers should
+    pass this into their prompt to explicitly suppress re-introduction after
+    turn one, rather than trying to smuggle full history into every prompt."""
+    return len(messages or []) <= 1
+
+
 def get_llm(temperature: float = 0.3):
     """Returns a LangChain chat model: Gemini if GEMINI_API_KEY is set, else Groq.
     Kept for callers that just need *a* model and don't need call-time fallback."""
@@ -79,7 +97,9 @@ def get_llm(temperature: float = 0.3):
     return llm
 
 
-async def ainvoke_with_fallback(prompt: str, temperature: float = 0.3, prefer: str | None = None):
+async def ainvoke_with_fallback(
+    prompt: str, temperature: float = 0.3, prefer: str | None = None, tags: list[str] | None = None
+):
     """Tries `prefer` first (defaults to LLM_PREFER env, else Gemini); on ANY error
     (invalid key, quota, timeout) falls back to the other provider. This is the call
     site every agent/node should use instead of get_llm().ainvoke() directly.
@@ -91,7 +111,18 @@ async def ainvoke_with_fallback(prompt: str, temperature: float = 0.3, prefer: s
     quota, no cost) or prefer="groq". The chosen provider is tried first, then
     the remaining providers in a sensible fallback order — so a single call
     still succeeds even if the preferred provider is down/unconfigured.
-    """
+
+    `tags`: real bug fixed 2026-09-04, caught live — chat_turn.py's token
+    streamer only excludes the "intent_classifier" LangGraph NODE from what
+    reaches the citizen, but extract_profile_facts() runs its OWN LLM call
+    (raw JSON output, e.g. '{"age": 22, "state": "UP"}') from INSIDE the same
+    "agent1_eligibility" node as the real reply — so its structured JSON
+    tokens streamed straight into the chat UI ahead of the actual reply,
+    showing up as a garbled "{}"-looking artifact. Node-name filtering can't
+    tell these two calls apart since they share a node; callers that make an
+    internal, non-reply LLM call (extraction, classification, anything whose
+    output must never reach the citizen verbatim) must pass
+    tags=["internal"] so the streamer can exclude by tag instead."""
     _factories = {"gemini": _gemini_llm, "groq": _groq_llm, "ollama": _ollama_llm}
     _label = {"gemini": "Gemini", "groq": "Groq", "ollama": "Ollama"}
 
@@ -112,7 +143,7 @@ async def ainvoke_with_fallback(prompt: str, temperature: float = 0.3, prefer: s
             continue  # provider not configured/enabled — skip silently
         attempted = True
         try:
-            return await llm.ainvoke(prompt)
+            return await llm.ainvoke(prompt, config={"tags": tags} if tags else None)
         except Exception as e:
             last_error = e
             logger.warning("%s call failed (%s: %s) — trying next provider", _label[key], e.__class__.__name__, e)

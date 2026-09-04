@@ -428,6 +428,25 @@ function SettingsPanel({ onDeleteAccount }) {
     )
 }
 
+// The Annual Income field's own placeholder ("e.g. 1l-2.5l") invites lakh
+// shorthand and ranges, but the backend only accepts a plain rupee number
+// (ProfileController#toLong does a raw numeric cast — a string like "3
+// lakh" would throw a 500, not fail gracefully). Parses common Indian
+// income shorthand client-side; a range takes its first/lower bound.
+// Returns undefined (field omitted from the PATCH) if nothing parseable.
+const parseIncome = (raw) => {
+    if (!raw) return undefined
+    const s = String(raw).toLowerCase().trim()
+    const m = s.match(/[\d.]+/)
+    if (!m) return undefined
+    let n = parseFloat(m[0])
+    if (!Number.isFinite(n)) return undefined
+    if (/\bcr\b|crore/.test(s)) n *= 10000000
+    else if (/\bl\b|lakh/.test(s)) n *= 100000
+    else if (/\bk\b/.test(s)) n *= 1000
+    return Math.round(n)
+}
+
 const ALERTS = [
     { text: 'PM-Kisan 16th installment released!', time: '2 hours ago', type: 'green' },
     { text: 'Your PMAY application moved to Stage 3', time: '1 day ago', type: 'saffron' },
@@ -510,7 +529,29 @@ export default function ProfilePage() {
     const [editForm, setEditForm] = useState(null)
     const [uploadingPhoto, setUploadingPhoto] = useState(false)
     const [photoError, setPhotoError] = useState('')
+    const [savingProfile, setSavingProfile] = useState(false)
+    const [saveError, setSaveError] = useState('')
     const photoInputRef = useRef(null)
+
+    // Real bug fixed 2026-09-04, caught live: a citizen whose first-ever
+    // profile write happens here (consent given at sign-in can fail silently,
+    // or this account predates that flow) got the raw backend text "Consent
+    // required before first profile write — call POST /consent first" shown
+    // to them verbatim instead of it just being handled. SignInPage.jsx's own
+    // comment says this should be "retried on first profile save" but no
+    // save call ever actually did that. This wraps any profile-write call so
+    // a 403 consent error self-heals once instead of surfacing to the citizen.
+    const withConsentRetry = async (writeFn) => {
+        try {
+            return await writeFn()
+        } catch (err) {
+            if (err.status === 403) {
+                await gateway.giveConsent()
+                return await writeFn()
+            }
+            throw err
+        }
+    }
 
     // Resizes/compresses client-side before upload — the backend caps at
     // 512x512 as a backstop, but sending a raw 12MP phone photo would be a
@@ -544,7 +585,7 @@ export default function ProfilePage() {
         try {
             const resized = await resizeImage(file)
             const resizedFile = new File([resized], 'avatar.jpg', { type: 'image/jpeg' })
-            const res = await gateway.uploadProfilePhoto(resizedFile)
+            const res = await withConsentRetry(() => gateway.uploadProfilePhoto(resizedFile))
             setProfile(p => {
                 const updated = { ...p, profilePhoto: res.profilePhoto }
                 localStorage.setItem('yojna_user', JSON.stringify(updated))
@@ -788,20 +829,36 @@ export default function ProfilePage() {
                                             <option value="other">Other</option>
                                         </select>
                                     </div>
+                                    {saveError && <p style={{ fontSize: 13, color: '#ff6b6b' }}>{saveError}</p>}
                                     <button
                                         className="btn btn-primary"
                                         style={{ marginTop: 8 }}
-                                        onClick={() => {
-                                            const updated = { ...profile, ...editForm }
-                                            setProfile(updated)
-                                            localStorage.setItem('yojna_profile', JSON.stringify(updated))
-                                            // Update local user name too
-                                            const lu = getLocalUser()
-                                            if (lu) { lu.name = editForm.name; localStorage.setItem('yojna_user', JSON.stringify(lu)) }
-                                            setActive('dashboard')
+                                        disabled={savingProfile}
+                                        onClick={async () => {
+                                            setSaveError(''); setSavingProfile(true)
+                                            const updates = {
+                                                name: editForm.name || undefined,
+                                                state: editForm.state || undefined,
+                                                district: editForm.district || undefined,
+                                                occupation: editForm.occupation || undefined,
+                                                annualIncome: parseIncome(editForm.income),
+                                            }
+                                            try {
+                                                const saved = await withConsentRetry(() => gateway.updateProfile(updates))
+                                                const updated = { ...profile, ...saved }
+                                                setProfile(updated)
+                                                localStorage.setItem('yojna_user', JSON.stringify(updated))
+                                                const lu = getLocalUser()
+                                                if (lu) { lu.name = editForm.name; localStorage.setItem('yojna_user', JSON.stringify(lu)) }
+                                                setActive('dashboard')
+                                            } catch (err) {
+                                                setSaveError(err.message || 'Could not save profile')
+                                            } finally {
+                                                setSavingProfile(false)
+                                            }
                                         }}
                                     >
-                                        {tr(PUI.saveChanges)}
+                                        {savingProfile ? tr(PUI.loading) : tr(PUI.saveChanges)}
                                     </button>
                                 </div>
                             </div>

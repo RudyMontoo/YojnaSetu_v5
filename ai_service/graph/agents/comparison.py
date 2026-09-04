@@ -35,13 +35,13 @@ async def run_comparison_agent(state: GraphState, db: AsyncIOMotorDatabase) -> G
         return state
 
     a, b = candidates[0], candidates[1]
-    prompt = f"""Compare these two Indian government welfare schemes for a citizen, in Hinglish, in under 120 words.
+    prompt = f"""Compare these two Indian government welfare schemes for a citizen, in under 120 words.
 Scheme A: {a['name']} — Benefit: {a.get('benefitAmount', '')} — Eligibility: {a.get('eligibilityText', '')}
 Scheme B: {b['name']} — Benefit: {b.get('benefitAmount', '')} — Eligibility: {b.get('eligibilityText', '')}
 
 Citizen's message: "{last_user_message}"
 
-Give a short side-by-side comparison and end with one clear recommendation sentence."""
+Reply in the SAME language and script the citizen's message is written in — never default to Hinglish if they wrote in plain English or another language. Give a short side-by-side comparison and end with one clear recommendation sentence."""
 
     response = await ainvoke_with_fallback(prompt, temperature=0.3)
     reply = response.content.strip()

@@ -68,7 +68,7 @@ def _best_name_match(query: str, candidates: list[dict]) -> dict:
     return best if overlap(best) >= 2 else candidates[0]
 
 
-async def build_apply_guidance(db: AsyncIOMotorDatabase, scheme_query: str, lang: str = "hi") -> dict:
+async def build_apply_guidance(db: AsyncIOMotorDatabase, scheme_query: str, lang: str = "hi", citizen_message: str = "") -> dict:
     candidates = await scheme_vector_search(db, scheme_query, limit=5)
     if not candidates:
         return {
@@ -106,7 +106,7 @@ async def build_apply_guidance(db: AsyncIOMotorDatabase, scheme_query: str, lang
 
     # No playbook — compose from the scheme doc itself.
     docs = scheme.get("documents", [])
-    reply = await _compose_guidance(scheme, apply_url, docs)
+    reply = await _compose_guidance(scheme, apply_url, docs, citizen_message or scheme_query)
     return {
         "found": True, "source": "composed_from_scheme_doc", "scheme_code": scheme.get("schemeCode"),
         "scheme_name": name, "steps": [], "documents": docs,
@@ -115,20 +115,23 @@ async def build_apply_guidance(db: AsyncIOMotorDatabase, scheme_query: str, lang
     }
 
 
-async def _compose_guidance(scheme: dict, apply_url: str, docs: list) -> str:
+async def _compose_guidance(scheme: dict, apply_url: str, docs: list, citizen_message: str = "") -> str:
     fallback = (
         f"{scheme.get('name','')} ke liye: "
         + (f"online apply karein: {apply_url}. " if apply_url else "apne najdeeki CSC centre jayein (/help/csc/nearby se dhundhein). ")
         + (f"Documents: {'; '.join(docs)}. " if docs else "Aadhaar aur bank passbook zaroor le jayein. ")
         + "Eligibility pehle check kar lein taaki CSC ka chakkar bekar na jaye."
     )
-    prompt = f"""A citizen wants to apply for this Indian government scheme. Write clear, numbered application steps in simple Hinglish (4-6 steps max). Only use facts given below — do NOT invent portal URLs, helpline numbers, or documents not listed. If no apply URL is given, direct them to their nearest CSC centre.
+    prompt = f"""A citizen wants to apply for this Indian government scheme. Write clear, numbered application steps (4-6 steps max). Only use facts given below — do NOT invent portal URLs, helpline numbers, or documents not listed. If no apply URL is given, direct them to their nearest CSC centre.
 
 Scheme: {scheme.get('name','')}
 Benefit: {scheme.get('benefitAmount','')}
 Eligibility: {scheme.get('eligibilityText','')[:600]}
 Apply URL (government-verified): {apply_url or 'none — CSC route only'}
-Required documents: {', '.join(docs) if docs else 'not specified — advise Aadhaar + bank passbook as baseline'}"""
+Required documents: {', '.join(docs) if docs else 'not specified — advise Aadhaar + bank passbook as baseline'}
+
+Citizen's own message: "{citizen_message}"
+Reply in the SAME language and script that message is written in — never default to Hinglish if they wrote in plain English or another language."""
     try:
         response = await ainvoke_with_fallback(prompt, temperature=0.3)
         return response.content.strip()
@@ -146,7 +149,7 @@ async def run_application_guidance(state: GraphState, db: AsyncIOMotorDatabase) 
     active = state.get("active_schemes") or []
     query = active[0].get("name") if active else last_user_message
 
-    result = await build_apply_guidance(db, query, lang=state.get("lang", "hi"))
+    result = await build_apply_guidance(db, query, lang=state.get("lang", "hi"), citizen_message=last_user_message)
 
     state["reply"] = result["reply"]
     state.setdefault("agent_outputs", {})["agent3_guidance"] = {

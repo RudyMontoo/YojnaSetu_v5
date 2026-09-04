@@ -28,7 +28,7 @@ CHROMA_DIR   = Path(__file__).parent / "chroma_db"
 COLLECTION   = "yojna_setu_schemes"
 EMBED_MODEL  = "all-MiniLM-L6-v2"
 TOP_K        = 5
-GROQ_MODEL   = "llama-3.3-70b-versatile"   # free on Groq, very capable
+GROQ_MODEL   = "openai/gpt-oss-120b"   # llama-3.3-70b-versatile retired from Groq — this is their current largest general-purpose model
 
 # ── Per-session memory store ──────────────────────────────────────────────────
 # { session_id: InMemoryChatMessageHistory }

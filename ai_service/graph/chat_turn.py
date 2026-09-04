@@ -9,9 +9,17 @@ chat) runs EXACTLY the same logic — two transports, one behavior. Any chat
 semantics change lands here once, not in two places that drift apart.
 """
 import logging
+import re
 from datetime import datetime, timezone
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
+
+# Reasoning models (e.g. Groq's openai/gpt-oss-120b) can emit a stray leading
+# token chunk that's just an empty/near-empty JSON object — a tool-call/
+# reasoning placeholder artifact, not real content. Sathi's replies are
+# always prose, never bare JSON, so this can never be legitimate. Regex
+# (not exact-match) to also catch variants like "{ }" or "{}\n".
+_EMPTY_JSON_ARTIFACT = re.compile(r"^\{\s*\}$")
 
 from ai_service.graph.orchestrator import get_graph
 from ai_service.graph.profile_learner import schedule_profile_learning
@@ -112,10 +120,20 @@ async def stream_chat_turn(
             msg_chunk, metadata = chunk
             if metadata.get("langgraph_node") == "intent_classifier":
                 continue
+            # Real bug fixed 2026-09-04, caught live: node-name filtering alone
+            # can't catch extract_profile_facts()'s raw-JSON extraction call —
+            # it runs from INSIDE the same "agent1_eligibility" node as the real
+            # reply, so its structured output streamed straight into the chat UI
+            # as a garbled "{...}" artifact ahead of the actual answer. Internal,
+            # non-reply LLM calls tag themselves ["internal"] (see
+            # ainvoke_with_fallback's `tags` param) specifically so they can be
+            # excluded here regardless of which node they run inside.
+            if "internal" in (metadata.get("tags") or []):
+                continue
             text = msg_chunk.content
             if isinstance(text, list):  # some providers chunk content as parts
                 text = "".join(p if isinstance(p, str) else p.get("text", "") for p in text)
-            if text:
+            if text and not _EMPTY_JSON_ARTIFACT.match(text.strip()):
                 yield {"type": "token", "text": text}
 
     if result is None:  # graph produced no values-frame — shouldn't happen, but never persist garbage
