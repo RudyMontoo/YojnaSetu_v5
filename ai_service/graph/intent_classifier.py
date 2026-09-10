@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 INTENTS = [
     "eligibility_query",
+    "credit_application",
     "application_request",
     "grievance",
     "comparison",
@@ -32,7 +33,8 @@ INTENTS = [
 _CLASSIFY_PROMPT = """You are an intent classifier for Yojna Sarthi, an Indian government welfare scheme assistant.
 Classify the citizen's message into exactly one of these intents:
 - eligibility_query: asking what schemes they qualify for, or describing their situation to find schemes
-- application_request: wants help applying/filling a form for a specific scheme
+- credit_application: wants to START/FILL an application for a SPECIFIC SC concessional credit scheme they've already named or that was just shown to them (e.g. "isके liye apply karna hai", "Micro Finance Scheme ke liye application shuru karo", "I want to apply for this scheme") — NOT a general "how do I apply" question with no scheme in mind
+- application_request: wants general guidance on HOW to apply for any scheme (not credit-specific slot-filling) — e.g. "PM Kisan ke liye kaise apply karein", "what's the process to apply"
 - grievance: complaint about a rejected/stuck/missing payment or application
 - comparison: comparing two or more specific schemes against each other
 - financial_plan: wants total benefit calculation across all schemes they qualify for
@@ -42,6 +44,14 @@ Classify the citizen's message into exactly one of these intents:
 - small_talk: greeting (hello/namaste/hi), thanks, goodbye, "who are you / what can you do", or chit-chat with NO facts about their situation and NO scheme question
 
 Only pick eligibility_query if the message actually asks about schemes or gives situation facts (state, occupation, income, age, etc.). A bare greeting is small_talk, never eligibility_query.
+
+Examples:
+- "Mujhe is scheme ke liye apply karna hai" -> credit_application
+- "Micro Finance Scheme ke liye application shuru karo" -> credit_application
+- "I want to apply for this scheme" -> credit_application
+- "Aajeevika loan ke liye form fill karna hai" -> credit_application
+- "PM Kisan ke liye kaise apply karein" -> application_request
+- "Scholarship ke liye apply karne ka process kya hai" -> application_request
 
 Message (may be in Hindi, Hinglish, or English): "{message}"
 

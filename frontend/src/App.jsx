@@ -41,6 +41,7 @@ const HelperPortalPage = lazyWithReload(() => import('./pages/HelperPortalPage')
 const AdminPortalPage = lazyWithReload(() => import('./pages/AdminPortalPage'))
 const MythosPreview = lazyWithReload(() => import('./pages/preview/MythosPreview'))
 const CreditSchemesPage = lazyWithReload(() => import('./pages/CreditSchemesPage'))
+const ApplyPage = lazyWithReload(() => import('./pages/ApplyPage'))
 const MandalaTower3D = lazy(() => import('./components/MandalaTower3D'))
 
 // Full-page fixed 3D chakra — same look as Sathi, on every page including Home.
@@ -89,6 +90,7 @@ export default function App() {
           <Route path="/admin" element={<AdminPortalPage />} />
           <Route path="/preview/mythos" element={<MythosPreview />} />
           <Route path="/credit-schemes" element={<CreditSchemesPage />} />
+          <Route path="/apply/:schemeId" element={<ApplyPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>

@@ -120,6 +120,12 @@ export const gateway = {
 export const ai = {
   chat: (message, sessionId) =>
     request("/orchestrator/chat", { method: "POST", body: { message, session_id: sessionId || null } }),
+  // SC credit application assistant — separate goal-directed slot-filling flow,
+  // not a single orchestrator turn. Called every turn once ChatPage sees the
+  // orchestrator return intent === 'credit_application' for this session; see
+  // ai_service/routers/application_assistant_router.py.
+  applyChat: (message, sessionId, language) =>
+    request("/application-assistant/chat", { method: "POST", body: { message, session_id: sessionId, language } }),
   financialPlan: () => request("/agents/financial-plan"),
   fileGrievance: (body) => request("/agents/grievance", { method: "POST", body }),
   // Agent 5 — grievance tracking loop

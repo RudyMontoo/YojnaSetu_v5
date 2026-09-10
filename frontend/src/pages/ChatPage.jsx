@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { Navbar, BottomNav } from '../components/Navbar'
 import { BubbleIn } from '../components/motion'
 import AgentCouncil from '../components/AgentCouncil'
-import { gateway } from '../lib/api'
+import { gateway, ai } from '../lib/api'
 import { useLang } from '../lib/i18n'
 import Disclaimer from '../components/Disclaimer'
 import '../components/components.css'
@@ -125,6 +125,14 @@ export default function ChatPage() {
     }
     const sessionIdRef = useRef(null)  // orchestrator conversation session
     const wsRef = useRef(null)         // streaming chat socket (one per session)
+    // Once the orchestrator classifies a turn as `credit_application`, every
+    // message after that routes to applyChat() instead of the normal
+    // orchestrator turn — until a structured_payload closes the loop (or the
+    // citizen navigates away). Same session_id throughout; only the endpoint
+    // changes, so applicationContext and the visible chat thread stay one
+    // continuous conversation. Ref, not state: sendMessage() reads it
+    // synchronously and must never race a re-render.
+    const applicationActiveRef = useRef(false)
 
     useEffect(() => () => wsRef.current?.close(), [])
 
@@ -335,6 +343,11 @@ export default function ChatPage() {
         // provider fallback on the server can leave stale partial tokens in it)
         setMessages(m => (m[m.length - 1]?.streaming ? [...m.slice(0, -1), finalMsg] : [...m, finalMsg]))
         setAgentSplash(n => n + 1)          // bright splash: an agent just ran
+
+        // The orchestrator only detects the "I want to apply" intent and hands
+        // off (graph/agents/credit_application_intro.py) — every turn after
+        // this one goes to applyChat() until a structured_payload arrives.
+        if (data.intent === 'credit_application') applicationActiveRef.current = true
     }
 
     const sendViaSocket = async (text) => {
@@ -426,6 +439,21 @@ export default function ChatPage() {
         }
     }
 
+    // While an application flow is active, every turn goes straight to the
+    // dedicated assistant instead of the orchestrator — see
+    // applicationActiveRef's comment above and ApplicationAssistant.process_message().
+    const sendViaApplyChat = async (text) => {
+        try {
+            const res = await ai.applyChat(text, ensureSessionId(), lang)
+            addMsg('assistant', res.bot_reply, { structuredPayload: res.structured_payload || null })
+            if (res.structured_payload) applicationActiveRef.current = false  // confirmed — flow is done
+        } catch (err) {
+            addMsg('assistant', err.status === 401 || err.status === 403
+                ? 'Please login first to continue your application.'
+                : `Could not continue the application: ${err.message}`)
+        }
+    }
+
     const sendMessage = async () => {
         if (!input.trim()) return
         const text = input.trim()
@@ -434,16 +462,20 @@ export default function ChatPage() {
         setInput('')
         setLoading(true)
         try {
-            // v5.0: typing always goes through the real orchestrator, whether or
-            // not voice mode is active — speaking and typing share one
-            // conversation thread now, not a separate voice-only interview.
-            // WebSocket streams tokens live; falls back to REST if the socket
-            // can't be established (same turn logic server-side either way).
-            // Cookie auth; 1008/401 = OTP session expired.
-            try {
-                await sendViaSocket(text)
-            } catch {
-                await sendViaRest(text)
+            if (applicationActiveRef.current) {
+                await sendViaApplyChat(text)
+            } else {
+                // v5.0: typing always goes through the real orchestrator, whether or
+                // not voice mode is active — speaking and typing share one
+                // conversation thread now, not a separate voice-only interview.
+                // WebSocket streams tokens live; falls back to REST if the socket
+                // can't be established (same turn logic server-side either way).
+                // Cookie auth; 1008/401 = OTP session expired.
+                try {
+                    await sendViaSocket(text)
+                } catch {
+                    await sendViaRest(text)
+                }
             }
         } catch {
             const reply = 'Backend appears to be offline. Click "Schemes" to browse available schemes.'
@@ -566,6 +598,21 @@ export default function ChatPage() {
                                 <p className="text-subtle" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.6, marginTop: 6 }}>
                                     {msg.intent.replace(/_/g, ' ')}
                                 </p>
+                            )}
+                            {/* ── Application assistant CTA: appears once the citizen has
+                                confirmed the summary and the assistant hands back a
+                                structured payload shaped for CreditApplicationController.create() ── */}
+                            {msg.structuredPayload && (
+                                <div style={{ marginTop: 8 }}>
+                                    <button
+                                        className="btn btn-saffron btn-sm"
+                                        onClick={() => navigate(`/apply/${msg.structuredPayload.schemeCode}`, {
+                                            state: msg.structuredPayload,
+                                        })}
+                                    >
+                                        {t('chat.continueApplication')}
+                                    </button>
+                                </div>
                             )}
                             {/* ── Inline doc upload bubble ── */}
                             {msg.role === 'assistant' && msg.docRequested && (

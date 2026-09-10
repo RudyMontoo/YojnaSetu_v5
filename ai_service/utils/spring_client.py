@@ -69,3 +69,22 @@ async def patch_citizen_profile(citizen_id: str, updates: dict) -> bool:
     except httpx.HTTPError as e:
         logger.warning("patch_citizen_profile(%s) failed: %s: %s", citizen_id, e.__class__.__name__, e)
         return False
+
+
+async def fetch_credit_products() -> list[dict]:
+    """GET /api/v2/sih/credit/products — the real NSFDC scheme catalogue
+    (CreditProductSeeder's data), NOT ai_service's own scheme JSON (which has
+    historically carried stale figures — see CreditProductSeeder's own
+    docstring). This is a permitAll public endpoint (CreditSchemeController),
+    so no X-Internal-Key is needed, unlike the profile calls above. Never
+    raises — callers (application_assistant.py) must degrade to "couldn't
+    look that up" rather than 500 on a Spring Boot hiccup."""
+    base_url = os.getenv("SPRING_BOOT_INTERNAL_URL", "http://localhost:8080").rstrip("/")
+    try:
+        async with httpx.AsyncClient(timeout=_TIMEOUT_SECONDS) as client:
+            resp = await client.get(f"{base_url}/api/v2/sih/credit/products")
+        resp.raise_for_status()
+        return resp.json()
+    except httpx.HTTPError as e:
+        logger.warning("fetch_credit_products() failed: %s: %s", e.__class__.__name__, e)
+        return []

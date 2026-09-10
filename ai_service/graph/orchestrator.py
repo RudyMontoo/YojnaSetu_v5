@@ -17,6 +17,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from ai_service.graph.agents.application_guidance import run_application_guidance
 from ai_service.graph.agents.comparison import run_comparison_agent
+from ai_service.graph.agents.credit_application_intro import run_credit_application_intro
 from ai_service.graph.agents.csc_assist import run_csc_assist_guidance
 from ai_service.graph.agents.document_verification import run_document_verify_guidance
 from ai_service.graph.agents.eligibility import run_eligibility_agent
@@ -32,6 +33,7 @@ logger = logging.getLogger(__name__)
 
 _INTENT_TO_NODE = {
     "eligibility_query": "agent1_eligibility",
+    "credit_application": "credit_application_intro",
     "comparison": "agent8_comparison",
     "financial_plan": "agent7_financial",
     "document_verify": "agent4_document",
@@ -72,6 +74,7 @@ def build_graph(db: AsyncIOMotorDatabase):
     graph = StateGraph(GraphState)
     graph.add_node("intent_classifier", classify_intent)
     graph.add_node("agent1_eligibility", _agent1_node)
+    graph.add_node("credit_application_intro", run_credit_application_intro)
     graph.add_node("agent8_comparison", _agent8_node)
     graph.add_node("agent7_financial", _agent7_node)
     graph.add_node("agent3_guidance", _agent3_node)
@@ -85,6 +88,7 @@ def build_graph(db: AsyncIOMotorDatabase):
     graph.add_edge(START, "intent_classifier")
     graph.add_conditional_edges("intent_classifier", _route_by_intent, {
         "agent1_eligibility": "agent1_eligibility",
+        "credit_application_intro": "credit_application_intro",
         "agent8_comparison": "agent8_comparison",
         "agent7_financial": "agent7_financial",
         "agent3_guidance": "agent3_guidance",
@@ -96,6 +100,7 @@ def build_graph(db: AsyncIOMotorDatabase):
         "placeholder": "placeholder",
     })
     graph.add_edge("agent1_eligibility", END)
+    graph.add_edge("credit_application_intro", END)
     graph.add_edge("agent8_comparison", END)
     graph.add_edge("agent7_financial", END)
     graph.add_edge("agent3_guidance", END)
