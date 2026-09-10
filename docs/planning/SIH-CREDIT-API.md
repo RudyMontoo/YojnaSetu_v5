@@ -294,20 +294,23 @@ Only `productId` and `estimatedCost` are required. `tenureMonths` defaults to th
 
 # Branch rep — `/api/v2/branch/applications`
 
-**Requires `ROLE_BRANCH_REP` or `ROLE_ADMIN`**, enforced by a path matcher in `SecurityConfig`. A rep only ever sees files assigned to their partner.
+**Requires `ROLE_BRANCH_REP` or `ROLE_ADMIN`**, enforced by a path matcher in `SecurityConfig`. A rep only ever sees files assigned to their own partner.
+
+**`partnerId` is not a request parameter you control for a rep — do not send it, and do not let the UI imply it's a choice.** It used to be caller-supplied (`?partnerId=`), which meant any logged-in rep could read, and act on, another partner's queue simply by naming its id — a real IDOR, fixed this session. The scope is now resolved server-side from the rep's own account (`BranchRep.partnerId`). `partnerId` is still accepted on the wire, but for a rep it is **silently ignored**, not validated against — the response is always their own branch's data regardless of what's sent. Only `ROLE_ADMIN` may still supply `partnerId` explicitly, for cross-partner oversight.
 
 | Method | Path | Notes |
 |---|---|---|
-| `GET` | `/?partnerId=…&status=…` | Queue, newest submission first. `status` optional |
-| `GET` | `/{id}?partnerId=…` | 404 if assigned elsewhere |
-| `POST` | `/{id}/status` | Record a decision |
+| `GET` | `/?status=…` | Queue, newest submission first. `status` optional. Scope is always the caller's own branch |
+| `GET` | `/{id}` | 404 if assigned elsewhere |
+| `POST` | `/{id}/status` | Record a decision. **`BANK_BRANCH` reps only** — see below |
 | `GET` | `/reason-codes` | The vocabulary — build the dropdown from this, don't hardcode it |
+
+An account with no `partnerId` at all (shouldn't normally happen for a `BANK_BRANCH` rep, but is exactly the normal state for an assist-only helper's account) gets **403** on `GET /` / `GET /{id}` with a message saying the account isn't attached to a lending branch — not an empty list, which would look like "no applications" rather than "wrong kind of account for this screen".
 
 **`POST /{id}/status`:**
 
 ```json
 {
-  "partnerId": "partner-7",
   "status": "missing_docs",
   "reasonCode": "documents_incomplete",
   "note": "Income certificate is from 2019",
@@ -315,16 +318,15 @@ Only `productId` and `estimatedCost` are required. `tenureMonths` defaults to th
 }
 ```
 
-Two rules the API enforces so the citizen's screen is never a dead end:
+Three rules the API enforces so the citizen's screen is never a dead end:
 
+- **Only a `BANK_BRANCH` rep may call this at all.** A CSC operator, NGO/SHG worker, or field agent gets **403** with a message naming their role — assist-only helpers can help assemble a file and upload documents, never decide one. See "Assisted access" below for why.
 - `status: "rejected"` **requires** `reasonCode` → 400 without it. "Rejected, reason blank" is not producible.
 - `status: "missing_docs"` **requires** a non-empty `requestedDocuments` → 400 without it. The list lands on the application's `missingDocuments` and clears automatically when verification resumes.
 
 `reasonCode` values: `income_above_ceiling`, `category_not_eligible`, `documents_incomplete`, `documents_illegible`, `documents_mismatch`, `project_not_viable`, `existing_loan_default`, `duplicate_application`, `partner_funds_exhausted`, `applicant_withdrew`, `other`.
 
-**Errors:** 400 malformed or missing a required reason · 404 not found / not this partner's · 409 illegal transition, message names the legal moves.
-
----
+**Errors:** 400 malformed or missing a required reason · 403 an assist-only helper attempted a decision, or the account has no branch scope at all · 404 not found / not this partner's · 409 illegal transition, message names the legal moves.
 
 ---
 
@@ -399,13 +401,111 @@ An unknown `schemeId` returns **400**.
 
 The 404/503 split is deliberate. They read identically in code but are opposite messages: one says *you* typed something wrong, the other says *we* are broken. Telling someone their real PIN code doesn't exist because a third-party service was slow is exactly the kind of small lie this module avoids — this was a live bug, found by running it.
 
-> **Known risk:** OpenStreetMap's Overpass rate-limits by IP and became unreachable during testing after repeated calls. Response caching is assigned (Chirag, G1) and is on the demo's critical path.
+> **Resolved (G1):** results are now cached ~20 minutes per ~1km grid cell, so several people searching the same area in a short window don't each spend a fresh Overpass call. Configurable via `app.overpass.cache-ttl-minutes`. The remaining risk is a genuinely cold cache during the very first demo query of a session — acceptable, not eliminated.
 
 ---
 
-## Not built yet
+# Consent — `/api/v2/sih/consents`
 
-Partner filtering by scheme (`?schemeId=`), the `Consent` entity, and document upload — all now built; this line is stale and kept as-is rather than silently rewritten (see repo-wide note on not trusting this doc's own status claims).
+**Required before `POST /{id}/submit`.** Calling submit without `PARTNER_SHARING` consent on file returns **403** with a message naming the consent needed — build the consent step into the flow *before* the citizen reaches submit, don't wait for the 403 to tell you.
+
+| Method | Path | Notes |
+|---|---|---|
+| `GET` | `/purposes` | The exact wording to render — never paraphrase it in the UI |
+| `GET` | `/` | Everything this citizen has ever granted or withdrawn |
+| `POST` | `/` | Grant one |
+| `DELETE` | `/{purpose}?applicationId=…` | Withdraw. Always **200**, even if there was nothing to withdraw |
+
+**`GET /purposes` response** — six fixed purposes, this is the full list:
+
+```json
+[
+  { "purpose": "profile_storage", "statement": "I agree that Yojna Sarthi may store my personal and family details to check which schemes I qualify for." },
+  { "purpose": "credit_eligibility", "statement": "I agree that my income, category and project details may be used to check my eligibility for concessional credit schemes." },
+  { "purpose": "partner_sharing", "statement": "I agree that my application and the documents I upload may be shared with the Channel Partner branch I have chosen, so that they can process my loan." },
+  { "purpose": "document_verification", "statement": "I agree that the documents I upload may be opened and checked by the branch representative handling my application." },
+  { "purpose": "digilocker_fetch", "statement": "I agree that Yojna Sarthi may fetch my issued documents from DigiLocker." },
+  { "purpose": "account_aggregator_fetch", "statement": "I agree that my bank statement information may be fetched through an Account Aggregator to verify my income." }
+]
+```
+
+`digilocker_fetch` and `account_aggregator_fetch` are listed for completeness — nothing in the product currently asks for them, since neither integration is built (see "Not built yet").
+
+**`POST /` request:**
+
+```json
+{ "purpose": "partner_sharing", "applicationId": "app-1" }
+```
+
+`applicationId` is optional — omit it for an account-wide grant (e.g. `profile_storage`), include it to scope the consent to one application (`partner_sharing` should always be scoped: a citizen consenting to share *this* file with *this* branch is not consenting for every future application too).
+
+**Response — `Consent`:**
+
+```json
+{
+  "id": "...", "userId": "...", "purpose": "partner_sharing", "applicationId": "app-1",
+  "statement": "I agree that my application and the documents I upload may be shared with the Channel Partner branch I have chosen, so that they can process my loan.",
+  "grantedAt": "...", "revokedAt": null, "ip": "..."
+}
+```
+
+`statement` is a **copy** taken at grant time, not a live pointer to `ConsentPurpose` — render this field, not a re-fetch of `/purposes`, so what's shown always matches what was actually agreed to even if the wording is revised later.
+
+Re-granting after a withdrawal writes a **new** row rather than clearing the old one — a citizen's consent history is granted → withdrew → granted again, three facts, never one flag flipped twice. `GET /` returns all of them; render newest first and show withdrawn ones struck through, don't hide them.
+
+---
+
+# Documents — `/api/v2/sih/applications/{id}/documents`
+
+| Method | Path | Who | Notes |
+|---|---|---|---|
+| `POST` | `.../{id}/documents` (multipart) | Citizen | `file` + optional `documentType` |
+| `GET` | `.../{id}/documents` | Citizen | List, no content |
+| `GET` | `.../{id}/documents/{documentId}` | Citizen | Downloads the file |
+| `DELETE` | `.../{id}/documents/{documentId}` | Citizen | Citizen-only, every rep type |
+| `GET` | `/api/v2/branch/applications/{id}/documents` | Rep / authorized helper | Read-only |
+| `GET` | `/api/v2/branch/applications/{id}/documents/{documentId}` | Rep / authorized helper | Downloads |
+| `POST` | `/api/v2/branch/applications/{id}/documents` (multipart) | **Assist-only helper only** | Uploads on the citizen's behalf — see below |
+| `GET` | `/api/v2/sih/documents/limits` | Anyone | Limits, for pre-upload validation |
+
+**`GET /limits` response** — call this once and validate client-side before the citizen picks a file, rather than letting a doomed upload run and fail on the server:
+
+```json
+{ "maxBytes": 8388608, "maxPerApplication": 20, "acceptedTypes": ["application/pdf", "image/jpeg", "image/png"] }
+```
+
+Content type is verified server-side by magic bytes, not by trusting the filename or the browser's declared `Content-Type` — an upload that lies about its type is rejected regardless of what the extension says.
+
+**Upload response — `LoanDocument`** (content never echoed back, `content` is always `null` here):
+
+```json
+{
+  "id": "...", "applicationId": "app-1", "userId": "citizen-1",
+  "documentType": "caste_certificate", "filename": "caste_cert.pdf",
+  "contentType": "application/pdf", "sizeBytes": 214532, "content": null,
+  "uploadedAt": "..."
+}
+```
+
+**Who can upload for whom — this is the accessibility answer.** A `BANK_BRANCH` rep may read documents on files assigned to their branch and may **never** upload or delete — evidence a lender can edit is not evidence. An assist-only helper (`CSC`/`NGO_SHG`/`FIELD_AGENT`) may **read and upload**, but only on an application the citizen has explicitly authorized them for (see the Assisted access section below), and may never delete. This is deliberate: the applicants this scheme targets frequently cannot photograph and upload a caste certificate themselves — someone does it with them — and the alternative (the helper typing the citizen's password instead) is worse, because it hides the same action from the audit trail. Every helper upload is recorded under the helper's own login, not the citizen's, so `GET /{id}/activity` shows who actually attached each file.
+
+Deleting is citizen-only, full stop, for every rep type — removing evidence is not assistance.
+
+**Errors:** 400 file too large / wrong type / already at the 20-document cap · 403 a branch rep (not assist-only) attempted the helper-upload endpoint, or an unauthorized helper attempted anything · 404 not the citizen's application, or not a file the caller has a claim to.
+
+---
+
+# Notifications — `/api/v2/notifications`
+
+The inbox for whatever status changes on an application the caller owns — always scoped to the JWT principal, never to a parameter.
+
+| Method | Path | Notes |
+|---|---|---|
+| `GET` | `/` | Full inbox, newest first |
+| `GET` | `/unread-count` | `{ "unread": 3 }` — cheap enough to poll for a badge |
+| `POST` | `/{id}/read` | Mark one read. 404 if it isn't the caller's |
+
+In-app records are always written first, before any SMS/email attempt — the inbox is never empty just because a phone carrier dropped an SMS. A recipient who can't be resolved at all (no phone, no email, no account) doesn't silently vanish; it raises an internal alert instead of failing quietly.
 
 ---
 
@@ -447,3 +547,88 @@ noted:
   in any deployment yet — `AadhaarEkycRecord.signatureVerified` is honestly
   `false` until `UIDAI_CERT_PATH` is configured; the extraction, masking, and
   encryption all work regardless. See `AadhaarOfflineEkycService`'s javadoc.
+
+### Request/response shapes for the section above
+
+**`POST /{id}/assist` request** — the ID the citizen reads off the helper's own card or badge, not any internal ID they'd have no way to know:
+
+```json
+{ "helperRepId": "CSC-JH-201", "note": "helped me at the CSC in Ranchi" }
+```
+
+Response is the full `AssistAuthorization` row (`id`, `applicationId`, `citizenId`, `helperId`, `helperName`, `helperType`, `helperOrganisation`, `grantedAt`, `revokedAt`, `note`) — useful for confirming what was just granted, but **`GET /{id}/assist` returns a different, simpler shape**, built for rendering a "who's helping me" list directly:
+
+```json
+[
+  {
+    "helperId": "h-1", "name": "R. Devi", "type": "csc", "typeLabel": "CSC operator",
+    "organisation": "CSC Ranchi", "grantedAt": "...", "revokedAt": null, "active": true
+  }
+]
+```
+
+Revoked entries stay in the list (`active: false`, `revokedAt` set) — render them struck through, don't filter them out; the point of the endpoint is that the history is the record, not just who currently has access. `DELETE /{id}/assist?helperId=h-1` revokes one; omitting `helperId` revokes every live authorization on the file at once (the panic button).
+
+**`GET /{id}/activity` response** — a merged, newest-first timeline from four different sources (authorizations, status history, document uploads, and document reads pulled from the audit log), because no single source knows the whole story on its own:
+
+```json
+[
+  { "at": "...", "actorId": "h-1", "actor": "R. Devi (CSC operator, CSC Ranchi)", "action": "assist_granted", "detail": "You allowed them to help with this application" },
+  { "at": "...", "actorId": "h-1", "actor": "R. Devi (CSC operator, CSC Ranchi)", "action": "document_uploaded", "detail": "caste_certificate.pdf" },
+  { "at": "...", "actorId": "rep-9", "actor": "A. Kumar (Branch representative, SBI Kanpur Nagar)", "action": "document_viewed", "detail": null },
+  { "at": "...", "actorId": "rep-9", "actor": "A. Kumar (Branch representative, SBI Kanpur Nagar)", "action": "status_changed", "detail": "under_verification" }
+]
+```
+
+`action` is a **stable machine key to localize in the UI** (`assist_granted`, `assist_revoked`, `status_changed`, `document_uploaded`, `document_viewed`) — build the citizen-facing sentence from `action` + `actor` + `detail` in the frontend's own copy, don't render `action` verbatim. `actorId` is included specifically so a "report misuse" button next to an entry can pre-fill `reportedHelperId`. The citizen themselves shows as `"You"`; an actor that can't be resolved to a known account shows as `"A staff member"`, never a raw internal ID.
+
+**`POST /{id}/report-misuse` request:**
+
+```json
+{ "reportedHelperId": "h-1", "category": "unofficial_fee", "description": "asked for ₹200 to submit the form" }
+```
+
+`category` — the real vocabulary, fetch it from `GET /api/v2/sih/misuse-reports/categories` rather than hardcoding: `unofficial_fee`, `credential_request`, `wrong_details`, `data_misuse`, `no_service`, `other`. `reportedHelperId` is optional — a citizen who doesn't know or remember who touched their file can still file a report; the alert this raises is still useful even naming nobody. Response is the created `MisuseReport` (`status` starts `"open"`, moves through `"reviewing"` to `"resolved"` — internal-only for now, no citizen-facing status-update endpoint exists yet). `GET /api/v2/sih/misuse-reports` lists everything the calling citizen has ever filed.
+
+**`POST /{id}/aadhaar-ekyc` response — `AadhaarEkycRecord`** (`encryptedPhoto` never echoed back; fetch the photo separately):
+
+```json
+{
+  "id": "...", "applicationId": "app-1", "citizenId": "...",
+  "referenceId": "...", "maskedUid": "XXXXXXXX1234",
+  "name": "...", "dob": "...", "gender": "...", "careOf": "...", "addressOneLine": "...",
+  "signaturePresent": true, "signatureVerified": false,
+  "extractedAt": "...", "uploadedByUserId": "...", "uploadedByRole": "CITIZEN"
+}
+```
+
+`signatureVerified: false` is honest, not broken — no deployment has `UIDAI_CERT_PATH` configured yet, so this is always `false` regardless of whether the underlying file was genuine. **Do not render this as a red flag to the citizen** — it describes the platform's current capability, not their document. The photo is fetched separately via `GET .../aadhaar-ekyc/{recordId}/photo` (returns `image/jpeg` directly).
+
+### The helper's own worklist — `GET /api/v2/branch/assist`
+
+An assist-only helper's equivalent of the branch rep queue — every application a citizen has currently authorized them to help with, requires `ROLE_BRANCH_REP`:
+
+```json
+{
+  "helperType": "csc",
+  "canRecordDecisions": false,
+  "assignments": [
+    {
+      "applicationId": "app-1", "grantedAt": "...",
+      "productName": "Micro Finance Scheme (MFS)", "status": "missing_docs",
+      "requestedAmount": 90000, "missingDocuments": ["Caste certificate"]
+    }
+  ]
+}
+```
+
+`canRecordDecisions` is included so the UI can decide, once, whether to render status-change controls at all — but the server enforces the same rule independently on `POST /api/v2/branch/applications/{id}/status` (**403** for any non-`BANK_BRANCH` type), so hiding the button is a courtesy, not the actual security boundary. `assignments` degrades gracefully to just `applicationId`/`grantedAt` if the underlying application can't be loaded — a helper's worklist should never fail outright over one broken row.
+
+---
+
+## Not built yet
+
+- **DigiLocker** and **Account Aggregator** verification. `VerificationMode.DIGILOCKER`/`.ACCOUNT_AGGREGATOR` exist in the enum and are rejected with **400** if requested (`isAvailable() == false`) — this is deliberate, not an oversight, so a request for either fails loudly instead of silently recording a verification that never happened. `ConsentPurpose.DIGILOCKER_FETCH`/`.ACCOUNT_AGGREGATOR_FETCH` exist for the same reason: the shape is ready, the integration is not.
+- **UIDAI signature verification** on offline eKYC — extraction/masking/storage all work today; only the cryptographic signature check against a real UIDAI certificate is pending `UIDAI_CERT_PATH` being configured in a deployment.
+- **CSC/NGO helper self-onboarding.** Every `BranchRep` account (bank branch or assist-only) is currently admin-issued — there is no application/approval flow for a CSC operator or NGO worker to request an account themselves, the way `Helper` (the general-scheme volunteer role, a different model) has one.
+- **Everything in this document has zero frontend integration as of this writing.** Every endpoint above is implemented, tested, and — as of this session — verified live against a real LLM/Mongo/Spring boot, but no React page calls any of them yet. This is the actual critical path for demo day, not any backend gap.
