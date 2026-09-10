@@ -158,6 +158,31 @@ async def test_asks_which_scheme_when_none_is_named_or_pinned():
 
 
 @pytest.mark.asyncio
+async def test_resolves_a_scheme_named_without_its_parenthetical_code():
+    # Real bug, caught live 2026-09-11: CreditProductSeeder names every scheme
+    # "Full Name (CODE)" (e.g. "Micro Finance Scheme (MFS)"), and the original
+    # match was an exact substring check against that FULL string — so a
+    # citizen who said "Micro Finance Scheme ke liye apply karna hai" (nobody
+    # says "(MFS)" out loud) never matched anything, and the assistant asked
+    # "which scheme?" forever regardless of what they said.
+    assistant = ApplicationAssistant(products_fetcher=_FakeProducts())
+    result = await assistant.process_message(
+        "Mujhe Micro Finance Scheme ke liye apply karna hai", "hi", {},
+    )
+    assert result["context"]["scheme_code"] == "micro-finance"
+
+
+@pytest.mark.asyncio
+async def test_does_not_match_a_scheme_on_a_single_generic_word():
+    # "loan" or "scheme" alone appearing in a message must not be read as
+    # naming a specific product — the overlap bar exists precisely so a vague
+    # message still triggers "which scheme?" instead of a wrong guess.
+    assistant = ApplicationAssistant(products_fetcher=_FakeProducts())
+    result = await assistant.process_message("I want a loan for my scheme", "en", {})
+    assert result["context"]["scheme_code"] is None
+
+
+@pytest.mark.asyncio
 async def test_resolves_pinned_scheme_from_a_pronoun_reference():
     assistant = ApplicationAssistant(products_fetcher=_FakeProducts())
     context = {"_last_shown_scheme_code": "micro-finance"}

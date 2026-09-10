@@ -284,6 +284,47 @@ class ApplicationAssistant:
         return context
 
     # ── scheme resolution ────────────────────────────────────────────────
+
+    # Strips a trailing "(MFS)"-style code off a product name before matching —
+    # CreditProductSeeder names every scheme "Full Name (CODE)", and requiring
+    # the code to also appear verbatim in the citizen's message (an exact
+    # substring match did exactly that, and never matched anything as a real
+    # bug caught live 2026-09-11: "Micro Finance Scheme" alone never matched
+    # "Micro Finance Scheme (MFS)") is not something a citizen would ever say.
+    _NAME_CODE_SUFFIX = re.compile(r"\s*\([^)]*\)\s*$")
+
+    @classmethod
+    def _significant_words(cls, name: str) -> set[str]:
+        stripped = cls._NAME_CODE_SUFFIX.sub("", name or "")
+        return {w for w in stripped.lower().split() if len(w) > 2}
+
+    def _match_by_name(self, user_text: str, products: list[dict]) -> dict | None:
+        """Word-overlap match, not substring — the same fix
+        graph/agents/application_guidance.py's _best_name_match already made
+        for the general scheme catalogue, applied here for the same reason:
+        a citizen names the scheme they mean, close enough to be recognized
+        by a human, not necessarily character-for-character."""
+        text_words = self._significant_words(user_text)
+        if not text_words:
+            return None
+
+        best, best_overlap = None, 0
+        for product in products:
+            name_words = self._significant_words(product.get("name", ""))
+            if not name_words:
+                continue
+            overlap = len(text_words & name_words)
+            if overlap > best_overlap:
+                best, best_overlap = product, overlap
+
+        # A short name ("KCC") needs less overlap to count as named than a
+        # long one ("Aajeevika Micro-Finance Yojana") — the bar is "most of
+        # the name's real words showed up", not a fixed count.
+        if best is None:
+            return None
+        required = min(2, len(self._significant_words(best.get("name", ""))))
+        return best if best_overlap >= max(required, 1) else None
+
     async def _resolve_scheme(self, user_text: str, context: dict) -> dict | None:
         """"Is scheme ke liye" (this scheme) only resolves against a scheme
         already pinned earlier this conversation (context["_last_shown_scheme_code"],
@@ -297,11 +338,11 @@ class ApplicationAssistant:
         if pinned and re.search(r"\b(is|this|isi|ye|yeh|isme)\b", user_text or "", re.IGNORECASE):
             return next((p for p in products if p.get("id") == pinned), None)
 
-        text = (user_text or "").lower()
-        return next(
-            (p for p in products if p.get("name", "").lower() in text or p.get("id", "") in text),
-            None,
-        )
+        by_id = next((p for p in products if p.get("id", "") and p["id"] in (user_text or "").lower()), None)
+        if by_id:
+            return by_id
+
+        return self._match_by_name(user_text, products)
 
     # ── slot extraction ──────────────────────────────────────────────────
     async def _merge_slots(self, user_text: str, context: dict) -> None:
