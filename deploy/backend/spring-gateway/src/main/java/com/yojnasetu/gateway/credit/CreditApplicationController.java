@@ -31,10 +31,19 @@ public class CreditApplicationController {
 
     private final CreditApplicationService service;
     private final AuditLogRepository auditLogRepository;
+    /**
+     * Signalled from the REST edge rather than from CreditApplicationService,
+     * because a signal means "a human did this". The workflow's own activity
+     * calls the service directly, so wiring it deeper would have the workflow
+     * signalling itself in a loop.
+     */
+    private final com.yojnasetu.gateway.workflow.LoanWorkflowGateway workflows;
 
     public CreditApplicationController(CreditApplicationService service,
+                                       com.yojnasetu.gateway.workflow.LoanWorkflowGateway workflows,
                                        AuditLogRepository auditLogRepository) {
         this.service = service;
+        this.workflows = workflows;
         this.auditLogRepository = auditLogRepository;
     }
 
@@ -62,6 +71,7 @@ public class CreditApplicationController {
                 created = service.assignPartner(created, request.partnerId(),
                         request.partnerName(), request.partnerType());
             }
+            workflows.start(created.getId(), auth.getName());
             audit(auth.getName(), "credit_application_create", httpRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
         } catch (CreditApplicationService.TransitionException e) {
@@ -106,6 +116,7 @@ public class CreditApplicationController {
             CreditApplication application = service.getForCitizen(auth.getName(), id);
             CreditApplication submitted = service.transition(application,
                     CreditApplicationStatus.SUBMITTED, auth.getName(), "CITIZEN", null, null, null);
+            workflows.signal(id, CreditApplicationStatus.SUBMITTED, null, null);
             audit(auth.getName(), "credit_application_submit", httpRequest);
             return ResponseEntity.ok(submitted);
         } catch (CreditApplicationService.TransitionException e) {
@@ -126,6 +137,10 @@ public class CreditApplicationController {
             CreditApplication updated = service.transition(application,
                     CreditApplicationStatus.UNDER_VERIFICATION, auth.getName(), "CITIZEN",
                     null, "Applicant reported the requested documents were provided", null);
+            // Non-null documents list is how the gateway tells "citizen supplied
+            // documents" apart from "rep started verifying" — both land on
+            // UNDER_VERIFICATION but mean different things to the workflow.
+            workflows.signal(id, CreditApplicationStatus.UNDER_VERIFICATION, null, java.util.List.of());
             audit(auth.getName(), "credit_application_documents_supplied", httpRequest);
             return ResponseEntity.ok(updated);
         } catch (CreditApplicationService.TransitionException e) {

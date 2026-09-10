@@ -30,6 +30,11 @@ public class CreditApplicationService {
      */
     private final com.yojnasetu.gateway.notify.CreditApplicationNotifier notifier;
 
+    // Explicit, because this class has two constructors. Without it Spring
+    // cannot choose between them, gives up, looks for a no-arg constructor and
+    // fails the whole context at startup — which no unit test catches, since
+    // they all call the test constructor directly.
+    @org.springframework.beans.factory.annotation.Autowired
     public CreditApplicationService(CreditApplicationRepository applications,
                                     CreditProductRepository products,
                                     org.springframework.beans.factory.ObjectProvider<

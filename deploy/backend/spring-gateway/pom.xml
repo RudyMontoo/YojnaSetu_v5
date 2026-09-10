@@ -20,7 +20,25 @@
     <properties>
         <java.version>17</java.version>
         <jjwt.version>0.12.5</jjwt.version>
+        <grpc.version>1.69.0</grpc.version>
     </properties>
+
+    <!-- temporal-sdk pulls gRPC 1.54.1 while temporal-test-server needs 1.69.0.
+         Maven's nearest-wins picks 1.54.1, and io.grpc.Context does not live in
+         that version's grpc-api — the in-process test server then dies with
+         NoClassDefFoundError the moment a workflow test starts. Importing the
+         gRPC BOM aligns every io.grpc artifact on one version instead. -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-bom</artifactId>
+                <version>${grpc.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- Web -->
@@ -70,6 +88,26 @@
             <groupId>com.twilio.sdk</groupId>
             <artifactId>twilio</artifactId>
             <version>10.4.1</version>
+        </dependency>
+
+        <!-- Temporal — durable orchestration of the loan application lifecycle.
+             The workflow owns timers, retries and SLA escalation; the transition
+             RULES stay in CreditApplicationStatus/CreditApplicationService, which
+             the activities call. Wiring is behind app.temporal.enabled (default
+             false) so the gateway still boots and serves every endpoint with no
+             Temporal cluster present — a demo must not depend on it being up. -->
+        <dependency>
+            <groupId>io.temporal</groupId>
+            <artifactId>temporal-sdk</artifactId>
+            <version>1.25.2</version>
+        </dependency>
+        <!-- In-process test server: workflow tests run without a cluster, and
+             can skip a 3-day SLA timer in milliseconds. -->
+        <dependency>
+            <groupId>io.temporal</groupId>
+            <artifactId>temporal-testing</artifactId>
+            <version>1.25.2</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- Firebase Admin SDK — verifies the Firebase phone-auth ID token server-side.

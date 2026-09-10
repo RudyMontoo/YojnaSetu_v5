@@ -37,10 +37,14 @@ public class BranchRepController {
 
     private final CreditApplicationService service;
     private final AuditLogRepository auditLogRepository;
+    private final com.yojnasetu.gateway.workflow.LoanWorkflowGateway workflows;
 
-    public BranchRepController(CreditApplicationService service, AuditLogRepository auditLogRepository) {
+    public BranchRepController(CreditApplicationService service,
+                               AuditLogRepository auditLogRepository,
+                               com.yojnasetu.gateway.workflow.LoanWorkflowGateway workflows) {
         this.service = service;
         this.auditLogRepository = auditLogRepository;
+        this.workflows = workflows;
     }
 
     /** The queue, newest submission first, optionally filtered by status. */
@@ -84,6 +88,10 @@ public class BranchRepController {
         try {
             CreditApplication updated = service.transition(found.get(), request.status(),
                     auth.getName(), "BRANCH_REP", request.reasonCode(), request.note(),
+                    request.requestedDocuments());
+
+            workflows.signal(id, request.status(),
+                    request.reasonCode() == null ? null : request.reasonCode().wireName(),
                     request.requestedDocuments());
 
             auditLogRepository.save(AuditLog.of(auth.getName(), "credit_application_status_update",
