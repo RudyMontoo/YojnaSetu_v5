@@ -3,6 +3,7 @@ package com.yojnasetu.gateway.config;
 import com.yojnasetu.gateway.credit.ChannelPartnerType;
 import com.yojnasetu.gateway.credit.ConsentPurpose;
 import com.yojnasetu.gateway.credit.CreditApplicationStatus;
+import com.yojnasetu.gateway.credit.MisuseReport;
 import com.yojnasetu.gateway.credit.MoratoriumMode;
 import com.yojnasetu.gateway.credit.ReasonCode;
 import com.yojnasetu.gateway.credit.RepType;
@@ -38,5 +39,7 @@ public class WireEnumConverters implements WebMvcConfigurer {
         registry.addConverter(String.class, MoratoriumMode.class, MoratoriumMode::fromWire);
         registry.addConverter(String.class, VerificationMode.class, VerificationMode::fromWire);
         registry.addConverter(String.class, RepType.class, RepType::fromWire);
+        registry.addConverter(String.class, MisuseReport.Category.class, MisuseReport.Category::fromWire);
+        registry.addConverter(String.class, MisuseReport.Status.class, MisuseReport.Status::fromWire);
     }
 }

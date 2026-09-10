@@ -83,7 +83,7 @@ public class LoanDocumentController {
                     file == null ? null : file.getOriginalFilename(),
                     documentType, auth.getName(), "CITIZEN");
 
-            audit(auth.getName(), "loan_document_upload", request);
+            audit(auth.getName(), "loan_document_upload", request, id);
             // Never echo the content back — the caller already has the file.
             stored.setContent(null);
             return ResponseEntity.status(HttpStatus.CREATED).body(stored);
@@ -117,7 +117,7 @@ public class LoanDocumentController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Map.of("error", "Document not found"));
             }
-            audit(auth.getName(), "loan_document_read", request);
+            audit(auth.getName(), "loan_document_read", request, id);
             return serve(document);
         } catch (CreditApplicationService.TransitionException e) {
             return CreditApplicationController.toResponse(e);
@@ -143,7 +143,7 @@ public class LoanDocumentController {
                                 + "or you have been asked for more"));
             }
             documents.delete(document);
-            audit(auth.getName(), "loan_document_delete", request);
+            audit(auth.getName(), "loan_document_delete", request, id);
             return ResponseEntity.ok(Map.of("deleted", true));
         } catch (CreditApplicationService.TransitionException e) {
             return CreditApplicationController.toResponse(e);
@@ -178,7 +178,7 @@ public class LoanDocumentController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Map.of("error", "Document not found"));
             }
-            audit(auth.getName(), "loan_document_read_by_rep", request);
+            audit(auth.getName(), "loan_document_read_by_rep", request, id);
             return serve(document);
         });
     }
@@ -207,7 +207,7 @@ public class LoanDocumentController {
                 LoanDocument stored = documents.store(application, file == null ? null : file.getBytes(),
                         file == null ? null : file.getOriginalFilename(),
                         documentType, auth.getName(), helper.getRepType().name());
-                audit(auth.getName(), "loan_document_upload_by_helper", request);
+                audit(auth.getName(), "loan_document_upload_by_helper", request, id);
                 stored.setContent(null);
                 return ResponseEntity.status(HttpStatus.CREATED).body(stored);
             } catch (java.io.IOException e) {
@@ -277,8 +277,15 @@ public class LoanDocumentController {
                 .body(bytes);
     }
 
-    private void audit(String userId, String action, HttpServletRequest request) {
-        auditLogRepository.save(AuditLog.of(userId, action, request.getRequestURI(), ClientIp.of(request)));
+    /**
+     * Always recorded against the application id, not just the URI. This is
+     * what a citizen's "who opened my file" view reads, and these documents
+     * name someone's caste and income — so the answer has to be exact and
+     * has to stay fast as the log grows.
+     */
+    private void audit(String userId, String action, HttpServletRequest request, String applicationId) {
+        auditLogRepository.save(AuditLog.forApplication(
+                userId, action, request.getRequestURI(), ClientIp.of(request), applicationId));
     }
 
     /** Exposed for the frontend so it can show limits before an upload fails. */

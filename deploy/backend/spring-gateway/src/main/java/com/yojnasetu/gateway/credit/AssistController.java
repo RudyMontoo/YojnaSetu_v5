@@ -33,15 +33,21 @@ public class AssistController {
     private final AssistService assists;
     private final CreditApplicationService applications;
     private final BranchRepRepository helpers;
+    private final FileAccessService fileAccess;
+    private final MisuseReportService misuseReports;
     private final AuditLogRepository auditLogRepository;
 
     public AssistController(AssistService assists,
                             CreditApplicationService applications,
                             BranchRepRepository helpers,
+                            FileAccessService fileAccess,
+                            MisuseReportService misuseReports,
                             AuditLogRepository auditLogRepository) {
         this.assists = assists;
         this.applications = applications;
         this.helpers = helpers;
+        this.fileAccess = fileAccess;
+        this.misuseReports = misuseReports;
         this.auditLogRepository = auditLogRepository;
     }
 
@@ -81,6 +87,70 @@ public class AssistController {
         } catch (CreditApplicationService.TransitionException e) {
             return CreditApplicationController.toResponse(e);
         }
+    }
+
+    /** "Who is helping me with this?" — including anyone whose access was withdrawn. */
+    @GetMapping("/api/v2/sih/applications/{id}/assist")
+    public ResponseEntity<?> helpers(Authentication auth, @PathVariable String id) {
+        try {
+            applications.getForCitizen(auth.getName(), id);
+            return ResponseEntity.ok(fileAccess.helpersFor(id));
+        } catch (CreditApplicationService.TransitionException e) {
+            return CreditApplicationController.toResponse(e);
+        }
+    }
+
+    /**
+     * "Who has touched my file?" — the full activity list, including who
+     * opened documents. The applicant's own copy of the audit trail.
+     */
+    @GetMapping("/api/v2/sih/applications/{id}/activity")
+    public ResponseEntity<?> activity(Authentication auth, @PathVariable String id) {
+        try {
+            CreditApplication application = applications.getForCitizen(auth.getName(), id);
+            return ResponseEntity.ok(fileAccess.timelineFor(application));
+        } catch (CreditApplicationService.TransitionException e) {
+            return CreditApplicationController.toResponse(e);
+        }
+    }
+
+    /**
+     * Report that a helper did something they should not have.
+     *
+     * Deliberately does not require the application to still be open, or the
+     * reported helper to still be authorized: the reports that matter most
+     * arrive after the fact, once someone has had time to realise what
+     * happened and to feel safe enough to say so.
+     */
+    @PostMapping("/api/v2/sih/applications/{id}/report-misuse")
+    public ResponseEntity<?> reportMisuse(Authentication auth, @PathVariable String id,
+                                          @RequestBody MisuseRequest request,
+                                          HttpServletRequest httpRequest) {
+        try {
+            applications.getForCitizen(auth.getName(), id);
+            MisuseReport filed = misuseReports.file(auth.getName(), id,
+                    request == null ? null : request.reportedHelperId(),
+                    request == null ? null : request.category(),
+                    request == null ? null : request.description());
+            audit(auth.getName(), "misuse_report_filed", httpRequest);
+            return ResponseEntity.status(HttpStatus.CREATED).body(filed);
+        } catch (CreditApplicationService.TransitionException e) {
+            return CreditApplicationController.toResponse(e);
+        }
+    }
+
+    /** Everything this citizen has reported, and what came of it. */
+    @GetMapping("/api/v2/sih/misuse-reports")
+    public List<MisuseReport> myReports(Authentication auth) {
+        return misuseReports.listForCitizen(auth.getName());
+    }
+
+    /** The vocabulary, so the UI renders the real categories rather than its own. */
+    @GetMapping("/api/v2/sih/misuse-reports/categories")
+    public List<Map<String, String>> misuseCategories() {
+        return java.util.Arrays.stream(MisuseReport.Category.values())
+                .map(c -> Map.of("category", c.wireName()))
+                .toList();
     }
 
     // -------------------------------------------------------------- helper
@@ -127,5 +197,9 @@ public class AssistController {
     }
 
     public record GrantRequest(String helperRepId, String note) {
+    }
+
+    public record MisuseRequest(String reportedHelperId, MisuseReport.Category category,
+                                String description) {
     }
 }
