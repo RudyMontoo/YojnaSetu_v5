@@ -65,6 +65,16 @@ public class SecurityConfig {
                                 "/api/v2/auth/**",
                                 "/api/v2/helper-portal/login", // helper portal login (ID+password); /me + /change-password stay authenticated
                                 "/api/health",
+                                // Spring forwards handled exceptions (malformed JSON, unreadable
+                                // body, unsupported media type) to /error as a fresh ERROR
+                                // dispatch, which re-enters this filter chain. Without this
+                                // entry it falls to anyRequest().authenticated() and the
+                                // already-resolved 400 is rewritten as an empty 403 — telling
+                                // a caller they lack permission when their payload was simply
+                                // malformed. Verified against a bad enum value on
+                                // /api/v2/sih/credit/emi. Affects every endpoint, not just this
+                                // module's.
+                                "/error",
                                 "/api/chat/**", // proxied to FastAPI, public for demo per existing ProxyController
                                 "/api/agent/**",
                                 "/api/schemes/**",
@@ -72,8 +82,18 @@ public class SecurityConfig {
                                 "/api/status/**",
                                 "/api/help/**",
                                 "/api/v2/credit-partners/**", // public geo lookup, no PII — rate-limited by the global filter below
+                                // NSFDC scheme catalogue, eligibility check and EMI quotes. Public by
+                                // design: a citizen must be able to learn what they qualify for and what
+                                // it costs before creating an account. Reads no profile, persists nothing.
+                                "/api/v2/sih/credit/**",
                                 "/internal/**") // FastAPI service-to-service — key-checked in the controller itself, not here
                         .permitAll()
+                        // Channel Partner branch staff only. Declared as a path
+                        // matcher rather than an authority check inside each
+                        // handler (the pattern the older controllers use) so a
+                        // newly-added /api/v2/branch/** endpoint is protected by
+                        // default instead of protected once someone remembers.
+                        .requestMatchers("/api/v2/branch/**").hasAnyRole("BRANCH_REP", "ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
