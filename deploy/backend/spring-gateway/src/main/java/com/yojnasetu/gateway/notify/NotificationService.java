@@ -2,8 +2,8 @@ package com.yojnasetu.gateway.notify;
 
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
-import com.yojnasetu.gateway.model.User;
-import com.yojnasetu.gateway.repository.UserRepository;
+import com.yojnasetu.gateway.model.AgentAlert;
+import com.yojnasetu.gateway.repository.AgentAlertRepository;
 import com.yojnasetu.gateway.service.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +39,13 @@ public class NotificationService {
     private static final String SENT = "SENT";
     private static final String SKIPPED = "SKIPPED";
     private static final String FAILED = "FAILED";
+    /** Nobody could be reached at all — see the comment at the use site. */
+    public static final String UNDELIVERABLE = "UNDELIVERABLE";
 
     private final NotificationRepository notifications;
-    private final UserRepository users;
+    private final NotificationRecipient.Resolver recipients;
     private final EmailService emailService;
+    private final AgentAlertRepository alerts;
 
     @Value("${twilio.account-sid:}")
     private String twilioAccountSid;
@@ -64,11 +67,40 @@ public class NotificationService {
     private volatile boolean twilioInitialised;
 
     public NotificationService(NotificationRepository notifications,
-                               UserRepository users,
-                               EmailService emailService) {
+                               NotificationRecipient.Resolver recipients,
+                               EmailService emailService,
+                               AgentAlertRepository alerts) {
         this.notifications = notifications;
-        this.users = users;
+        this.recipients = recipients;
         this.emailService = emailService;
+        this.alerts = alerts;
+    }
+
+    /**
+     * Puts an undeliverable notification in front of a human.
+     *
+     * agent_alerts is this codebase's existing route for "you need to know
+     * before a citizen does" — AlertNotifier polls it every 15 minutes and
+     * emails the admin a digest. Reusing it means a broken reminder pipeline
+     * surfaces the same way every other operational fault does, instead of
+     * sitting in a Mongo collection nobody queries.
+     */
+    private void raiseAlert(NotificationEvent event, String applicationId, String recipientUserId) {
+        try {
+            AgentAlert alert = new AgentAlert();
+            alert.setAgentName("notifications");
+            alert.setAlertType("undeliverable_notification");
+            // No PII: an id and an event key, never the message body or a
+            // phone number, matching the audit_log rule in this codebase.
+            alert.setMessage("No user '" + recipientUserId + "' for " + event.key()
+                    + " on application " + applicationId + " — nobody was told.");
+            alert.setAt(java.time.Instant.now());
+            alert.setResolved(false);
+            alerts.save(alert);
+        } catch (Exception e) {
+            // Alerting about a failure must not itself become a failure.
+            LOG.warn("Could not raise undeliverable-notification alert: {}", e.toString());
+        }
     }
 
     /**
@@ -92,16 +124,27 @@ public class NotificationService {
         notification.setMessage(event.render(params));
         notification.setCreatedAt(LocalDateTime.now());
 
-        User user = recipientUserId == null ? null : users.findById(recipientUserId).orElse(null);
-        if (user == null) {
-            notification.setSms(Notification.Delivery.of(SKIPPED, "no such user"));
-            notification.setEmail(Notification.Delivery.of(SKIPPED, "no such user"));
-            LOG.warn("Notification {} addressed to unknown user {}", event.key(), recipientUserId);
+        // Resolved across every principal type, not just citizens — see
+        // NotificationRecipient.Resolver.
+        NotificationRecipient recipient = recipients.resolve(recipientUserId).orElse(null);
+        if (recipient == null) {
+            // UNDELIVERABLE, not SKIPPED. A skip means we chose not to send —
+            // no phone on file, mailer switched off — and is a normal outcome.
+            // This is different: we tried to tell a specific person something
+            // and there is no such person, so the message reached nobody and
+            // nobody knows. Recording that as a skip is how a broken reminder
+            // pipeline looks healthy for weeks.
+            notification.setSms(Notification.Delivery.of(UNDELIVERABLE, "no such user"));
+            notification.setEmail(Notification.Delivery.of(UNDELIVERABLE, "no such user"));
+            LOG.error("Notification {} for application {} could not be delivered: "
+                    + "recipient '{}' matches no known principal",
+                    event.key(), applicationId, recipientUserId);
+            raiseAlert(event, applicationId, recipientUserId);
             return notifications.save(notification);
         }
 
-        notification.setSms(sendSms(user.getPhone(), notification.getMessage()));
-        notification.setEmail(sendEmail(user.getEmail(), event.subject(), notification.getMessage()));
+        notification.setSms(sendSms(recipient.phone(), notification.getMessage()));
+        notification.setEmail(sendEmail(recipient.email(), event.subject(), notification.getMessage()));
 
         return notifications.save(notification);
     }

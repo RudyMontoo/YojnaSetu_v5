@@ -1,10 +1,15 @@
 package com.yojnasetu.gateway.notify;
 
 import com.yojnasetu.gateway.model.User;
+import com.yojnasetu.gateway.credit.BranchRep;
+import com.yojnasetu.gateway.credit.BranchRepRepository;
+import com.yojnasetu.gateway.model.AgentAlert;
+import com.yojnasetu.gateway.repository.AgentAlertRepository;
 import com.yojnasetu.gateway.repository.UserRepository;
 import com.yojnasetu.gateway.service.EmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.util.Map;
 import java.util.Optional;
@@ -25,15 +30,22 @@ class NotificationServiceTest {
 
     private NotificationRepository notifications;
     private UserRepository users;
+    private BranchRepRepository branchReps;
     private EmailService emailService;
+    private AgentAlertRepository alerts;
     private NotificationService service;
 
     @BeforeEach
     void setUp() {
         notifications = mock(NotificationRepository.class);
         users = mock(UserRepository.class);
+        branchReps = mock(BranchRepRepository.class);
         emailService = mock(EmailService.class);
-        service = new NotificationService(notifications, users, emailService);
+        alerts = mock(AgentAlertRepository.class);
+        // A real resolver over mocked repositories, so recipient resolution is
+        // genuinely exercised rather than stubbed past.
+        service = new NotificationService(notifications,
+                new NotificationRecipient.Resolver(users, branchReps), emailService, alerts);
 
         when(notifications.save(any(Notification.class)))
                 .thenAnswer(inv -> inv.getArgument(0));
@@ -51,6 +63,7 @@ class NotificationServiceTest {
 
     private Notification notifyFor(User u) {
         when(users.findById("citizen-1")).thenReturn(Optional.ofNullable(u));
+        when(branchReps.findById("citizen-1")).thenReturn(Optional.empty());
         return service.notify("citizen-1", NotificationEvent.APPLICATION_SUBMITTED, "app-1",
                 Map.of("scheme", "MFS", "partner", "Bank of Baroda", "ref", "ABC123"));
     }
@@ -123,12 +136,95 @@ class NotificationServiceTest {
     }
 
     @Test
-    void handlesAnUnknownRecipientWithoutBlowingUp() {
+    void marksAnUnreachableRecipientUndeliverableRatherThanSkipped() {
+        // A skip is a choice we made (no phone on file, mailer off) and is
+        // normal. This is a message that reached nobody, which is a fault —
+        // recording it as a skip is how a broken pipeline looks healthy.
         Notification n = notifyFor(null);
 
-        assertEquals("SKIPPED", n.getSms().getOutcome());
+        assertEquals(NotificationService.UNDELIVERABLE, n.getSms().getOutcome());
+        assertEquals(NotificationService.UNDELIVERABLE, n.getEmail().getOutcome());
         assertEquals("no such user", n.getSms().getDetail());
         verify(emailService, never()).sendAlert(anyString(), anyString(), anyString());
+    }
+
+    @Test
+    void raisesAnOperationalAlertWhenNobodyCanBeReached() {
+        notifyFor(null);
+
+        // agent_alerts is what AlertNotifier emails the admin about every 15
+        // minutes — the existing "find out before a citizen does" channel.
+        ArgumentCaptor<AgentAlert> captor = ArgumentCaptor.forClass(AgentAlert.class);
+        verify(alerts).save(captor.capture());
+
+        AgentAlert alert = captor.getValue();
+        assertEquals("undeliverable_notification", alert.getAlertType());
+        assertTrue(alert.getMessage().contains("app-1"));
+        assertFalse(alert.getResolved());
+    }
+
+    @Test
+    void reachesABranchRepWhoIsNotAUser() {
+        // The bug this fixes: reps live in their own collection, so every
+        // message addressed to one previously resolved to nobody.
+        BranchRep rep = new BranchRep();
+        rep.setId("rep-9");
+        rep.setName("A. Kumar");
+        rep.setEmail("rep@bank.example");
+        when(users.findById("rep-9")).thenReturn(Optional.empty());
+        when(branchReps.findById("rep-9")).thenReturn(Optional.of(rep));
+        when(emailService.sendAlert(anyString(), anyString(), anyString())).thenReturn(true);
+
+        Notification n = service.notify("rep-9", NotificationEvent.VERIFICATION_OVERDUE_REMINDER,
+                "app-1", Map.of("scheme", "MFS", "ref", "ABC123", "days", "3"));
+
+        assertEquals("SENT", n.getEmail().getOutcome());
+        verify(alerts, never()).save(any(AgentAlert.class));
+    }
+
+    @Test
+    void stillReachesADeactivatedRep() {
+        // A message about a file they were working on should reach them.
+        // Dropping it would look identical to the resolution bug above.
+        BranchRep rep = new BranchRep();
+        rep.setId("rep-old");
+        rep.setActive(false);
+        rep.setEmail("old@bank.example");
+        when(users.findById("rep-old")).thenReturn(Optional.empty());
+        when(branchReps.findById("rep-old")).thenReturn(Optional.of(rep));
+        when(emailService.sendAlert(anyString(), anyString(), anyString())).thenReturn(true);
+
+        assertEquals("SENT", service.notify("rep-old", NotificationEvent.APPLICATION_SUBMITTED,
+                "app-1", Map.of("ref", "ABC123")).getEmail().getOutcome());
+    }
+
+    @Test
+    void keepsPiiOutOfTheAlert() {
+        when(users.findById("citizen-1")).thenReturn(Optional.empty());
+        when(branchReps.findById("citizen-1")).thenReturn(Optional.empty());
+        service.notify("citizen-1", NotificationEvent.APPLICATION_SANCTIONED, "app-1",
+                Map.of("scheme", "MFS", "ref", "ABC123", "partner", "Bank of Baroda"));
+
+        ArgumentCaptor<AgentAlert> captor = ArgumentCaptor.forClass(AgentAlert.class);
+        verify(alerts).save(captor.capture());
+        // The rendered message body never goes into an alert — same rule the
+        // audit log follows.
+        assertFalse(captor.getValue().getMessage().contains("Bank of Baroda"));
+    }
+
+    @Test
+    void neverLetsAFailingAlertBreakTheNotification() {
+        when(alerts.save(any(AgentAlert.class))).thenThrow(new RuntimeException("mongo down"));
+
+        // Alerting about a failure must not itself become a failure.
+        Notification n = notifyFor(null);
+        assertEquals(NotificationService.UNDELIVERABLE, n.getSms().getOutcome());
+    }
+
+    @Test
+    void doesNotAlertWhenDeliveryWasMerelySkipped() {
+        notifyFor(user(null, null));
+        verify(alerts, never()).save(any(AgentAlert.class));
     }
 
     @Test

@@ -64,6 +64,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/v2/auth/**",
                                 "/api/v2/helper-portal/login", // helper portal login (ID+password); /me + /change-password stay authenticated
+                                // Branch-rep login, same pattern — /change-password stays authenticated.
+                                "/api/v2/branch-portal/login",
                                 "/api/health",
                                 // Spring forwards handled exceptions (malformed JSON, unreadable
                                 // body, unsupported media type) to /error as a fresh ERROR
