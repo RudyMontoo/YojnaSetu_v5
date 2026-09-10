@@ -23,10 +23,28 @@ public class CreditApplicationService {
     private final CreditApplicationRepository applications;
     private final CreditProductRepository products;
 
+    /**
+     * Optional so the state machine can be unit-tested without a messaging
+     * stack — the transition rules are the thing under test there, and a null
+     * notifier means "nobody is listening", not "something is broken".
+     */
+    private final com.yojnasetu.gateway.notify.CreditApplicationNotifier notifier;
+
+    public CreditApplicationService(CreditApplicationRepository applications,
+                                    CreditProductRepository products,
+                                    org.springframework.beans.factory.ObjectProvider<
+                                            com.yojnasetu.gateway.notify.CreditApplicationNotifier> notifier) {
+        this.applications = applications;
+        this.products = products;
+        this.notifier = notifier.getIfAvailable();
+    }
+
+    /** Test constructor — no notifications. */
     public CreditApplicationService(CreditApplicationRepository applications,
                                     CreditProductRepository products) {
         this.applications = applications;
         this.products = products;
+        this.notifier = null;
     }
 
     /** Why a requested change was refused — mapped to a status code at the edge. */
@@ -239,7 +257,15 @@ public class CreditApplicationService {
         application.getStatusHistory().add(
                 entry(next, actorUserId, actorRole, reasonCode, note, requestedDocuments));
 
-        return applications.save(application);
+        CreditApplication saved = applications.save(application);
+
+        // After the save, deliberately. The transition is a fact once it is
+        // persisted; a messaging failure must not undo it, and the notifier
+        // swallows its own errors for the same reason.
+        if (notifier != null) {
+            notifier.onStatusChanged(saved, next);
+        }
+        return saved;
     }
 
     private static String describeRefusal(CreditApplicationStatus current, CreditApplicationStatus next) {
