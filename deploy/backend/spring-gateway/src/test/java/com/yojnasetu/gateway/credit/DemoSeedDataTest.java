@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -88,19 +89,46 @@ class DemoSeedDataTest {
         }
     }
 
+    private List<BranchRep> seededHelpers() {
+        ArgumentCaptor<BranchRep> captor = ArgumentCaptor.forClass(BranchRep.class);
+        verify(branchReps, atLeastOnce()).save(captor.capture());
+        return captor.getAllValues();
+    }
+
     @Test
     void seedsABranchRepThatCanLogIn() {
         enable();
         seeder.run();
 
-        ArgumentCaptor<BranchRep> captor = ArgumentCaptor.forClass(BranchRep.class);
-        verify(branchReps).save(captor.capture());
+        BranchRep rep = seededHelpers().stream()
+                .filter(h -> h.getRepType() == RepType.BANK_BRANCH)
+                .findFirst().orElseThrow();
 
-        BranchRep rep = captor.getValue();
         assertNotNull(rep.getRepId());
         assertNotNull(rep.getPasswordHash());
+        assertNotNull(rep.getPartnerId(), "a branch rep is scoped by the branch they work at");
         assertTrue(rep.isActive());
         assertFalse(rep.isMustResetPassword(), "a demo login should not interrupt the walkthrough");
+    }
+
+    @Test
+    void seedsAnAssistOnlyHelperSoTheAssistedPathIsDemonstrable() {
+        enable();
+        seeder.run();
+
+        BranchRep csc = seededHelpers().stream()
+                .filter(BranchRep::isAssistOnly)
+                .findFirst().orElseThrow(() -> new AssertionError(
+                        "no assist-only helper seeded — the assisted path is the one most "
+                                + "applicants use and would go undemonstrated"));
+
+        assertEquals(RepType.CSC, csc.getRepType());
+        assertNotNull(csc.getPasswordHash());
+        assertTrue(csc.isActive());
+        assertFalse(csc.getRepType().canRecordDecisions());
+        // No branch, so no queue: this account can see nothing at all until a
+        // citizen authorizes it for a specific application.
+        assertNull(csc.getPartnerId());
     }
 
     @Test

@@ -39,6 +39,12 @@ public class DemoSeedData implements CommandLineRunner {
     private static final String REP_ID = "DEMO-CP-001";
     private static final String REP_PASSWORD = "demo-password-1";
 
+    // An assist-only helper too, because the assisted path is the one most
+    // applicants will actually use and a demo that only ever shows a bank rep
+    // signing in makes it look like self-serve is the whole product.
+    private static final String CSC_ID = "DEMO-CSC-001";
+    private static final String CSC_PASSWORD = "demo-password-2";
+
     @Value("${app.demo-seed.enabled:false}")
     private boolean enabled;
 
@@ -72,10 +78,12 @@ public class DemoSeedData implements CommandLineRunner {
         }
 
         seedRep();
+        seedCscHelper();
         int inserted = seedApplications(scheme);
         if (inserted > 0) {
-            LOG.info("Demo seed: inserted {} application(s). Branch-rep login: {} / {}",
-                    inserted, REP_ID, REP_PASSWORD);
+            LOG.info("Demo seed: inserted {} application(s). Branch-rep login: {} / {}. "
+                            + "CSC helper login: {} / {}",
+                    inserted, REP_ID, REP_PASSWORD, CSC_ID, CSC_PASSWORD);
         }
     }
 
@@ -87,12 +95,36 @@ public class DemoSeedData implements CommandLineRunner {
         rep.setRepId(REP_ID);
         rep.setPasswordHash(new BCryptPasswordEncoder().encode(REP_PASSWORD));
         rep.setName("Demo Representative");
+        rep.setRepType(RepType.BANK_BRANCH);
         rep.setPartnerId(PARTNER_ID);
         rep.setPartnerName(PARTNER_NAME);
         rep.setActive(true);
         rep.setMustResetPassword(false); // a demo login should not interrupt the walkthrough
         rep.setCreatedAt(LocalDateTime.now());
         branchReps.save(rep);
+    }
+
+    /**
+     * A CSC operator: no partnerId, no decision authority, and no access to
+     * anything until a citizen authorizes them for a specific application.
+     * Seeded without any authorization on purpose — logging in and seeing an
+     * empty worklist is the honest demonstration that access comes from the
+     * citizen, not from holding an account.
+     */
+    private void seedCscHelper() {
+        if (branchReps.findByRepId(CSC_ID).isPresent()) {
+            return;
+        }
+        BranchRep helper = new BranchRep();
+        helper.setRepId(CSC_ID);
+        helper.setPasswordHash(new BCryptPasswordEncoder().encode(CSC_PASSWORD));
+        helper.setName("Demo CSC Operator");
+        helper.setRepType(RepType.CSC);
+        helper.setOrganisation("CSC — Connaught Place");
+        helper.setActive(true);
+        helper.setMustResetPassword(false);
+        helper.setCreatedAt(LocalDateTime.now());
+        branchReps.save(helper);
     }
 
     private int seedApplications(CreditProduct scheme) {

@@ -28,8 +28,15 @@ import java.util.Map;
  * check — a path-level matcher is protected by default.
  *
  * Note the asymmetry with the citizen side: a rep is scoped to applications
- * assigned to their partner, so {@link #queue} keys on the partnerId they pass
- * and the detail view refuses files belonging to a different partner.
+ * assigned to their partner.
+ *
+ * That scope is derived from the rep's OWN account, never from the request.
+ * It used to come from a {@code partnerId} the caller supplied in the query
+ * string or body, with the authenticated identity used only for the audit
+ * line — so any logged-in rep could read, and act on, another partner's files
+ * by naming their id. {@link #actingPartnerId} now resolves it from the JWT
+ * subject instead. An ADMIN is the one caller who may still name a partner
+ * explicitly, because cross-partner oversight is the point of that role.
  */
 @RestController
 @RequestMapping("/api/v2/branch/applications")
@@ -38,29 +45,72 @@ public class BranchRepController {
     private final CreditApplicationService service;
     private final AuditLogRepository auditLogRepository;
     private final com.yojnasetu.gateway.workflow.LoanWorkflowGateway workflows;
+    private final BranchRepRepository branchReps;
 
     public BranchRepController(CreditApplicationService service,
                                AuditLogRepository auditLogRepository,
-                               com.yojnasetu.gateway.workflow.LoanWorkflowGateway workflows) {
+                               com.yojnasetu.gateway.workflow.LoanWorkflowGateway workflows,
+                               BranchRepRepository branchReps) {
         this.service = service;
         this.auditLogRepository = auditLogRepository;
         this.workflows = workflows;
+        this.branchReps = branchReps;
+    }
+
+    private static boolean isAdmin(Authentication auth) {
+        return auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+    }
+
+    private java.util.Optional<BranchRep> actingRep(Authentication auth) {
+        return auth == null ? java.util.Optional.empty()
+                : branchReps.findById(auth.getName()).filter(BranchRep::isActive);
+    }
+
+    /**
+     * The partner whose files this caller may work, or empty if none.
+     *
+     * {@code requested} is honoured only for an ADMIN. For a rep it is ignored
+     * outright rather than compared — a mismatch is not a bad request to be
+     * reported, it is an attempt to act outside one's own branch, and the
+     * answer is simply the branch they actually belong to.
+     */
+    private java.util.Optional<String> actingPartnerId(Authentication auth, String requested) {
+        if (isAdmin(auth)) {
+            return java.util.Optional.ofNullable(requested).filter(p -> !p.isBlank());
+        }
+        return actingRep(auth)
+                .map(BranchRep::getPartnerId)
+                .filter(p -> p != null && !p.isBlank());
+    }
+
+    private static ResponseEntity<?> noScope() {
+        // Deliberately not "you sent the wrong partnerId": the caller doesn't
+        // get to learn which partner ids exist or which one they missed.
+        return ResponseEntity.status(403).body(Map.of(
+                "error", "This account is not attached to a lending branch queue."));
     }
 
     /** The queue, newest submission first, optionally filtered by status. */
     @GetMapping
-    public ResponseEntity<?> queue(@RequestParam String partnerId,
+    public ResponseEntity<?> queue(Authentication auth,
+                                   @RequestParam(required = false) String partnerId,
                                    @RequestParam(required = false) CreditApplicationStatus status) {
-        if (partnerId == null || partnerId.isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "partnerId is required"));
-        }
-        return ResponseEntity.ok(service.queueForPartner(partnerId, status));
+        return actingPartnerId(auth, partnerId)
+                .<ResponseEntity<?>>map(scope -> ResponseEntity.ok(service.queueForPartner(scope, status)))
+                .orElseGet(BranchRepController::noScope);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> detail(@PathVariable String id, @RequestParam String partnerId) {
+    public ResponseEntity<?> detail(Authentication auth,
+                                    @PathVariable String id,
+                                    @RequestParam(required = false) String partnerId) {
+        java.util.Optional<String> scope = actingPartnerId(auth, partnerId);
+        if (scope.isEmpty()) {
+            return noScope();
+        }
         return service.findById(id)
-                .filter(a -> partnerId.equals(a.getAssignedPartnerId()))
+                .filter(a -> scope.get().equals(a.getAssignedPartnerId()))
                 .<ResponseEntity<?>>map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(404).body(Map.of("error", "Application not found")));
     }
@@ -75,12 +125,28 @@ public class BranchRepController {
                                           @PathVariable String id,
                                           @RequestBody StatusUpdateRequest request,
                                           HttpServletRequest httpRequest) {
-        if (request == null || request.partnerId() == null || request.partnerId().isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "partnerId is required"));
+        if (request == null || request.status() == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "status is required"));
+        }
+
+        // A credit decision belongs to the lender. A CSC operator, NGO worker
+        // or field agent holds an account so they can help a citizen assemble
+        // a file — not so they can sanction or reject one. Checked here rather
+        // than left to the UI, because the UI is not the security boundary.
+        var rep = actingRep(auth);
+        if (rep.isPresent() && !rep.get().getRepType().canRecordDecisions()) {
+            return ResponseEntity.status(403).body(Map.of(
+                    "error", "A " + rep.get().getRepType().label()
+                            + " can help with documents but cannot record a decision on an application."));
+        }
+
+        java.util.Optional<String> scope = actingPartnerId(auth, request.partnerId());
+        if (scope.isEmpty()) {
+            return noScope();
         }
 
         var found = service.findById(id)
-                .filter(a -> request.partnerId().equals(a.getAssignedPartnerId()));
+                .filter(a -> scope.get().equals(a.getAssignedPartnerId()));
         if (found.isEmpty()) {
             return ResponseEntity.status(404).body(Map.of("error", "Application not found"));
         }

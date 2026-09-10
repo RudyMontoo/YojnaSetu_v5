@@ -28,6 +28,20 @@ import java.util.Map;
  *   - a citizen may see and remove their own documents;
  *   - a branch rep may READ documents on files assigned to their branch, and
  *     may not upload or delete. Evidence a rep can edit is not evidence.
+ *   - an assist-only helper (CSC operator, NGO/SHG worker, field agent) may
+ *     read AND upload, but only on an application the citizen has explicitly
+ *     authorized them for, and may not delete.
+ *
+ * That last rule is the one that makes assisted access work at all. The
+ * applicants this scheme targets frequently cannot photograph and upload a
+ * caste certificate themselves; someone does it with them. Denying the helper
+ * upload would just mean the helper types the citizen's password instead,
+ * which is worse — it moves the same action outside the audit trail and hands
+ * over the account with it. Upload is recorded against the helper's own
+ * identity, so the file says who actually attached it.
+ *
+ * Delete stays citizen-only for every helper type: removing evidence is not
+ * assistance, and a citizen who wants a document gone can do it themselves.
  *
  * Every download is written to the audit log. These files name someone's caste
  * and income, so "who opened this, and when" has to be answerable.
@@ -38,15 +52,18 @@ public class LoanDocumentController {
     private final LoanDocumentService documents;
     private final CreditApplicationService applications;
     private final BranchRepRepository branchReps;
+    private final AssistService assists;
     private final AuditLogRepository auditLogRepository;
 
     public LoanDocumentController(LoanDocumentService documents,
                                   CreditApplicationService applications,
                                   BranchRepRepository branchReps,
+                                  AssistService assists,
                                   AuditLogRepository auditLogRepository) {
         this.documents = documents;
         this.applications = applications;
         this.branchReps = branchReps;
+        this.assists = assists;
         this.auditLogRepository = auditLogRepository;
     }
 
@@ -166,6 +183,46 @@ public class LoanDocumentController {
         });
     }
 
+    /**
+     * Helper-side upload, for the applicant who cannot do it themselves.
+     * Recorded as uploaded by the helper, under their own id — the file should
+     * say who actually attached it, not pretend the citizen did.
+     */
+    @PostMapping(value = "/api/v2/branch/applications/{id}/documents", consumes = "multipart/form-data")
+    public ResponseEntity<?> uploadForCitizen(Authentication auth,
+                                              @PathVariable String id,
+                                              @RequestParam("file") MultipartFile file,
+                                              @RequestParam(value = "documentType", required = false) String documentType,
+                                              HttpServletRequest request) {
+        BranchRep helper = branchReps.findById(auth.getName()).filter(BranchRep::isActive).orElse(null);
+        if (helper == null || !helper.isAssistOnly()) {
+            // Branch reps deliberately excluded: a lender who can add paperwork
+            // to a file they are also judging is not reviewing evidence, they
+            // are producing it.
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
+                    "error", "Only an authorized assisting helper can upload on a citizen's behalf."));
+        }
+        return withHelperAccess(auth, id, application -> {
+            try {
+                LoanDocument stored = documents.store(application, file == null ? null : file.getBytes(),
+                        file == null ? null : file.getOriginalFilename(),
+                        documentType, auth.getName(), helper.getRepType().name());
+                audit(auth.getName(), "loan_document_upload_by_helper", request);
+                stored.setContent(null);
+                return ResponseEntity.status(HttpStatus.CREATED).body(stored);
+            } catch (java.io.IOException e) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Could not read the uploaded file"));
+            }
+        });
+    }
+
+    /**
+     * Read access for anyone on the partner side of a file: a branch rep whose
+     * branch holds it, or an assist-only helper the citizen authorized for it.
+     * Two different claims to the same file, so they are checked separately
+     * rather than collapsed into one condition that would accidentally let
+     * either claim stand in for the other.
+     */
     private ResponseEntity<?> withRepAccess(Authentication auth, String applicationId,
                                             java.util.function.Function<CreditApplication, ResponseEntity<?>> action) {
         BranchRep rep = branchReps.findById(auth.getName()).orElse(null);
@@ -173,11 +230,29 @@ public class LoanDocumentController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("error", "Not a branch-rep session"));
         }
+        if (rep.isAssistOnly()) {
+            return withHelperAccess(auth, applicationId, action);
+        }
         CreditApplication application = applications.findById(applicationId).orElse(null);
         if (application == null || !java.util.Objects.equals(
                 rep.getPartnerId(), application.getAssignedPartnerId())) {
             // Same 404-not-403 rule as elsewhere: confirming it exists would
             // reveal that another branch holds it.
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Application not found"));
+        }
+        try {
+            return action.apply(application);
+        } catch (CreditApplicationService.TransitionException e) {
+            return CreditApplicationController.toResponse(e);
+        }
+    }
+
+    /** An assist-only helper's claim: a live, citizen-granted authorization. */
+    private ResponseEntity<?> withHelperAccess(Authentication auth, String applicationId,
+                                               java.util.function.Function<CreditApplication, ResponseEntity<?>> action) {
+        CreditApplication application = applications.findById(applicationId).orElse(null);
+        if (application == null || !assists.isAuthorized(applicationId, auth.getName())) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", "Application not found"));
         }

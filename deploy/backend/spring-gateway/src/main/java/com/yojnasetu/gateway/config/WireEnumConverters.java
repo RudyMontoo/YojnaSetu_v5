@@ -5,6 +5,7 @@ import com.yojnasetu.gateway.credit.ConsentPurpose;
 import com.yojnasetu.gateway.credit.CreditApplicationStatus;
 import com.yojnasetu.gateway.credit.MoratoriumMode;
 import com.yojnasetu.gateway.credit.ReasonCode;
+import com.yojnasetu.gateway.credit.RepType;
 import com.yojnasetu.gateway.credit.VerificationMode;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
@@ -36,5 +37,6 @@ public class WireEnumConverters implements WebMvcConfigurer {
         registry.addConverter(String.class, ReasonCode.class, ReasonCode::fromWire);
         registry.addConverter(String.class, MoratoriumMode.class, MoratoriumMode::fromWire);
         registry.addConverter(String.class, VerificationMode.class, VerificationMode::fromWire);
+        registry.addConverter(String.class, RepType.class, RepType::fromWire);
     }
 }
