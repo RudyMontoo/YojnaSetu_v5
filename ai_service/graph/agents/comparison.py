@@ -15,7 +15,7 @@ import logging
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from ai_service.db.vector_search import scheme_vector_search
-from ai_service.graph.llm import ainvoke_with_fallback
+from ai_service.graph.llm import ainvoke_with_fallback, language_instruction
 from ai_service.graph.state import GraphState
 
 logger = logging.getLogger(__name__)
@@ -41,7 +41,7 @@ Scheme B: {b['name']} — Benefit: {b.get('benefitAmount', '')} — Eligibility:
 
 Citizen's message: "{last_user_message}"
 
-Reply in the SAME language and script the citizen's message is written in — never default to Hinglish if they wrote in plain English or another language. Give a short side-by-side comparison and end with one clear recommendation sentence."""
+{language_instruction(state.get("lang"))} Give a short side-by-side comparison and end with one clear recommendation sentence."""
 
     response = await ainvoke_with_fallback(prompt, temperature=0.3)
     reply = response.content.strip()

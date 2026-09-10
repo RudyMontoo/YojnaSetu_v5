@@ -278,6 +278,7 @@ export default function ChatPage() {
             const { createVoiceClient } = await import('../lib/voiceClient')
             const client = createVoiceClient({
                 sessionId: ensureSessionId(),
+                lang,
                 onUserTranscript: (data) => upsertVoiceUserBubble(data.text, data.final),
                 onBotText: appendBotVoiceText,
                 onUserSpeaking: setUserSpeaking,

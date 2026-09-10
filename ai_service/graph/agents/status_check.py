@@ -25,7 +25,7 @@ import logging
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from ai_service.graph.llm import ainvoke_with_fallback
+from ai_service.graph.llm import ainvoke_with_fallback, language_instruction
 from ai_service.graph.state import GraphState
 
 logger = logging.getLogger(__name__)
@@ -102,18 +102,19 @@ async def build_status_summary(citizen_id: str, db: AsyncIOMotorDatabase) -> dic
     }
 
 
-async def _polish(deterministic: str, count: int, citizen_message: str = "") -> str:
+async def _polish(deterministic: str, count: int, citizen_message: str = "", lang: str | None = None) -> str:
     """Optional warmth pass. Strictly rephrases the already-grounded summary —
     the prompt forbids inventing any status not present in the text. Falls back
     to the deterministic summary on any LLM error or empty response."""
     if count == 0:
         return deterministic  # the no-applications text is already friendly; don't spend an LLM call
     prompt = (
-        "Neeche ek citizen ki government scheme applications ka factual status summary hai. "
-        "Ise ek short, warm message mein dobara likho (2-3 lines), citizen ke apne message jaisi language/script mein "
-        f'(\'{citizen_message}\') — agar unhone plain English mein likha hai toh Hinglish mat use karo. '
-        "IMPORTANT: koi bhi naya status ya scheme mat jodo — sirf jo neeche diya hai wahi rephrase karo. "
-        "Agar koi application 'reject' hui hai toh usey CPGRAMS grievance file karne ka gentle suggestion de sakte ho.\n\n"
+        "Below is a factual status summary of a citizen's government scheme applications. "
+        "Rewrite it as a short, warm message (2-3 lines). "
+        f"{language_instruction(lang)} "
+        "IMPORTANT: do not add any status or scheme not already present below — only rephrase it. "
+        "If any application was rejected, you may gently suggest filing a CPGRAMS grievance.\n\n"
+        f"Citizen's own message (for tone only, not for language — see instruction above): \"{citizen_message}\"\n\n"
         f"Factual summary:\n{deterministic}"
     )
     try:
@@ -132,7 +133,9 @@ async def run_status_check_agent(state: GraphState, db: AsyncIOMotorDatabase) ->
     messages = state.get("messages", [])
     last_user_message = next((m["content"] for m in reversed(messages) if m["role"] == "user"), "")
     result = await build_status_summary(citizen_id, db)
-    result["reply"] = await _polish(result["reply"], result["application_count"], last_user_message)
+    result["reply"] = await _polish(
+        result["reply"], result["application_count"], last_user_message, state.get("lang")
+    )
 
     state["reply"] = result["reply"]
     state.setdefault("agent_outputs", {})["status_check"] = {

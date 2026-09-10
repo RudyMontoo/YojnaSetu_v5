@@ -40,7 +40,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from ai_service.db.vector_search import scheme_vector_search
 from ai_service.graph.agents.eligibility import build_query_string
 from ai_service.graph.agents.eligibility_rules_engine import evaluate_eligibility
-from ai_service.graph.llm import ainvoke_with_fallback
+from ai_service.graph.llm import ainvoke_with_fallback, language_instruction
 from ai_service.graph.state import GraphState
 from ai_service.utils.benefit_parser import extract_benefit_amount
 
@@ -49,7 +49,7 @@ logger = logging.getLogger(__name__)
 MAX_SCHEMES_TO_PLAN = 10  # bounds LLM calls (one per scheme for benefit parsing)
 
 
-async def build_financial_plan(profile_dict: dict, db: AsyncIOMotorDatabase) -> dict:
+async def build_financial_plan(profile_dict: dict, db: AsyncIOMotorDatabase, lang: str | None = None) -> dict:
     query_text = build_query_string(profile_dict)
     candidates = await scheme_vector_search(db, query_text, state_filter=profile_dict.get("state"), limit=30)
 
@@ -101,7 +101,7 @@ async def build_financial_plan(profile_dict: dict, db: AsyncIOMotorDatabase) -> 
         reverse=True,
     )
 
-    reply = await _compose_summary(profile_dict, total_annual, len(breakdown), ranked[:3], contingent_benefits)
+    reply = await _compose_summary(profile_dict, total_annual, len(breakdown), ranked[:3], contingent_benefits, lang)
 
     return {
         "total_annual_benefit_inr": round(total_annual, 2),
@@ -117,7 +117,10 @@ async def build_financial_plan(profile_dict: dict, db: AsyncIOMotorDatabase) -> 
     }
 
 
-async def _compose_summary(profile_dict: dict, total_annual: float, count: int, top_3: list[dict], contingent: list[dict]) -> str:
+async def _compose_summary(
+    profile_dict: dict, total_annual: float, count: int, top_3: list[dict],
+    contingent: list[dict], lang: str | None = None,
+) -> str:
     if count == 0:
         return "Abhi tak koi eligible scheme nahi mili jiska clear benefit amount ho. Apna profile aur complete karein — state, income, occupation batayein."
 
@@ -129,7 +132,7 @@ Total guaranteed annual benefit across {count} eligible schemes: Rs {total_annua
 Best value-for-effort schemes: {top_names}
 {f"Also has {len(contingent)} conditional/contingency schemes (compensation paid only if a specific event occurs) — do not include these in the routine annual figure." if contingent else ""}
 
-Write a short, encouraging summary in Hinglish (2-3 sentences) telling the citizen their guaranteed annual benefit and which 1-2 schemes give the best return for the least paperwork effort. Do not conflate the guaranteed total with any contingent/compensation amounts."""
+Write a short, encouraging summary (2-3 sentences) telling the citizen their guaranteed annual benefit and which 1-2 schemes give the best return for the least paperwork effort. {language_instruction(lang)} Do not conflate the guaranteed total with any contingent/compensation amounts."""
 
     try:
         response = await ainvoke_with_fallback(prompt, temperature=0.4)
@@ -146,7 +149,7 @@ async def run_financial_plan_agent(state: GraphState, db: AsyncIOMotorDatabase) 
     Spring Boot profile. Was previously wired to the placeholder node
     despite this agent being fully built."""
     profile_dict = state.get("profile") or {}
-    result = await build_financial_plan(profile_dict, db)
+    result = await build_financial_plan(profile_dict, db, lang=state.get("lang"))
 
     state["reply"] = result["reply"]
     state.setdefault("agent_outputs", {})["agent7_financial"] = {

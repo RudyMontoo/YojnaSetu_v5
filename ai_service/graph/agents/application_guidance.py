@@ -25,7 +25,7 @@ import logging
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from ai_service.db.vector_search import scheme_vector_search
-from ai_service.graph.llm import ainvoke_with_fallback
+from ai_service.graph.llm import ainvoke_with_fallback, language_instruction
 from ai_service.graph.state import GraphState
 from ai_service.routers.apply_guide import _SCHEME_GUIDES
 from ai_service.utils.domain_whitelist import is_allowed_url
@@ -86,6 +86,12 @@ async def build_apply_guidance(db: AsyncIOMotorDatabase, scheme_query: str, lang
 
     playbook = _find_playbook(name)
     if playbook:
+        # KNOWN GAP: curated playbooks are template Hinglish text
+        # (csc_steps_hi), not LLM-composed, so language_instruction() can't
+        # reach this branch — a citizen who selected Tamil/Bengali/etc. still
+        # gets this step list in Hinglish. Translating the playbook corpus
+        # itself is a separate task from the "lang ignored" prompt bug fixed
+        # elsewhere in this module.
         steps = playbook.get("csc_steps_hi", [])
         reply_lines = [f"{name} ke liye apply karne ka tarika ({playbook.get('difficulty','')}, ~{playbook.get('time_to_apply','')}):"]
         reply_lines += [f"{i}. {s}" for i, s in enumerate(steps, 1)]
@@ -106,7 +112,7 @@ async def build_apply_guidance(db: AsyncIOMotorDatabase, scheme_query: str, lang
 
     # No playbook — compose from the scheme doc itself.
     docs = scheme.get("documents", [])
-    reply = await _compose_guidance(scheme, apply_url, docs, citizen_message or scheme_query)
+    reply = await _compose_guidance(scheme, apply_url, docs, citizen_message or scheme_query, lang)
     return {
         "found": True, "source": "composed_from_scheme_doc", "scheme_code": scheme.get("schemeCode"),
         "scheme_name": name, "steps": [], "documents": docs,
@@ -115,7 +121,7 @@ async def build_apply_guidance(db: AsyncIOMotorDatabase, scheme_query: str, lang
     }
 
 
-async def _compose_guidance(scheme: dict, apply_url: str, docs: list, citizen_message: str = "") -> str:
+async def _compose_guidance(scheme: dict, apply_url: str, docs: list, citizen_message: str = "", lang: str = "hi") -> str:
     fallback = (
         f"{scheme.get('name','')} ke liye: "
         + (f"online apply karein: {apply_url}. " if apply_url else "apne najdeeki CSC centre jayein (/help/csc/nearby se dhundhein). ")
@@ -131,7 +137,7 @@ Apply URL (government-verified): {apply_url or 'none — CSC route only'}
 Required documents: {', '.join(docs) if docs else 'not specified — advise Aadhaar + bank passbook as baseline'}
 
 Citizen's own message: "{citizen_message}"
-Reply in the SAME language and script that message is written in — never default to Hinglish if they wrote in plain English or another language."""
+{language_instruction(lang)}"""
     try:
         response = await ainvoke_with_fallback(prompt, temperature=0.3)
         return response.content.strip()

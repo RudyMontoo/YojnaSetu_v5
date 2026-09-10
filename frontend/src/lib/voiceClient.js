@@ -20,6 +20,12 @@ import {
 
 export function createVoiceClient({
   sessionId,
+  lang,               // 'en'|'hi'|'bn'|'ta'|'te'|'mr' — the UI's selected language.
+                       // Without this, the backend fell back to guessing the TTS
+                       // language from the citizen's registered address state (or
+                       // Hindi if that was unset), ignoring the language switcher
+                       // entirely — the reported "wrong language" / "broken audio"
+                       // bug in live voice mode. See voice_ws_router.py's comment.
   onUserTranscript,   // ({ text, final }) — live captions of what the citizen is saying
   onBotText,          // (text) — chunks of the bot's spoken reply, as it speaks
   onUserSpeaking,     // (bool)
@@ -28,7 +34,8 @@ export function createVoiceClient({
   onError,            // (message)
 }) {
   const proto = window.location.protocol === "https:" ? "wss" : "ws";
-  const wsUrl = `${proto}://${window.location.host}/ws/voice/${sessionId}`;
+  const langParam = lang ? `?lang=${encodeURIComponent(lang)}` : "";
+  const wsUrl = `${proto}://${window.location.host}/ws/voice/${sessionId}${langParam}`;
 
   const transport = new WebSocketTransport({
     wsUrl,

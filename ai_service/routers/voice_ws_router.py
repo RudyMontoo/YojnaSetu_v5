@@ -197,7 +197,7 @@ async def voice_ws(websocket: WebSocket, session_id: str):
             FastAPIWebsocketTransport,
         )
 
-        from ai_service.utils.sarvam import get_language_for_state
+        from ai_service.utils.sarvam import get_language_for_state, SARVAM_LANGUAGES
 
         api_key = os.getenv("SARVAM_API_KEY", "").strip()
         if not api_key:
@@ -205,10 +205,19 @@ async def voice_ws(websocket: WebSocket, session_id: str):
             return
 
         profile = await fetch_citizen_profile(citizen_id)
-        # TTS voice language follows the citizen's state for now (v1
-        # simplification — STT auto-detects per utterance, but Bulbul's
-        # target language is fixed per connection).
-        lang_2char = get_language_for_state(profile.get("state"))
+        # Bulbul's target language is fixed per connection (STT still
+        # auto-detects per utterance regardless). Real bug fixed 2026-09-10:
+        # this used to ALWAYS derive from the citizen's registered address
+        # state, ignoring the language switcher in the UI entirely — a
+        # citizen with no state on file got Hindi regardless of what they
+        # picked, and one who picked e.g. Tamil while their profile state
+        # mapped to Hindi got Hindi audio no matter what they selected or
+        # said. The frontend now sends its language selection as a query
+        # param on the WS URL (see voiceClient.js); that's the real signal
+        # for what the citizen wants to hear. State-derived guess is kept
+        # only as the fallback for older/other callers that don't send it.
+        requested_lang = (websocket.query_params.get("lang") or "").strip().lower()
+        lang_2char = requested_lang if requested_lang in SARVAM_LANGUAGES else get_language_for_state(profile.get("state"))
 
         transport = FastAPIWebsocketTransport(
             websocket=websocket,

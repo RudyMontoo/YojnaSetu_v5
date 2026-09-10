@@ -70,6 +70,49 @@ def _ollama_llm(temperature: float):
     return ChatOllama(model=OLLAMA_MODEL, base_url=OLLAMA_BASE_URL, temperature=temperature)
 
 
+# Short code -> full name, for instructing a reply-composing prompt. Matches
+# the frontend's language switcher (LANGUAGES in frontend/src/lib/i18n.jsx)
+# and utils/sarvam.py's SARVAM_LANGUAGES keys, so a UI selection maps to
+# both the text reply's language here and the TTS target elsewhere.
+LANGUAGE_NAMES = {
+    "en": "English",
+    "hi": "Hindi",
+    "bn": "Bengali",
+    "ta": "Tamil",
+    "te": "Telugu",
+    "mr": "Marathi",
+}
+
+
+def language_instruction(lang: str | None) -> str:
+    """Builds the one line every reply-composing prompt should end its
+    formatting instructions with.
+
+    Real bug fixed 2026-09-10: every agent that composes a citizen-facing
+    reply told the LLM to "reply in the SAME language the citizen's message
+    is written in" — inferred purely from the message text/script, with
+    state["lang"] (the language the citizen explicitly selected in the UI)
+    captured into GraphState and persisted to Mongo, but never actually read
+    by any prompt. A citizen who picked Tamil in the language switcher but
+    typed in English, or whose STT transcript came back Romanized, got an
+    English/Hinglish reply regardless of their selection — confirmed as the
+    live "wrong language" complaint. Now the UI-selected language is the
+    instruction, not a guess from the message; message-script inference is
+    kept as the fallback only when lang is unset/unrecognized (e.g. very old
+    sessions, or a caller that hasn't been updated to pass it)."""
+    name = LANGUAGE_NAMES.get((lang or "").strip().lower())
+    if name:
+        return (
+            f"Reply ONLY in {name}, in both meaning and script — the citizen selected {name} "
+            f"in the app's language switcher, so reply in {name} even if their message itself "
+            f"was typed or spoken in a different language."
+        )
+    return (
+        "Reply in the SAME language and script the citizen's message is written in "
+        "— never default to Hinglish if they didn't use it."
+    )
+
+
 def is_first_turn(messages: list[dict]) -> bool:
     """True only when `messages` holds nothing but the citizen's current
     message — i.e. this is truly the first turn of the session.

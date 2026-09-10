@@ -59,7 +59,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from ai_service.db.vector_search import scheme_vector_search
 from ai_service.graph.agents.eligibility_rules_engine import evaluate_eligibility
-from ai_service.graph.llm import ainvoke_with_fallback, is_first_turn
+from ai_service.graph.llm import ainvoke_with_fallback, is_first_turn, language_instruction
 from ai_service.graph.profile_learner import extract_profile_facts
 from ai_service.graph.state import GraphState
 from ai_service.utils.spring_client import patch_citizen_profile
@@ -250,7 +250,7 @@ Their profile is too thin to give a real, personalized answer yet — most match
 
 {intro_instruction}
 
-Reply in the SAME language and script the citizen's message is written in (e.g. plain English if they wrote in English, Hinglish if they wrote in Hinglish, Hindi/Devanagari if they wrote in Hindi) — never default to Hinglish if they didn't use it. Write a short, warm reply (2-3 sentences) asking ONLY for these {min(len(systemic_gaps), 4)} things, so you can give a precise answer. Do not list any scheme names yet. Do not ask about anything not in that list. Mention they can also just upload a document via Jan-Sahayak Lens instead of typing answers, or visit a CSC if that's easier."""
+{language_instruction(state.get("lang"))} Write a short, warm reply (2-3 sentences) asking ONLY for these {min(len(systemic_gaps), 4)} things, so you can give a precise answer. Do not list any scheme names yet. Do not ask about anything not in that list. Mention they can also just upload a document via Jan-Sahayak Lens instead of typing answers, or visit a CSC if that's easier."""
         response = await ainvoke_with_fallback(compose_prompt, temperature=0.2)
         reply = response.content.strip()
 
@@ -313,7 +313,7 @@ Matched schemes with REAL eligibility findings (do not contradict or re-guess th
 
 {intro_instruction}
 
-Reply in the SAME language and script the citizen's message is written in (e.g. plain English if they wrote in English, Hinglish if they wrote in Hinglish, Hindi/Devanagari if they wrote in Hindi) — never default to Hinglish if they didn't use it. Write a short, warm reply (3-5 sentences). Be honest and specific: say clearly which schemes they qualify for, which they don't (briefly why), and which need more information (and what, if the hint above names it). Do not invent eligibility criteria not listed above, and do not claim a scheme is "eligible" if it's tagged NOT ELIGIBLE or NEEDS MORE INFO."""
+{language_instruction(state.get("lang"))} Write a short, warm reply (3-5 sentences). Be honest and specific: say clearly which schemes they qualify for, which they don't (briefly why), and which need more information (and what, if the hint above names it). Do not invent eligibility criteria not listed above, and do not claim a scheme is "eligible" if it's tagged NOT ELIGIBLE or NEEDS MORE INFO."""
 
     response = await ainvoke_with_fallback(compose_prompt, temperature=0.2)
     reply = response.content.strip()
