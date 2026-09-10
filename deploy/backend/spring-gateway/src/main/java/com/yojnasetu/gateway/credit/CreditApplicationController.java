@@ -38,12 +38,15 @@ public class CreditApplicationController {
      * signalling itself in a loop.
      */
     private final com.yojnasetu.gateway.workflow.LoanWorkflowGateway workflows;
+    private final ConsentService consents;
 
     public CreditApplicationController(CreditApplicationService service,
                                        com.yojnasetu.gateway.workflow.LoanWorkflowGateway workflows,
+                                       ConsentService consents,
                                        AuditLogRepository auditLogRepository) {
         this.service = service;
         this.workflows = workflows;
+        this.consents = consents;
         this.auditLogRepository = auditLogRepository;
     }
 
@@ -114,6 +117,13 @@ public class CreditApplicationController {
                                     HttpServletRequest httpRequest) {
         try {
             CreditApplication application = service.getForCitizen(auth.getName(), id);
+
+            // The one moment consent stops being paperwork. Submitting is when
+            // this citizen's caste and income certificates leave the platform
+            // for a bank, so it is refused without explicit agreement to that
+            // specific thing — not a general "I accept" ticked at signup.
+            consents.requireConsent(auth.getName(), ConsentPurpose.PARTNER_SHARING, id);
+
             CreditApplication submitted = service.transition(application,
                     CreditApplicationStatus.SUBMITTED, auth.getName(), "CITIZEN", null, null, null);
             workflows.signal(id, CreditApplicationStatus.SUBMITTED, null, null);
