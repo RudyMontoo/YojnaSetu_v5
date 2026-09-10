@@ -9,6 +9,7 @@ import com.yojnasetu.gateway.credit.PincodeGeocoder;
 import com.yojnasetu.gateway.service.GeoLabelService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,12 +22,15 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Real-bank-branch lookup for the NSFDC Credit & Education Loans module
@@ -63,6 +67,29 @@ public class CreditPartnerController {
     private final GeoLabelService geoLabelService;
     private final PincodeGeocoder pincodeGeocoder;
     private final CreditProductRepository creditProducts;
+
+    /**
+     * Overpass is a free, shared community API with no SLA and a real
+     * rate-limit — a demo where several people search near-identical
+     * locations in the same few minutes is exactly the traffic pattern that
+     * trips it. Bank branches don't move minute to minute, so caching the
+     * raw OSM result (name/lat/lng only, before any scheme-specific
+     * filtering) for a short window turns N identical demo-day queries into
+     * one real Overpass call. Coordinates are snapped to a ~1km grid so
+     * nearby requests for "the same place" share a cache entry even when the
+     * lat/lng differ in the fourth decimal. Failures are never cached — see
+     * PincodeGeocoder for the same rule and the same reason.
+     */
+    private final Map<String, CacheEntry> overpassCache = new ConcurrentHashMap<>();
+
+    @Value("${app.overpass.cache-ttl-minutes:20}")
+    private long cacheTtlMinutes;
+
+    private record RawPartner(String name, double lat, double lng) {
+    }
+
+    private record CacheEntry(List<RawPartner> partners, Instant fetchedAt) {
+    }
 
     public CreditPartnerController(GeoLabelService geoLabelService,
                                     PincodeGeocoder pincodeGeocoder,
@@ -184,12 +211,83 @@ public class CreditPartnerController {
         }
         int radius = Math.max(1, Math.min(radiusKm, MAX_RADIUS_KM));
 
+        List<RawPartner> raw = fetchNearbyBanks(lat, lng, radius);
+        if (raw == null) {
+            return lookupUnavailable(scheme);
+        }
+
+        List<Map<String, Object>> partners = new ArrayList<>();
+        for (RawPartner rp : raw) {
+            ChannelPartnerType type = classify(rp.name());
+            Map<String, Object> p = new HashMap<>();
+            p.put("name", rp.name());
+            p.put("type", type.wireName());
+            p.put("lat", rp.lat());
+            p.put("lng", rp.lng());
+            p.put("distanceKm", Math.round(haversineKm(lat, lng, rp.lat(), rp.lng()) * 10) / 10.0);
+            // Three-state on purpose. true = this type is a channel for the
+            // chosen scheme; false = it provably is not; null = we could not
+            // determine the branch's type, so we say nothing. Collapsing
+            // null into false would tell a citizen a real branch can't help
+            // them when we simply don't know.
+            p.put("deliversScheme", scheme == null ? null : deliversScheme(type, scheme));
+            partners.add(p);
+        }
+        // Confirmed channels first, then unknowns, then the ones that
+        // provably can't process this scheme — distance within each group.
+        // A nearer branch that cannot deliver the loan is not more useful
+        // than a further one that can.
+        partners.sort(Comparator
+                .comparingInt((Map<String, Object> p) -> deliveryRank(p.get("deliversScheme")))
+                .thenComparingDouble(p -> (double) p.get("distanceKm")));
+        List<Map<String, Object>> limited = partners.size() > MAX_RESULTS
+                ? partners.subList(0, MAX_RESULTS) : partners;
+
+        // Best-effort — a citizen should see the bank list even if the
+        // place-name lookup itself times out or fails. When they gave us a
+        // PIN code, the forward lookup already returned the place name, so
+        // reuse it rather than spending a second Nominatim call (and a
+        // second chance to fail) reverse-geocoding what we just geocoded.
+        String locationLabel = pincodeLabel != null ? pincodeLabel : geoLabelService.label(lat, lng);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("partners", limited);
+        body.put("locationLabel", locationLabel);
+        body.put("note", "Real bank locations from OpenStreetMap. \"Unclassified\" entries are not confirmed NSFDC Channel Partners. NSFDC authorisation and fund-utilization/NPA eligibility are not publicly available data — confirm directly with the branch.");
+
+        // Same guidance whether or not the branch lookup succeeded — a
+        // State Channelising Agency never appears in these results, so an
+        // otherwise-empty list must still point somewhere real.
+        addSchemeGuidance(body, scheme);
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+     * Grid key for the cache: coordinates rounded to 2 decimal places is
+     * roughly a 1.1km square at Indian latitudes — small next to the
+     * 1-25km search radius, so two citizens searching "the same area" of a
+     * demo venue land on the same cache entry without merging genuinely
+     * different locations.
+     */
+    private String cacheKey(double lat, double lng, int radiusKm) {
+        return String.format(Locale.US, "%.2f,%.2f,%d", lat, lng, radiusKm);
+    }
+
+    /** Returns raw OSM bank nodes (cached when fresh), or null when the lookup failed. */
+    private List<RawPartner> fetchNearbyBanks(double lat, double lng, int radiusKm) {
+        String key = cacheKey(lat, lng, radiusKm);
+        CacheEntry cached = overpassCache.get(key);
+        if (cached != null
+                && cached.fetchedAt().plus(Duration.ofMinutes(cacheTtlMinutes)).isAfter(Instant.now())) {
+            return cached.partners();
+        }
+
         // Locale.US pins the decimal separator to '.' — without it, %f renders
         // with ',' under some container-default locales, which silently breaks
         // Overpass QL's around(radius,lat,lon) syntax and looks like a network error.
-        String query = String.format(java.util.Locale.US,
+        String query = String.format(Locale.US,
                 "[out:json][timeout:10];node[\"amenity\"=\"bank\"](around:%d,%f,%f);out %d;",
-                radius * 1000, lat, lng, 60);
+                radiusKm * 1000, lat, lng, 60);
 
         try {
             HttpRequest req = HttpRequest.newBuilder()
@@ -202,62 +300,22 @@ public class CreditPartnerController {
             if (res.statusCode() != 200) {
                 LOG.warn("Overpass returned status {} for query [{}]: {}", res.statusCode(), query,
                         res.body() != null && res.body().length() > 300 ? res.body().substring(0, 300) : res.body());
-                return lookupUnavailable(scheme);
+                return null;
             }
 
             JsonNode root = MAPPER.readTree(res.body());
-            List<Map<String, Object>> partners = new ArrayList<>();
+            List<RawPartner> partners = new ArrayList<>();
             for (JsonNode el : root.path("elements")) {
                 JsonNode tags = el.path("tags");
                 String name = tags.path("name").asText(null);
                 if (name == null || name.isBlank()) continue; // unnamed nodes aren't useful to show a citizen
-                double plat = el.path("lat").asDouble();
-                double plng = el.path("lon").asDouble();
-                ChannelPartnerType type = classify(name);
-                Map<String, Object> p = new HashMap<>();
-                p.put("name", name);
-                p.put("type", type.wireName());
-                p.put("lat", plat);
-                p.put("lng", plng);
-                p.put("distanceKm", Math.round(haversineKm(lat, lng, plat, plng) * 10) / 10.0);
-                // Three-state on purpose. true = this type is a channel for the
-                // chosen scheme; false = it provably is not; null = we could not
-                // determine the branch's type, so we say nothing. Collapsing
-                // null into false would tell a citizen a real branch can't help
-                // them when we simply don't know.
-                p.put("deliversScheme", scheme == null ? null : deliversScheme(type, scheme));
-                partners.add(p);
+                partners.add(new RawPartner(name, el.path("lat").asDouble(), el.path("lon").asDouble()));
             }
-            // Confirmed channels first, then unknowns, then the ones that
-            // provably can't process this scheme — distance within each group.
-            // A nearer branch that cannot deliver the loan is not more useful
-            // than a further one that can.
-            partners.sort(Comparator
-                    .comparingInt((Map<String, Object> p) -> deliveryRank(p.get("deliversScheme")))
-                    .thenComparingDouble(p -> (double) p.get("distanceKm")));
-            List<Map<String, Object>> limited = partners.size() > MAX_RESULTS
-                    ? partners.subList(0, MAX_RESULTS) : partners;
-
-            // Best-effort — a citizen should see the bank list even if the
-            // place-name lookup itself times out or fails. When they gave us a
-            // PIN code, the forward lookup already returned the place name, so
-            // reuse it rather than spending a second Nominatim call (and a
-            // second chance to fail) reverse-geocoding what we just geocoded.
-            String locationLabel = pincodeLabel != null ? pincodeLabel : geoLabelService.label(lat, lng);
-
-            Map<String, Object> body = new HashMap<>();
-            body.put("partners", limited);
-            body.put("locationLabel", locationLabel);
-            body.put("note", "Real bank locations from OpenStreetMap. \"Unclassified\" entries are not confirmed NSFDC Channel Partners. NSFDC authorisation and fund-utilization/NPA eligibility are not publicly available data — confirm directly with the branch.");
-
-            // Same guidance whether or not the branch lookup succeeded — a
-            // State Channelising Agency never appears in these results, so an
-            // otherwise-empty list must still point somewhere real.
-            addSchemeGuidance(body, scheme);
-            return ResponseEntity.ok(body);
+            overpassCache.put(key, new CacheEntry(partners, Instant.now()));
+            return partners;
         } catch (Exception e) {
             LOG.warn("Overpass lookup failed for query [{}]: {}", query, e.toString());
-            return lookupUnavailable(scheme);
+            return null;
         }
     }
 
