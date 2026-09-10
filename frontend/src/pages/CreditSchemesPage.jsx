@@ -2,7 +2,10 @@ import { useState, useMemo } from 'react'
 import { Landmark, Calculator, MapPin, IndianRupee, GraduationCap, Info, Navigation, AlertTriangle } from 'lucide-react'
 import { Navbar, BottomNav } from '../components/Navbar'
 import { recommendScheme, NSFDC_SCHEMES, INCOME_CEILING } from '../lib/nsfdcSchemes'
-import { calculateEmi, formatInr } from '../lib/emiCalculator'
+import {
+    calculateEmi, formatInr,
+    MORATORIUM_CAPITALISE, MORATORIUM_SERVICE_INTEREST,
+} from '../lib/emiCalculator'
 import { gateway } from '../lib/api'
 import { useAutoTranslate } from '../lib/i18n'
 import '../components/components.css'
@@ -29,6 +32,18 @@ const UI = {
     monthlyEmi: 'Monthly EMI', totalInterest: 'Total interest', totalPayment: 'Total payment',
     viewSchedule: 'View month-by-month repayment schedule',
     colMonth: 'Month', colEmi: 'EMI', colPrincipal: 'Principal', colInterest: 'Interest', colBalance: 'Balance',
+    duringMoratorium: 'During the moratorium',
+    modeCapitalise: 'Pay nothing — interest is added to the loan',
+    modeService: 'Pay the interest each month',
+    moratoriumInterest: 'Interest during moratorium',
+    // No interpolation placeholders in these — they pass through the
+    // machine-translation layer, which is free to drop or reorder a token
+    // like "{p}". Amounts are rendered as their own node instead.
+    financedPrincipal: 'EMIs are calculated on',
+    financedNote: 'Interest builds up during the moratorium, so the loan grows before repayment starts.',
+    servicedLabel: 'Interest you pay during the moratorium',
+    servicedNote: 'Paying it each month keeps your loan amount unchanged.',
+    phaseMoratorium: 'Moratorium',
     // Locator
     locatorTitle: 'Partner Locator',
     locatorDesc: 'Finds real bank branches near your current location using OpenStreetMap data, to help you find a Channel Partner branch to enquire about NSFDC credit and education loan applications.',
@@ -40,7 +55,7 @@ const UI = {
     kmAway: 'km away', directions: 'Directions',
     npaDisclosure: "NPA / fund-utilization data for Channel Partners is not publicly available from any source — this deliberately uses real bank location data (OpenStreetMap) rather than fabricate an eligibility signal a citizen or partner could wrongly rely on.",
     moratoriumNote: 'month moratorium before EMIs begin',
-    scheduleNote: 'repayment schedule below starts counting from month 1 after the moratorium ends.',
+    scheduleNote: 'the schedule below covers the whole loan, moratorium months included.',
     incomeUpTo: 'annual family income up to',
 }
 const ALL_STATIC = Object.values(UI)
@@ -137,9 +152,16 @@ function CalculatorTab({ tr }) {
     const scheme = NSFDC_SCHEMES.find((s) => s.id === schemeId)
     const [amount, setAmount] = useState(scheme.maxLoanAmount / 2)
     const [tenureMonths, setTenureMonths] = useState(Math.round(scheme.maxTenureMonths / 2))
+    const [moratoriumMode, setMoratoriumMode] = useState(MORATORIUM_CAPITALISE)
 
-    const result = useMemo(() => calculateEmi(amount, scheme.interestRate, tenureMonths),
-        [amount, scheme.interestRate, tenureMonths])
+    const result = useMemo(
+        () => calculateEmi(amount, scheme.interestRate, tenureMonths, {
+            moratoriumMonths: scheme.moratoriumMonths,
+            moratoriumMode,
+        }),
+        [amount, scheme.interestRate, scheme.moratoriumMonths, tenureMonths, moratoriumMode])
+
+    const servicing = moratoriumMode === MORATORIUM_SERVICE_INTEREST
 
     const handleSchemeChange = (id) => {
         const s = NSFDC_SCHEMES.find((x) => x.id === id)
@@ -170,6 +192,17 @@ function CalculatorTab({ tr }) {
                         value={tenureMonths} onChange={(e) => setTenureMonths(Math.min(Number(e.target.value) || 1, scheme.maxTenureMonths))} />
                 </label>
 
+                {scheme.moratoriumMonths > 0 && (
+                    <label className="credit-field">
+                        <span>{tr(UI.duringMoratorium)}</span>
+                        <select className="input-glass" value={moratoriumMode}
+                            onChange={(e) => setMoratoriumMode(e.target.value)}>
+                            <option value={MORATORIUM_CAPITALISE}>{tr(UI.modeCapitalise)}</option>
+                            <option value={MORATORIUM_SERVICE_INTEREST}>{tr(UI.modeService)}</option>
+                        </select>
+                    </label>
+                )}
+
                 <p className="credit-scheme-note">
                     {scheme.interestRate}% p.a. · {scheme.moratoriumMonths}-{tr(UI.moratoriumNote)} ·
                     {tr(UI.scheduleNote)}
@@ -178,9 +211,22 @@ function CalculatorTab({ tr }) {
 
             <div className="glass-card credit-emi-summary">
                 <div><span>{tr(UI.monthlyEmi)}</span><strong>{formatInr(result.emi)}</strong></div>
+                <div><span>{tr(UI.moratoriumInterest)}</span><strong>{formatInr(result.moratoriumInterest)}</strong></div>
                 <div><span>{tr(UI.totalInterest)}</span><strong>{formatInr(result.totalInterest)}</strong></div>
                 <div><span>{tr(UI.totalPayment)}</span><strong>{formatInr(result.totalPayment)}</strong></div>
             </div>
+
+            {/* The moratorium's real effect, stated plainly — the figure the
+                previous version of this page silently dropped. */}
+            {scheme.moratoriumMonths > 0 && (
+                <div className="glass-card credit-moratorium-explainer">
+                    <div className="credit-financed-row">
+                        <span>{servicing ? tr(UI.servicedLabel) : tr(UI.financedPrincipal)}</span>
+                        <strong>{formatInr(servicing ? result.moratoriumPayment : result.financedPrincipal)}</strong>
+                    </div>
+                    <p>{servicing ? tr(UI.servicedNote) : tr(UI.financedNote)}</p>
+                </div>
+            )}
 
             <details className="glass-card credit-schedule">
                 <summary>{tr(UI.viewSchedule)}</summary>
@@ -191,8 +237,13 @@ function CalculatorTab({ tr }) {
                         </thead>
                         <tbody>
                             {result.schedule.map((row) => (
-                                <tr key={row.month}>
-                                    <td>{row.month}</td>
+                                <tr key={row.month} className={row.phase === 'moratorium' ? 'credit-row-moratorium' : undefined}>
+                                    <td>
+                                        {row.month}
+                                        {row.phase === 'moratorium' && (
+                                            <span className="credit-phase-tag">{tr(UI.phaseMoratorium)}</span>
+                                        )}
+                                    </td>
                                     <td>{formatInr(row.emi)}</td>
                                     <td>{formatInr(row.principalComponent)}</td>
                                     <td>{formatInr(row.interestComponent)}</td>

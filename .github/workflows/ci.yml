@@ -1,12 +1,16 @@
 name: CI
 
-# Honest scope: this repo has no real automated test suite yet (one ad-hoc
-# script, ai_service/test_retrieval.py — not a pytest/JUnit suite). These are
-# smoke checks, not test coverage: does every module actually import, does
-# Spring Boot compile, does the frontend build. That's still real signal —
-# this exact class of error (a stray `Depends(require_api_key)` left behind
-# after removing its import, a JSX reference to a deleted component) bit this
-# project multiple times in one session before this workflow existed.
+# Honest scope: this is mostly smoke checks — does every module import, does
+# Spring Boot compile, does the frontend build. That class of error (a stray
+# `Depends(require_api_key)` left behind after removing its import, a JSX
+# reference to a deleted component) bit this project repeatedly before this
+# workflow existed.
+#
+# Real test coverage exists in two places and both gate a merge: pytest over
+# ai_service (pure functions + app wiring) and vitest over the frontend, which
+# currently covers the EMI/moratorium math only. Everything else in the
+# frontend and the Spring gateway's controllers remains untested — don't read
+# a green tick as more than the above.
 
 on:
   push:
@@ -28,6 +32,8 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
+      - name: Unit tests (vitest — EMI/moratorium math)
+        run: npm test
       - run: npm run build
 
   python-import-check:

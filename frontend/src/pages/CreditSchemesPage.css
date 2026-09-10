@@ -168,12 +168,45 @@
     color: var(--text-primary);
 }
 
+/* auto-fit rather than a fixed count — the moratorium-interest figure makes
+   this a four-up summary on wide screens and reflows without a breakpoint. */
 .credit-emi-summary {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
     gap: 12px;
     padding: 18px;
     text-align: center;
+}
+
+/* .glass-card carries no padding of its own — every card on this page pairs
+   it with a padded class, so this one needs its own rather than borrowing
+   .credit-scheme-note (which sets type only). */
+.credit-moratorium-explainer {
+    padding: 16px 20px;
+    font-size: 12px;
+    color: var(--text-subtle);
+    line-height: 1.5;
+}
+
+.credit-moratorium-explainer p {
+    margin: 0;
+}
+
+.credit-financed-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 6px;
+}
+
+.credit-financed-row span {
+    color: var(--text-subtle);
+}
+
+.credit-financed-row strong {
+    font-size: 16px;
+    color: var(--saffron);
 }
 
 .credit-emi-summary span {
@@ -225,6 +258,28 @@
 .credit-schedule-table td:first-child {
     text-align: left;
     color: var(--text-primary);
+}
+
+/* The moratorium months are a different kind of month — no EMI is due, and
+   under capitalisation the balance is going up rather than down. Tint them so
+   the citizen doesn't read row 1 as their first instalment.
+   Literal rgba, not color-mix(): the build targets chrome80/safari13/ios12
+   (see vite.config.js) and color-mix() needs Chrome 111+/Safari 16.2+, so the
+   whole rule would be dropped on exactly the old phones this app is for. */
+.credit-row-moratorium {
+    background: rgba(255, 107, 53, 0.08);
+}
+
+.credit-phase-tag {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-size: 10px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--saffron);
+    border: 1px solid var(--border-saffron);
 }
 
 @media (max-width: 600px) {
