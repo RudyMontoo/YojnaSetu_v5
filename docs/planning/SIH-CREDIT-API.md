@@ -309,6 +309,50 @@ Two rules the API enforces so the citizen's screen is never a dead end:
 
 ---
 
+---
+
+# Partner locator — `/api/v2/credit-partners/nearby`
+
+Public. Returns **real** bank branches from OpenStreetMap.
+
+Takes **either** live coordinates **or** a PIN code:
+
+```
+GET /nearby?lat=28.6294&lng=77.2189&radiusKm=5
+GET /nearby?pincode=110001&radiusKm=5
+```
+
+Coordinates win if both are given (more precise than a PIN code centroid). `radiusKm` defaults to 15, capped at 25.
+
+**Why the pincode path exists (C5):** geolocation was the only way in, so a denied browser permission — or a desktop without GPS, which is what a CSC operator sits at — killed the feature outright. Offer the PIN code field as soon as `navigator.geolocation` errors, not as a hidden fallback.
+
+```json
+{
+  "partners": [
+    { "name": "Bank of Baroda", "type": "PSB", "lat": 28.6289, "lng": 77.2174, "distanceKm": 0.2 }
+  ],
+  "locationLabel": "New Delhi, Delhi",
+  "note": "Real bank locations from OpenStreetMap. \"Unclassified\" entries are not confirmed NSFDC Channel Partners…"
+}
+```
+
+`type` is `PSB`, `RRB` or `Unclassified`. **`Unclassified` does not mean "not a partner"** — it means we can't tell from the name. Never render it as a negative. Show `note` verbatim; it is the honesty boundary on data we don't have.
+
+### Error codes — three failures that must read differently
+
+| Code | Meaning | What to tell the citizen |
+|---|---|---|
+| `400` | Neither coordinates nor pincode, or the pincode isn't 6 digits | They can fix this by retyping |
+| `404` | Well-formed pincode, but not one in use | "Check the PIN code" |
+| `503` | Our PIN code lookup is down | **"Try again shortly"** — do *not* say the PIN code is wrong |
+| `502` | The OpenStreetMap bank lookup is down | "Try again shortly" |
+
+The 404/503 split is deliberate. They read identically in code but are opposite messages: one says *you* typed something wrong, the other says *we* are broken. Telling someone their real PIN code doesn't exist because a third-party service was slow is exactly the kind of small lie this module avoids — this was a live bug, found by running it.
+
+> **Known risk:** OpenStreetMap's Overpass rate-limits by IP and became unreachable during testing after repeated calls. Response caching is assigned (Chirag, G1) and is on the demo's critical path.
+
+---
+
 ## Not built yet
 
-Partner filtering by scheme (`/api/v2/credit-partners/nearby?schemeId=`), the `Consent` entity, and document upload. `GET /api/v2/credit-partners/nearby?lat=&lng=&radiusKm=` already works today and is unchanged.
+Partner filtering by scheme (`?schemeId=`), the `Consent` entity, and document upload.

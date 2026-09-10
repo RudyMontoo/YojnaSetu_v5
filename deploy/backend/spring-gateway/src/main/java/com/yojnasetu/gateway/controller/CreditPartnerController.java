@@ -2,10 +2,11 @@ package com.yojnasetu.gateway.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yojnasetu.gateway.credit.PincodeGeocoder;
+import com.yojnasetu.gateway.service.GeoLabelService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -56,10 +57,13 @@ public class CreditPartnerController {
     private static final int DEFAULT_RADIUS_KM = 15;
     private static final int MAX_RESULTS = 20;
 
-    private final com.yojnasetu.gateway.service.GeoLabelService geoLabelService;
+    private final GeoLabelService geoLabelService;
+    private final PincodeGeocoder pincodeGeocoder;
 
-    public CreditPartnerController(com.yojnasetu.gateway.service.GeoLabelService geoLabelService) {
+    public CreditPartnerController(GeoLabelService geoLabelService,
+                                    PincodeGeocoder pincodeGeocoder) {
         this.geoLabelService = geoLabelService;
+        this.pincodeGeocoder = pincodeGeocoder;
     }
 
     // Real, well-known Indian Public Sector Bank names — a branch whose name
@@ -90,9 +94,50 @@ public class CreditPartnerController {
         return r * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
+    /**
+     * Accepts EITHER live coordinates or a PIN code. Geolocation used to be the
+     * only way in, so a denied browser permission — or a desktop without GPS,
+     * which is what a CSC operator is sitting at — killed the feature outright.
+     * Coordinates win when both are supplied, since they're more precise than a
+     * PIN code centroid.
+     */
     @GetMapping("/nearby")
-    public ResponseEntity<?> nearby(@RequestParam double lat, @RequestParam double lng,
+    public ResponseEntity<?> nearby(@RequestParam(required = false) Double lat,
+                                     @RequestParam(required = false) Double lng,
+                                     @RequestParam(required = false) String pincode,
                                      @RequestParam(defaultValue = "" + DEFAULT_RADIUS_KM) int radiusKm) {
+
+        String pincodeLabel = null;
+        if (lat == null || lng == null) {
+            if (pincode == null || pincode.isBlank()) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "error", "Provide either lat and lng, or a 6-digit pincode"));
+            }
+            if (!PincodeGeocoder.isWellFormed(pincode)) {
+                // Distinct from "we couldn't find it" — this one the citizen can fix by retyping.
+                return ResponseEntity.badRequest().body(Map.of(
+                        "error", "That doesn't look like an Indian PIN code — it should be 6 digits."));
+            }
+            var located = pincodeGeocoder.locate(pincode);
+            if (located.isUnavailable()) {
+                // Our lookup is down, not their mistake. Saying "we couldn't
+                // find that PIN code" here would send someone to re-check a
+                // PIN code that was correct all along.
+                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of(
+                        "error", "The PIN code lookup is temporarily unavailable. Try again in a moment, "
+                                + "or allow location access instead.",
+                        "partners", List.of()));
+            }
+            if (!located.isFound()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                        "error", "We couldn't find that PIN code. Check it, or allow location access instead.",
+                        "partners", List.of()));
+            }
+            lat = located.location().lat();
+            lng = located.location().lng();
+            pincodeLabel = located.location().label();
+        }
+
         // Input validation — reject out-of-range coordinates rather than
         // silently forwarding garbage to an external API.
         if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
@@ -143,8 +188,11 @@ public class CreditPartnerController {
                     ? partners.subList(0, MAX_RESULTS) : partners;
 
             // Best-effort — a citizen should see the bank list even if the
-            // place-name lookup itself times out or fails.
-            String locationLabel = geoLabelService.label(lat, lng);
+            // place-name lookup itself times out or fails. When they gave us a
+            // PIN code, the forward lookup already returned the place name, so
+            // reuse it rather than spending a second Nominatim call (and a
+            // second chance to fail) reverse-geocoding what we just geocoded.
+            String locationLabel = pincodeLabel != null ? pincodeLabel : geoLabelService.label(lat, lng);
 
             Map<String, Object> body = new HashMap<>();
             body.put("partners", limited);
