@@ -64,4 +64,8 @@ final class MvcTestSupport {
     static Authentication rep() {
         return as("rep-9", "BRANCH_REP");
     }
+
+    static Authentication admin() {
+        return as("admin-1", "ADMIN");
+    }
 }

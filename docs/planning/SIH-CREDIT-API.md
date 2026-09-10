@@ -624,11 +624,21 @@ An assist-only helper's equivalent of the branch rep queue — every application
 
 `canRecordDecisions` is included so the UI can decide, once, whether to render status-change controls at all — but the server enforces the same rule independently on `POST /api/v2/branch/applications/{id}/status` (**403** for any non-`BANK_BRANCH` type), so hiding the button is a courtesy, not the actual security boundary. `assignments` degrades gracefully to just `applicationId`/`grantedAt` if the underlying application can't be loaded — a helper's worklist should never fail outright over one broken row.
 
+### Becoming an assist-only helper — `/api/v2/sih/branch-rep-applications`
+
+Before this, every `BranchRep` account — bank branch or assist-only — was admin-issued, with no path for a CSC operator, NGO/SHG worker, or field agent to ever request one themselves. This closes that gap, mirroring `HelperApplication`'s KYC and credential-minting pattern (assist-only helpers are still a different model from `Helper`, the general-scheme volunteer role — this is specifically the credit module's own rep type). Requires the citizen to be logged in (`ROLE_CITIZEN`); admin endpoints check `ROLE_ADMIN` in the handler, same convention as `HelperApplicationController`, not a path matcher.
+
+- `POST /` — citizen applies. Body: `{fullName, phone, aadhaar, pan, repType, organisation, workProofDetail}`. `repType` must be `csc`, `ngo_shg`, or `field_agent` — **`bank_branch` is refused with 400**, since a branch representative is appointed by their lending Channel Partner, not self-applied. **400** on a malformed PAN/Aadhaar or a missing `organisation` (the CSC code, NGO/SHG name, or district worked from); **409** if the citizen already has a pending or approved application (a rejected one may be re-applied for). Returns `{success, status: "pending", aadhaarVerified}` — `aadhaarVerified` reflects only the Verhoeff checksum on the typed number, same honesty caveat as the offline eKYC flow above: it is not proof of identity.
+- `GET /mine` — the citizen's own application, or `{"status": "none"}`.
+- `GET /pending` — admin only (**403** otherwise). List of applications with PII decrypted for review.
+- `GET /pending/count` — admin only. `{"pending": <count>}`, for a dashboard badge.
+- `POST /{id}/approve` — admin only. Mints a `BranchRep` login: `repId` is prefixed by type (`CSC-`, `NGO-`, `FA-`) followed by a random unique token, plus a temporary password. Emails the credentials via a dedicated `sendBranchRepCredentials` method (deliberately **not** a reuse of the general helper's `sendCredentials` — that one is hardcoded to say "Helper" and link to `/helper`, the wrong role name and the wrong login page for this account). Returns `{success, status: "approved", repId, tempPassword, emailedTo}` — the credentials are always returned in the response too, so an admin can relay them by hand if email delivery fails or isn't configured; a minted credential must never simply be lost.
+- `POST /{id}/reject` — admin only. `{success, status: "rejected"}`.
+
 ---
 
 ## Not built yet
 
 - **DigiLocker** and **Account Aggregator** verification. `VerificationMode.DIGILOCKER`/`.ACCOUNT_AGGREGATOR` exist in the enum and are rejected with **400** if requested (`isAvailable() == false`) — this is deliberate, not an oversight, so a request for either fails loudly instead of silently recording a verification that never happened. `ConsentPurpose.DIGILOCKER_FETCH`/`.ACCOUNT_AGGREGATOR_FETCH` exist for the same reason: the shape is ready, the integration is not.
 - **UIDAI signature verification** on offline eKYC — extraction/masking/storage all work today; only the cryptographic signature check against a real UIDAI certificate is pending `UIDAI_CERT_PATH` being configured in a deployment.
-- **CSC/NGO helper self-onboarding.** Every `BranchRep` account (bank branch or assist-only) is currently admin-issued — there is no application/approval flow for a CSC operator or NGO worker to request an account themselves, the way `Helper` (the general-scheme volunteer role, a different model) has one.
 - **Everything in this document has zero frontend integration as of this writing.** Every endpoint above is implemented, tested, and — as of this session — verified live against a real LLM/Mongo/Spring boot, but no React page calls any of them yet. This is the actual critical path for demo day, not any backend gap.

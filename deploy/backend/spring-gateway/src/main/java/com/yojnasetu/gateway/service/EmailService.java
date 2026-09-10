@@ -128,4 +128,43 @@ public class EmailService {
         msg.setText(body);
         sender.send(msg);
     }
+
+    /**
+     * Emails an approved assist-only credit helper (CSC operator, NGO/SHG
+     * worker, field agent) their branch-portal login. Deliberately its own
+     * method rather than a reuse of {@link #sendCredentials}: that one is
+     * hardcoded to say "Helper" and link to {@code /helper}, which is the
+     * WRONG login page and the wrong role name for this account — sending it
+     * here would point a CSC operator at a portal that isn't theirs. Same
+     * log-fallback / dev-echo behaviour as every other credential email in
+     * this class.
+     */
+    public void sendBranchRepCredentials(String email, String name, String repTypeLabel,
+                                         String repId, String tempPassword) {
+        JavaMailSender sender = mailSenderProvider.getIfAvailable();
+        String body = "Namaste " + (name != null ? name : "") + ",\n\n"
+                + "Aapki Yojna Sarthi " + repTypeLabel + " application APPROVE ho gayi hai! 🎉\n\n"
+                + "Aapke branch portal login details:\n"
+                + "  Rep ID: " + repId + "\n"
+                + "  Temporary password: " + tempPassword + "\n\n"
+                + "Pehli baar login karne par aapko apna password reset karna hoga.\n"
+                + "Login: " + (frontendUrl != null && !frontendUrl.isBlank() ? frontendUrl : "https://yojsarthi.in") + "/branch-portal\n\n"
+                + "Kisi ke saath ye details share na karein.\n\n— Yojna Sarthi";
+        if (!enabled || from == null || from.isBlank() || sender == null) {
+            if (devEcho) {
+                System.err.println("DEV: Branch-rep credentials for " + email
+                        + " => id=" + repId + " password=" + tempPassword);
+            } else {
+                System.err.println("ERROR: Email not configured — branch-rep credentials for repId=" + repId
+                        + " could not be sent and were NOT logged. Re-issue them once mail is configured.");
+            }
+            return;
+        }
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom(fromHeader());
+        msg.setTo(email);
+        msg.setSubject("Yojna Sarthi — your branch portal login credentials");
+        msg.setText(body);
+        sender.send(msg);
+    }
 }
