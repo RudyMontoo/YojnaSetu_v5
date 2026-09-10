@@ -19,7 +19,7 @@ import java.util.List;
  * name/dob/phone are stored ENCRYPTED (AES-256-GCM via FieldEncryptionService)
  * — callers must encrypt before save and decrypt after read. This class does
  * not encrypt itself; CitizenProfileService owns that, same separation
- * PRANJAL_HANDOFF.md specified ("use this service in CitizenProfileService,
+ * the encryption spec requires ("use this service in CitizenProfileService,
  * never in the controller directly").
  */
 @Document(collection = "citizen_profiles")

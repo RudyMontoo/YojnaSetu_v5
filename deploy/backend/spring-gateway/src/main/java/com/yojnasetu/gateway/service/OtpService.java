@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 /**
- * OTP generation, delivery, and verification per docs/PRANJAL_HANDOFF.md's
+ * OTP generation, delivery, and verification per the auth
  * spec. TTL (10 min) is enforced at the MongoDB level via a TTL index on
  * otp_sessions.expiresAt (see MongoConfig) — this service just sets that
  * field correctly, it doesn't need to remember to clean up expired sessions.

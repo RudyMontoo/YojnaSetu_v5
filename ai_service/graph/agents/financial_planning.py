@@ -144,7 +144,7 @@ async def run_financial_plan_agent(state: GraphState, db: AsyncIOMotorDatabase) 
     build_financial_plan() the standalone GET /agents/financial-plan
     endpoint uses, just fed from GraphState's profile instead of a fetched
     Spring Boot profile. Was previously wired to the placeholder node
-    despite this agent being fully built (see docs/status/AGENTS.md)."""
+    despite this agent being fully built."""
     profile_dict = state.get("profile") or {}
     result = await build_financial_plan(profile_dict, db)
 

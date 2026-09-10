@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 /**
- * OTP-first auth per ADR-001 / docs/PRANJAL_HANDOFF.md — replaces the old
+ * OTP-first auth per ADR-001 — replaces the old
  * username+password AuthController entirely, not incrementally. JWT is set
  * as httpOnly cookies only; the response body never contains a token.
  */

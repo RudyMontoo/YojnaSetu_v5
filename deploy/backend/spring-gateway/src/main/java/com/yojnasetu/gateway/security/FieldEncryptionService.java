@@ -15,7 +15,7 @@ import java.util.Base64;
 
 /**
  * AES-256-GCM field-level encryption, per CLAUDE.md's L1 security layer and
- * docs/PRANJAL_HANDOFF.md's spec. Used by CitizenProfileService — never
+ * the profile-encryption spec. Used by CitizenProfileService — never
  * called directly from a controller.
  *
  * encryption.key must be a 32-byte key, base64-encoded, from

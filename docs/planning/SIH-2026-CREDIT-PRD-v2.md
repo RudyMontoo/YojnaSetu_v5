@@ -1,7 +1,7 @@
 # PRD v2 — SIH 2026 SC Concessional Credit Access Platform
 
 **Supersedes:** the v1 PRD circulated in chat.
-**Basis:** direct reading of the code in this repo. **Not** the README, not `docs/status/*` — those overstate what exists and were treated as unverified.
+**Basis:** direct reading of the code in this repo. Not the README, and not the former `docs/status/*` progress files — those overstated what existed and have since been deleted for that reason.
 **Scope of this document:** what the code actually does today, where it is wrong, and what the four of us build in the next 14 days.
 
 ---

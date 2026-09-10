@@ -1,7 +1,7 @@
 """Agent 12 (DLC) — the public-key JWK importer, which is the trust anchor of
 the whole offline-proof scheme (a bad key here means unverifiable or
 forgeable proofs). Pure/no-Mongo: the full verify loop is covered by the live
-e2e (see docs/status/COMPLETED.md), this pins the JWK-parsing boundary."""
+e2e, this pins the JWK-parsing boundary."""
 import json
 
 import pytest

@@ -18,7 +18,7 @@ Additionally, Pranjal — originally slated to own the Spring Boot/Mongo/securit
 
 ## Decision
 
-Fully migrate `users` and `citizen_profiles` to MongoDB Atlas (Mumbai region), replacing Supabase and the Postgres/JPA gateway entirely. Auth becomes OTP-first (Twilio SMS, RS256 JWT, httpOnly cookies, per `docs/PRANJAL_HANDOFF.md`'s original spec). This is executed as Phase 1 of the rebuild plan, decoupled from the AI-agent work in Phase 2+.
+Fully migrate `users` and `citizen_profiles` to MongoDB Atlas (Mumbai region), replacing Supabase and the Postgres/JPA gateway entirely. Auth becomes OTP-first (Twilio SMS, RS256 JWT, httpOnly cookies, per the original handoff spec). This is executed as Phase 1 of the rebuild plan, decoupled from the AI-agent work in Phase 2+.
 
 Rejected alternative: keep Supabase for identity while MongoDB holds everything else. Rejected because it produces two sources of truth for citizen identity, two audit trails, and still doesn't deliver OTP-first/httpOnly-JWT auth (Supabase's client SDK is fundamentally token-in-browser-storage). The Postgres/JPA gateway has to be torn out regardless once `schemes`/`applications` move to Mongo for the agent layer — folding `users`/`citizen_profiles` into that same rewrite is finishing one migration, not doing two.
 
@@ -39,5 +39,5 @@ Rejected alternative: keep Supabase for identity while MongoDB holds everything 
 
 ## Links
 - Plan: `/home/rudra/.claude/plans/synchronous-tickling-riddle.md`
-- `docs/PRANJAL_HANDOFF.md` (original OTP/MongoDB spec, now executed solo)
+- The original OTP/MongoDB handoff spec (since removed from the repo; this ADR is the surviving record of what it required)
 - `update/01_Master_v5.docx` (v5.0 target architecture)

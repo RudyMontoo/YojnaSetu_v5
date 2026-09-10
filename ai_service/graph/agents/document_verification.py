@@ -184,7 +184,7 @@ async def run_document_verify_guidance(state: GraphState) -> GraphState:
     never carries, so this node can't run the actual check. It gives an
     accurate, working-endpoint-pointing reply instead of the stale
     placeholder text that claimed the agent was "still being built" even
-    after it was actually finished (see docs/status/AGENTS.md)."""
+    after it was actually finished."""
     state["reply"] = _GUIDANCE_REPLY
     state.setdefault("reasoning_trace", []).append({
         "agent_name": "agent4_document",

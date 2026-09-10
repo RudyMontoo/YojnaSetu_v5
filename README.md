@@ -249,11 +249,9 @@ sequenceDiagram
 | **Voice** | Pipecat · Sarvam Saaras v3 (STT) · Bulbul v3 (TTS) · server-side VAD |
 | **Messaging** | Twilio WhatsApp (Business API) |
 | **Frontend** | React + Vite · installable PWA · code-split routes · Framer Motion |
-| **Testing** | 110 pytest + 15 JUnit · CI on every push |
+| **Testing** | pytest + 184 JUnit + 18 Vitest · CI on every push |
 
 </details>
-
-Full breakdown of every external API/service and open-source library actually in use: [`docs/TECH_STACK_AND_APIS.md`](docs/TECH_STACK_AND_APIS.md).
 
 ---
 

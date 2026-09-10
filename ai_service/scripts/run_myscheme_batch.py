@@ -31,7 +31,7 @@ async def main():
                         help="Search-index offset to start from — NOTE this is a position in MyScheme's "
                              "listing, NOT the synced-doc count. Advance it by the fetch window (~limit) from "
                              "the previous batch's start, with a small overlap; the doc-count lags the listing "
-                             "frontier because skipped/updated schemes don't add to it. See docs/status/SYNC_TASK_HANDOFF.md.")
+                             "frontier because skipped/updated schemes don't add to it. Advance --offset by the fetch window (~300) from the previous batch's START, with a small overlap: overlap only costs cheap skips, a gap permanently misses schemes.")
     parser.add_argument("--provider", choices=["ollama", "groq", "gemini"], default="ollama",
                         help="LLM provider for eligibility-rule extraction. Default 'ollama' (local, no quota) — "
                              "requires `ollama serve` running. Cloud free tiers are exhausted, so 'groq'/'gemini' "

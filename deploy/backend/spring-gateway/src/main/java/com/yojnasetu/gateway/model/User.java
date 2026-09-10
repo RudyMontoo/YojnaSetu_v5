@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 /**
  * Auth identity only — per CLAUDE.md's `users` collection. OTP-first, no
- * password field: PRANJAL_HANDOFF.md's OTP flow issues a JWT after phone
+ * password field: the OTP flow issues a JWT after phone
  * verification, there's nothing to hash-and-compare here.
  */
 @Document(collection = "users")
