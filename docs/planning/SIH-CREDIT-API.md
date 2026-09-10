@@ -405,4 +405,45 @@ The 404/503 split is deliberate. They read identically in code but are opposite 
 
 ## Not built yet
 
-Partner filtering by scheme (`?schemeId=`), the `Consent` entity, and document upload.
+Partner filtering by scheme (`?schemeId=`), the `Consent` entity, and document upload — all now built; this line is stale and kept as-is rather than silently rewritten (see repo-wide note on not trusting this doc's own status claims).
+
+---
+
+## Assisted access, accountability, and offline identity verification
+
+Added to answer a real gap: the portal originally issued accounts to one kind
+of helper (a bank branch rep), assumed a citizen could always self-serve
+DigiLocker/OTP flows, and gave a citizen no way to see who had touched their
+own file. Three additions, all under `/api/v2/sih/applications/{id}/*` unless
+noted:
+
+- **`RepType`** (`BANK_BRANCH`/`CSC`/`NGO_SHG`/`FIELD_AGENT`) on `BranchRep`.
+  Only `BANK_BRANCH` can record a credit decision
+  (`POST /api/v2/branch/applications/{id}/status`); the other three can help
+  assemble a file and upload documents, never decide one. Enforced
+  server-side in `BranchRepController`, not by hiding UI.
+- **`POST /{id}/assist`** / **`DELETE /{id}/assist`** — a citizen names a
+  helper by the ID on their card (`repId`, not the internal document ID) and
+  can withdraw it at any time. `GET /{id}/assist` lists everyone ever
+  authorized, revocations included. An assist-only helper's ONLY claim to a
+  file is a live authorization here — no institutional access the way a
+  branch rep has via `partnerId`.
+- **`GET /{id}/activity`** — the citizen's own copy of the audit trail: who
+  was authorized, who read a document and when, who uploaded what, who
+  recorded which status change. Actors are named in words
+  ("R. Devi (CSC operator, CSC Ranchi)"), never as an internal ID.
+- **`POST /{id}/report-misuse`** / **`GET /sih/misuse-reports`** — an
+  unofficial fee, a requested OTP, wrong details entered, documents used
+  elsewhere. No proof required; an unidentifiable helper doesn't block the
+  report. Every filing raises an `agent_alerts` row `AlertNotifier` already
+  polls and emails — see `MisuseReportService`'s javadoc for why the alert
+  carries only IDs, never the citizen's own words.
+- **`POST /{id}/aadhaar-ekyc`** (citizen) / **`POST /api/v2/branch/applications/{id}/aadhaar-ekyc`**
+  (authorized helper) — upload UIDAI's offline eKYC ZIP (`file` +
+  `shareCode` form fields) instead of a live DigiLocker/OTP flow. Needs no
+  network at the moment of verification; the resident (or a CSC operator
+  helping them) downloads the file once, at a CSC if necessary. Server-side
+  signature verification against a real UIDAI certificate is not switched on
+  in any deployment yet — `AadhaarEkycRecord.signatureVerified` is honestly
+  `false` until `UIDAI_CERT_PATH` is configured; the extraction, masking, and
+  encryption all work regardless. See `AadhaarOfflineEkycService`'s javadoc.

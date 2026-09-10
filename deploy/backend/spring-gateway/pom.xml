@@ -149,6 +149,18 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- Offline Aadhaar eKYC: UIDAI's downloadable ZIP is password-protected
+             (the resident's own 4-digit share code) with standard ZipCrypto/AES,
+             which java.util.zip cannot read at all — it throws on the first entry.
+             Zip4j is the one well-maintained pure-Java library that handles both
+             legacy ZipCrypto and AES-256 zips UIDAI has used across format
+             revisions. See AadhaarOfflineEkycService for why this path exists. -->
+        <dependency>
+            <groupId>net.lingala.zip4j</groupId>
+            <artifactId>zip4j</artifactId>
+            <version>2.11.5</version>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
