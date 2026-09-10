@@ -126,9 +126,9 @@
     {
       "name": "National SC Finance & Development Corporation (NSFDC) Loans",
       "ministry": "Social Justice",
-      "benefit": "Loan up to Rs 15 lakh at 2% (women) to 6% interest for SC income-generating activities",
-      "benefit_hi": "SC वर्ग को 2% (महिला) से 6% ब्याज पर ₹15 लाख तक ऋण",
-      "eligibility": "SC individuals, income < poverty line × 3",
+      "benefit": "Concessional loans up to Rs 45 lakh (varies by scheme) at 6.5-15% interest depending on channel, for SC income-generating activities",
+      "benefit_hi": "SC वर्ग को योजना अनुसार ₹45 लाख तक, चैनल के अनुसार 6.5-15% ब्याज पर ऋण",
+      "eligibility": "SC individuals with annual family income below Rs 5 lakh (revised 07.01.2026)",
       "documents": [
         "SC certificate",
         "Aadhaar",
