@@ -108,23 +108,33 @@ public class CreditProductSeeder implements CommandLineRunner {
 
                 // ---- women-only ----
                 // The one entry NOT taken from NSFDC's own scheme listing: that page
-                // does not publish MSY's beneficiary rate. 4% is what state
-                // channelising agencies and secondary sources consistently report
-                // (NSFDC charges the SCA 1%, the SCA charges the beneficiary 4%),
-                // and the moratorium is reported as either 3 or 6 months depending
-                // on the agency. Seeded because a women's concessional rate is a
-                // defining feature of this scheme family and omitting it would
-                // quote women the general 6.5% they need not pay — but flagged
-                // unverified so it is never presented as settled.
+                // does not publish MSY's beneficiary rate. Re-verified 2026-09-10
+                // against secondary sources (paisabazaar.com, projectsarthi.com,
+                // aimindia.in) — they agree NSFDC lends to the SCA at 2%, and the
+                // SCA on-lends to the beneficiary at 6%, with a 3.5-year (42-month)
+                // TOTAL loan life inclusive of the moratorium — i.e. 3 months
+                // moratorium + 39 months of EMI, matching this class's
+                // moratorium-is-separate-from-tenure convention (see
+                // EmiCalculator's tenureMonths javadoc: "counted AFTER the
+                // moratorium"). This resolves an earlier discrepancy: a 4% figure
+                // exists too, but it belongs to Maharashtra's LIDCOM-administered
+                // variant for the Charmakar community specifically, not the
+                // national NSFDC scheme — using it here would have been the wrong
+                // scheme's rate. Still flagged unverified because none of this
+                // comes from NSFDC's own page and the moratorium's exact length
+                // (vs. tenure-inclusive-of-it) isn't separately confirmed.
                 builder("mahila-samriddhi", "MSY", "Mahila Samriddhi Yojana (MSY)", "micro", "small")
-                        .unitCost(null, 140_000L).maxLoan(125_000L).rate(4.0)
-                        .terms(3, 36)
+                        .unitCost(null, 140_000L).maxLoan(125_000L).rate(6.0)
+                        .terms(3, 39)
                         .womenOnly()
                         .deliveredBy(ChannelPartnerType.SCA, ChannelPartnerType.COOPERATIVE)
-                        .unverified("Unit cost and tenure follow NSFDC's micro-finance terms. The 4% "
-                                + "beneficiary rate and 3-month moratorium come from State Channelising "
-                                + "Agency listings, not NSFDC's own scheme page — confirm both with the "
-                                + "branch before relying on them.")
+                        .unverified("Unit cost follows NSFDC's micro-finance terms. The 6% beneficiary "
+                                + "rate (NSFDC to SCA at 2%, SCA to beneficiary at 6%) and 3.5-year total "
+                                + "loan life (3-month moratorium + 39-month repayment) come from secondary "
+                                + "sources, not NSFDC's own scheme page — confirm both with the branch "
+                                + "before relying on them. Do not confuse with the 4% rate quoted for "
+                                + "Maharashtra's LIDCOM/Charmakar-community variant, which is a different, "
+                                + "state-specific scheme.")
                         .describes("Micro-finance for women beneficiaries, individually or through "
                                 + "Self-Help Groups, at a concessional rate.")
                         .build(),

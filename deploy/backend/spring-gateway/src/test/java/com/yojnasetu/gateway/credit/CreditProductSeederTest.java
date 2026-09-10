@@ -102,9 +102,10 @@ class CreditProductSeederTest {
 
     @Test
     void marksTheWomensSchemeFiguresAsUnverified() {
-        // NSFDC's own scheme page does not publish MSY's beneficiary rate; 4%
-        // comes from State Channelising Agency listings. Seeded, but never
-        // presented as settled.
+        // NSFDC's own scheme page does not publish MSY's beneficiary rate; 6%
+        // comes from secondary sources describing the national scheme (not to
+        // be confused with Maharashtra's 4% LIDCOM/Charmakar-community
+        // variant). Seeded, but never presented as settled.
         assertFalse(product("mahila-samriddhi").isFiguresVerified());
         assertTrue(product("micro-finance").isFiguresVerified());
     }

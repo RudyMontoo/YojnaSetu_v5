@@ -86,7 +86,7 @@ class CreditEligibilityRealCatalogueTest {
         SchemeRecommendation top = business("female").recommendations().get(0);
 
         assertEquals("mahila-samriddhi", top.productId());
-        assertEquals(4.0, top.interestRate());
+        assertEquals(6.0, top.interestRate());
         assertTrue(top.eligible());
     }
 
@@ -96,8 +96,13 @@ class CreditEligibilityRealCatalogueTest {
         double general = business("male").recommendations().get(0).indicativeEmi().totalPayment();
 
         assertTrue(womens < general, () -> womens + " should be below " + general);
-        // Live check on the seeded figures: ~₹4,300 on a ₹90,000 loan.
-        assertTrue(general - womens > 4_000, () -> "saving was only " + (general - womens));
+        // Live check on the seeded figures. The margin is thin (~₹100-150 on a
+        // ₹90,000 loan) because MSY's lower 6% rate is largely offset by its
+        // longer 39-month repayment (vs micro-finance's 36) — both figures come
+        // from the 2026-09-10 re-verification, see CreditProductSeeder's note on
+        // this entry. Still cheaper, just not by much; a bigger gap would need
+        // NSFDC's own page to publish MSY's rate rather than inferring it.
+        assertTrue(general - womens > 50, () -> "saving was only " + (general - womens));
     }
 
     @Test
