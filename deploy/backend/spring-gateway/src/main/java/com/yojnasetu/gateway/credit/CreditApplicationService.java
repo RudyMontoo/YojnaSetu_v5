@@ -215,6 +215,15 @@ public class CreditApplicationService {
         }
 
         if (next == CreditApplicationStatus.SUBMITTED) {
+            // A submitted application with no branch attached lands in nobody's
+            // queue. It would sit at "submitted" forever looking like progress,
+            // which is worse for the citizen than being told to pick a branch.
+            if (application.getAssignedPartnerId() == null
+                    || application.getAssignedPartnerId().isBlank()) {
+                throw new TransitionException(Failure.BAD_REQUEST,
+                        "Choose the branch you want to apply through before submitting — "
+                                + "otherwise there is no one to receive this application.");
+            }
             application.setSubmittedAt(LocalDateTime.now());
         }
         if (next == CreditApplicationStatus.MISSING_DOCS) {
@@ -262,15 +271,61 @@ public class CreditApplicationService {
 
     // -------------------------------------------------------------- assignment
 
-    /** Routes a submitted file to the Channel Partner branch that will work it. */
-    public CreditApplication assignPartner(CreditApplication application, String partnerId, String partnerName) {
+    /**
+     * Records which Channel Partner branch will work this file.
+     *
+     * There is no auto-assignment, and that is deliberate. NSFDC's channel
+     * partner roster is not publicly obtainable, so picking a branch on the
+     * citizen's behalf would mean inventing one — the branch would have no
+     * idea the application exists. The citizen chooses a real branch from the
+     * locator; this validates that the choice can actually process the scheme.
+     *
+     * The check is one-sided on purpose. We refuse only what is provably
+     * wrong: a Public Sector Bank cannot deliver an NBFC-MFI-only scheme, and
+     * sending someone there wastes a trip they may have paid for. An
+     * undetermined branch type is allowed through — "we can't tell what this
+     * branch is" is not grounds to block a citizen from applying.
+     */
+    public CreditApplication assignPartner(CreditApplication application, String partnerId,
+                                           String partnerName, ChannelPartnerType partnerType) {
         if (partnerId == null || partnerId.isBlank()) {
             throw new TransitionException(Failure.BAD_REQUEST, "partnerId is required");
         }
+        if (application.getStatus() != CreditApplicationStatus.DRAFT) {
+            // Once a rep is working the file, moving it out from under them
+            // would strand their queue and their decisions.
+            throw new TransitionException(Failure.CONFLICT,
+                    "The branch can only be changed while the application is still a draft "
+                            + "(this one is " + application.getStatus().wireName() + ")");
+        }
+
+        rejectProvablyWrongChannel(application, partnerType);
+
         application.setAssignedPartnerId(partnerId);
         application.setAssignedPartnerName(partnerName);
+        application.setAssignedPartnerType(partnerType);
         application.setUpdatedAt(LocalDateTime.now());
         return applications.save(application);
+    }
+
+    private void rejectProvablyWrongChannel(CreditApplication application, ChannelPartnerType partnerType) {
+        if (partnerType == null || partnerType == ChannelPartnerType.UNCLASSIFIED) {
+            return; // we don't know what this branch is, so we don't get to refuse it
+        }
+        CreditProduct product = products.findById(application.getProductId()).orElse(null);
+        if (product == null || product.getChannelPartnerTypes() == null
+                || product.getChannelPartnerTypes().isEmpty()) {
+            return; // no channel data for the scheme — same rule
+        }
+        if (!product.getChannelPartnerTypes().contains(partnerType)) {
+            String canDeliver = product.getChannelPartnerTypes().stream()
+                    .map(ChannelPartnerType::label)
+                    .reduce((a, b) -> a + ", " + b)
+                    .orElse("");
+            throw new TransitionException(Failure.BAD_REQUEST,
+                    product.getName() + " is not offered by a " + partnerType.label()
+                            + ". It is delivered through: " + canDeliver + ".");
+        }
     }
 
     public Optional<CreditApplication> findById(String id) {
@@ -288,6 +343,14 @@ public class CreditApplicationService {
             MoratoriumMode moratoriumMode,
             VerificationMode verificationMode,
             String partnerId,
-            String partnerName) {
+            String partnerName,
+            ChannelPartnerType partnerType) {
+    }
+
+    /** Picking, or changing, the branch a draft will be sent to. */
+    public record PartnerSelectionRequest(
+            String partnerId,
+            String partnerName,
+            ChannelPartnerType partnerType) {
     }
 }

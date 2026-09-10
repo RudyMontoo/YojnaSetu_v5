@@ -221,8 +221,25 @@ A citizen may hold **one live application per scheme**. Terminal ones don't bloc
 | `GET` | `/` | Their applications, newest first |
 | `GET` | `/{id}` | 404 if it isn't theirs — deliberately indistinguishable from a genuine miss |
 | `POST` | `/` | Creates a `draft` → **201** |
-| `POST` | `/{id}/submit` | `draft → submitted` |
+| `POST` | `/{id}/partner` | Choose/change the branch. **Draft only** |
+| `POST` | `/{id}/submit` | `draft → submitted`. **Requires a branch** |
 | `POST` | `/{id}/documents-supplied` | `missing_docs → under_verification` |
+
+### Choosing a branch — `POST /{id}/partner`
+
+```json
+{ "partnerId": "osm-123", "partnerName": "Bank of Baroda, Connaught Place", "partnerType": "PSB" }
+```
+
+Feed these straight from the locator result. **There is no auto-assignment** — NSFDC's partner roster isn't publicly obtainable, so picking a branch on the citizen's behalf would mean inventing one that has no idea the application exists.
+
+Three rules, all verified against the running app:
+
+- **Submitting without a branch is a 400.** An unassigned application lands in nobody's queue and would sit at `submitted` forever looking like progress.
+- **A provably wrong channel is a 400**, naming the right ones: *"Micro Finance Scheme (MFS) is not offered by a Micro-finance institution. It is delivered through: State Channelising Agency, Public Sector Bank, …"*. This matters because the branch determines the rate — 6.5% via an SCA, 15% via an NBFC-MFI.
+- **An undetermined type (`Unclassified` or omitted) is allowed.** "We can't tell what this branch is" is not grounds to block someone from applying. Only a provable mismatch is refused.
+
+Changing branch after submission is a **409** — a rep may already be working the file.
 
 **`POST /` request:**
 

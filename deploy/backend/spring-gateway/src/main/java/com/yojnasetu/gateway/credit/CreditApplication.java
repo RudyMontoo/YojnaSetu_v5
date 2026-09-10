@@ -68,6 +68,16 @@ public class CreditApplication {
     private String assignedPartnerId;
     private String assignedPartnerName;
 
+    /**
+     * What kind of institution this is, as far as we can tell.
+     *
+     * Recorded because the rate a citizen actually pays depends on it — the
+     * same micro-finance money is 6.5% through a State Channelising Agency and
+     * 15% through an NBFC-MFI. Null or UNCLASSIFIED means the branch's type
+     * could not be determined, which is a real answer and not a failure.
+     */
+    private ChannelPartnerType assignedPartnerType;
+
     /** Documents a branch rep has asked for, plain-language and citizen-facing. */
     private List<String> missingDocuments = new ArrayList<>();
 

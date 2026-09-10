@@ -59,10 +59,37 @@ public class CreditApplicationController {
         try {
             CreditApplication created = service.create(auth.getName(), request);
             if (request.partnerId() != null && !request.partnerId().isBlank()) {
-                created = service.assignPartner(created, request.partnerId(), request.partnerName());
+                created = service.assignPartner(created, request.partnerId(),
+                        request.partnerName(), request.partnerType());
             }
             audit(auth.getName(), "credit_application_create", httpRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        } catch (CreditApplicationService.TransitionException e) {
+            return toResponse(e);
+        }
+    }
+
+    /**
+     * Choose, or change, the branch this draft will be sent to.
+     *
+     * Separate from submission because the choice is consequential and a
+     * citizen should be able to compare branches before committing: the same
+     * scheme costs 6.5% through a State Channelising Agency and 15% through an
+     * NBFC-MFI. Only permitted while the file is still a draft.
+     */
+    @PostMapping("/{id}/partner")
+    public ResponseEntity<?> choosePartner(Authentication auth, @PathVariable String id,
+                                           @RequestBody CreditApplicationService.PartnerSelectionRequest request,
+                                           HttpServletRequest httpRequest) {
+        if (request == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Request body is required"));
+        }
+        try {
+            CreditApplication application = service.getForCitizen(auth.getName(), id);
+            CreditApplication updated = service.assignPartner(application, request.partnerId(),
+                    request.partnerName(), request.partnerType());
+            audit(auth.getName(), "credit_application_choose_partner", httpRequest);
+            return ResponseEntity.ok(updated);
         } catch (CreditApplicationService.TransitionException e) {
             return toResponse(e);
         }

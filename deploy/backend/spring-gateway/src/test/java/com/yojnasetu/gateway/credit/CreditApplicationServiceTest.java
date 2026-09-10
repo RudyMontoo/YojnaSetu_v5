@@ -58,12 +58,16 @@ class CreditApplicationServiceTest {
         p.setCoveragePct(90);
         p.setMaxAnnualIncome(500_000);
         p.setCategories(List.of("sc"));
+        // Matches CreditProductSeeder. Without this the channel check silently
+        // short-circuits — the same fixture-drift that once hid a real bug.
+        p.setChannelPartnerTypes(List.of(ChannelPartnerType.SCA, ChannelPartnerType.PSB,
+                ChannelPartnerType.RRB, ChannelPartnerType.COOPERATIVE));
         p.setActive(true);
         return p;
     }
 
     private static CreateApplicationRequest request(long cost) {
-        return new CreateApplicationRequest(PRODUCT, cost, 300_000L, "sc", null, null, null, null, null);
+        return new CreateApplicationRequest(PRODUCT, cost, 300_000L, "sc", null, null, null, null, null, null);
     }
 
     private CreditApplication draft() {
@@ -122,7 +126,7 @@ class CreditApplicationServiceTest {
     @Test
     void refusesAVerificationModeThatIsNotBuiltYet() {
         CreateApplicationRequest digilocker = new CreateApplicationRequest(
-                PRODUCT, 100_000L, 300_000L, "sc", null, null, VerificationMode.DIGILOCKER, null, null);
+                PRODUCT, 100_000L, 300_000L, "sc", null, null, VerificationMode.DIGILOCKER, null, null, null);
 
         TransitionException thrown = assertThrows(TransitionException.class,
                 () -> service.create(CITIZEN, digilocker));
@@ -154,7 +158,7 @@ class CreditApplicationServiceTest {
     void rejectsAnUnknownProduct() {
         when(products.findById("nope")).thenReturn(Optional.empty());
         CreateApplicationRequest bad = new CreateApplicationRequest(
-                "nope", 100_000L, 300_000L, "sc", null, null, null, null, null);
+                "nope", 100_000L, 300_000L, "sc", null, null, null, null, null, null);
 
         assertEquals(Failure.NOT_FOUND,
                 assertThrows(TransitionException.class, () -> service.create(CITIZEN, bad)).failure());
@@ -163,7 +167,7 @@ class CreditApplicationServiceTest {
     @Test
     void rejectsATenureLongerThanTheSchemeAllows() {
         CreateApplicationRequest tooLong = new CreateApplicationRequest(
-                PRODUCT, 100_000L, 300_000L, "sc", 120, null, null, null, null);
+                PRODUCT, 100_000L, 300_000L, "sc", 120, null, null, null, null, null);
 
         assertEquals(Failure.BAD_REQUEST,
                 assertThrows(TransitionException.class, () -> service.create(CITIZEN, tooLong)).failure());
@@ -173,7 +177,7 @@ class CreditApplicationServiceTest {
 
     @Test
     void submittingStampsTheSubmissionTimeAndRecordsWhoActed() {
-        CreditApplication submitted = service.transition(draft(),
+        CreditApplication submitted = service.transition(assignedDraft(),
                 CreditApplicationStatus.SUBMITTED, CITIZEN, "CITIZEN", null, null, null);
 
         assertEquals(CreditApplicationStatus.SUBMITTED, submitted.getStatus());
@@ -211,7 +215,7 @@ class CreditApplicationServiceTest {
 
     @Test
     void willNotRejectAnApplicationWithoutARecordedReason() {
-        CreditApplication submitted = service.transition(draft(),
+        CreditApplication submitted = service.transition(assignedDraft(),
                 CreditApplicationStatus.SUBMITTED, CITIZEN, "CITIZEN", null, null, null);
 
         TransitionException thrown = assertThrows(TransitionException.class,
@@ -223,7 +227,7 @@ class CreditApplicationServiceTest {
 
     @Test
     void recordsTheReasonCodeOnARejection() {
-        CreditApplication submitted = service.transition(draft(),
+        CreditApplication submitted = service.transition(assignedDraft(),
                 CreditApplicationStatus.SUBMITTED, CITIZEN, "CITIZEN", null, null, null);
 
         CreditApplication rejected = service.transition(submitted, CreditApplicationStatus.REJECTED,
@@ -267,10 +271,76 @@ class CreditApplicationServiceTest {
     }
 
     private CreditApplication underVerification() {
-        CreditApplication submitted = service.transition(draft(),
+        CreditApplication submitted = service.transition(assignedDraft(),
                 CreditApplicationStatus.SUBMITTED, CITIZEN, "CITIZEN", null, null, null);
         return service.transition(submitted, CreditApplicationStatus.UNDER_VERIFICATION,
                 "rep-1", "BRANCH_REP", null, null, null);
+    }
+
+    // ------------------------------------------------- partner assignment
+
+    private CreditApplication assignedDraft() {
+        return service.assignPartner(draft(), "partner-7", "SBI Kanpur Nagar", ChannelPartnerType.PSB);
+    }
+
+    @Test
+    void willNotSubmitAnApplicationWithNoBranchToReceiveIt() {
+        // Without a branch it lands in nobody's queue and sits at "submitted"
+        // forever looking like progress — worse than being told to pick one.
+        TransitionException thrown = assertThrows(TransitionException.class,
+                () -> service.transition(draft(), CreditApplicationStatus.SUBMITTED,
+                        CITIZEN, "CITIZEN", null, null, null));
+
+        assertEquals(Failure.BAD_REQUEST, thrown.failure());
+        assertTrue(thrown.getMessage().contains("Choose the branch"));
+    }
+
+    @Test
+    void recordsThePartnerTypeBecauseTheRateDependsOnIt() {
+        CreditApplication assigned = assignedDraft();
+
+        assertEquals("partner-7", assigned.getAssignedPartnerId());
+        assertEquals("SBI Kanpur Nagar", assigned.getAssignedPartnerName());
+        assertEquals(ChannelPartnerType.PSB, assigned.getAssignedPartnerType());
+    }
+
+    @Test
+    void refusesABranchThatProvablyCannotDeliverTheScheme() {
+        // Micro Finance runs through SCA/PSB/RRB/co-operatives. Sending someone
+        // to an NBFC-MFI for it wastes a trip they may have paid for.
+        TransitionException thrown = assertThrows(TransitionException.class,
+                () -> service.assignPartner(draft(), "mfi-1", "Some MFI", ChannelPartnerType.NBFC_MFI));
+
+        assertEquals(Failure.BAD_REQUEST, thrown.failure());
+        assertTrue(thrown.getMessage().contains("is delivered through"),
+                () -> "message should name the right channels, got: " + thrown.getMessage());
+    }
+
+    @Test
+    void allowsABranchWhoseTypeWeCouldNotDetermine() {
+        // "We can't tell what this branch is" is not grounds to block a citizen
+        // from applying — only a provable mismatch is.
+        assertEquals(ChannelPartnerType.UNCLASSIFIED,
+                service.assignPartner(draft(), "x", "Some Bank", ChannelPartnerType.UNCLASSIFIED)
+                        .getAssignedPartnerType());
+
+        assertNull(service.assignPartner(draft(), "x", "Some Bank", null).getAssignedPartnerType());
+    }
+
+    @Test
+    void refusesToMoveTheBranchOnceARepIsWorkingTheFile() {
+        CreditApplication submitted = service.transition(assignedDraft(),
+                CreditApplicationStatus.SUBMITTED, CITIZEN, "CITIZEN", null, null, null);
+
+        TransitionException thrown = assertThrows(TransitionException.class,
+                () -> service.assignPartner(submitted, "other", "Other Branch", ChannelPartnerType.PSB));
+        assertEquals(Failure.CONFLICT, thrown.failure());
+    }
+
+    @Test
+    void stillRequiresAPartnerId() {
+        assertEquals(Failure.BAD_REQUEST, assertThrows(TransitionException.class,
+                () -> service.assignPartner(draft(), "  ", "Nameless", ChannelPartnerType.PSB)).failure());
     }
 
     // ------------------------------------------------------------------ read
@@ -291,7 +361,7 @@ class CreditApplicationServiceTest {
 
     @Test
     void assignsAPartnerBranchToWorkTheFile() {
-        CreditApplication assigned = service.assignPartner(draft(), "partner-7", "SBI Kanpur Nagar");
+        CreditApplication assigned = service.assignPartner(draft(), "partner-7", "SBI Kanpur Nagar", ChannelPartnerType.PSB);
 
         assertEquals("partner-7", assigned.getAssignedPartnerId());
         assertEquals("SBI Kanpur Nagar", assigned.getAssignedPartnerName());
