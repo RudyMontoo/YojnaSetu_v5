@@ -14,7 +14,7 @@ from typing import Annotated
 
 import magic
 
-from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from pydantic import BaseModel
 
 from ai_service.db.mongo import get_db
@@ -52,6 +52,7 @@ class PpoVerifyResponse(BaseModel):
 async def verify_ppo(
     aadhaar_file: Annotated[UploadFile, File(description="Aadhaar card image")],
     ppo_file: Annotated[UploadFile, File(description="PPO (Pension Payment Order) document image")],
+    lang: Annotated[str | None, Form()] = None,
     citizen_id: str = Depends(get_current_citizen_id),
 ):
     """
@@ -88,7 +89,7 @@ async def verify_ppo(
     ppo_text = await _run_ocr(ppo_bytes)
     del aadhaar_bytes, ppo_bytes
 
-    result = await verify_ppo_aadhaar_match(aadhaar_text, ppo_text)
+    result = await verify_ppo_aadhaar_match(aadhaar_text, ppo_text, lang)
     return PpoVerifyResponse(**result)
 
 
@@ -312,6 +313,7 @@ class GrievanceRequest(BaseModel):
     complaint_description: str
     scheme_code: str | None = None
     external_app_id: str | None = None
+    lang: str | None = None
 
 
 @router.post("/grievance")
@@ -327,6 +329,7 @@ async def file_grievance(req: GrievanceRequest, citizen_id: str = Depends(get_cu
         get_db(), citizen_id=citizen_id,
         complaint_description=req.complaint_description,
         scheme_code=req.scheme_code, external_app_id=req.external_app_id,
+        lang=req.lang,
     )
     return result
 
@@ -464,6 +467,7 @@ async def application_portal_recon(req: PortalReconRequest, citizen_id: str = De
 class CscAlternativesRequest(BaseModel):
     scheme_code: str
     missing_doc_type: str
+    lang: str | None = None
 
 
 class CscAlternativesResponse(BaseModel):
@@ -488,7 +492,7 @@ async def csc_alternatives(req: CscAlternativesRequest, operator_id: str = Depen
     (browsers can't hold a service secret without exposing it). It was the
     one endpoint that fell through that earlier fix.
     """
-    result = await suggest_doc_alternatives(get_db(), req.scheme_code, req.missing_doc_type)
+    result = await suggest_doc_alternatives(get_db(), req.scheme_code, req.missing_doc_type, lang=req.lang)
     if not result.pop("found"):
         raise HTTPException(status_code=404, detail=f"Unknown scheme_code: {req.scheme_code}")
     logger.info("Agent 9: operator %s asked alternatives for %s / %r", operator_id, req.scheme_code, req.missing_doc_type)

@@ -25,7 +25,7 @@ import logging
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from ai_service.db.vector_search import scheme_vector_search
-from ai_service.graph.llm import ainvoke_with_fallback, language_instruction
+from ai_service.graph.llm import LANGUAGE_NAMES, ainvoke_with_fallback, language_instruction
 from ai_service.graph.state import GraphState
 from ai_service.routers.apply_guide import _SCHEME_GUIDES
 from ai_service.utils.domain_whitelist import is_allowed_url
@@ -86,12 +86,6 @@ async def build_apply_guidance(db: AsyncIOMotorDatabase, scheme_query: str, lang
 
     playbook = _find_playbook(name)
     if playbook:
-        # KNOWN GAP: curated playbooks are template Hinglish text
-        # (csc_steps_hi), not LLM-composed, so language_instruction() can't
-        # reach this branch — a citizen who selected Tamil/Bengali/etc. still
-        # gets this step list in Hinglish. Translating the playbook corpus
-        # itself is a separate task from the "lang ignored" prompt bug fixed
-        # elsewhere in this module.
         steps = playbook.get("csc_steps_hi", [])
         reply_lines = [f"{name} ke liye apply karne ka tarika ({playbook.get('difficulty','')}, ~{playbook.get('time_to_apply','')}):"]
         reply_lines += [f"{i}. {s}" for i, s in enumerate(steps, 1)]
@@ -103,11 +97,21 @@ async def build_apply_guidance(db: AsyncIOMotorDatabase, scheme_query: str, lang
         portal = playbook.get("apply_url") or playbook.get("official_portal") or ""
         if portal and is_allowed_url(portal):
             reply_lines.append(f"Online: {portal}")
+        reply = "\n".join(reply_lines)
+        # Curated playbooks are only ever authored in Hinglish (csc_steps_hi) —
+        # translating that content to author it in five more languages is a
+        # content task, not a prompt fix. What IS a fair prompt fix: the exact,
+        # human-verified text is still the source of truth, and translating
+        # ALREADY-VERIFIED text preserves its facts far more reliably than
+        # asking an LLM to compose fresh guidance would — so this is layered
+        # on top of build_apply_guidance's Hinglish text, never a replacement
+        # for it, and falls back to the Hinglish original on any failure.
+        reply = await _translate_verified_text(reply, lang)
         return {
             "found": True, "source": "curated_playbook", "scheme_code": scheme.get("schemeCode"),
             "scheme_name": name, "steps": steps, "documents": docs,
             "helpline": playbook.get("helpline"), "apply_url": portal,
-            "reply": "\n".join(reply_lines),
+            "reply": reply,
         }
 
     # No playbook — compose from the scheme doc itself.
@@ -119,6 +123,32 @@ async def build_apply_guidance(db: AsyncIOMotorDatabase, scheme_query: str, lang
         "helpline": None, "apply_url": apply_url,
         "reply": reply,
     }
+
+
+async def _translate_verified_text(text: str, lang: str | None) -> str:
+    """Renders an already-verified Hinglish string in the citizen's selected
+    language, without touching the facts inside it. Only called for content
+    that's exact and human-checked (a curated playbook) — never used as a
+    substitute for language_instruction() on freshly LLM-composed text,
+    which should be generated directly in the target language instead."""
+    key = (lang or "").strip().lower()
+    name = LANGUAGE_NAMES.get(key)
+    if not name or key == "hi":
+        return text  # already Hinglish/Hindi, or no language selected — nothing to do
+
+    prompt = f"""Translate the following government-scheme application guidance into {name}. \
+Preserve every number, phone number, URL, and proper noun (scheme names, portal names) \
+EXACTLY as written — translate only the surrounding language. Do not add, remove, or \
+reorder any step.
+
+{text}"""
+    try:
+        response = await ainvoke_with_fallback(prompt, temperature=0.0, tags=["internal"])
+        translated = response.content.strip()
+        return translated or text
+    except Exception as e:
+        logger.warning("Agent 3 playbook translation to %s failed (%s) — Hinglish fallback", lang, e.__class__.__name__)
+        return text
 
 
 async def _compose_guidance(scheme: dict, apply_url: str, docs: list, citizen_message: str = "", lang: str = "hi") -> str:

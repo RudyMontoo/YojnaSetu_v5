@@ -19,7 +19,7 @@ needed so the citizen can see what didn't match and correct it) is returned.
 import gc
 import logging
 
-from ai_service.graph.llm import ainvoke_with_fallback
+from ai_service.graph.llm import ainvoke_with_fallback, language_instruction
 from ai_service.graph.state import GraphState
 from ai_service.utils.identity_extractor import extract_identity_fields
 from ai_service.utils.ppo_matcher import PpoMismatchResult, compute_ppo_mismatch, levenshtein, normalize_date, normalize_name
@@ -111,15 +111,31 @@ def verify_document_against_profile(fields: dict, profile: dict) -> dict:
 
 logger = logging.getLogger(__name__)
 
-_GUIDANCE_REPLY = (
-    "Document verification (Aadhaar/PPO mismatch check) ke liye aapko dono documents upload "
-    "karne honge — yeh sirf text message se nahi ho sakta. Please /agents/document/verify-ppo "
-    "endpoint use karein ya app mein document scanner section mein jaake Aadhaar aur PPO dono "
-    "upload karein."
-)
+_GUIDANCE_REPLY = {
+    "en": "Document verification (Aadhaar/PPO mismatch check) needs both documents uploaded — "
+          "this can't be done from a text message alone. Please use the /agents/document/verify-ppo "
+          "endpoint, or go to the document scanner section in the app and upload both your "
+          "Aadhaar and PPO.",
+    "hi": "Document verification (Aadhaar/PPO mismatch check) ke liye aapko dono documents upload "
+          "karne honge — yeh sirf text message se nahi ho sakta. Please /agents/document/verify-ppo "
+          "endpoint use karein ya app mein document scanner section mein jaake Aadhaar aur PPO dono "
+          "upload karein.",
+}
+_DEFAULT_GUIDANCE_LANG = "hi"
+
+_MATCH_REPLY = {
+    "en": "Your Aadhaar and PPO records match — '{name}' is correct on both. You're ready to submit your DLC.",
+    "hi": "Aapke Aadhaar aur PPO record match kar rahe hain — '{name}' dono jagah sahi hai. DLC submission ke liye ready hain.",
+}
+_MISMATCH_FALLBACK = {
+    "en": "A mismatch was found: '{aadhaar_name}' on Aadhaar and '{ppo_name}' on PPO. Please get this corrected before submitting your DLC.",
+    "hi": "Mismatch mila: Aadhaar par '{aadhaar_name}' aur PPO par '{ppo_name}'. DLC submit karne se pehle ise correct karwa lein.",
+}
 
 
-async def verify_ppo_aadhaar_match(aadhaar_ocr_text: str, ppo_ocr_text: str) -> dict:
+async def verify_ppo_aadhaar_match(
+    aadhaar_ocr_text: str, ppo_ocr_text: str, lang: str | None = None,
+) -> dict:
     aadhaar_fields = await extract_identity_fields(aadhaar_ocr_text)
     ppo_fields = await extract_identity_fields(ppo_ocr_text)
     del aadhaar_ocr_text, ppo_ocr_text
@@ -136,7 +152,7 @@ async def verify_ppo_aadhaar_match(aadhaar_ocr_text: str, ppo_ocr_text: str) -> 
         aadhaar_fields.get("dob"), ppo_fields.get("dob"),
     )
 
-    reply = await _compose_reply(aadhaar_fields, ppo_fields, result)
+    reply = await _compose_reply(aadhaar_fields, ppo_fields, result, lang)
 
     return {
         "checked": True,
@@ -152,14 +168,15 @@ async def verify_ppo_aadhaar_match(aadhaar_ocr_text: str, ppo_ocr_text: str) -> 
     }
 
 
-async def _compose_reply(aadhaar_fields: dict, ppo_fields: dict, result: PpoMismatchResult) -> str:
+async def _compose_reply(
+    aadhaar_fields: dict, ppo_fields: dict, result: PpoMismatchResult, lang: str | None = None,
+) -> str:
+    key = (lang or "").strip().lower()
     if not result.name_mismatch and not result.dob_mismatch:
-        return (
-            f"Aapke Aadhaar aur PPO record match kar rahe hain — "
-            f"'{aadhaar_fields['name']}' dono jagah sahi hai. DLC submission ke liye ready hain."
-        )
+        template = _MATCH_REPLY.get(key, _MATCH_REPLY[_DEFAULT_GUIDANCE_LANG])
+        return template.format(name=aadhaar_fields['name'])
 
-    prompt = f"""A citizen's Aadhaar and PPO (Pension Payment Order) records have a mismatch that will block their pension DLC (Digital Life Certificate) submission. Explain this to them in warm, simple Hinglish (2-3 sentences), telling them exactly what differs and that they should get it corrected before submitting.
+    prompt = f"""A citizen's Aadhaar and PPO (Pension Payment Order) records have a mismatch that will block their pension DLC (Digital Life Certificate) submission. Explain this to them (2-3 sentences), telling them exactly what differs and that they should get it corrected before submitting. {language_instruction(key)}
 
 Aadhaar name: "{aadhaar_fields['name']}" (DOB: {aadhaar_fields.get('dob', 'not found')})
 PPO name: "{ppo_fields['name']}" (DOB: {ppo_fields.get('dob', 'not found')})
@@ -171,10 +188,8 @@ DOB mismatch: {result.dob_mismatch}"""
         return response.content.strip()
     except Exception as e:
         logger.warning("Failed to compose PPO mismatch reply: %s", e)
-        return (
-            f"Mismatch mila: Aadhaar par '{aadhaar_fields['name']}' aur PPO par '{ppo_fields['name']}'. "
-            f"DLC submit karne se pehle ise correct karwa lein."
-        )
+        template = _MISMATCH_FALLBACK.get(key, _MISMATCH_FALLBACK[_DEFAULT_GUIDANCE_LANG])
+        return template.format(aadhaar_name=aadhaar_fields['name'], ppo_name=ppo_fields['name'])
 
 
 async def run_document_verify_guidance(state: GraphState) -> GraphState:
@@ -185,7 +200,8 @@ async def run_document_verify_guidance(state: GraphState) -> GraphState:
     accurate, working-endpoint-pointing reply instead of the stale
     placeholder text that claimed the agent was "still being built" even
     after it was actually finished."""
-    state["reply"] = _GUIDANCE_REPLY
+    key = (state.get("lang") or "").strip().lower()
+    state["reply"] = _GUIDANCE_REPLY.get(key, _GUIDANCE_REPLY[_DEFAULT_GUIDANCE_LANG])
     state.setdefault("reasoning_trace", []).append({
         "agent_name": "agent4_document",
         "tool_called": "none",

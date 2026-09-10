@@ -20,7 +20,7 @@ import logging
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from ai_service.graph.llm import ainvoke_with_fallback
+from ai_service.graph.llm import ainvoke_with_fallback, language_instruction
 from ai_service.graph.state import GraphState
 
 logger = logging.getLogger(__name__)
@@ -43,11 +43,19 @@ Return ONLY a JSON object:
     {{"document": "<name>", "how_to_get": "<where/how a rural citizen obtains it, 1 sentence>", "note": "<caveat if any, or null>"}}
   ],
   "mandatory_no_substitute": <true if the missing doc is legally required with no alternative>,
-  "operator_advice": "<1-2 sentences of practical advice for the CSC operator, in simple Hinglish>"
+  "operator_advice": "<1-2 sentences of practical advice for the CSC operator. {language_hint}>"
 }}"""
 
+_FALLBACK_ADVICE = {
+    "en": "This suggestion service isn't responding right now — check the document requirements on the scheme's official portal.",
+    "hi": "Suggestion service abhi respond nahi kar raha — scheme ke official portal par document requirements check karein.",
+}
+_DEFAULT_LANG = "hi"
 
-async def suggest_doc_alternatives(db: AsyncIOMotorDatabase, scheme_code: str, missing_doc_type: str) -> dict:
+
+async def suggest_doc_alternatives(
+    db: AsyncIOMotorDatabase, scheme_code: str, missing_doc_type: str, lang: str | None = None,
+) -> dict:
     """Returns {found, scheme_name, ...LLM fields} — `found: False` when the
     schemeCode doesn't exist (caller turns that into a 404)."""
     scheme = await db["schemes"].find_one(
@@ -57,12 +65,14 @@ async def suggest_doc_alternatives(db: AsyncIOMotorDatabase, scheme_code: str, m
     if not scheme:
         return {"found": False}
 
+    key = (lang or "").strip().lower()
     prompt = _ALTERNATIVES_PROMPT.format(
         name=scheme.get("name", ""),
         ministry=scheme.get("ministry", "") or "not specified",
         documents=", ".join(scheme.get("documents") or []) or "not listed",
         eligibility_text=(scheme.get("eligibilityText") or "")[:1500],
         missing_doc=missing_doc_type,
+        language_hint=language_instruction(key),
     )
 
     try:
@@ -79,7 +89,7 @@ async def suggest_doc_alternatives(db: AsyncIOMotorDatabase, scheme_code: str, m
             "has_alternatives": False,
             "alternatives": [],
             "mandatory_no_substitute": False,
-            "operator_advice": "Suggestion service abhi respond nahi kar raha — scheme ke official portal par document requirements check karein.",
+            "operator_advice": _FALLBACK_ADVICE.get(key, _FALLBACK_ADVICE[_DEFAULT_LANG]),
         }
 
     return {
@@ -92,12 +102,17 @@ async def suggest_doc_alternatives(db: AsyncIOMotorDatabase, scheme_code: str, m
     }
 
 
-_CHAT_GUIDANCE = (
-    "CSC operator assist (missing-document alternatives) operator dashboard se milta hai — "
-    "agar aap CSC operator hain, POST /agents/csc/alternatives endpoint use karein "
-    "(scheme code aur missing document type ke saath). Agar aap citizen hain aur koi "
-    "document nahi hai, apne najdeeki CSC centre par jayein — /help/csc/nearby se dhundh sakte hain."
-)
+_CHAT_GUIDANCE = {
+    "en": "CSC operator assist (missing-document alternatives) is available from the operator "
+          "dashboard — if you're a CSC operator, use the POST /agents/csc/alternatives endpoint "
+          "(with the scheme code and missing document type). If you're a citizen missing a "
+          "document, visit your nearest CSC centre — you can find one via /help/csc/nearby.",
+    "hi": "CSC operator assist (missing-document alternatives) operator dashboard se milta hai — "
+          "agar aap CSC operator hain, POST /agents/csc/alternatives endpoint use karein "
+          "(scheme code aur missing document type ke saath). Agar aap citizen hain aur koi "
+          "document nahi hai, apne najdeeki CSC centre par jayein — /help/csc/nearby se dhundh sakte hain.",
+}
+_DEFAULT_CHAT_LANG = "hi"
 
 
 async def run_csc_assist_guidance(state: GraphState) -> GraphState:
@@ -106,7 +121,8 @@ async def run_csc_assist_guidance(state: GraphState) -> GraphState:
     (scheme_code + missing_doc_type + operator role), which free-text
     citizen chat doesn't carry. Points at the real surfaces instead of the
     stale 'not built yet' placeholder."""
-    state["reply"] = _CHAT_GUIDANCE
+    key = (state.get("lang") or "").strip().lower()
+    state["reply"] = _CHAT_GUIDANCE.get(key, _CHAT_GUIDANCE[_DEFAULT_CHAT_LANG])
     state.setdefault("reasoning_trace", []).append({
         "agent_name": "agent9_csc",
         "tool_called": "none",
