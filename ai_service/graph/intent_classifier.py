@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 INTENTS = [
     "eligibility_query",
     "credit_application",
+    "credit_faq",
     "application_request",
     "grievance",
     "comparison",
@@ -34,6 +35,7 @@ _CLASSIFY_PROMPT = """You are an intent classifier for Yojna Sarthi, an Indian g
 Classify the citizen's message into exactly one of these intents:
 - eligibility_query: asking what schemes they qualify for, or describing their situation to find schemes
 - credit_application: wants to START/FILL an application for a SPECIFIC SC concessional credit scheme they've already named or that was just shown to them (e.g. "isके liye apply karna hai", "Micro Finance Scheme ke liye application shuru karo", "I want to apply for this scheme") — NOT a general "how do I apply" question with no scheme in mind
+- credit_faq: asking about an NSFDC concessional credit SCHEME'S OWN TERMS — interest rate, loan amount/ceiling, margin money, moratorium, tenure, income ceiling — e.g. "Term Loan ka interest rate kitna hai", "Micro Finance scheme mein kitna loan milega", "margin money kya hota hai" — NOT wanting to start applying (that's credit_application) and NOT a general welfare-scheme discovery question (that's eligibility_query)
 - application_request: wants general guidance on HOW to apply for any scheme (not credit-specific slot-filling) — e.g. "PM Kisan ke liye kaise apply karein", "what's the process to apply"
 - grievance: complaint about a rejected/stuck/missing payment or application
 - comparison: comparing two or more specific schemes against each other
@@ -50,6 +52,9 @@ Examples:
 - "Micro Finance Scheme ke liye application shuru karo" -> credit_application
 - "I want to apply for this scheme" -> credit_application
 - "Aajeevika loan ke liye form fill karna hai" -> credit_application
+- "Term Loan ka interest rate kitna hai" -> credit_faq
+- "Udyam Nidhi mein maximum kitna loan milta hai" -> credit_faq
+- "margin money kya hota hai" -> credit_faq
 - "PM Kisan ke liye kaise apply karein" -> application_request
 - "Scholarship ke liye apply karne ka process kya hai" -> application_request
 
