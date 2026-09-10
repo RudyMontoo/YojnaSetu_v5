@@ -6,11 +6,14 @@ import com.fasterxml.jackson.annotation.JsonValue;
 /**
  * How an application's documents get verified.
  *
- * DIGILOCKER and ACCOUNT_AGGREGATOR are declared but not selectable — the
- * integrations don't exist yet. They are named here so the field that records
- * "how was this checked" is shaped correctly from the start, rather than
- * needing a migration once those land. {@link #isAvailable()} is what gates
- * them, so an accidental request gets a clear refusal instead of silently
+ * DIGILOCKER and ACCOUNT_AGGREGATOR are declared but not selectable.
+ * {@code DigiLockerService}/{@code AccountAggregatorService} both exist and
+ * are wired end-to-end against their respective published APIs, but neither
+ * has real partner credentials configured in this deployment, and neither
+ * has ever been run against a live server — see their class javadocs.
+ * {@link #isAvailable()} staying false is a deliberate, separate manual step
+ * for once that changes; it does not flip just because the integration code
+ * exists. An accidental request gets a clear refusal instead of silently
  * recording a verification that never happened.
  */
 public enum VerificationMode {
