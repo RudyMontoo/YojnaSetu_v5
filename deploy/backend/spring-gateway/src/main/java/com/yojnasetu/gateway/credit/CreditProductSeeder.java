@@ -67,9 +67,15 @@ public class CreditProductSeeder implements CommandLineRunner {
     private static List<CreditProduct> catalogue() {
         return List.of(
                 // ---- self-employment ----
+                // 6.5% is the SCA/CA beneficiary rate (NSFDC charges the agency
+                // 2.5%). The same money through an NBFC-MFI is the Aajeevika
+                // entry below at 15% — hence the channel list, which is what
+                // stops the locator sending someone to the expensive door.
                 builder("micro-finance", "MFS", "Micro Finance Scheme (MFS)", "micro", "small")
                         .unitCost(null, 140_000L).maxLoan(125_000L).rate(6.5)
                         .terms(3, 36)
+                        .deliveredBy(ChannelPartnerType.SCA, ChannelPartnerType.PSB,
+                                ChannelPartnerType.RRB, ChannelPartnerType.COOPERATIVE)
                         .describes("For small income-generating activities — petty trade, tea shops, "
                                 + "candle or papad making, goat rearing, beauty parlours and similar.")
                         .build(),
@@ -78,6 +84,8 @@ public class CreditProductSeeder implements CommandLineRunner {
                         // Starts exactly where Micro Finance stops, so the two never overlap.
                         .unitCost(140_001L, 5_000_000L).maxLoan(4_500_000L).rate(8.0)
                         .terms(6, 84)
+                        .deliveredBy(ChannelPartnerType.SCA, ChannelPartnerType.PSB,
+                                ChannelPartnerType.RRB, ChannelPartnerType.COOPERATIVE)
                         .describes("For larger self-employment or business projects needing more "
                                 + "capital than the Micro Finance Scheme covers.")
                         .build(),
@@ -85,6 +93,7 @@ public class CreditProductSeeder implements CommandLineRunner {
                 builder("udyam-nidhi", "UNY", "Udyam Nidhi Yojana (UNY)", "term", "large")
                         .unitCost(null, 500_000L).maxLoan(450_000L).rate(15.0)
                         .terms(3, 60)
+                        .deliveredBy(ChannelPartnerType.COOPERATIVE, ChannelPartnerType.NBFC_MFI)
                         .describes("For small enterprise projects up to ₹5 lakh, routed through "
                                 + "cooperative banks and small finance banks.")
                         .build(),
@@ -92,6 +101,7 @@ public class CreditProductSeeder implements CommandLineRunner {
                 builder("aajeevika-micro-finance", "AMFY", "Aajeevika Micro-Finance Yojana", "micro", "small")
                         .unitCost(null, 140_000L).maxLoan(125_000L).rate(15.0)
                         .terms(3, 36)
+                        .deliveredBy(ChannelPartnerType.NBFC_MFI)
                         .describes("Micro-finance for livelihood activities, delivered through "
                                 + "NBFC-MFI channel partners.")
                         .build(),
@@ -110,6 +120,7 @@ public class CreditProductSeeder implements CommandLineRunner {
                         .unitCost(null, 140_000L).maxLoan(125_000L).rate(4.0)
                         .terms(3, 36)
                         .womenOnly()
+                        .deliveredBy(ChannelPartnerType.SCA, ChannelPartnerType.COOPERATIVE)
                         .unverified("Unit cost and tenure follow NSFDC's micro-finance terms. The 4% "
                                 + "beneficiary rate and 3-month moratorium come from State Channelising "
                                 + "Agency listings, not NSFDC's own scheme page — confirm both with the "
@@ -122,6 +133,7 @@ public class CreditProductSeeder implements CommandLineRunner {
                 builder("education-loan", "ELS", "Educational Loan Scheme (ELS)", "education", "education")
                         // No course-fee ceiling published; the loan cap is the binding constraint.
                         .unitCost(null, null).maxLoan(4_000_000L).rate(6.5)
+                        .deliveredBy(ChannelPartnerType.SCA, ChannelPartnerType.PSB)
                         // NSFDC publishes repayment "up to 12 years"; the moratorium is the
                         // course period plus a grace, which varies by course, so the
                         // conventional 12 months is used as the quotable default.
@@ -179,6 +191,11 @@ public class CreditProductSeeder implements CommandLineRunner {
 
         Builder womenOnly() {
             p.setWomenOnly(true);
+            return this;
+        }
+
+        Builder deliveredBy(ChannelPartnerType... types) {
+            p.setChannelPartnerTypes(List.of(types));
             return this;
         }
 

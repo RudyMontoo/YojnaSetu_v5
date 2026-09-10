@@ -102,6 +102,18 @@ public class CreditProduct {
      */
     private boolean womenOnly;
 
+    /**
+     * Which kinds of institution can actually deliver this scheme.
+     *
+     * The interest rate on this product is the one charged by these partner
+     * types — NSFDC funds the partner at a lower rate and the partner sets the
+     * beneficiary rate, so an identical scheme costs differently through a
+     * different channel. Micro-finance is 6.5% via an SCA and 15% via an
+     * NBFC-MFI, which is why the locator filters on this rather than showing
+     * every bank within 15km.
+     */
+    private List<ChannelPartnerType> channelPartnerTypes;
+
     private String description;
 
     /** Where these figures came from, and how far they can be trusted. */

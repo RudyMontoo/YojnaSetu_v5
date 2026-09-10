@@ -315,11 +315,12 @@ Two rules the API enforces so the citizen's screen is never a dead end:
 
 Public. Returns **real** bank branches from OpenStreetMap.
 
-Takes **either** live coordinates **or** a PIN code:
+Takes **either** live coordinates **or** a PIN code, plus an optional `schemeId`:
 
 ```
 GET /nearby?lat=28.6294&lng=77.2189&radiusKm=5
 GET /nearby?pincode=110001&radiusKm=5
+GET /nearby?pincode=110001&schemeId=micro-finance
 ```
 
 Coordinates win if both are given (more precise than a PIN code centroid). `radiusKm` defaults to 15, capped at 25.
@@ -337,6 +338,38 @@ Coordinates win if both are given (more precise than a PIN code centroid). `radi
 ```
 
 `type` is `PSB`, `RRB` or `Unclassified`. **`Unclassified` does not mean "not a partner"** — it means we can't tell from the name. Never render it as a negative. Show `note` verbatim; it is the honesty boundary on data we don't have.
+
+### `schemeId` — why this matters more than it looks
+
+NSFDC funds a scheme at one rate to the channel partner, and **the partner sets its own rate to the citizen**. The same micro-finance money is **6.5% through a State Channelising Agency and 15% through an NBFC-MFI**. Walking into the wrong branch more than doubles the interest on an identical loan, so pass `schemeId` whenever the citizen has picked a scheme.
+
+Extra response fields when `schemeId` is supplied:
+
+```json
+{
+  "schemeId": "micro-finance",
+  "schemeName": "Micro Finance Scheme (MFS)",
+  "schemeChannels": ["SCA", "PSB", "RRB", "COOPERATIVE"],
+  "channelsNotOnMap": ["State Channelising Agency", "Co-operative bank or society"],
+  "schemeNote": "Micro Finance Scheme (MFS) is also delivered through … which usually lends at the scheme's lowest rate."
+}
+```
+
+Each partner gains **`deliversScheme`**, which is three-state and must be rendered as three states:
+
+| Value | Meaning | Render as |
+|---|---|---|
+| `true` | This type is a confirmed channel for the scheme | ✅ can process this loan |
+| `false` | It provably is not (e.g. a PSB for an MFI-only scheme) | ❌ not for this scheme |
+| `null` | Branch type couldn't be determined | *say nothing* — not a negative |
+
+Results are ordered confirmed → unknown → provably-not, then by distance. A nearer branch that can't deliver the loan isn't more useful than a further one that can. **Render in the order given.**
+
+**`channelsNotOnMap` is not a footnote.** A State Channelising Agency is a government corporation, not a tagged bank branch, so it can never appear in these results — and it's usually the cheapest route. Without surfacing `schemeNote`, an empty partner list reads as "no help near you" when the best option simply isn't on this map. Show it prominently, **including when the list is empty**.
+
+`schemeNote` is also returned on a `502`, because when OpenStreetMap is down this guidance is the part that's still true and still useful.
+
+An unknown `schemeId` returns **400**.
 
 ### Error codes — three failures that must read differently
 

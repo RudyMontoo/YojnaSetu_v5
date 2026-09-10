@@ -2,6 +2,9 @@ package com.yojnasetu.gateway.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yojnasetu.gateway.credit.ChannelPartnerType;
+import com.yojnasetu.gateway.credit.CreditProduct;
+import com.yojnasetu.gateway.credit.CreditProductRepository;
 import com.yojnasetu.gateway.credit.PincodeGeocoder;
 import com.yojnasetu.gateway.service.GeoLabelService;
 import org.slf4j.Logger;
@@ -59,11 +62,14 @@ public class CreditPartnerController {
 
     private final GeoLabelService geoLabelService;
     private final PincodeGeocoder pincodeGeocoder;
+    private final CreditProductRepository creditProducts;
 
     public CreditPartnerController(GeoLabelService geoLabelService,
-                                    PincodeGeocoder pincodeGeocoder) {
+                                    PincodeGeocoder pincodeGeocoder,
+                                    CreditProductRepository creditProducts) {
         this.geoLabelService = geoLabelService;
         this.pincodeGeocoder = pincodeGeocoder;
+        this.creditProducts = creditProducts;
     }
 
     // Real, well-known Indian Public Sector Bank names — a branch whose name
@@ -73,16 +79,39 @@ public class CreditPartnerController {
             "union bank of india", "bank of india", "indian bank", "central bank of india",
             "uco bank", "indian overseas bank", "punjab & sind bank", "bank of maharashtra");
 
-    private static String classify(String name) {
-        if (name == null) return "Unclassified";
+    private static ChannelPartnerType classify(String name) {
+        if (name == null) return ChannelPartnerType.UNCLASSIFIED;
         String lower = name.toLowerCase();
         if (lower.contains("gramin bank") || lower.contains("grameena bank") || lower.contains("grameen bank")) {
-            return "RRB";
+            return ChannelPartnerType.RRB;
         }
         for (String psb : PSB_NAMES) {
-            if (lower.contains(psb)) return "PSB";
+            if (lower.contains(psb)) return ChannelPartnerType.PSB;
         }
-        return "Unclassified"; // private/foreign banks, generic ATMs, etc. — not guessed as PSB/RRB
+        // private/foreign banks, generic ATMs, etc. — not guessed as PSB/RRB
+        return ChannelPartnerType.UNCLASSIFIED;
+    }
+
+    /**
+     * @return TRUE when this branch's type is a channel for the scheme, FALSE
+     *         when it provably is not, and null when the branch's type could
+     *         not be determined at all.
+     */
+    private static Boolean deliversScheme(ChannelPartnerType type, CreditProduct scheme) {
+        if (type == ChannelPartnerType.UNCLASSIFIED) {
+            return null; // we don't know what this is, so we don't get to say
+        }
+        List<ChannelPartnerType> channels = scheme.getChannelPartnerTypes();
+        if (channels == null || channels.isEmpty()) {
+            return null; // no channel data for the scheme — same honesty rule
+        }
+        return channels.contains(type);
+    }
+
+    /** Confirmed channel (0) before unknown (1) before provably-not (2). */
+    private static int deliveryRank(Object deliversScheme) {
+        if (deliversScheme == null) return 1;
+        return Boolean.TRUE.equals(deliversScheme) ? 0 : 2;
     }
 
     private static double haversineKm(double lat1, double lng1, double lat2, double lng2) {
@@ -105,7 +134,17 @@ public class CreditPartnerController {
     public ResponseEntity<?> nearby(@RequestParam(required = false) Double lat,
                                      @RequestParam(required = false) Double lng,
                                      @RequestParam(required = false) String pincode,
+                                     @RequestParam(required = false) String schemeId,
                                      @RequestParam(defaultValue = "" + DEFAULT_RADIUS_KM) int radiusKm) {
+
+        CreditProduct scheme = null;
+        if (schemeId != null && !schemeId.isBlank()) {
+            scheme = creditProducts.findById(schemeId).filter(CreditProduct::isActive).orElse(null);
+            if (scheme == null) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "error", "Unknown schemeId: " + schemeId));
+            }
+        }
 
         String pincodeLabel = null;
         if (lat == null || lng == null) {
@@ -163,8 +202,7 @@ public class CreditPartnerController {
             if (res.statusCode() != 200) {
                 LOG.warn("Overpass returned status {} for query [{}]: {}", res.statusCode(), query,
                         res.body() != null && res.body().length() > 300 ? res.body().substring(0, 300) : res.body());
-                return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
-                        .body(Map.of("error", "Bank-location lookup is temporarily unavailable", "partners", List.of()));
+                return lookupUnavailable(scheme);
             }
 
             JsonNode root = MAPPER.readTree(res.body());
@@ -175,15 +213,28 @@ public class CreditPartnerController {
                 if (name == null || name.isBlank()) continue; // unnamed nodes aren't useful to show a citizen
                 double plat = el.path("lat").asDouble();
                 double plng = el.path("lon").asDouble();
+                ChannelPartnerType type = classify(name);
                 Map<String, Object> p = new HashMap<>();
                 p.put("name", name);
-                p.put("type", classify(name));
+                p.put("type", type.wireName());
                 p.put("lat", plat);
                 p.put("lng", plng);
                 p.put("distanceKm", Math.round(haversineKm(lat, lng, plat, plng) * 10) / 10.0);
+                // Three-state on purpose. true = this type is a channel for the
+                // chosen scheme; false = it provably is not; null = we could not
+                // determine the branch's type, so we say nothing. Collapsing
+                // null into false would tell a citizen a real branch can't help
+                // them when we simply don't know.
+                p.put("deliversScheme", scheme == null ? null : deliversScheme(type, scheme));
                 partners.add(p);
             }
-            partners.sort(Comparator.comparingDouble(p -> (double) p.get("distanceKm")));
+            // Confirmed channels first, then unknowns, then the ones that
+            // provably can't process this scheme — distance within each group.
+            // A nearer branch that cannot deliver the loan is not more useful
+            // than a further one that can.
+            partners.sort(Comparator
+                    .comparingInt((Map<String, Object> p) -> deliveryRank(p.get("deliversScheme")))
+                    .thenComparingDouble(p -> (double) p.get("distanceKm")));
             List<Map<String, Object>> limited = partners.size() > MAX_RESULTS
                     ? partners.subList(0, MAX_RESULTS) : partners;
 
@@ -198,11 +249,76 @@ public class CreditPartnerController {
             body.put("partners", limited);
             body.put("locationLabel", locationLabel);
             body.put("note", "Real bank locations from OpenStreetMap. \"Unclassified\" entries are not confirmed NSFDC Channel Partners. NSFDC authorisation and fund-utilization/NPA eligibility are not publicly available data — confirm directly with the branch.");
+
+            // Same guidance whether or not the branch lookup succeeded — a
+            // State Channelising Agency never appears in these results, so an
+            // otherwise-empty list must still point somewhere real.
+            addSchemeGuidance(body, scheme);
             return ResponseEntity.ok(body);
         } catch (Exception e) {
             LOG.warn("Overpass lookup failed for query [{}]: {}", query, e.toString());
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
-                    .body(Map.of("error", "Bank-location lookup is temporarily unavailable", "partners", List.of()));
+            return lookupUnavailable(scheme);
         }
+    }
+
+    /**
+     * OpenStreetMap is down or rate-limiting us, so we have no branches. That
+     * does NOT mean we have nothing to say: if the citizen picked a scheme, the
+     * channels it runs through are still known and still true, and for schemes
+     * delivered by State Channelising Agencies the branch list was never the
+     * useful answer anyway. Withholding that because a third-party map service
+     * is unavailable would turn a partial outage into a dead end.
+     */
+    private static ResponseEntity<?> lookupUnavailable(CreditProduct scheme) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("error", "Bank-location lookup is temporarily unavailable");
+        body.put("partners", List.of());
+        addSchemeGuidance(body, scheme);
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(body);
+    }
+
+    /**
+     * Attaches what we know about how a scheme is delivered — including the
+     * channels a bank-branch search structurally cannot surface.
+     */
+    private static void addSchemeGuidance(Map<String, Object> body, CreditProduct scheme) {
+        if (scheme == null) {
+            return;
+        }
+        body.put("schemeId", scheme.getId());
+        body.put("schemeName", scheme.getName());
+        body.put("schemeChannels", scheme.getChannelPartnerTypes());
+
+        List<String> offMap = scheme.getChannelPartnerTypes() == null ? List.of()
+                : scheme.getChannelPartnerTypes().stream()
+                        .filter(t -> !t.appearsInOpenStreetMap())
+                        .map(ChannelPartnerType::label)
+                        .toList();
+        if (!offMap.isEmpty()) {
+            body.put("channelsNotOnMap", offMap);
+            body.put("schemeNote", offMapNote(scheme, offMap));
+        }
+    }
+
+    private static String offMapNote(CreditProduct scheme, List<String> offMap) {
+        boolean everyChannelIsOffMap = offMap.size() == scheme.getChannelPartnerTypes().size();
+        // "also" would be a lie for a scheme like Aajeevika, whose only channel
+        // is an NBFC-MFI — there is no on-map alternative it is "also" besides.
+        String opening = scheme.getName() + (everyChannelIsOffMap ? " is delivered through " : " is also delivered through ");
+
+        StringBuilder note = new StringBuilder(opening)
+                .append(String.join(", ", offMap))
+                .append(". These don't appear in a bank-branch search — ask at a CSC");
+
+        // Only claim a cheaper route when it genuinely is one. A State
+        // Channelising Agency is the concessional channel (6.5%, or 4% for the
+        // women's scheme); an NBFC-MFI charges 15% for the same money. Telling
+        // a citizen the MFI route "often costs less than a bank" would send
+        // them to the single most expensive door there is.
+        if (scheme.getChannelPartnerTypes().contains(ChannelPartnerType.SCA)) {
+            note.append(" or your State SC Development Corporation, which usually lends at the "
+                    + "scheme's lowest rate");
+        }
+        return note.append('.').toString();
     }
 }
