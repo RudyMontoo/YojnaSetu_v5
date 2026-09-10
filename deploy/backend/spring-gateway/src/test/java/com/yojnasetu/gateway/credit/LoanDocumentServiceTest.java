@@ -190,6 +190,27 @@ class LoanDocumentServiceTest {
     }
 
     @Test
+    void storesWithoutDoubleEncodingTheFile() {
+        // The file was previously base64-encoded and then handed to encrypt(),
+        // which base64s again — 78% overhead instead of 33%. Against MongoDB's
+        // 16MB document limit that is the difference between a 9MB and a 12MB
+        // ceiling for a stored file, and it silently halved the headroom.
+        int raw = 90_000;
+        byte[] bytes = new byte[raw];
+        System.arraycopy(pdf(), 0, bytes, 0, 8);
+
+        LoanDocument stored = service.store(application(CreditApplicationStatus.DRAFT), bytes,
+                "proof.pdf", "Income proof", "citizen-1", "CITIZEN");
+
+        double overhead = (double) stored.getContent().length() / raw;
+        assertTrue(overhead < 1.40,
+                () -> "expected ~1.34x (single base64), got " + overhead
+                        + "x — the file is being encoded twice again");
+        // And it still round-trips.
+        assertArrayEquals(bytes, service.contentOf(stored));
+    }
+
+    @Test
     void recordsTheOriginalSizeNotTheEncodedOne() {
         LoanDocument stored = service.store(application(CreditApplicationStatus.DRAFT), pdf(),
                 "proof.pdf", "Income proof", "citizen-1", "CITIZEN");

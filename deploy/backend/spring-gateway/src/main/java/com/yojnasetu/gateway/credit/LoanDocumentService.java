@@ -5,7 +5,6 @@ import com.yojnasetu.gateway.credit.CreditApplicationService.TransitionException
 import com.yojnasetu.gateway.security.FieldEncryptionService;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
@@ -23,11 +22,22 @@ import java.util.List;
 public class LoanDocumentService {
 
     /**
-     * A phone photo of a certificate is routinely 2–4MB. Bigger than this and
-     * base64 plus encryption starts pushing a single Mongo document toward the
-     * 16MB ceiling.
+     * Sized for how citizens actually submit these: a phone photo of a
+     * certificate, which on a mid-range Android is routinely 2–5MB and on a
+     * high-megapixel one more. The earlier 4MB cap would have rejected a real
+     * share of them with advice — "photograph it at a lower resolution" — that
+     * is useless to someone who does not know how to change camera settings.
+     *
+     * Encrypting the bytes directly costs 33% overhead rather than the 78% of
+     * base64-then-encrypt, which puts the hard ceiling at ~12MB raw against
+     * MongoDB's 16MB document limit. 8MB leaves real headroom under that.
+     *
+     * The browser should still downscale before upload — a certificate is
+     * legible at ~2000px and pushing 8MB up a rural 4G link is a bad
+     * experience even when it succeeds. This limit is the backstop, not the
+     * plan.
      */
-    public static final int MAX_DOCUMENT_BYTES = 4 * 1024 * 1024;
+    public static final int MAX_DOCUMENT_BYTES = 8 * 1024 * 1024;
 
     /** Enough for a scanned booklet; beyond it something is wrong. */
     public static final int MAX_DOCUMENTS_PER_APPLICATION = 20;
@@ -98,7 +108,8 @@ public class LoanDocumentService {
         }
         if (bytes.length > MAX_DOCUMENT_BYTES) {
             throw new TransitionException(Failure.BAD_REQUEST,
-                    "Document is larger than 4MB — please photograph it at a lower resolution");
+                    "Document is larger than " + (MAX_DOCUMENT_BYTES / (1024 * 1024))
+                            + "MB — please photograph it at a lower resolution");
         }
         if (application.getStatus().isTerminal()) {
             // Uploading to a closed file would look like it did something.
@@ -125,7 +136,7 @@ public class LoanDocumentService {
         document.setFilename(sanitiseFilename(rawFilename));
         document.setContentType(contentType);
         document.setSizeBytes(bytes.length);
-        document.setContent(encryption.encrypt(Base64.getEncoder().encodeToString(bytes)));
+        document.setContent(encryption.encryptBytes(bytes));
         document.setUploadedAt(LocalDateTime.now());
         document.setUploadedByUserId(uploadedByUserId);
         document.setUploadedByRole(uploadedByRole);
@@ -142,11 +153,11 @@ public class LoanDocumentService {
 
     /** The decrypted bytes, for a caller that has already passed an access check. */
     public byte[] contentOf(LoanDocument document) {
-        String decoded = encryption.decrypt(document.getContent());
-        if (decoded == null) {
+        byte[] bytes = encryption.decryptBytes(document.getContent());
+        if (bytes == null) {
             throw new TransitionException(Failure.NOT_FOUND, "Document content is unavailable");
         }
-        return Base64.getDecoder().decode(decoded.getBytes(StandardCharsets.UTF_8));
+        return bytes;
     }
 
     public LoanDocument requireDocument(String documentId) {

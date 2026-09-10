@@ -39,12 +39,25 @@ public class FieldEncryptionService {
 
     public String encrypt(String plaintext) {
         if (plaintext == null) return null;
+        return encryptBytes(plaintext.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
+     * Encrypts raw bytes, for callers holding binary rather than text.
+     *
+     * Exists so binary payloads are not base64-encoded on the way in and then
+     * base64-encoded again by this method — that costs 78% overhead instead of
+     * 33%, and against MongoDB's 16MB document limit it is the difference
+     * between a 9MB and a 12MB ceiling for a stored file.
+     */
+    public String encryptBytes(byte[] plaintext) {
+        if (plaintext == null) return null;
         try {
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
             byte[] iv = new byte[12];
             new SecureRandom().nextBytes(iv);
             cipher.init(Cipher.ENCRYPT_MODE, aesKey, new GCMParameterSpec(128, iv));
-            byte[] encrypted = cipher.doFinal(plaintext.getBytes(StandardCharsets.UTF_8));
+            byte[] encrypted = cipher.doFinal(plaintext);
             byte[] combined = new byte[iv.length + encrypted.length];
             System.arraycopy(iv, 0, combined, 0, iv.length);
             System.arraycopy(encrypted, 0, combined, iv.length, encrypted.length);
@@ -56,13 +69,19 @@ public class FieldEncryptionService {
 
     public String decrypt(String ciphertext) {
         if (ciphertext == null) return null;
+        return new String(decryptBytes(ciphertext), StandardCharsets.UTF_8);
+    }
+
+    /** Counterpart to {@link #encryptBytes}. */
+    public byte[] decryptBytes(String ciphertext) {
+        if (ciphertext == null) return null;
         try {
             byte[] combined = Base64.getDecoder().decode(ciphertext);
             byte[] iv = Arrays.copyOfRange(combined, 0, 12);
             byte[] encrypted = Arrays.copyOfRange(combined, 12, combined.length);
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
             cipher.init(Cipher.DECRYPT_MODE, aesKey, new GCMParameterSpec(128, iv));
-            return new String(cipher.doFinal(encrypted), StandardCharsets.UTF_8);
+            return cipher.doFinal(encrypted);
         } catch (Exception e) {
             throw new RuntimeException("Decryption failed", e);
         }
