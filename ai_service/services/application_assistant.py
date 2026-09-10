@@ -22,6 +22,15 @@ looser read of the same sentence.
 Scheme/product data (name, id) comes from Spring's real catalogue via
 utils/spring_client.fetch_credit_products() — never invented, never a
 second source of truth alongside CreditProductSeeder.
+
+verificationMode is ASKED, not defaulted. VerificationMode.java has two
+available paths — MANUAL (citizen uploads scans) and OFFLINE (documents
+presented in person at a branch/CSC) — and quietly picking MANUAL for
+everyone would assume a level of digital access and literacy that a large
+share of this scheme's applicants don't have. DIGILOCKER and
+ACCOUNT_AGGREGATOR are deliberately not offered here: they're gated off
+server-side (isAvailable() == false), so proposing them conversationally
+would promise a route create() will reject.
 """
 import logging
 import re
@@ -32,7 +41,7 @@ from ai_service.utils.spring_client import fetch_credit_products
 
 logger = logging.getLogger(__name__)
 
-REQUIRED_SLOTS = ["estimatedCost", "annualIncome"]
+REQUIRED_SLOTS = ["estimatedCost", "annualIncome", "verificationMode"]
 OPTIONAL_SLOTS = ["category", "gender", "tenureMonths", "moratoriumMode"]
 
 SLOT_ASK: dict[str, dict[str, str]] = {
@@ -43,6 +52,15 @@ SLOT_ASK: dict[str, dict[str, str]] = {
     "annualIncome": {
         "en": "What's your annual family income?",
         "hi": "Aapki saalana family income kitni hai?",
+    },
+    # Required, not optional — MANUAL (upload yourself) and OFFLINE (in
+    # person at a branch/CSC) are both real, equally supported paths
+    # (VerificationMode.java). Defaulting silently to one would quietly
+    # assume every citizen can self-upload scans, which is exactly the
+    # digital-literacy gap this module exists to not create.
+    "verificationMode": {
+        "en": "Will you upload your documents yourself, or would you rather visit a branch or CSC in person?",
+        "hi": "Kya aap khud documents upload karenge, ya branch/CSC jaakar in-person jama karna chahenge?",
     },
     "category": {
         "en": "Just to confirm — are you applying under the SC category?",
@@ -96,6 +114,22 @@ _CATEGORY_MAP = {
 _GENDER_MAP = {
     "female": re.compile(r"\bwoman\b|\bwomen\b|female|mahila|महिला", re.IGNORECASE),
     "male": re.compile(r"\bman\b|\bmen\b|\bmale\b|purush", re.IGNORECASE),
+}
+# Checked offline-first: "branch"/"CSC"/"in person" is a specific, deliberate
+# statement, while "upload" can appear incidentally in either answer ("I'll
+# visit the branch, they can upload it there"). Only VerificationMode's two
+# AVAILABLE modes are detectable here — digilocker/account_aggregator are
+# gated off server-side (VerificationMode.isAvailable()), so offering them
+# conversationally would promise a path create() will reject.
+_VERIFICATION_MODE_MAP = {
+    "offline": re.compile(
+        r"\bbranch\b|\bcsc\b|in[-\s]?person|walk[-\s]?in|jaakar|jaunga|jaaunga|jayenge|visit",
+        re.IGNORECASE,
+    ),
+    "manual": re.compile(
+        r"\bupload\b|\bscan\b|khud|myself|online|photo\s*bhej|send\s*photo",
+        re.IGNORECASE,
+    ),
 }
 _AFFIRMATIVE_RE = re.compile(
     r"\b(haan|ha|han|yes|yeah|yep|sahi|correct|theek|thik|ok|okay|sure|bilkul)\b", re.IGNORECASE
@@ -152,6 +186,11 @@ def extract_slots_deterministic(text: str) -> dict[str, Any]:
     for value, pattern in _GENDER_MAP.items():
         if pattern.search(text):
             slots["gender"] = value
+            break
+
+    for value, pattern in _VERIFICATION_MODE_MAP.items():
+        if pattern.search(text):
+            slots["verificationMode"] = value
             break
 
     return slots
@@ -298,7 +337,8 @@ Message: "{user_text}"
 Return ONLY a JSON object with these keys (use null for anything not stated):
 {{"estimatedCost": <number in rupees or null>, "annualIncome": <number in rupees or null>, \
 "category": "<sc|st|obc|general or null>", "gender": "<male|female or null>", \
-"tenureMonths": <number or null>, "moratoriumMode": "<capitalise|service_interest or null>"}}"""
+"tenureMonths": <number or null>, "moratoriumMode": "<capitalise|service_interest or null>", \
+"verificationMode": "<manual if they'll upload documents themselves, offline if they'll go to a branch/CSC in person, or null>"}}"""
         try:
             response = await ainvoke_with_fallback(prompt, temperature=0.0, tags=["internal"])
             return self._safe_json(response.content)
@@ -340,9 +380,14 @@ Also include, once, this reassurance: "{privacy}". {language_instruction(lang)}"
     async def _compose_summary(self, context: dict, lang: str) -> str:
         s = context["slots"]
         scheme_name = s.get("_scheme_name", "")
+        verification = {
+            "manual": "you'll upload your documents yourself",
+            "offline": "you'll take your documents to a branch or CSC in person",
+        }.get(s.get("verificationMode"), "")
         facts = (
             f"Scheme: {scheme_name}; Project cost: Rs {s.get('estimatedCost')}; "
             f"Annual income: Rs {s.get('annualIncome')}; Category: {s.get('category', 'SC')}"
+            + (f"; Verification: {verification}" if verification else "")
         )
         prompt = f"""Summarize these application facts back to the citizen for confirmation, ending with \
 a clear yes/no question ("Is this correct?"). Facts: {facts}. {language_instruction(lang)} \
@@ -370,5 +415,11 @@ Keep it to 2-3 sentences, plain numbers (no invented details)."""
             "category": s.get("category") or "sc",
             "tenureMonths": s.get("tenureMonths"),        # None is fine — form pre-fills the scheme default
             "moratoriumMode": s.get("moratoriumMode"),    # None is fine, same reason
-            "verificationMode": "manual",
+            # Asked, never assumed: "manual" (citizen uploads scans) and
+            # "offline" (in person at a branch/CSC) are both live paths in
+            # VerificationMode.java, and silently picking manual would assume
+            # a level of digital access many applicants don't have. The
+            # fallback only fires if a caller built a context that skipped
+            # the question entirely.
+            "verificationMode": s.get("verificationMode") or "manual",
         }

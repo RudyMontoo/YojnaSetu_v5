@@ -43,6 +43,31 @@ def test_extracts_gender_keyword_english_and_hindi():
     assert extract_slots_deterministic("Yeh ek mahila ke liye hai")["gender"] == "female"
 
 
+def test_extracts_offline_verification_from_a_branch_visit_english_and_hindi():
+    assert extract_slots_deterministic("I'll visit the branch in person")["verificationMode"] == "offline"
+    assert extract_slots_deterministic("Main CSC jaakar de dunga")["verificationMode"] == "offline"
+
+
+def test_extracts_manual_verification_from_a_self_upload_answer():
+    assert extract_slots_deterministic("I'll upload them myself")["verificationMode"] == "manual"
+    assert extract_slots_deterministic("Main khud scan karke bhej dunga")["verificationMode"] == "manual"
+
+
+def test_a_branch_visit_wins_over_an_incidental_upload_mention():
+    # "they can upload it at the branch" is an OFFLINE answer — the citizen is
+    # going in person; someone else does the uploading. Picking manual here
+    # would record that this person self-serves online, which they don't.
+    slots = extract_slots_deterministic("I'll go to the branch, they can upload it there")
+    assert slots["verificationMode"] == "offline"
+
+
+def test_verification_mode_is_required_so_it_is_never_silently_assumed():
+    # The whole point: MANUAL and OFFLINE are both real paths, and defaulting
+    # to MANUAL assumes digital access this scheme's applicants may not have.
+    from ai_service.services.application_assistant import REQUIRED_SLOTS
+    assert "verificationMode" in REQUIRED_SLOTS
+
+
 def test_never_invents_a_number_when_none_is_stated():
     # "no cost or income mentioned" must not produce a guess — this is the
     # entire point of the deterministic layer existing.
@@ -102,6 +127,12 @@ def test_payload_matches_spring_create_body_shape_exactly():
     assert payload["estimatedCost"] == 120_000
     assert payload["annualIncome"] == 250_000
     assert payload["verificationMode"] == "manual"
+
+
+def test_payload_carries_the_offline_choice_through():
+    context = _confirmed_context()
+    context["slots"]["verificationMode"] = "offline"
+    assert ApplicationAssistant.build_payload(context)["verificationMode"] == "offline"
 
 
 def test_payload_defaults_category_to_sc_when_unstated():

@@ -41,21 +41,41 @@ Stored on the session document in `conversation_sessions.applicationContext`
         "_scheme_name": "Micro Finance Scheme (MFS)",  # display only, never sent to Spring
         "estimatedCost": 120000 | None,
         "annualIncome": 250000 | None,
+        "verificationMode": "manual" | "offline" | None,  # ASKED, never assumed — see below
         "category": "sc" | None,                # defaults to "sc" in the payload if never stated
         "gender": "female" | None,               # only asked if it changes scheme eligibility
         "tenureMonths": 36 | None,                # optional — None is fine, form uses the scheme default
         "moratoriumMode": "capitalise" | None,    # optional, same as above
     },
-    "missing_required": ["estimatedCost", "annualIncome"],  # recomputed every turn
+    "missing_required": ["estimatedCost", "annualIncome", "verificationMode"],  # recomputed every turn
     "awaiting_confirmation": False,   # True once required slots are filled and the summary was shown
     "confirmed": False,               # True once the citizen said yes to the summary
 }
 ```
 
-Required slots: `estimatedCost`, `annualIncome`. Everything else is
-optional and either defaulted (`category` → `"sc"`) or left `None` for the
-eventual form to pre-fill sensibly (`tenureMonths`/`moratoriumMode` from the
-scheme's own defaults).
+Required slots: `estimatedCost`, `annualIncome`, `verificationMode`.
+Everything else is optional and either defaulted (`category` → `"sc"`) or
+left `None` for the eventual form to pre-fill sensibly
+(`tenureMonths`/`moratoriumMode` from the scheme's own defaults).
+
+### Why verificationMode is asked, not defaulted
+
+`VerificationMode.java` has four modes but only two are available:
+`MANUAL` (citizen uploads scans, branch rep verifies) and `OFFLINE`
+(documents presented in person at a branch/CSC). `DIGILOCKER` and
+`ACCOUNT_AGGREGATOR` are declared but gated off (`isAvailable() == false`)
+and rejected by `CreditApplicationService.create()` — so this assistant
+never offers them; proposing a route the server will refuse would be worse
+than not mentioning it.
+
+Between the two that *are* live, defaulting silently to `MANUAL` would
+assume every applicant can photograph, scan, and upload their own caste and
+income certificates. For this scheme's target group that assumption
+excludes people, so the choice is a question the citizen answers, and it
+appears in the confirmation summary they say yes to. Deterministic
+extraction handles both answers in English and Hinglish, and treats a
+branch/CSC mention as `OFFLINE` even when the sentence also contains
+"upload" ("I'll go to the branch, they can upload it there").
 
 ### Turn logic (`ApplicationAssistant.process_message`)
 
@@ -102,7 +122,7 @@ plus one extra frontend-only field:
 | `category` | `category` | optional slot, defaults `"sc"` |
 | `tenureMonths` | `tenureMonths` | optional slot, `None` if unstated |
 | `moratoriumMode` | `moratoriumMode` | optional slot, `None` if unstated |
-| `verificationMode` | `verificationMode` | constant `"manual"` — no other mode implemented yet |
+| `verificationMode` | `verificationMode` | required slot — `"manual"` or `"offline"`, asked explicitly |
 
 `partnerId`/`partnerName`/`partnerType` are deliberately NOT collected here
 — `CreditApplicationService.assignPartner()` is a separate step, only valid
