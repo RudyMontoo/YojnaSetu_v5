@@ -55,6 +55,20 @@ public class AccountAggregatorService {
 
     private final String apiKey;
 
+    /**
+     * Demo simulation — see {@code DigiLockerService.simulate} for the full
+     * reasoning. Field-injected so the existing unit tests (which construct
+     * this class directly) keep exercising the real path, default false, and
+     * never set by deploy.sh.
+     *
+     * Note this simulates the CONSENT lifecycle only. {@link #fetchFinancialData}
+     * still refuses even with simulation on: pretending to have decrypted real
+     * bank statements would fabricate the citizen's income, which is exactly
+     * the figure the whole eligibility decision turns on.
+     */
+    @Value("${app.demo.simulate-integrations:false}")
+    private boolean simulate;
+
     // See DigiLockerService's identical constructor for why @Autowired is
     // required here: a second (test-only) constructor exists below, and
     // that alone stops Spring from auto-selecting the public constructor.
@@ -74,13 +88,33 @@ public class AccountAggregatorService {
         this.consents = consents;
         this.apiKey = apiKey;
         this.client = client;
-        if (!isConfigured()) {
+    }
+
+    /** See DigiLockerService.logStatus — reported post-injection so the line reflects the real flag. */
+    @jakarta.annotation.PostConstruct
+    void logStatus() {
+        if (simulate) {
+            LOG.warn("Account Aggregator is running in DEMO SIMULATION mode — the consent lifecycle is "
+                    + "canned and marked simulated:true, and fetching real financial data still refuses. "
+                    + "Never enable app.demo.simulate-integrations in production.");
+        } else if (!isConfigured()) {
             LOG.info("Account Aggregator API key/base URL not configured — income verification via AA is disabled.");
         }
     }
 
+    /** True when a real TSP key is configured, OR demo simulation is on. */
     public boolean isConfigured() {
-        return notBlank(apiKey);
+        return simulate || notBlank(apiKey);
+    }
+
+    /** Whether responses from this service are simulated demo data. */
+    public boolean isSimulated() {
+        return simulate;
+    }
+
+    /** Package-private: lets tests exercise the simulated path. */
+    void enableSimulationForTest() {
+        this.simulate = true;
     }
 
     /**
@@ -97,6 +131,23 @@ public class AccountAggregatorService {
             throw new TransitionException(Failure.BAD_REQUEST, "Your Account Aggregator handle (VUA) is required");
         }
         consents.requireConsent(userId, ConsentPurpose.ACCOUNT_AGGREGATOR_FETCH, applicationId);
+
+        if (simulate) {
+            AaConsentRequest simulated = new AaConsentRequest();
+            simulated.setUserId(userId);
+            simulated.setApplicationId(applicationId);
+            simulated.setVua(vua);
+            simulated.setConsentHandle("DEMO-" + java.util.UUID.randomUUID());
+            // Straight to approved: the citizen's approval happens in their own
+            // AA app, which does not exist in a demo, so waiting on "pending"
+            // forever would just look broken.
+            simulated.setStatus("approved");
+            simulated.setConsentId("DEMO-CONSENT");
+            simulated.setSimulated(true);
+            simulated.setCreatedAt(LocalDateTime.now());
+            simulated.setUpdatedAt(LocalDateTime.now());
+            return consentRequests.save(simulated);
+        }
 
         Map<String, Object> body = Map.of(
                 "vua", vua,
@@ -137,6 +188,10 @@ public class AccountAggregatorService {
         }
         AaConsentRequest request = consentRequests.findByConsentHandle(consentHandle)
                 .orElseThrow(() -> new TransitionException(Failure.NOT_FOUND, "Unknown consent request"));
+
+        if (simulate) {
+            return request;  // already approved at creation; nothing to poll
+        }
 
         Map<String, Object> response = client.get()
                 .uri("/consents/{id}", consentHandle)

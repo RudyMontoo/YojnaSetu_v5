@@ -15,6 +15,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -125,5 +126,46 @@ class AccountAggregatorServiceTest {
                 () -> service.fetchFinancialData("handle-1"));
         assertEquals(Failure.BAD_REQUEST, thrown.failure());
         assertEquals(true, thrown.getMessage().contains("not implemented"));
+    }
+
+    // ------------------------------------------------- demo simulation mode
+
+    @Test
+    void simulationMakesConsentAvailableWithoutAnApiKey() {
+        AccountAggregatorService service = unconfiguredService();
+        assertFalse(service.isConfigured());
+
+        service.enableSimulationForTest();
+
+        assertTrue(service.isConfigured());
+        assertTrue(service.isSimulated());
+    }
+
+    @Test
+    void simulatedConsentIsApprovedImmediatelyAndMarkedSimulated() {
+        // Fails the test if simulation tries to reach the network.
+        WebClient exploding = WebClient.builder()
+                .exchangeFunction(req -> { throw new AssertionError("simulation must not make a network call"); })
+                .build();
+        AccountAggregatorService service =
+                new AccountAggregatorService(consentRequests, consents, "", "", exploding);
+        service.enableSimulationForTest();
+
+        AaConsentRequest request = service.createConsentRequest("u-1", "app-1", "9999999999@onemoney");
+
+        assertEquals("approved", request.getStatus());
+        assertTrue(request.isSimulated(), "a simulated consent must be recorded as simulated");
+        assertTrue(request.getConsentHandle().startsWith("DEMO-"));
+    }
+
+    @Test
+    void simulationStillRefusesToFabricateFinancialData() {
+        // The consent lifecycle can be demoed; the citizen's actual income
+        // cannot be invented, because the whole eligibility decision turns on it.
+        AccountAggregatorService service = serviceWithFakeResponse("{}", 200);
+        service.enableSimulationForTest();
+
+        assertEquals(Failure.BAD_REQUEST, assertThrows(TransitionException.class,
+                () -> service.fetchFinancialData("DEMO-handle")).failure());
     }
 }

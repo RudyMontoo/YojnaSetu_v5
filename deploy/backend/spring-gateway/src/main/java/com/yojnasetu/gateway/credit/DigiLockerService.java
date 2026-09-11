@@ -64,6 +64,23 @@ public class DigiLockerService {
     private final String redirectUri;
     private final String baseUrl;
 
+    /**
+     * Demo simulation — walks the whole DigiLocker journey with canned data so
+     * it can be shown end to end without partner credentials.
+     *
+     * A field-injected @Value rather than a constructor parameter on purpose:
+     * it stays false in the unit tests (which build this class directly with
+     * `new`), so every existing test still exercises the real, un-simulated
+     * behaviour without being rewritten.
+     *
+     * Defaults to false and is deliberately NOT set anywhere in
+     * deploy/azure/deploy.sh — a real deployment cannot accidentally serve
+     * simulated verifications. Everything it produces is marked
+     * {@code simulated: true} in both the response and the stored record.
+     */
+    @Value("${app.demo.simulate-integrations:false}")
+    private boolean simulate;
+
     // Explicit @Autowired: this class also has a package-private constructor
     // (below, for test injection of a fake WebClient) — once a class has more
     // than one constructor, Spring stops auto-detecting the sole public one
@@ -95,13 +112,38 @@ public class DigiLockerService {
         this.redirectUri = redirectUri;
         this.baseUrl = baseUrl;
         this.client = client;
-        if (!isConfigured()) {
+    }
+
+    /**
+     * Reported after construction, not inside it: {@link #simulate} is a
+     * field-injected @Value, so during the constructor it is still false and a
+     * status line logged there would claim "not configured" even when demo
+     * simulation is switched on — which is exactly the wrong thing to tell
+     * someone who is trying to verify that it IS on.
+     */
+    @jakarta.annotation.PostConstruct
+    void logStatus() {
+        if (simulate) {
+            LOG.warn("DigiLocker is running in DEMO SIMULATION mode — responses are canned and marked "
+                    + "simulated:true. Never enable app.demo.simulate-integrations in production.");
+        } else if (!isConfigured()) {
             LOG.info("DigiLocker Partner API credentials not configured — DigiLocker linking is disabled.");
         }
     }
 
+    /** True when the real integration has credentials, OR demo simulation is on. */
     public boolean isConfigured() {
-        return notBlank(clientId) && notBlank(clientSecret) && notBlank(redirectUri);
+        return simulate || (notBlank(clientId) && notBlank(clientSecret) && notBlank(redirectUri));
+    }
+
+    /** Whether responses from this service are simulated demo data. */
+    public boolean isSimulated() {
+        return simulate;
+    }
+
+    /** Package-private: lets tests exercise the simulated path. */
+    void enableSimulationForTest() {
+        this.simulate = true;
     }
 
     public record AuthorizeUrl(String url, String state) {
@@ -128,6 +170,13 @@ public class DigiLockerService {
         link.setCreatedAt(LocalDateTime.now());
         links.save(link);
 
+        if (simulate) {
+            // Point the browser back at our own callback instead of DigiLocker's
+            // servers, so the round trip completes locally and the demo shows
+            // the real sequence of screens rather than a dead end.
+            return new AuthorizeUrl("/digilocker-demo?state=" + encode(state), state);
+        }
+
         String url = baseUrl + "/public/oauth2/1/authorize"
                 + "?response_type=code"
                 + "&client_id=" + encode(clientId)
@@ -151,6 +200,17 @@ public class DigiLockerService {
                 .orElseThrow(() -> new TransitionException(Failure.NOT_FOUND, "Unknown or expired link attempt"));
         if (!"pending".equals(link.getStatus())) {
             throw new TransitionException(Failure.CONFLICT, "This link attempt was already completed");
+        }
+
+        if (simulate) {
+            // No token exchange — there is no real account on the other end.
+            // The record is marked simulated so nothing downstream mistakes it
+            // for a genuine DigiLocker link.
+            link.setStatus("linked");
+            link.setSimulated(true);
+            link.setDigilockerUid("DEMO-SIMULATED");
+            link.setLinkedAt(LocalDateTime.now());
+            return links.save(link);
         }
 
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
@@ -192,9 +252,23 @@ public class DigiLockerService {
     public record IssuedDocument(String name, String type, String docType, String uri, String mime, String date) {
     }
 
+    /**
+     * The canned document set the demo shows. Chosen to match what an SC
+     * credit applicant would really hold in DigiLocker, so the walkthrough is
+     * representative — but every caller labels these as simulated.
+     */
+    static final List<IssuedDocument> SIMULATED_DOCUMENTS = List.of(
+            new IssuedDocument("Aadhaar Card", "certificate", "ADHAR", "in.gov.uidai-ADHAR-demo", "application/pdf", "2026-01-12"),
+            new IssuedDocument("Caste Certificate (SC)", "certificate", "CASTE", "in.gov.rev-CASTE-demo", "application/pdf", "2026-02-03"),
+            new IssuedDocument("Income Certificate", "certificate", "INCME", "in.gov.rev-INCME-demo", "application/pdf", "2026-02-03"),
+            new IssuedDocument("Class X Marksheet", "marksheet", "MARKS", "in.gov.cbse-MARKS-demo", "application/pdf", "2019-05-28"));
+
     /** GET .../files/issued — the citizen's list of DigiLocker-issued documents. */
     public List<IssuedDocument> fetchIssuedDocuments(String applicationId) {
         DigiLockerLink link = requireLinked(applicationId);
+        if (simulate) {
+            return SIMULATED_DOCUMENTS;
+        }
         String accessToken = encryption.decrypt(link.getAccessToken());
 
         Map<String, Object> response = client.get()

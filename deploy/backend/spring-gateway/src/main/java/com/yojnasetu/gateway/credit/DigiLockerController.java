@@ -45,7 +45,8 @@ public class DigiLockerController {
             // recorded against another citizen's file.
             applications.getForCitizen(auth.getName(), req.applicationId());
             DigiLockerService.AuthorizeUrl result = service.startLink(auth.getName(), req.applicationId());
-            return ResponseEntity.ok(Map.of("url", result.url(), "state", result.state()));
+            return ResponseEntity.ok(Map.of(
+                    "url", result.url(), "state", result.state(), "simulated", service.isSimulated()));
         } catch (CreditApplicationService.TransitionException e) {
             return CreditApplicationController.toResponse(e);
         }
@@ -79,7 +80,11 @@ public class DigiLockerController {
     public ResponseEntity<?> issuedDocuments(Authentication auth, @RequestParam String applicationId) {
         try {
             applications.getForCitizen(auth.getName(), applicationId);
-            return ResponseEntity.ok(Map.of("documents", service.fetchIssuedDocuments(applicationId)));
+            // `simulated` travels with every response so the UI can label demo
+            // data on screen instead of presenting it as a real DigiLocker fetch.
+            return ResponseEntity.ok(Map.of(
+                    "documents", service.fetchIssuedDocuments(applicationId),
+                    "simulated", service.isSimulated()));
         } catch (CreditApplicationService.TransitionException e) {
             return CreditApplicationController.toResponse(e);
         }

@@ -6,9 +6,15 @@ import {
   MORATORIUM_SERVICE_INTEREST,
 } from './emiCalculator'
 
-// The Micro Finance Scheme's real parameters from nsfdcSchemes.js — the case
-// the UI actually shows a citizen most often.
-const MFS = { principal: 140000, rate: 6.5, tenure: 36, moratorium: 3 }
+// The Micro Finance Scheme's real parameters, as served by the backend
+// catalogue (GET /api/v2/sih/credit/products).
+//
+// The principal here was 140000, copied from the old hardcoded
+// lib/nsfdcSchemes.js — but ₹1.40 lakh is the scheme's PROJECT-COST ceiling,
+// not its loan cap, which is ₹1.25 lakh. Only the EMI maths is under test so
+// the assertions held either way, but leaving the wrong number labelled "the
+// Micro Finance Scheme's real parameters" is how that figure kept spreading.
+const MFS = { principal: 125000, rate: 6.5, tenure: 36, moratorium: 3 }
 
 const near = (a, b, tolerance = 0.01) => expect(Math.abs(a - b)).toBeLessThan(tolerance)
 
@@ -45,9 +51,9 @@ describe('calculateEmi — capitalised moratorium', () => {
   })
 
   it('capitalises accrued interest into the principal', () => {
-    // 140000 × (1 + 0.065/12)^3
-    near(result.financedPrincipal, 142287.35, 0.05)
-    near(result.moratoriumInterest, 2287.35, 0.05)
+    // 125000 × (1 + 0.065/12)^3
+    near(result.financedPrincipal, 127042.27, 0.05)
+    near(result.moratoriumInterest, 2042.27, 0.05)
   })
 
   it('collects nothing from the citizen during the moratorium', () => {

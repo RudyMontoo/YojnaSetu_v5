@@ -52,6 +52,17 @@ public class DigiLockerLink {
     /** DigiLocker's own opaque subject identifier for this citizen — never the raw Aadhaar. */
     private String digilockerUid;
 
+    /**
+     * True when this link was produced by demo simulation rather than a real
+     * DigiLocker connection (see {@code app.demo.simulate-integrations}).
+     *
+     * Stored, not just rendered, so nothing in the database can later be
+     * mistaken for a genuine verification: anything reading these records can
+     * tell the difference without having to know which flag the server
+     * happened to be booted with.
+     */
+    private boolean simulated;
+
     private LocalDateTime createdAt;
     private LocalDateTime linkedAt;
     private LocalDateTime tokenExpiresAt;

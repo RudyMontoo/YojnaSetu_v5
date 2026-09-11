@@ -30,6 +30,16 @@ public class CreditApplicationService {
      */
     private final com.yojnasetu.gateway.notify.CreditApplicationNotifier notifier;
 
+    /**
+     * Demo simulation (see DigiLockerService) — lets DIGILOCKER /
+     * ACCOUNT_AGGREGATOR be selected as a verification mode so the flow can be
+     * demonstrated. Field-injected so the test constructors below are
+     * unaffected and keep exercising the real "not available yet" refusal.
+     * Defaults false; never set by deploy.sh.
+     */
+    @org.springframework.beans.factory.annotation.Value("${app.demo.simulate-integrations:false}")
+    private boolean simulateIntegrations;
+
     // Explicit, because this class has two constructors. Without it Spring
     // cannot choose between them, gives up, looks for a no-arg constructor and
     // fails the whole context at startup — which no unit test catches, since
@@ -101,7 +111,10 @@ public class CreditApplicationService {
         VerificationMode mode = request.verificationMode() == null
                 ? VerificationMode.MANUAL
                 : request.verificationMode();
-        if (!mode.isAvailable()) {
+        // The enum keeps telling the truth about what is actually BUILT and
+        // live; demo simulation is a separate, explicit opt-in on top of it
+        // rather than a lie baked into the enum. See DigiLockerService.
+        if (!mode.isAvailable() && !simulateIntegrations) {
             throw new TransitionException(Failure.BAD_REQUEST,
                     "Verification mode '" + mode.wireName() + "' is not available yet — use manual or offline");
         }

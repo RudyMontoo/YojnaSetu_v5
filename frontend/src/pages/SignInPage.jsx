@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { ArrowRight, Smartphone, KeyRound, ChevronLeft, Mail } from 'lucide-react'
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'
 import { gateway } from '../lib/api'
@@ -30,6 +30,7 @@ const UI = {
 // (/auth/phone/verify) and issues the SAME httpOnly cookie session. No password.
 export default function SignInPage() {
     const navigate = useNavigate()
+    const location = useLocation()
     const [mode, setMode] = useState('email')  // mobile | email — email first per user request
     const [step, setStep] = useState('contact')  // contact | otp
     const [phone, setPhone] = useState('')
@@ -59,7 +60,12 @@ export default function SignInPage() {
             name: '',
             language: user?.language || 'en',
         }))
-        navigate('/home')
+        // Return the citizen to whatever they were doing when they hit the
+        // login prompt (a scheme page, an eligibility result), rather than
+        // dropping them on /home and making them find their way back. `from`
+        // is set by LoginPrompt/PublicHeader; a direct visit to /signin has
+        // none and still lands on /home as before.
+        navigate(location.state?.from || '/home', { replace: true })
     }
 
     // `fallback` matters: a Firebase code we don't recognise during VERIFY must not

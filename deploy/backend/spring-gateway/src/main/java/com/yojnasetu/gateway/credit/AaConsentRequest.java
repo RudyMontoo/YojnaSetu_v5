@@ -51,6 +51,13 @@ public class AaConsentRequest {
     /** pending | approved | rejected | revoked | expired */
     private String status = "pending";
 
+    /**
+     * True when this consent was produced by demo simulation rather than a
+     * real Account Aggregator — see {@link DigiLockerLink#isSimulated()} for
+     * why this is persisted rather than only displayed.
+     */
+    private boolean simulated;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

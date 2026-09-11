@@ -115,6 +115,25 @@ export const gateway = {
     if (sector) params.set("sector", sector);
     return request(`/api/v2/schemes?${params}`);
   },
+  // One scheme's full public record, by the schemeCode listSchemes returns.
+  // Lets a detail page be opened directly (shared link, bookmark, refresh)
+  // instead of only working when the record was carried in router state.
+  schemeDetail: (schemeCode) => request(`/api/v2/schemes/${encodeURIComponent(schemeCode)}`),
+
+  // ── SIH PS 26092 — SC concessional credit ────────────────────────────────
+  // All three are public (SecurityConfig permits /api/v2/sih/credit/**) and
+  // stateless: a guest can learn what they qualify for and what it costs
+  // before creating an account. THIS is the source of truth for scheme
+  // figures — never lib/nsfdcSchemes.js, whose hardcoded caps quoted the
+  // project-cost ceiling as the loan cap (overstating Micro Finance by
+  // ₹15,000 and Term Loan by ₹5 lakh, and hiding 3 of the 6 real schemes).
+  creditProducts: () => request("/api/v2/sih/credit/products"),
+  // body: { need: "business"|"education", estimatedCost, annualIncome,
+  //         category, gender, moratoriumMode }. Every field is nullable —
+  // the response's `insufficient_data` verdict names what's still missing
+  // rather than guessing, so send whatever the citizen has given so far.
+  checkEligibility: (body) => request("/api/v2/sih/credit/eligibility", { method: "POST", body }),
+  emiQuote: (body) => request("/api/v2/sih/credit/emi", { method: "POST", body }),
 };
 
 export const ai = {

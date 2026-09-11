@@ -167,6 +167,64 @@ class DigiLockerServiceTest {
                 assertThrows(TransitionException.class, () -> service.fetchIssuedDocuments("app-1")).failure());
     }
 
+    // ------------------------------------------------- demo simulation mode
+
+    @Test
+    void simulationMakesTheIntegrationAvailableWithoutCredentials() {
+        DigiLockerService service = unconfiguredService();
+        assertFalse(service.isConfigured());
+
+        service.enableSimulationForTest();
+
+        assertTrue(service.isConfigured());
+        assertTrue(service.isSimulated());
+    }
+
+    @Test
+    void simulatedLinkCompletesWithoutCallingDigiLockerAndIsMarkedSimulated() {
+        DigiLockerLink pending = new DigiLockerLink();
+        pending.setState("s-1");
+        pending.setStatus("pending");
+        when(links.findByState("s-1")).thenReturn(Optional.of(pending));
+
+        // A WebClient that fails the test if anything actually calls out — the
+        // whole point of simulation is that no request leaves the process.
+        WebClient exploding = WebClient.builder()
+                .exchangeFunction(req -> { throw new AssertionError("simulation must not make a network call"); })
+                .build();
+        DigiLockerService service = new DigiLockerService(links, consents, CIPHER,
+                "", "", "", "https://digilocker.example", exploding);
+        service.enableSimulationForTest();
+
+        DigiLockerLink linked = service.completeLink("s-1", "ignored-code");
+
+        assertEquals("linked", linked.getStatus());
+        assertTrue(linked.isSimulated(), "a simulated link must be recorded as simulated");
+    }
+
+    @Test
+    void simulatedDocumentsAreReturnedWithoutARealToken() {
+        DigiLockerLink linked = new DigiLockerLink();
+        linked.setApplicationId("app-1");
+        linked.setStatus("linked");
+        linked.setSimulated(true);
+        // Deliberately no access token — there is no real account behind this.
+        when(links.findFirstByApplicationIdAndStatusOrderByCreatedAtDesc("app-1", "linked"))
+                .thenReturn(Optional.of(linked));
+
+        WebClient exploding = WebClient.builder()
+                .exchangeFunction(req -> { throw new AssertionError("simulation must not make a network call"); })
+                .build();
+        DigiLockerService service = new DigiLockerService(links, consents, CIPHER,
+                "", "", "", "https://digilocker.example", exploding);
+        service.enableSimulationForTest();
+
+        var documents = service.fetchIssuedDocuments("app-1");
+
+        assertEquals(DigiLockerService.SIMULATED_DOCUMENTS.size(), documents.size());
+        assertTrue(documents.stream().anyMatch(d -> d.name().contains("Caste Certificate")));
+    }
+
     @Test
     void fetchesAndParsesTheIssuedDocumentsList() {
         DigiLockerLink linked = new DigiLockerLink();
