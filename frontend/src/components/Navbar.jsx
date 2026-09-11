@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Home, MessageCircle, FileText, Radio, User, Camera, Globe, Sun, Moon } from 'lucide-react'
+import { Home, MessageCircle, FileText, Radio, User, Camera, Globe, Sun, Moon, Sparkles } from 'lucide-react'
 import { useLang, LANGUAGES } from '../lib/i18n'
 import { useState, useEffect } from 'react'
 import { getTheme, setTheme } from '../lib/theme'
@@ -11,6 +11,11 @@ const NAV_ITEMS = [
     { to: '/schemes', key: 'nav.schemes', Icon: FileText, badge: true },
     { to: '/status', key: 'nav.status', Icon: Radio },
     { to: '/scanner', key: 'nav.lens', Icon: Camera },
+    // Crosses over to the new public government-portal UI ("/"), which is a
+    // separate look and a separate set of pages rather than another screen of
+    // this app — so it is `end` in the NavLink below and never renders active
+    // from in here.
+    { to: '/', key: 'nav.portal', Icon: Sparkles, end: true },
     { to: '/profile', key: 'nav.profile', Icon: User },
 ]
 
@@ -80,8 +85,8 @@ export function Navbar() {
                 </div>
             </NavLink>
             <div className="navbar-links">
-                {NAV_ITEMS.map(({ to, key, badge }) => (
-                    <NavLink key={to} to={to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+                {NAV_ITEMS.map(({ to, key, badge, end }) => (
+                    <NavLink key={to} to={to} end={end} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
                         {t(key)}
                         {badge && creditBadgeVisible && <span className="nav-badge-dot" title="New: SIH PS 26092 Channel Finance" />}
                     </NavLink>
@@ -114,7 +119,7 @@ export function BottomNav() {
             {NAV_ITEMS.map((item) => {
                 const NavIcon = item.Icon
                 return (
-                    <NavLink key={item.to} to={item.to} className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}>
+                    <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}>
                         <span style={{ position: 'relative' }}>
                             <NavIcon size={20} />
                             {item.badge && creditBadgeVisible && <span className="nav-badge-dot" title="New: SIH PS 26092 Channel Finance" />}
