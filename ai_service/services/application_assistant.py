@@ -94,9 +94,12 @@ _DEFAULT_LANG = "en"
 
 # ── deterministic extraction (layer 1) ──────────────────────────────────────
 
-# "1.5 lakh", "1,20,000", "50000", "₹2 lakh" — Indian-style amount phrasing.
+# "1.5 lakh", "1,20,000", "50000", "₹2 lakh", "5 crore" — Indian-style amount
+# phrasing. Real bug fixed 2026-09-12: "crore" was missing entirely, so
+# "500 crores" silently parsed as a bare, unscaled 500 — visible live as the
+# bot's own acknowledgment reading back "$500" for a ₹500,00,00,000 project.
 _AMOUNT_RE = re.compile(
-    r"(?:rs\.?|₹|inr)?\s*([\d][\d,]*(?:\.\d+)?)\s*(lakh|lac|lakhs|thousand|k)?",
+    r"(?:rs\.?|₹|inr)?\s*([\d][\d,]*(?:\.\d+)?)\s*(crores|crore|cr|lakhs|lakh|lac|thousand|k)?",
     re.IGNORECASE,
 )
 _INCOME_KEYWORDS = re.compile(
@@ -142,6 +145,8 @@ _NEGATIVE_RE = re.compile(
 def _to_number(raw: str, unit: str | None) -> float:
     n = float(raw.replace(",", ""))
     unit = (unit or "").lower()
+    if unit in ("crore", "crores", "cr"):
+        return n * 10_000_000
     if unit in ("lakh", "lac", "lakhs"):
         return n * 100_000
     if unit == "thousand" or unit == "k":

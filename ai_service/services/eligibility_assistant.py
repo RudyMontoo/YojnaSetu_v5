@@ -59,6 +59,15 @@ _NEED_EDUCATION_RE = re.compile(
     r"hostel|school|university|admission",
     re.IGNORECASE,
 )
+# annualIncome means the whole YEAR, but citizens very naturally state a
+# monthly figure ("3 lakh per month") — silently storing that as-is would
+# understate annual income 12x, which can flip a genuine "over the income
+# cap" citizen into a false "eligible". Real bug caught live 2026-09-12:
+# "₹3 lakhs per month" was stored as annualIncome=300000 unchanged.
+_MONTHLY_RE = re.compile(
+    r"per\s*month|/\s*month|\bmonthly\b|\bmahina\b|\bmaheene\b|\bmahine\b|\bप्रति\s*माह\b",
+    re.IGNORECASE,
+)
 
 SLOT_ASK: dict[str, dict[str, str]] = {
     "need": {
@@ -89,6 +98,45 @@ _CHECK_FAILED = {
 _DEFAULT_LANG = "en"
 
 
+def _format_inr(n: Any) -> str:
+    """Indian digit grouping (5,00,00,000 not 50,000,000) with a ₹ prefix —
+    used ONLY for restating a figure back to the citizen; never for anything
+    sent to the eligibility API, which takes the raw number."""
+    try:
+        value = int(round(float(n)))
+    except (TypeError, ValueError):
+        return str(n)
+    sign = "-" if value < 0 else ""
+    s = str(abs(value))
+    if len(s) > 3:
+        head, last3 = s[:-3], s[-3:]
+        groups = []
+        while len(head) > 2:
+            groups.insert(0, head[-2:])
+            head = head[:-2]
+        if head:
+            groups.insert(0, head)
+        s = ",".join(groups + [last3])
+    return f"{sign}₹{s}"
+
+
+def _format_fact(key: str, value: Any) -> str:
+    """Renders one extracted slot as a short, unambiguous English clause —
+    the ONLY form these facts reach the LLM in when it composes the next
+    question, so a hallucinated currency/unit has nowhere to enter."""
+    if key == "estimatedCost":
+        return f"the total project/course cost is {_format_inr(value)}"
+    if key == "annualIncome":
+        return f"annual family income is {_format_inr(value)}"
+    if key == "need":
+        return f"this loan is for {value}"
+    if key == "category":
+        return f"social category is {str(value).upper()}"
+    if key == "gender":
+        return f"applicant gender is {value}"
+    return f"{key} is {value}"
+
+
 def extract_slots_deterministic(text: str) -> dict[str, Any]:
     """Same regex-first, no-guessing approach as application_assistant.py's
     version, extended with `need` detection. Reuses that module's amount/
@@ -98,12 +146,18 @@ def extract_slots_deterministic(text: str) -> dict[str, Any]:
         return {}
     slots: dict[str, Any] = {}
 
+    monthly_stated = bool(_MONTHLY_RE.search(text))
     for keyword_re, key in ((_COST_KEYWORDS, "estimatedCost"), (_INCOME_KEYWORDS, "annualIncome")):
         for m in keyword_re.finditer(text):
             window = text[m.end(): m.end() + 40]
             amount_m = _AMOUNT_RE.search(window)
             if amount_m and amount_m.group(1):
-                slots[key] = _to_number(amount_m.group(1), amount_m.group(2))
+                value = _to_number(amount_m.group(1), amount_m.group(2))
+                # Only annualIncome gets annualized — estimatedCost is a
+                # one-time project/course cost, "per month" doesn't apply.
+                if key == "annualIncome" and monthly_stated:
+                    value *= 12
+                slots[key] = value
                 break
 
     if "estimatedCost" not in slots and "annualIncome" not in slots:
@@ -167,6 +221,16 @@ class EligibilityAssistant:
             still_want = [f for f in OPTIONAL_SLOTS if context["slots"].get(f) is None]
             if still_want:
                 prompt = SLOT_ASK["category_gender"].get(lang, SLOT_ASK["category_gender"][_DEFAULT_LANG])
+                # The transition into THIS question is exactly where the last
+                # required fact (often estimatedCost or annualIncome — the two
+                # that can be silently transformed, e.g. monthly->annual) was
+                # just filled. This is a template reply with no LLM call, so
+                # the acknowledgment is prepended in code, in English only —
+                # good enough for "does this number look right", the real
+                # question below is still in the citizen's language.
+                if newly_filled:
+                    facts = "; ".join(_format_fact(k, v) for k, v in newly_filled.items())
+                    prompt = f"Got it — {facts}. {prompt}"
                 return {"bot_reply": prompt, "context": context, "results": None}
 
         results = await check_credit_eligibility({
@@ -252,13 +316,21 @@ Return ONLY a JSON object with these keys:
         # missing field (e.g. category, before being asked) got the exact same
         # question repeated with no sign it registered — read as a scripted
         # bot ignoring the citizen, which is worse than not asking at all.
+        #
+        # Facts are formatted HERE, in code, not left for the LLM to restate
+        # from a raw number — real bug caught live 2026-09-12: asked to
+        # "briefly acknowledge estimatedCost=500", the model invented a "$"
+        # sign for what was actually ₹500,00,00,000. Handing it an
+        # already-formatted, correctly-scaled string and telling it to quote
+        # that exactly removes the one place it was free to guess a currency.
         acknowledge = ""
         if newly_filled:
-            facts = ", ".join(f"{k}={v}" for k, v in newly_filled.items())
+            facts = "; ".join(_format_fact(k, v) for k, v in newly_filled.items())
             acknowledge = (
-                f" The citizen's last message told you: {facts}. Briefly acknowledge that you noted "
-                f"it (one short clause), then ask the question below — do not just repeat a question "
-                f"as if nothing was said."
+                f" The citizen's last message told you: {facts}. Acknowledge that briefly (one short "
+                f"clause), quoting those figures EXACTLY as given above — never invent a different "
+                f"currency symbol, unit, or number — then ask the question below. Do not just repeat "
+                f"a question as if nothing was said."
             )
 
         prompt = (
