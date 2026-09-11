@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { ArrowRight, ClipboardCheck, Landmark, Calculator, MapPin, ShieldCheck } from 'lucide-react'
+import {
+    ArrowRight, ClipboardCheck, Landmark, Calculator, MapPin, ShieldCheck,
+    MessageCircle, ScanLine, LifeBuoy, Route, HeartHandshake,
+} from 'lucide-react'
 import { PublicPage } from '../../components/PublicShell'
 import { gateway } from '../../lib/api'
 import { formatInr } from '../../lib/emiCalculator'
@@ -18,17 +21,45 @@ const UI = {
     viewAll: 'View all schemes',
     maxLoan: 'Maximum loan',
     rate: 'Interest rate',
-    toolsTitle: 'Tools you can use right now',
+    toolsTitle: 'Everything you can do here',
     toolEligibility: 'Eligibility checker',
     toolEligibilityDesc: 'Answer four short questions and see which schemes you indicatively qualify for.',
     toolEmi: 'EMI calculator',
     toolEmiDesc: 'Work out your monthly repayment, including the months before EMIs begin.',
     toolLocator: 'Find a branch',
     toolLocatorDesc: 'Locate Channel Partner bank branches near you to enquire in person.',
+    toolSathi: 'Ask Sathi',
+    toolSathiDesc: 'Our AI assistant answers questions about any government scheme in your own language, by voice or text.',
+    toolSchemes: 'All government schemes',
+    toolSchemesDesc: 'Search the full catalogue of central and state welfare schemes, not just credit.',
+    toolLens: 'Jan-Sahayak Lens',
+    toolLensDesc: 'Photograph a document and have its details read out and filled in for you.',
+    toolHelp: 'Get help in person',
+    toolHelpDesc: 'Find a nearby CSC or request a call-back from a trained helper.',
+    toolTrack: 'Track your application',
+    toolTrackDesc: 'Follow your application from submission to disbursal. Needs an account.',
+    toolHelper: 'Become a helper',
+    toolHelperDesc: 'CSC operators, NGO and SHG workers can apply to assist citizens with their applications.',
     noLogin: 'No login needed',
     loadError: "Couldn't load the scheme list right now. Please refresh in a moment.",
     perYear: 'per year',
 }
+
+// The whole product, in the order a citizen is most likely to need it. Every
+// one of these is reachable without an account; the two that genuinely need an
+// identity (track, become a helper) ask for login on the page itself.
+const ICON = { verticalAlign: '-3px' }
+const FEATURES = [
+    { to: '/chat', icon: <MessageCircle size={17} style={ICON} />, t: UI.toolSathi, d: UI.toolSathiDesc },
+    { to: '/schemes', icon: <Landmark size={17} style={ICON} />, t: UI.toolSchemes, d: UI.toolSchemesDesc },
+    { to: '/eligibility', icon: <ClipboardCheck size={17} style={ICON} />, t: UI.toolEligibility, d: UI.toolEligibilityDesc },
+    { to: '/emi-calculator', icon: <Calculator size={17} style={ICON} />, t: UI.toolEmi, d: UI.toolEmiDesc },
+    { to: '/scanner', icon: <ScanLine size={17} style={ICON} />, t: UI.toolLens, d: UI.toolLensDesc },
+    { to: '/partner-locator', icon: <MapPin size={17} style={ICON} />, t: UI.toolLocator, d: UI.toolLocatorDesc },
+    { to: '/csc-finder', icon: <LifeBuoy size={17} style={ICON} />, t: UI.toolHelp, d: UI.toolHelpDesc },
+    { to: '/status', icon: <Route size={17} style={ICON} />, t: UI.toolTrack, d: UI.toolTrackDesc },
+    { to: '/become-helper', icon: <HeartHandshake size={17} style={ICON} />, t: UI.toolHelper, d: UI.toolHelperDesc },
+]
 
 export default function LandingPage() {
     const navigate = useNavigate()
@@ -122,18 +153,12 @@ export default function LandingPage() {
                         <span className="gov-badge gov-badge-ok"><ShieldCheck size={12} /> {tr(UI.noLogin)}</span>
                     </p>
                     <div className="gov-grid">
-                        <Link to="/eligibility" className="gov-card gov-scheme-card" style={{ textDecoration: 'none' }}>
-                            <h3><ClipboardCheck size={17} style={{ verticalAlign: '-3px' }} /> {tr(UI.toolEligibility)}</h3>
-                            <p className="gov-scheme-desc">{tr(UI.toolEligibilityDesc)}</p>
-                        </Link>
-                        <Link to="/emi-calculator" className="gov-card gov-scheme-card" style={{ textDecoration: 'none' }}>
-                            <h3><Calculator size={17} style={{ verticalAlign: '-3px' }} /> {tr(UI.toolEmi)}</h3>
-                            <p className="gov-scheme-desc">{tr(UI.toolEmiDesc)}</p>
-                        </Link>
-                        <Link to="/partner-locator" className="gov-card gov-scheme-card" style={{ textDecoration: 'none' }}>
-                            <h3><MapPin size={17} style={{ verticalAlign: '-3px' }} /> {tr(UI.toolLocator)}</h3>
-                            <p className="gov-scheme-desc">{tr(UI.toolLocatorDesc)}</p>
-                        </Link>
+                        {FEATURES.map(({ to, icon, t, d }) => (
+                            <Link key={to} to={to} className="gov-card gov-scheme-card" style={{ textDecoration: 'none' }}>
+                                <h3>{icon} {tr(t)}</h3>
+                                <p className="gov-scheme-desc">{tr(d)}</p>
+                            </Link>
+                        ))}
                     </div>
                 </div>
             </section>

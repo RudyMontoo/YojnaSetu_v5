@@ -1,8 +1,30 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { LogIn, User } from 'lucide-react'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { LogIn, User, Menu, X } from 'lucide-react'
+import { useState } from 'react'
 import { useLang, LANGUAGES } from '../lib/i18n'
 import { getLocalUser } from '../lib/auth'
 import '../pages/public/PublicPages.css'
+
+/**
+ * The whole product, not just the credit module.
+ *
+ * The public pages started life covering only SC concessional credit, which
+ * made the landing page a dead end: Sathi, the full scheme catalogue, the
+ * document scanner and the helper network were all still there and working,
+ * just unreachable from anything a logged-out visitor could see.
+ *
+ * Everything here is reachable without an account. The pages that genuinely
+ * need an identity (track an application, the helper portal) prompt for login
+ * at the point of action instead of hiding.
+ */
+const NAV = [
+    { to: '/credit-schemes', label: 'Credit schemes' },
+    { to: '/schemes', label: 'All schemes' },
+    { to: '/eligibility', label: 'Check eligibility' },
+    { to: '/chat', label: 'Ask Sathi' },
+    { to: '/emi-calculator', label: 'EMI calculator' },
+    { to: '/csc-finder', label: 'Get help' },
+]
 
 /**
  * Chrome for the public (pre-login) pages: YojnaSarthi brand on the left,
@@ -18,11 +40,12 @@ import '../pages/public/PublicPages.css'
  * returns the citizen to the page they were reading rather than dumping them
  * on /home (see SignInPage.finishLogin).
  */
-export function PublicHeader() {
+export function PublicHeader({ tr = (s) => s }) {
     const { lang, setLang } = useLang()
     const location = useLocation()
     const navigate = useNavigate()
     const user = getLocalUser()
+    const [menuOpen, setMenuOpen] = useState(false)
 
     return (
         <header className="gov-header">
@@ -36,6 +59,15 @@ export function PublicHeader() {
                 </Link>
 
                 <div className="gov-header-actions">
+                    <button
+                        className="gov-btn gov-btn-ghost gov-btn-sm gov-menu-toggle"
+                        onClick={() => setMenuOpen((o) => !o)}
+                        aria-label="Menu"
+                        aria-expanded={menuOpen}
+                    >
+                        {menuOpen ? <X size={16} /> : <Menu size={16} />}
+                    </button>
+
                     <select
                         className="gov-lang-select"
                         value={lang}
@@ -59,6 +91,21 @@ export function PublicHeader() {
                     )}
                 </div>
             </div>
+
+            <nav className={`gov-nav ${menuOpen ? 'open' : ''}`}>
+                <div className="gov-container gov-nav-inner">
+                    {NAV.map(({ to, label }) => (
+                        <NavLink
+                            key={to}
+                            to={to}
+                            onClick={() => setMenuOpen(false)}
+                            className={({ isActive }) => `gov-nav-link ${isActive ? 'active' : ''}`}
+                        >
+                            {tr(label)}
+                        </NavLink>
+                    ))}
+                </div>
+            </nav>
         </header>
     )
 }
@@ -80,7 +127,7 @@ export function PublicFooter({ tr = (s) => s }) {
 export function PublicPage({ children, tr }) {
     return (
         <div className="gov">
-            <PublicHeader />
+            <PublicHeader tr={tr} />
             {children}
             <PublicFooter tr={tr} />
         </div>

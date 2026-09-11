@@ -7,11 +7,30 @@ directly comparable to anything already indexed.
 No API key needed: sentence-transformers downloads and runs the model
 locally, same as today's ChromaDB path.
 """
+import os
 from functools import lru_cache
 
 import numpy as np
 
 MODEL_NAME = "all-MiniLM-L6-v2"
+
+# Keep transformers away from TensorFlow. We only ever run this model through
+# torch, but `transformers` probes for a TF backend on import, and if the
+# installed tensorflow was built against a newer protobuf than the one
+# resolved at runtime, that probe raises:
+#
+#   VersionError: Detected incompatible Protobuf Gencode/Runtime versions ...
+#                 gencode 6.31.1 runtime 5.29.6
+#
+# which surfaces as every single embed_text() call failing — silently taking
+# down scheme migration, vector search and Agent 1 eligibility with it, for a
+# backend we do not use. Confirmed against this repo's own environment, where
+# migrate_schemes inserted 0 of ~445 schemes until this was set.
+#
+# setdefault, not assignment: an operator who deliberately exports USE_TF
+# keeps control.
+os.environ.setdefault("USE_TF", "0")
+os.environ.setdefault("TRANSFORMERS_NO_TF", "1")
 
 
 @lru_cache(maxsize=1)

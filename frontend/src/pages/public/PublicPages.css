@@ -86,6 +86,30 @@
   border-radius: var(--gov-radius); padding: 7px 8px; font-size: 13px; font-family: inherit;
 }
 
+/* ---------- primary nav ---------- */
+.gov-nav { border-top: 1px solid var(--gov-line); background: var(--gov-surface); }
+.gov-nav-inner { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+.gov-nav-inner::-webkit-scrollbar { display: none; }
+.gov-nav-link {
+  padding: 12px 14px; font-size: 14px; font-weight: 500; white-space: nowrap;
+  color: var(--gov-body); text-decoration: none; border-bottom: 3px solid transparent;
+}
+.gov-nav-link:hover { color: var(--gov-blue); background: var(--gov-blue-soft); }
+.gov-nav-link.active { color: var(--gov-blue); font-weight: 700; border-bottom-color: var(--gov-blue); }
+/* The hamburger is only needed once the row stops fitting — see the query below. */
+.gov-menu-toggle { display: none; }
+
+@media (max-width: 720px) {
+  .gov-menu-toggle { display: inline-flex; }
+  /* Collapsed by default on small screens: a horizontally scrolling row of six
+     links competes with the page itself for the first screenful. */
+  .gov-nav { display: none; }
+  .gov-nav.open { display: block; }
+  .gov-nav-inner { flex-direction: column; overflow-x: visible; }
+  .gov-nav-link { border-bottom: 1px solid var(--gov-line); border-left: 3px solid transparent; }
+  .gov-nav-link.active { border-bottom-color: var(--gov-line); border-left-color: var(--gov-blue); }
+}
+
 /* ---------- buttons ---------- */
 .gov-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
