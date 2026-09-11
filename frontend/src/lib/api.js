@@ -191,6 +191,14 @@ export const ai = {
   // ai_service/routers/application_assistant_router.py.
   applyChat: (message, sessionId, language) =>
     request("/application-assistant/chat", { method: "POST", body: { message, session_id: sessionId, language } }),
+  // Conversational "what am I eligible for?" intake — public, no login, no
+  // session_id: stateless, the caller holds `context` between turns and
+  // sends it back each request (see eligibility_assistant.py's docstring for
+  // why). Replaces the plain form as the primary way to check eligibility —
+  // a citizen who doesn't know NSFDC's scheme taxonomy can describe their
+  // situation in plain language instead of filling in fields cold.
+  eligibilityChat: (message, context, language) =>
+    request("/eligibility-assistant/chat", { method: "POST", body: { message, context, language } }),
   financialPlan: () => request("/agents/financial-plan"),
   fileGrievance: (body) => request("/agents/grievance", { method: "POST", body }),
   // Agent 5 — grievance tracking loop

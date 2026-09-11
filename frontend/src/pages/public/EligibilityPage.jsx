@@ -1,34 +1,49 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { ClipboardCheck, CheckCircle2, XCircle, HelpCircle, Lock, ArrowRight } from 'lucide-react'
+import {
+    Send, Loader2, MessageCircle, PanelRightOpen, PanelLeftOpen,
+    CheckCircle2, XCircle, HelpCircle, Lock, ArrowRight,
+} from 'lucide-react'
 import { PublicPage } from '../../components/PublicShell'
 import LoginPrompt from '../../components/LoginPrompt'
 import { isGuest } from '../../lib/auth'
-import { gateway } from '../../lib/api'
+import { ai } from '../../lib/api'
 import { formatInr } from '../../lib/emiCalculator'
-import { useAutoTranslate } from '../../lib/i18n'
+import { useLang, useAutoTranslate } from '../../lib/i18n'
 import './PublicPages.css'
 
+/**
+ * Conversational eligibility intake — replaces the earlier plain form.
+ *
+ * Why: a static "here are 6 schemes, read their criteria" catalogue is
+ * exactly what nsfdc.nic.in and myscheme.gov.in already are, and they're the
+ * authoritative source — a directory can't out-compete a directory. The one
+ * thing an AI layer can actually offer a citizen who doesn't know the term
+ * "unit-cost ceiling" is: describe your situation in plain language, and
+ * have THAT translated into the real eligibility check for you.
+ *
+ * The chat never answers "you qualify" itself — see
+ * ai_service/services/eligibility_assistant.py's docstring. It only extracts
+ * structured facts (need/estimatedCost/annualIncome/category/gender) from
+ * what the citizen says, then calls the same real
+ * POST /api/v2/sih/credit/eligibility this page always called. `results` in
+ * the response IS that endpoint's real response, rendered here exactly as
+ * the old form's result cards did — nothing here is chat-generated prose
+ * standing in for a verdict.
+ *
+ * Stateless on the client: `context` grows turn by turn and is sent back
+ * each request (mirrors eligibility_assistant.py — no server-side session
+ * for a guest with no account).
+ */
 const UI = {
     title: 'Check your eligibility',
-    sub: 'Four short questions. No account needed, and nothing is saved unless you ask us to.',
-    privacy: 'Your answers are used only to work out which schemes you qualify for. They are not stored or shared unless you create an account and apply.',
-    needLabel: 'What do you need the loan for?',
-    needBusiness: 'Business or self-employment',
-    needEducation: 'Education (course, tuition, hostel)',
-    costLabel: 'Roughly how much will it cost, in total?',
-    costHint: 'The full project or course cost — not the amount you want to borrow.',
-    incomeLabel: 'Your annual family income',
-    incomeHint: 'All earners in the household, over a year.',
-    genderLabel: 'Applicant',
-    genderFemale: 'Woman',
-    genderMale: 'Man',
-    genderOther: 'Other',
-    genderHint: 'Asked because some schemes are for women only and carry a lower interest rate — without this we cannot tell you if you qualify for a cheaper option.',
-    categoryLabel: 'Social category',
-    submit: 'Show my schemes',
-    checking: 'Checking…',
+    sub: "Tell Sathi about your situation in your own words — no forms, no scheme names to know in advance.",
+    privacy: 'Your answers are used only to work out which schemes you qualify for. Nothing is saved unless you create an account and ask us to.',
+    inputPh: 'Type your answer…',
+    send: 'Send',
+    thinking: 'Sathi is typing…',
     resultsTitle: 'Your indicative results',
+    resultsPanelTitle: 'Results',
     indicative: 'Indicative only — the lending branch makes the final decision.',
     eligible: 'You appear to qualify',
     notEligible: 'You do not appear to qualify',
@@ -37,7 +52,6 @@ const UI = {
     youCanBorrow: 'You could borrow up to',
     marginMoney: 'Your own contribution (margin money)',
     monthlyEmi: 'Indicative monthly EMI',
-    why: 'Why',
     whyNot: 'Why not',
     rate: 'Interest rate',
     costCapped: 'Your project costs more than this scheme funds, so the figures above are capped at the scheme maximum.',
@@ -47,14 +61,12 @@ const UI = {
     loginToApply: 'apply for this scheme',
     loginToSave: 'save your results',
     loginSaveBody: 'Create an account to keep these results, come back to them later, and apply when you are ready.',
-    error: "Couldn't check eligibility right now. Please try again in a moment.",
-    noMatch: 'No scheme matched your answers. You can still browse all schemes, or ask for help at a nearby centre.',
+    error: "Couldn't reach Sathi right now. Please try again in a moment.",
+    noMatch: 'No scheme matched your answers so far. You can still browse all schemes, or keep chatting to add more detail.',
     browseAll: 'Browse all schemes',
-    fixCost: 'Please enter a project cost greater than zero.',
+    showResults: 'Show results', showChat: 'Continue chatting',
+    startOver: 'Start over',
 }
-
-// The API returns raw field names here; a citizen should see a question, not
-// a variable name.
 const MISSING_LABELS = {
     estimatedCost: 'how much your project or course will cost',
     annualIncome: 'your annual family income',
@@ -62,39 +74,168 @@ const MISSING_LABELS = {
     gender: 'whether the applicant is a woman (some schemes are women-only)',
 }
 
+function ResultsPanel({ result, tr, onApply, onSave }) {
+    const verdictUi = {
+        eligible: { icon: <CheckCircle2 size={16} />, cls: 'gov-notice-ok', text: UI.eligible },
+        not_eligible: { icon: <XCircle size={16} />, cls: 'gov-notice-error', text: UI.notEligible },
+        insufficient_data: { icon: <HelpCircle size={16} />, cls: 'gov-notice-warn', text: UI.unknown },
+    }[result?.verdict]
+
+    return (
+        <div>
+            <h2 className="gov-section-title" style={{ marginTop: 0 }}>{tr(UI.resultsTitle)}</h2>
+            <p className="gov-section-sub">{tr(UI.indicative)}</p>
+
+            {verdictUi && (
+                <div className={`gov-notice ${verdictUi.cls}`} style={{ marginBottom: 16 }}>
+                    {verdictUi.icon}
+                    <span>
+                        <strong>{tr(verdictUi.text)}</strong>
+                        {result.note && <><br />{tr(result.note)}</>}
+                    </span>
+                </div>
+            )}
+
+            {result.missingProfileData?.length > 0 && (
+                <div className="gov-card" style={{ marginBottom: 16 }}>
+                    <p style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>{tr(UI.needMore)}</p>
+                    <ul className="gov-reason" style={{ paddingLeft: 18, margin: 0 }}>
+                        {[...new Set(result.missingProfileData)].map((f) => (
+                            <li key={f}>{tr(MISSING_LABELS[f] || f)}</li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
+            {(result.recommendations || []).length === 0 && (
+                <div className="gov-empty">
+                    <p style={{ marginBottom: 14 }}>{tr(UI.noMatch)}</p>
+                    <Link to="/credit-schemes" className="gov-btn gov-btn-secondary gov-btn-sm">{tr(UI.browseAll)}</Link>
+                </div>
+            )}
+
+            {(result.recommendations || []).map((rec) => (
+                <div
+                    key={rec.productId}
+                    className={`gov-card gov-result ${rec.eligible ? 'eligible' : (rec.missingProfileData?.length ? 'unknown' : 'not-eligible')}`}
+                    style={{ marginBottom: 14 }}
+                >
+                    <span className="gov-scheme-code">{rec.code}</span>
+                    <h3 style={{ fontSize: 17, marginBottom: 10 }}>{tr(rec.name)}</h3>
+
+                    {rec.eligible && (
+                        <div className="gov-facts" style={{ marginBottom: 10 }}>
+                            <div>
+                                <div className="gov-fact-label">{tr(UI.youCanBorrow)}</div>
+                                <div className="gov-fact-value">{formatInr(rec.eligibleLoanAmount ?? rec.maxLoanAmount)}</div>
+                            </div>
+                            <div>
+                                <div className="gov-fact-label">{tr(UI.marginMoney)}</div>
+                                <div className="gov-fact-value">{formatInr(rec.marginMoney ?? 0)}</div>
+                            </div>
+                            {rec.indicativeEmi?.emi > 0 && (
+                                <div>
+                                    <div className="gov-fact-label">{tr(UI.monthlyEmi)}</div>
+                                    <div className="gov-fact-value">{formatInr(rec.indicativeEmi.emi)}</div>
+                                </div>
+                            )}
+                            <div>
+                                <div className="gov-fact-label">{tr(UI.rate)}</div>
+                                <div className="gov-fact-value">{rec.interestRate}%</div>
+                            </div>
+                        </div>
+                    )}
+
+                    {rec.costExceedsCap && (
+                        <div className="gov-notice gov-notice-warn" style={{ marginBottom: 10 }}>
+                            <HelpCircle size={15} /> <span>{tr(UI.costCapped)}</span>
+                        </div>
+                    )}
+
+                    {rec.failed?.length > 0 && (
+                        <ul className="gov-reason" style={{ paddingLeft: 18, marginTop: 0, marginBottom: 10 }}>
+                            <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{tr(UI.whyNot)}</p>
+                            {rec.failed.map((f, i) => <li key={i}>{tr(f)}</li>)}
+                        </ul>
+                    )}
+                    {rec.eligible && rec.matched?.length > 0 && (
+                        <ul className="gov-reason" style={{ paddingLeft: 18, marginTop: 0, marginBottom: 10 }}>
+                            {rec.matched.slice(0, 3).map((m, i) => <li key={i}>{tr(m)}</li>)}
+                        </ul>
+                    )}
+
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        <Link to={`/credit-schemes/${rec.productId}`} className="gov-btn gov-btn-ghost gov-btn-sm">
+                            {tr(UI.viewScheme)}
+                        </Link>
+                        {rec.eligible && (
+                            <button className="gov-btn gov-btn-primary gov-btn-sm" onClick={() => onApply(rec)}>
+                                {tr(UI.applyNow)} <ArrowRight size={14} />
+                            </button>
+                        )}
+                    </div>
+                </div>
+            ))}
+
+            {(result.recommendations || []).length > 0 && (
+                <button className="gov-btn gov-btn-secondary gov-btn-sm" onClick={onSave}>
+                    {tr(UI.saveResults)}
+                </button>
+            )}
+        </div>
+    )
+}
+
 export default function EligibilityPage() {
     const navigate = useNavigate()
-    const [need, setNeed] = useState('business')
-    const [estimatedCost, setCost] = useState('')
-    const [annualIncome, setIncome] = useState('')
-    const [gender, setGender] = useState('')
-    const [category, setCategory] = useState('sc')
+    const { lang } = useLang()
+    const [messages, setMessages] = useState([]) // [{role, text}]
+    const [context, setContext] = useState({})
     const [result, setResult] = useState(null)
+    const [input, setInput] = useState('')
     const [busy, setBusy] = useState(false)
     const [error, setError] = useState('')
-    const [prompt, setPrompt] = useState(null) // null | {action, body}
+    const [prompt, setPrompt] = useState(null)
+    // Mobile/narrow layout only has room for one panel at a time — this
+    // controls which. Desktop shows both side by side regardless.
+    const [mobileView, setMobileView] = useState('chat') // 'chat' | 'results'
+    const bottomRef = useRef(null)
+    const started = useRef(false)
 
     const tr = useAutoTranslate([
         ...Object.values(UI),
         ...Object.values(MISSING_LABELS),
+        ...messages.map((m) => m.text),
         ...(result?.recommendations || []).flatMap((r) => [r.name, ...(r.matched || []), ...(r.failed || [])]),
         result?.note,
     ].filter(Boolean))
 
-    const submit = async (e) => {
-        e.preventDefault()
-        const cost = Number(estimatedCost)
-        if (!cost || cost <= 0) { setError(tr(UI.fixCost)); return }
-        setBusy(true); setError(''); setResult(null)
+    useEffect(() => {
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, [messages, busy])
+
+    // Sathi opens the conversation rather than waiting on the citizen to
+    // guess what to type first — an empty landing chat is as intimidating
+    // as an empty form.
+    useEffect(() => {
+        if (started.current) return
+        started.current = true
+        send('', true)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    const send = async (text, silent = false) => {
+        if (!silent && !text.trim()) return
+        if (!silent) setMessages((m) => [...m, { role: 'user', text }])
+        setInput(''); setBusy(true); setError('')
         try {
-            const res = await gateway.checkEligibility({
-                need,
-                estimatedCost: cost,
-                annualIncome: annualIncome === '' ? null : Number(annualIncome),
-                category: category || null,
-                gender: gender || null,
-            })
-            setResult(res)
+            const res = await ai.eligibilityChat(text, context, lang)
+            setContext(res.context)
+            setMessages((m) => [...m, { role: 'assistant', text: res.bot_reply }])
+            if (res.results) {
+                setResult(res.results)
+                setMobileView('results')
+            }
         } catch (err) {
             setError(err.message || tr(UI.error))
         } finally {
@@ -104,199 +245,97 @@ export default function EligibilityPage() {
 
     const onApply = (rec) => {
         if (isGuest()) { setPrompt({ action: tr(UI.loginToApply), body: tr(UI.loginSaveBody) }); return }
-        navigate(`/apply/${rec.productId}`, { state: { productId: rec.productId, schemeCode: rec.code, estimatedCost: Number(estimatedCost), annualIncome: Number(annualIncome) || null, category, gender, need } })
+        const s = context.slots || {}
+        navigate(`/apply/${rec.productId}`, {
+            state: {
+                productId: rec.productId, schemeCode: rec.code,
+                estimatedCost: s.estimatedCost, annualIncome: s.annualIncome,
+                category: s.category, gender: s.gender, need: s.need,
+            },
+        })
     }
-
     const onSave = () => {
         if (isGuest()) { setPrompt({ action: tr(UI.loginToSave), body: tr(UI.loginSaveBody) }); return }
         navigate('/home')
     }
 
-    const verdictUi = {
-        eligible: { icon: <CheckCircle2 size={16} />, cls: 'gov-notice-ok', text: UI.eligible },
-        not_eligible: { icon: <XCircle size={16} />, cls: 'gov-notice-error', text: UI.notEligible },
-        insufficient_data: { icon: <HelpCircle size={16} />, cls: 'gov-notice-warn', text: UI.unknown },
-    }[result?.verdict]
+    const chatPanel = (
+        <div className="gov-chat-panel">
+            <div className="gov-chat-messages">
+                {messages.map((m, i) => (
+                    <div key={i} className={`gov-chat-bubble ${m.role}`}>{tr(m.text)}</div>
+                ))}
+                {busy && <div className="gov-chat-bubble assistant gov-chat-typing">{tr(UI.thinking)}</div>}
+                {error && <div className="gov-notice gov-notice-error" style={{ margin: '8px 0' }}>{error}</div>}
+                <div ref={bottomRef} />
+            </div>
+            <form
+                className="gov-chat-inputrow"
+                onSubmit={(e) => { e.preventDefault(); send(input) }}
+            >
+                <input
+                    className="gov-input"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder={tr(UI.inputPh)}
+                    disabled={busy}
+                    autoFocus
+                />
+                <button className="gov-btn gov-btn-primary gov-btn-sm" type="submit" disabled={busy || !input.trim()}>
+                    {busy ? <Loader2 size={15} className="spin" /> : <Send size={15} />}
+                </button>
+            </form>
+            <p className="gov-hint" style={{ marginTop: 10 }}>
+                <Lock size={12} style={{ verticalAlign: '-2px' }} /> {tr(UI.privacy)}
+            </p>
+        </div>
+    )
+
+    const resultsPanel = result && (
+        <ResultsPanel result={result} tr={tr} onApply={onApply} onSave={onSave} />
+    )
 
     return (
         <PublicPage tr={tr}>
-            <section className="gov-hero" style={{ paddingBottom: 26 }}>
-                <div className="gov-container gov-narrow">
+            <section className="gov-hero" style={{ paddingBottom: 20 }}>
+                <div className="gov-container">
                     <h1>{tr(UI.title)}</h1>
                     <p className="gov-hero-sub">{tr(UI.sub)}</p>
                 </div>
             </section>
 
-            <section className="gov-section">
-                <div className="gov-container gov-narrow">
-                    <form onSubmit={submit} className="gov-card" style={{ marginBottom: 22 }}>
-                        <div className="gov-field">
-                            <span className="gov-label">{tr(UI.needLabel)}</span>
-                            <div className="gov-radio-row">
-                                {[['business', UI.needBusiness], ['education', UI.needEducation]].map(([val, label]) => (
-                                    <label key={val} className={`gov-radio ${need === val ? 'active' : ''}`}>
-                                        <input type="radio" name="need" value={val} checked={need === val} onChange={() => setNeed(val)} />
-                                        {tr(label)}
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-
-                        <label className="gov-field">
-                            <span className="gov-label">{tr(UI.costLabel)}</span>
-                            <input className="gov-input" inputMode="numeric" value={estimatedCost}
-                                onChange={(e) => setCost(e.target.value.replace(/[^0-9]/g, ''))}
-                                placeholder="80000" required />
-                            <span className="gov-hint">{tr(UI.costHint)}</span>
-                        </label>
-
-                        <label className="gov-field">
-                            <span className="gov-label">{tr(UI.incomeLabel)}</span>
-                            <input className="gov-input" inputMode="numeric" value={annualIncome}
-                                onChange={(e) => setIncome(e.target.value.replace(/[^0-9]/g, ''))}
-                                placeholder="300000" />
-                            <span className="gov-hint">{tr(UI.incomeHint)}</span>
-                        </label>
-
-                        <div className="gov-field">
-                            <span className="gov-label">{tr(UI.genderLabel)}</span>
-                            <div className="gov-radio-row">
-                                {[['female', UI.genderFemale], ['male', UI.genderMale], ['other', UI.genderOther]].map(([val, label]) => (
-                                    <label key={val} className={`gov-radio ${gender === val ? 'active' : ''}`}>
-                                        <input type="radio" name="gender" value={val} checked={gender === val} onChange={() => setGender(val)} />
-                                        {tr(label)}
-                                    </label>
-                                ))}
-                            </div>
-                            <span className="gov-hint">{tr(UI.genderHint)}</span>
-                        </div>
-
-                        <label className="gov-field">
-                            <span className="gov-label">{tr(UI.categoryLabel)}</span>
-                            <select className="gov-select" value={category} onChange={(e) => setCategory(e.target.value)}>
-                                <option value="sc">SC</option>
-                                <option value="st">ST</option>
-                                <option value="obc">OBC</option>
-                                <option value="general">General</option>
-                            </select>
-                        </label>
-
-                        {error && <div className="gov-notice gov-notice-error" style={{ marginBottom: 14 }}>{error}</div>}
-
-                        <button type="submit" className="gov-btn gov-btn-primary" disabled={busy} style={{ width: '100%' }}>
-                            {busy ? <><span className="gov-spinner" /> {tr(UI.checking)}</> : <><ClipboardCheck size={17} /> {tr(UI.submit)}</>}
-                        </button>
-
-                        <p className="gov-hint" style={{ marginTop: 14 }}>
-                            <Lock size={12} style={{ verticalAlign: '-2px' }} /> {tr(UI.privacy)}
-                        </p>
-                    </form>
-
+            <section className="gov-section" style={{ paddingTop: 0 }}>
+                <div className="gov-container">
+                    {/* Mobile: one panel at a time with a toggle, once results exist.
+                        Desktop: both panels side by side always — the CSS grid does
+                        this, .gov-eligibility-mobile-tabs is hidden there. */}
                     {result && (
-                        <>
-                            <h2 className="gov-section-title">{tr(UI.resultsTitle)}</h2>
-                            <p className="gov-section-sub">{tr(UI.indicative)}</p>
-
-                            {verdictUi && (
-                                <div className={`gov-notice ${verdictUi.cls}`} style={{ marginBottom: 16 }}>
-                                    {verdictUi.icon}
-                                    <span>
-                                        <strong>{tr(verdictUi.text)}</strong>
-                                        {result.note && <><br />{tr(result.note)}</>}
-                                    </span>
-                                </div>
-                            )}
-
-                            {result.missingProfileData?.length > 0 && (
-                                <div className="gov-card" style={{ marginBottom: 16 }}>
-                                    <p style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>{tr(UI.needMore)}</p>
-                                    <ul className="gov-reason" style={{ paddingLeft: 18, margin: 0 }}>
-                                        {[...new Set(result.missingProfileData)].map((f) => (
-                                            <li key={f}>{tr(MISSING_LABELS[f] || f)}</li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
-
-                            {(result.recommendations || []).length === 0 && (
-                                <div className="gov-empty">
-                                    <p style={{ marginBottom: 14 }}>{tr(UI.noMatch)}</p>
-                                    <Link to="/credit-schemes" className="gov-btn gov-btn-secondary gov-btn-sm">{tr(UI.browseAll)}</Link>
-                                </div>
-                            )}
-
-                            {(result.recommendations || []).map((rec) => (
-                                <div
-                                    key={rec.productId}
-                                    className={`gov-card gov-result ${rec.eligible ? 'eligible' : (rec.missingProfileData?.length ? 'unknown' : 'not-eligible')}`}
-                                    style={{ marginBottom: 14 }}
-                                >
-                                    <span className="gov-scheme-code">{rec.code}</span>
-                                    <h3 style={{ fontSize: 17, marginBottom: 10 }}>{tr(rec.name)}</h3>
-
-                                    {rec.eligible && (
-                                        <div className="gov-facts" style={{ marginBottom: 10 }}>
-                                            <div>
-                                                <div className="gov-fact-label">{tr(UI.youCanBorrow)}</div>
-                                                <div className="gov-fact-value">{formatInr(rec.eligibleLoanAmount ?? rec.maxLoanAmount)}</div>
-                                            </div>
-                                            <div>
-                                                <div className="gov-fact-label">{tr(UI.marginMoney)}</div>
-                                                <div className="gov-fact-value">{formatInr(rec.marginMoney ?? 0)}</div>
-                                            </div>
-                                            {rec.indicativeEmi?.emi > 0 && (
-                                                <div>
-                                                    <div className="gov-fact-label">{tr(UI.monthlyEmi)}</div>
-                                                    <div className="gov-fact-value">{formatInr(rec.indicativeEmi.emi)}</div>
-                                                </div>
-                                            )}
-                                            <div>
-                                                <div className="gov-fact-label">{tr(UI.rate)}</div>
-                                                <div className="gov-fact-value">{rec.interestRate}%</div>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {rec.costExceedsCap && (
-                                        <div className="gov-notice gov-notice-warn" style={{ marginBottom: 10 }}>
-                                            <HelpCircle size={15} /> <span>{tr(UI.costCapped)}</span>
-                                        </div>
-                                    )}
-
-                                    {rec.failed?.length > 0 && (
-                                        <>
-                                            <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{tr(UI.whyNot)}</p>
-                                            <ul className="gov-reason" style={{ paddingLeft: 18, marginTop: 0, marginBottom: 10 }}>
-                                                {rec.failed.map((f, i) => <li key={i}>{tr(f)}</li>)}
-                                            </ul>
-                                        </>
-                                    )}
-                                    {rec.eligible && rec.matched?.length > 0 && (
-                                        <ul className="gov-reason" style={{ paddingLeft: 18, marginTop: 0, marginBottom: 10 }}>
-                                            {rec.matched.slice(0, 3).map((m, i) => <li key={i}>{tr(m)}</li>)}
-                                        </ul>
-                                    )}
-
-                                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                                        <Link to={`/credit-schemes/${rec.productId}`} className="gov-btn gov-btn-ghost gov-btn-sm">
-                                            {tr(UI.viewScheme)}
-                                        </Link>
-                                        {rec.eligible && (
-                                            <button className="gov-btn gov-btn-primary gov-btn-sm" onClick={() => onApply(rec)}>
-                                                {tr(UI.applyNow)} <ArrowRight size={14} />
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-
-                            {(result.recommendations || []).length > 0 && (
-                                <button className="gov-btn gov-btn-secondary gov-btn-sm" onClick={onSave}>
-                                    {tr(UI.saveResults)}
-                                </button>
-                            )}
-                        </>
+                        <div className="gov-eligibility-mobile-tabs">
+                            <button
+                                className={`gov-btn gov-btn-sm ${mobileView === 'chat' ? 'gov-btn-primary' : 'gov-btn-ghost'}`}
+                                onClick={() => setMobileView('chat')}
+                            >
+                                <MessageCircle size={14} /> {tr(UI.showChat)}
+                            </button>
+                            <button
+                                className={`gov-btn gov-btn-sm ${mobileView === 'results' ? 'gov-btn-primary' : 'gov-btn-ghost'}`}
+                                onClick={() => setMobileView('results')}
+                            >
+                                {mobileView === 'results' ? <PanelLeftOpen size={14} /> : <PanelRightOpen size={14} />} {tr(UI.showResults)}
+                            </button>
+                        </div>
                     )}
+
+                    <div className={`gov-eligibility-layout ${result ? 'has-results' : ''}`}>
+                        <div className={`gov-eligibility-chat-col ${mobileView === 'results' ? 'mobile-hidden' : ''}`}>
+                            {chatPanel}
+                        </div>
+                        {result && (
+                            <div className={`gov-eligibility-results-col ${mobileView === 'chat' ? 'mobile-hidden' : ''}`}>
+                                {resultsPanel}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </section>
 

@@ -71,6 +71,28 @@ async def patch_citizen_profile(citizen_id: str, updates: dict) -> bool:
         return False
 
 
+async def check_credit_eligibility(payload: dict) -> dict | None:
+    """POST /api/v2/sih/credit/eligibility — the real, authoritative eligibility
+    engine (CreditEligibilityService), NOT something ai_service computes itself.
+    The eligibility_assistant chat exists to collect these fields conversationally;
+    it must never answer "you qualify" from the LLM's own reasoning — see that
+    module's docstring for why (the exact P0 bug this project already fixed once:
+    quoting a scheme figure that wasn't real).
+
+    Public endpoint, no X-Internal-Key needed — same reasoning as
+    fetch_credit_products(). Returns None on any failure; the caller must
+    surface "couldn't check right now", never a guessed verdict."""
+    base_url = os.getenv("SPRING_BOOT_INTERNAL_URL", "http://localhost:8080").rstrip("/")
+    try:
+        async with httpx.AsyncClient(timeout=_TIMEOUT_SECONDS) as client:
+            resp = await client.post(f"{base_url}/api/v2/sih/credit/eligibility", json=payload)
+        resp.raise_for_status()
+        return resp.json()
+    except httpx.HTTPError as e:
+        logger.warning("check_credit_eligibility() failed: %s: %s", e.__class__.__name__, e)
+        return None
+
+
 async def fetch_credit_products() -> list[dict]:
     """GET /api/v2/sih/credit/products — the real NSFDC scheme catalogue
     (CreditProductSeeder's data), NOT ai_service's own scheme JSON (which has

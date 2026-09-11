@@ -18,7 +18,6 @@ import '../pages/public/PublicPages.css'
  */
 const NAV = [
     { to: '/credit-schemes', label: 'Credit schemes' },
-    { to: '/schemes', label: 'All schemes' },
     { to: '/eligibility', label: 'Check eligibility' },
     { to: '/chat', label: 'Ask Sathi' },
     { to: '/emi-calculator', label: 'EMI calculator' },

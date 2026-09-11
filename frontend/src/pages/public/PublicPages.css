@@ -239,3 +239,72 @@
    only this file. */
 .gov .spin { animation: gov-spin 0.9s linear infinite; }
 @keyframes gov-spin { to { transform: rotate(360deg); } }
+
+/* ── Chat-first eligibility intake ───────────────────────────────────────
+   Two columns once results exist (chat | results), side by side on desktop.
+   On narrow screens there's only room for one at a time — .gov-eligibility-
+   mobile-tabs toggles which via .mobile-hidden, hidden itself on desktop. */
+.gov-eligibility-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  align-items: start;
+}
+.gov-eligibility-layout.has-results {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+.gov-eligibility-mobile-tabs { display: none; gap: 8px; margin-bottom: 14px; }
+
+.gov-chat-panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--gov-surface);
+  border: 1px solid var(--gov-line);
+  border-radius: var(--gov-radius);
+  overflow: hidden;
+  height: min(70vh, 640px);
+}
+.gov-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.gov-chat-bubble {
+  max-width: 84%;
+  padding: 10px 13px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+.gov-chat-bubble.assistant {
+  align-self: flex-start;
+  background: var(--gov-blue-soft);
+  color: var(--gov-ink);
+  border-bottom-left-radius: 4px;
+}
+.gov-chat-bubble.user {
+  align-self: flex-end;
+  background: var(--gov-blue);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.gov-chat-typing { opacity: 0.65; font-style: italic; }
+.gov-chat-inputrow {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--gov-line);
+}
+.gov-chat-inputrow .gov-input { flex: 1; margin: 0; }
+.gov-chat-inputrow button { flex-shrink: 0; width: 42px; padding: 0; justify-content: center; }
+.gov-chat-panel .gov-hint { padding: 0 12px 12px; margin: 0; }
+
+@media (max-width: 860px) {
+  .gov-eligibility-layout.has-results { grid-template-columns: 1fr; }
+  .gov-eligibility-mobile-tabs { display: flex; }
+  .mobile-hidden { display: none; }
+}

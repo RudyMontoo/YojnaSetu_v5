@@ -29,7 +29,9 @@ const SignInPage = lazyWithReload(() => import('./pages/SignInPage'))
 // Public, pre-login pages (PS 26092). Browsing, eligibility and the EMI
 // calculator are all open — see PublicPages.css for why these carry their own
 // plain government-portal styling rather than the app's themed look.
-const LandingPage = lazyWithReload(() => import('./pages/public/LandingPage'))
+// LandingPage.jsx (the earlier static hero + scheme cards) is kept in the
+// repo but deliberately no longer imported/routed — see the /startgo route
+// below for why.
 const CreditSchemeListPage = lazyWithReload(() => import('./pages/public/CreditSchemeListPage'))
 const CreditSchemeDetailPage = lazyWithReload(() => import('./pages/public/CreditSchemeDetailPage'))
 const EligibilityPage = lazyWithReload(() => import('./pages/public/EligibilityPage'))
@@ -96,9 +98,16 @@ export default function App() {
           <Route path="/" element={<Navigate to="/home" replace />} />
 
           {/* Public, no login required — a citizen must be able to learn what
-              they qualify for before creating an account. /startgo is the
-              government-portal landing that gathers all of these. */}
-          <Route path="/startgo" element={<LandingPage />} />
+              they qualify for before creating an account.
+              /startgo opens directly into the conversational eligibility
+              intake (EligibilityPage) rather than a static marketing landing
+              — a directory of schemes can't out-compete nsfdc.nic.in /
+              myscheme.gov.in, which ARE the authoritative source; the one
+              thing this platform can do that they can't is let a citizen
+              describe their situation in plain language and have Sathi do
+              the scheme-matching. LandingPage.jsx (the earlier static hero +
+              scheme cards) is kept but no longer routed. */}
+          <Route path="/startgo" element={<EligibilityPage />} />
           <Route path="/credit-schemes" element={<CreditSchemeListPage />} />
           <Route path="/credit-schemes/:id" element={<CreditSchemeDetailPage />} />
           <Route path="/eligibility" element={<EligibilityPage />} />

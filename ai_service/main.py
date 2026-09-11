@@ -108,10 +108,12 @@ from ai_service.routers.voice_ws_router import router as voice_ws_router
 from ai_service.routers.translate_router import router as translate_router
 from ai_service.routers.dlc_router import router as dlc_router
 from ai_service.routers.application_assistant_router import router as application_assistant_router
+from ai_service.routers.eligibility_assistant_router import router as eligibility_assistant_router
 from ai_service.vision.agent11_biometric.router_stub import router as biometric_router
 
 app.include_router(orchestrator_router)
 app.include_router(application_assistant_router)
+app.include_router(eligibility_assistant_router)
 app.include_router(agents_router)
 app.include_router(internal_router)
 app.include_router(ws_router)

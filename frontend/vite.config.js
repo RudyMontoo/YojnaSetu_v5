@@ -93,6 +93,17 @@ export default defineConfig({
         target: 'http://localhost:8000',
         changeOrigin: true,
       },
+      // FastAPI — conversational eligibility intake (public, no login) and
+      // the application assistant (authenticated) — both goal-directed
+      // slot-filling chats, distinct from /orchestrator's general chat.
+      '/eligibility-assistant': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
+      '/application-assistant': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
       // FastAPI AI Hub — voice conversation endpoints
       '/voice': {
         target: 'http://localhost:8000',
