@@ -169,6 +169,32 @@
 }
 .lang-switcher select option { background: var(--navy-card-solid); }
 
+/* ── Login (the single sign-in entry point for the whole product) ── */
+.nav-login-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border: 1px solid var(--border-saffron);
+    border-radius: var(--radius-full);
+    background: var(--saffron, #e88d0a);
+    color: #10131c;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: filter var(--transition);
+}
+.nav-login-btn:hover { filter: brightness(1.1); }
+/* Icon-only at mobile widths, where it sits beside the compact theme/language
+   controls and a word would push the bar out of line. */
+.nav-login-btn.compact {
+    padding: 0;
+    width: 34px;
+    height: 34px;
+    justify-content: center;
+}
+
 /* Mobile theme/language controls now live INSIDE .navbar (see markup) rather
    than as a separately `position: fixed` element — the standalone fab was
    mis-positioning itself on some mobile browser/PWA contexts, since a second

@@ -21,7 +21,10 @@ const STRINGS = {
   "nav.status":   { en: "Status", hi: "स्थिति", bn: "স্ট্যাটাস", ta: "நிலை", te: "స్థితి", mr: "स्थिती" },
   "nav.lens":     { en: "Lens", hi: "लेंस", bn: "লেন্স", ta: "லென்ஸ்", te: "లెన్స్", mr: "लेन्स" },
   "nav.profile":  { en: "Profile", hi: "प्रोफ़ाइल", bn: "প্রোফাইল", ta: "சுயவிவரம்", te: "ప్రొఫైల్", mr: "प्रोफाइल" },
-  "nav.portal":   { en: "Portal", hi: "पोर्टल", bn: "পোর্টাল", ta: "போர்ட்டல்", te: "పోర్టల్", mr: "पोर्टल" },
+  // StartGo is a product name, so it stays in Latin script in every language —
+  // same treatment as "Sathi" above, which is transliterated rather than translated.
+  "nav.startgo":  { en: "StartGo", hi: "StartGo", bn: "StartGo", ta: "StartGo", te: "StartGo", mr: "StartGo" },
+  "nav.login":    { en: "Login", hi: "लॉगिन", bn: "লগইন", ta: "உள்நுழை", te: "లాగిన్", mr: "लॉगिन" },
   // home hero
   "home.greet":    { en: "Namaste,", hi: "नमस्ते,", bn: "নমস্তে,", ta: "வணக்கம்,", te: "నమస్తే,", mr: "नमस्कार," },
   "home.tagline":  { en: "Your rights. Your schemes. One place.", hi: "आपके अधिकार। आपकी योजनाएं। एक जगह।", bn: "আপনার অধিকার। আপনার প্রকল্প। এক জায়গায়।", ta: "உங்கள் உரிமைகள். உங்கள் திட்டங்கள். ஒரே இடம்.", te: "మీ హక్కులు. మీ పథకాలు. ఒకే చోట.", mr: "तुमचे हक्क. तुमच्या योजना. एकाच ठिकाणी." },

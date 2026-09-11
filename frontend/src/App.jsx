@@ -3,7 +3,6 @@ import { lazy, Suspense } from 'react'
 import { useScroll } from 'framer-motion'
 import { LanguageProvider } from './lib/i18n'
 import ErrorBoundary from './components/ErrorBoundary'
-import LandingPage from './pages/public/LandingPage'  // eager: it's the "/" landing, so it paints instantly
 import './index.css'
 
 // lazy() that survives a stale PWA deploy: if a page's chunk 404s because the
@@ -24,13 +23,13 @@ const lazyWithReload = (factory) => lazy(() =>
 // Route-based code splitting: each page is its own chunk, fetched only when
 // its route is visited. On the low-end / poor-connection devices this app
 // targets, that's the difference between downloading one screen's worth of
-// JS on first load vs. the entire twelve-page app. LandingPage stays eager
-// so the very first paint needs no extra round-trip.
+// JS on first load vs. the entire twelve-page app.
 const SplashScreen = lazyWithReload(() => import('./pages/SplashScreen'))
 const SignInPage = lazyWithReload(() => import('./pages/SignInPage'))
 // Public, pre-login pages (PS 26092). Browsing, eligibility and the EMI
 // calculator are all open — see PublicPages.css for why these carry their own
 // plain government-portal styling rather than the app's themed look.
+const LandingPage = lazyWithReload(() => import('./pages/public/LandingPage'))
 const CreditSchemeListPage = lazyWithReload(() => import('./pages/public/CreditSchemeListPage'))
 const CreditSchemeDetailPage = lazyWithReload(() => import('./pages/public/CreditSchemeDetailPage'))
 const EligibilityPage = lazyWithReload(() => import('./pages/public/EligibilityPage'))
@@ -58,9 +57,8 @@ const MandalaTower3D = lazy(() => import('./components/MandalaTower3D'))
 // The public pages are deliberately plain — a government-service look, and
 // light enough for a low-end phone on 3G. The WebGL chakra is neither, so
 // they opt out of it the same way /preview already does.
-const PUBLIC_PATHS = ['/credit-schemes', '/eligibility', '/emi-calculator', '/partner-locator']
-const isPublicPath = (pathname) =>
-  pathname === '/' || PUBLIC_PATHS.some((p) => pathname.startsWith(p))
+const PUBLIC_PATHS = ['/startgo', '/credit-schemes', '/eligibility', '/emi-calculator', '/partner-locator']
+const isPublicPath = (pathname) => PUBLIC_PATHS.some((p) => pathname.startsWith(p))
 
 function GlobalBackground3D() {
   const { pathname } = useLocation()
@@ -89,10 +87,15 @@ export default function App() {
       <ErrorBoundary>
       <Suspense fallback={null}>
         <Routes>
+          {/* The app's own Home is the front door: a visitor lands straight on
+              it, logged in or not. It used to be a splash screen that bounced
+              every visitor to /signin. */}
+          <Route path="/" element={<Navigate to="/home" replace />} />
+
           {/* Public, no login required — a citizen must be able to learn what
-              they qualify for before creating an account. The splash screen
-              used to sit here and bounce every visitor to /signin. */}
-          <Route path="/" element={<LandingPage />} />
+              they qualify for before creating an account. /startgo is the
+              government-portal landing that gathers all of these. */}
+          <Route path="/startgo" element={<LandingPage />} />
           <Route path="/credit-schemes" element={<CreditSchemeListPage />} />
           <Route path="/credit-schemes/:id" element={<CreditSchemeDetailPage />} />
           <Route path="/eligibility" element={<EligibilityPage />} />

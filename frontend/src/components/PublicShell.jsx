@@ -1,8 +1,7 @@
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { LogIn, User, Menu, X } from 'lucide-react'
+import { Link, NavLink } from 'react-router-dom'
+import { Menu, X, ArrowLeft } from 'lucide-react'
 import { useState } from 'react'
 import { useLang, LANGUAGES } from '../lib/i18n'
-import { getLocalUser } from '../lib/auth'
 import '../pages/public/PublicPages.css'
 
 /**
@@ -27,30 +26,22 @@ const NAV = [
 ]
 
 /**
- * Chrome for the public (pre-login) pages: YojnaSarthi brand on the left,
- * language switcher + a Login affordance on the right.
+ * Chrome for the StartGo pages: YojnaSarthi brand on the left, language
+ * switcher on the right.
  *
- * Deliberately NOT the app's Navbar. That one assumes a signed-in citizen —
- * it links straight to /profile and /status and has no logged-out state — and
- * it carries the saffron/glass treatment these pages opt out of. A guest
- * needs exactly two things in the header: a way to change language, and a way
- * to sign in when they decide to act.
- *
- * The Login button passes the current location as `from`, so signing in
- * returns the citizen to the page they were reading rather than dumping them
- * on /home (see SignInPage.finishLogin).
+ * Deliberately NOT the app's Navbar — that one carries the saffron/glass
+ * treatment these pages opt out of. There is intentionally no Login button
+ * here: sign-in lives in the app navbar, so the product has exactly one place
+ * to log in rather than two that can disagree about your state.
  */
 export function PublicHeader({ tr = (s) => s }) {
     const { lang, setLang } = useLang()
-    const location = useLocation()
-    const navigate = useNavigate()
-    const user = getLocalUser()
     const [menuOpen, setMenuOpen] = useState(false)
 
     return (
         <header className="gov-header">
             <div className="gov-container gov-header-inner">
-                <Link to="/" className="gov-brand">
+                <Link to="/startgo" className="gov-brand">
                     <img src="/logo.png" alt="" />
                     <span>
                         <span className="gov-brand-name">Yojna<span>Sarthi</span></span>
@@ -77,18 +68,11 @@ export function PublicHeader({ tr = (s) => s }) {
                         {LANGUAGES.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}
                     </select>
 
-                    {user ? (
-                        <button className="gov-btn gov-btn-ghost gov-btn-sm" onClick={() => navigate('/home')}>
-                            <User size={15} /> My account
-                        </button>
-                    ) : (
-                        <button
-                            className="gov-btn gov-btn-primary gov-btn-sm"
-                            onClick={() => navigate('/signin', { state: { from: location.pathname + location.search } })}
-                        >
-                            <LogIn size={15} /> Login
-                        </button>
-                    )}
+                    {/* StartGo is reached from the app navbar, so it needs a way
+                        back to it — these pages hide that navbar entirely. */}
+                    <Link to="/home" className="gov-btn gov-btn-ghost gov-btn-sm">
+                        <ArrowLeft size={15} /> {tr('Back to app')}
+                    </Link>
                 </div>
             </div>
 

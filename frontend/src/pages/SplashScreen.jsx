@@ -6,12 +6,12 @@ import { ChakraLoader } from '../components/AgentCouncil'
 export default function SplashScreen() {
     const navigate = useNavigate()
 
-    // Lands on the public home page, never straight into sign-in. This screen
-    // used to be mounted at "/" and bounce every first-time visitor to /signin
-    // before they had seen a single scheme; "/" is now the public landing page
-    // and this is kept at /splash as the brand intro only.
+    // Lands on Home, never straight into sign-in. This screen used to be
+    // mounted at "/" and bounce every first-time visitor to /signin before
+    // they had seen a single scheme; it is kept at /splash as a brand intro
+    // only, and Home is browsable without an account.
     useEffect(() => {
-        const timer = setTimeout(() => navigate('/'), 2800)
+        const timer = setTimeout(() => navigate('/home'), 2800)
         return () => clearTimeout(timer)
     }, [navigate])
 
