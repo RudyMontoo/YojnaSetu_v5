@@ -134,6 +134,23 @@ export const gateway = {
   // rather than guessing, so send whatever the citizen has given so far.
   checkEligibility: (body) => request("/api/v2/sih/credit/eligibility", { method: "POST", body }),
   emiQuote: (body) => request("/api/v2/sih/credit/emi", { method: "POST", body }),
+
+  // ── Profile-level DigiLocker verification ────────────────────────────────
+  // Verifying the PERSON once, not one loan application — a citizen who has
+  // verified here carries it into every application afterwards. Authenticated,
+  // unlike everything above.
+  //
+  // `start` refuses without consent:true (DPDP-2023 wants purpose-specific
+  // agreement before we fetch anyone's documents), and returns a URL to send
+  // the browser to. In demo simulation that URL is our own /digilocker-demo
+  // route rather than digilocker.gov.in, and every response carries
+  // `simulated: true` — show it, don't hide it.
+  digilockerStart: (consent) =>
+    request("/api/v2/sih/verification/digilocker/start", { method: "POST", body: { consent } }),
+  digilockerStatus: () => request("/api/v2/sih/verification/digilocker/status"),
+  // DigiLocker redirects the browser back here with the state nonce it was given.
+  digilockerCallback: (state, code) =>
+    request(`/api/v2/sih/digilocker/callback?state=${encodeURIComponent(state)}&code=${encodeURIComponent(code)}`),
 };
 
 export const ai = {

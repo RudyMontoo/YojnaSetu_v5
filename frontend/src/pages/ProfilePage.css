@@ -303,3 +303,71 @@
         grid-template-columns: repeat(3, 1fr);
     }
 }
+/* ── Registration & KYC panel ──────────────────────────────────────────── */
+.profile-kyc-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+.profile-kyc-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+.profile-kyc-form label .input-glass { width: 100%; }
+/* Checkboxes and the submit button run the full width — a checkbox in a
+   half-width column leaves its label wrapping awkwardly beside an input. */
+.profile-kyc-form .profile-check,
+.profile-kyc-form button,
+.profile-kyc-form > p { grid-column: 1 / -1; }
+.profile-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-direction: row !important;
+    font-size: 13px;
+    color: var(--text-primary);
+}
+.profile-check input { width: auto; accent-color: var(--saffron); }
+
+@media (max-width: 560px) {
+    .profile-kyc-form { grid-template-columns: 1fr; }
+}
+
+/* Simulated-integration notice. Deliberately loud: a demo that quietly
+   presents fake verification as real is the one shortcut that would actually
+   mislead a citizen, so the label has to be impossible to miss. */
+.profile-sim-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    margin: 10px 0;
+    padding: 9px 11px;
+    border: 1px solid rgba(232, 141, 10, 0.45);
+    border-left-width: 3px;
+    border-radius: 8px;
+    background: rgba(232, 141, 10, 0.08);
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--text-primary);
+}
+
+/* ── Signed-out profile ────────────────────────────────────────────────── */
+.profile-unlock-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+.profile-unlock-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13.5px;
+    line-height: 1.45;
+    color: var(--text-primary);
+}

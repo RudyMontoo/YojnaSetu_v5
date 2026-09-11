@@ -150,6 +150,20 @@ public class DigiLockerService {
     }
 
     /**
+     * The scope key for verifying a citizen's PROFILE rather than one credit
+     * application — used everywhere this class takes an {@code applicationId}.
+     *
+     * It embeds the userId on purpose. A shared constant like "profile" would
+     * be a real leak: {@link #linkedFor} looks a record up by that key alone,
+     * so every citizen would resolve to whichever profile link happened to be
+     * saved most recently — someone else's DigiLocker connection, presented as
+     * their own. Per-user keys make that lookup unambiguous.
+     */
+    public static String profileScope(String userId) {
+        return "profile:" + userId;
+    }
+
+    /**
      * Starts a link attempt: requires DIGILOCKER_FETCH consent already
      * granted for this application, then records a single-use state nonce
      * and returns the URL to redirect the citizen's browser to.

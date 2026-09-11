@@ -233,3 +233,9 @@
   .gov-facts { grid-template-columns: 1fr 1fr; }
   .gov-brand-sub { display: none; }
 }
+
+/* Spinner for the public/StartGo pages. `.spin` is also defined in several
+   page stylesheets, but those aren't loaded here — each of these pages imports
+   only this file. */
+.gov .spin { animation: gov-spin 0.9s linear infinite; }
+@keyframes gov-spin { to { transform: rotate(360deg); } }

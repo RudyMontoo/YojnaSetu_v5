@@ -35,6 +35,9 @@ const CreditSchemeDetailPage = lazyWithReload(() => import('./pages/public/Credi
 const EligibilityPage = lazyWithReload(() => import('./pages/public/EligibilityPage'))
 const EmiCalculatorPage = lazyWithReload(() => import('./pages/public/EmiCalculatorPage'))
 const PartnerLocatorPage = lazyWithReload(() => import('./pages/public/PartnerLocatorPage'))
+// Stand-in for DigiLocker's consent screen, reachable only when the gateway
+// runs with simulation on — see the page's own comment for why it exists.
+const DigiLockerDemoPage = lazyWithReload(() => import('./pages/DigiLockerDemoPage'))
 const HomePage = lazyWithReload(() => import('./pages/HomePage'))
 const ChatPage = lazyWithReload(() => import('./pages/ChatPage'))
 const StatusPage = lazyWithReload(() => import('./pages/StatusPage'))
@@ -57,7 +60,7 @@ const MandalaTower3D = lazy(() => import('./components/MandalaTower3D'))
 // The public pages are deliberately plain — a government-service look, and
 // light enough for a low-end phone on 3G. The WebGL chakra is neither, so
 // they opt out of it the same way /preview already does.
-const PUBLIC_PATHS = ['/startgo', '/credit-schemes', '/eligibility', '/emi-calculator', '/partner-locator']
+const PUBLIC_PATHS = ['/startgo', '/digilocker-demo', '/credit-schemes', '/eligibility', '/emi-calculator', '/partner-locator']
 const isPublicPath = (pathname) => PUBLIC_PATHS.some((p) => pathname.startsWith(p))
 
 function GlobalBackground3D() {
@@ -101,6 +104,7 @@ export default function App() {
           <Route path="/eligibility" element={<EligibilityPage />} />
           <Route path="/emi-calculator" element={<EmiCalculatorPage />} />
           <Route path="/partner-locator" element={<PartnerLocatorPage />} />
+          <Route path="/digilocker-demo" element={<DigiLockerDemoPage />} />
           <Route path="/splash" element={<SplashScreen />} />
 
           <Route path="/signin" element={<SignInPage />} />

@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import {
     LayoutDashboard, FileText, Bookmark, Bell, Settings, LogOut,
     CheckCircle, Clock, ChevronRight, User, Globe, Smartphone, Shield,
-    HeartHandshake, Upload, Loader2, IndianRupee, AlertTriangle, ShieldCheck, WifiOff, HandHelping, Camera
+    HeartHandshake, Upload, Loader2, IndianRupee, AlertTriangle, ShieldCheck, WifiOff, HandHelping, Camera,
+    BadgeCheck, LogIn, FlaskConical, FileCheck2
 } from 'lucide-react'
 import { getLocalUser, clearLocalUser } from '../lib/auth'
 import { gateway, ai } from '../lib/api'
@@ -17,11 +18,22 @@ import './ProfilePage.css'
 
 const SIDEBAR_ITEMS = [
     { id: 'dashboard', label: 'Dashboard', Icon: LayoutDashboard },
+    { id: 'verification', label: 'Registration & KYC', Icon: BadgeCheck },
     { id: 'applications', label: 'Applications', Icon: FileText },
     { id: 'saved', label: 'Saved Schemes', Icon: Bookmark },
     { id: 'pension', label: 'Pension Seva', Icon: HeartHandshake },
     { id: 'alerts', label: 'Alerts', Icon: Bell },
     { id: 'settings', label: 'Settings', Icon: Settings },
+]
+
+// What signing in actually gets you. Written as concrete outcomes, not
+// features — "your application is saved" answers "why should I register?",
+// "account management" does not.
+const GUEST_UNLOCKS = [
+    'Apply for a scheme and have your progress saved',
+    'Track an application from submission to disbursal',
+    'Verify yourself once with DigiLocker, and reuse it for every application',
+    'Save schemes to come back to later',
 ]
 
 // Static labels across ProfilePage's three components — live-translated.
@@ -68,6 +80,219 @@ const PUI = {
     dlcSyncedNow: 'Verified and recorded ✓', dlcQueuedOffline: 'Saved offline — will sync when you reconnect. Show this QR to a helper with network.',
     dlcValidTill: 'Valid till', dlcNextDue: 'Next certificate due', dlcNoCert: 'No life certificate yet',
     dlcPendingSync: 'proof(s) waiting to sync', dlcSyncedQueued: 'Synced your pending proof(s).',
+    // Signed-out state
+    guestTitle: 'You are not signed in',
+    guestDesc: 'Browsing schemes, checking eligibility and calculating EMIs never need an account. Sign in when you want to apply or track something.',
+    loginRegister: 'Login / Register',
+    guestOtpNote: 'One mobile number, one OTP. If this is your first time, the same step creates your account.',
+    browseInstead: 'Browse schemes instead',
+    // Registration & KYC
+    kycTitle: 'Registration details',
+    kycDesc: 'These are the details schemes are matched against. Fill them once — every eligibility check and application reuses them.',
+    kycSaved: 'Saved',
+    kycSaveFailed: 'Could not save',
+    kycSave: 'Save details',
+    kycSaving: 'Saving…',
+    dob: 'Date of birth', gender: 'Gender', category: 'Category', familySize: 'Family size',
+    selectOne: 'Select', male: 'Male', female: 'Female', other: 'Other',
+    catGeneral: 'General', catObc: 'OBC', catSc: 'SC', catSt: 'ST',
+    bpl: 'Below Poverty Line (BPL) household', rural: 'I live in a rural area',
+    verifyTitle: 'Verify with DigiLocker',
+    verifyDesc: 'Instead of photographing and uploading certificates, pull them straight from DigiLocker. You verify once, and every application you make afterwards uses it.',
+    verifyBtn: 'Connect DigiLocker',
+    verifyConnecting: 'Opening DigiLocker…',
+    verifyConsent: 'I agree that Yojna Sarthi may fetch my issued documents from DigiLocker.',
+    verifyConsentRequired: 'Please tick the consent box first.',
+    verifyDone: 'DigiLocker connected',
+    verifyOn: 'Connected on',
+    verifyDocs: 'Documents fetched',
+    verifyUnavailable: 'DigiLocker is not switched on in this deployment yet. Ask an administrator to configure DigiLocker Partner credentials, or turn on demo mode to see how the flow works.',
+    verifySimulated: 'Demo — simulated DigiLocker connection. These documents were not fetched from a real DigiLocker account, and the record is stored marked as simulated.',
+    verifyAgain: 'Connect again',
+}
+
+/**
+ * Real bug fixed 2026-09-04, caught live: a citizen whose first-ever profile
+ * write happens in the app (consent given at sign-in can fail silently, or the
+ * account predates that flow) got the raw backend text "Consent required
+ * before first profile write — call POST /consent first" shown to them
+ * verbatim instead of it just being handled. This wraps any profile-write call
+ * so a 403 consent error self-heals once instead of surfacing to the citizen.
+ */
+const withConsentRetry = async (writeFn) => {
+    try {
+        return await writeFn()
+    } catch (err) {
+        if (err.status === 403) {
+            await gateway.giveConsent()
+            return await writeFn()
+        }
+        throw err
+    }
+}
+
+/**
+ * Registration details + DigiLocker verification, in one panel because they
+ * are one job: tell us who you are, then prove it.
+ *
+ * The details go to `citizen_profiles` via PATCH /profile/me — the same record
+ * the eligibility engine reads, so filling this in is what makes scheme
+ * matching accurate rather than being a form for its own sake.
+ *
+ * DigiLocker here is PROFILE-scoped (see ProfileVerificationController): the
+ * citizen verifies themselves once rather than per loan application. In demo
+ * simulation the authorize URL points at our own /digilocker-demo screen and
+ * everything that comes back is labelled — never presented as a real fetch.
+ */
+function VerificationPanel({ profile, tr, onSaved }) {
+    const navigate = useNavigate()
+    const [form, setForm] = useState({
+        name: profile?.name || '', dob: profile?.dob || '', gender: profile?.gender || '',
+        category: profile?.category || '', state: profile?.state || '', district: profile?.district || '',
+        occupation: profile?.occupation || '', annualIncome: profile?.annualIncome ?? '',
+        familySize: profile?.familySize ?? '', isBpl: profile?.isBpl || false, isRural: profile?.isRural || false,
+    })
+    const [saving, setSaving] = useState(false)
+    const [saveMsg, setSaveMsg] = useState('')
+    const [status, setStatus] = useState(null)
+    const [consent, setConsent] = useState(false)
+    const [linking, setLinking] = useState(false)
+    const [error, setError] = useState('')
+
+    useEffect(() => {
+        gateway.digilockerStatus().then(setStatus).catch(() => setStatus(null))
+    }, [])
+
+    const set = (k) => (e) => setForm((f) => ({
+        ...f, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value,
+    }))
+
+    const save = async (e) => {
+        e.preventDefault()
+        setSaving(true); setSaveMsg('')
+        try {
+            // Empty string means "not answered" — send null rather than "",
+            // so a blank field doesn't overwrite a real stored value with junk.
+            const blank = (v) => (v === '' ? null : v)
+            const num = (v) => (v === '' || v === null ? null : Number(v))
+            await withConsentRetry(() => gateway.updateProfile({
+                name: blank(form.name), dob: blank(form.dob), gender: blank(form.gender),
+                category: blank(form.category), state: blank(form.state), district: blank(form.district),
+                occupation: blank(form.occupation), annualIncome: num(form.annualIncome),
+                familySize: num(form.familySize), isBpl: !!form.isBpl, isRural: !!form.isRural,
+            }))
+            setSaveMsg(tr(PUI.kycSaved))
+            onSaved?.()
+        } catch (err) {
+            setSaveMsg(`${tr(PUI.kycSaveFailed)}: ${err.message}`)
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    const connect = async () => {
+        if (!consent) { setError(tr(PUI.verifyConsentRequired)); return }
+        setError(''); setLinking(true)
+        try {
+            const res = await gateway.digilockerStart(true)
+            // A relative URL is our own simulated consent screen; an absolute
+            // one is DigiLocker's, and leaves the app entirely.
+            if (res.url.startsWith('/')) navigate(res.url)
+            else window.location.href = res.url
+        } catch (err) {
+            setError(err.message)
+            setLinking(false)
+        }
+    }
+
+    const linked = status?.linked
+
+    return (
+        <div>
+            <h3 className="profile-section-title">{tr(PUI.kycTitle)}</h3>
+            <p className="text-muted" style={{ fontSize: 13, marginBottom: 14 }}>{tr(PUI.kycDesc)}</p>
+
+            <form className="profile-kyc-form" onSubmit={save}>
+                <label>{tr(PUI.fullName)}<input className="input-glass" value={form.name} onChange={set('name')} /></label>
+                <label>{tr(PUI.dob)}<input className="input-glass" type="date" value={form.dob} onChange={set('dob')} /></label>
+                <label>{tr(PUI.gender)}
+                    <select className="input-glass" value={form.gender} onChange={set('gender')}>
+                        <option value="">{tr(PUI.selectOne)}</option>
+                        <option value="male">{tr(PUI.male)}</option>
+                        <option value="female">{tr(PUI.female)}</option>
+                        <option value="other">{tr(PUI.other)}</option>
+                    </select>
+                </label>
+                <label>{tr(PUI.category)}
+                    <select className="input-glass" value={form.category} onChange={set('category')}>
+                        <option value="">{tr(PUI.selectOne)}</option>
+                        <option value="general">{tr(PUI.catGeneral)}</option>
+                        <option value="obc">{tr(PUI.catObc)}</option>
+                        <option value="sc">{tr(PUI.catSc)}</option>
+                        <option value="st">{tr(PUI.catSt)}</option>
+                    </select>
+                </label>
+                <label>{tr(PUI.state)}<input className="input-glass" value={form.state} onChange={set('state')} /></label>
+                <label>{tr(PUI.district)}<input className="input-glass" value={form.district} onChange={set('district')} /></label>
+                <label>{tr(PUI.occupation)}<input className="input-glass" value={form.occupation} onChange={set('occupation')} /></label>
+                <label>{tr(PUI.annualIncome)}<input className="input-glass" type="number" inputMode="numeric" value={form.annualIncome} onChange={set('annualIncome')} /></label>
+                <label>{tr(PUI.familySize)}<input className="input-glass" type="number" inputMode="numeric" value={form.familySize} onChange={set('familySize')} /></label>
+                <label className="profile-check"><input type="checkbox" checked={!!form.isBpl} onChange={set('isBpl')} /> {tr(PUI.bpl)}</label>
+                <label className="profile-check"><input type="checkbox" checked={!!form.isRural} onChange={set('isRural')} /> {tr(PUI.rural)}</label>
+                <button className="btn btn-primary btn-sm" type="submit" disabled={saving}>
+                    {saving ? tr(PUI.kycSaving) : tr(PUI.kycSave)}
+                </button>
+                {saveMsg && <p className="text-muted" style={{ fontSize: 12 }}>{saveMsg}</p>}
+            </form>
+
+            <h3 className="profile-section-title" style={{ marginTop: 26 }}>
+                <BadgeCheck size={16} style={{ verticalAlign: '-3px' }} /> {tr(PUI.verifyTitle)}
+            </h3>
+            <p className="text-muted" style={{ fontSize: 13 }}>{tr(PUI.verifyDesc)}</p>
+
+            {/* Simulation is stated on screen, every time. A judge asking "is
+                this real?" should get the answer from the page, not from us. */}
+            {status?.simulated && (
+                <p className="profile-sim-note">
+                    <FlaskConical size={13} /> {tr(PUI.verifySimulated)}
+                </p>
+            )}
+
+            {status && !status.available ? (
+                <p className="text-muted" style={{ fontSize: 13 }}>
+                    <AlertTriangle size={13} style={{ verticalAlign: '-2px' }} /> {tr(PUI.verifyUnavailable)}
+                </p>
+            ) : linked ? (
+                <div>
+                    <p className="text-green" style={{ fontSize: 13, fontWeight: 600 }}>
+                        <CheckCircle size={14} style={{ verticalAlign: '-2px' }} /> {tr(PUI.verifyDone)}
+                        {status.linkedAt ? ` — ${tr(PUI.verifyOn)} ${new Date(status.linkedAt).toLocaleDateString()}` : ''}
+                    </p>
+                    <h4 style={{ fontSize: 13, margin: '12px 0 6px' }}>{tr(PUI.verifyDocs)}</h4>
+                    {(status.documents || []).map((d) => (
+                        <div key={d.uri} className="profile-app-row">
+                            <FileCheck2 size={15} className="text-saffron" />
+                            <div className="profile-app-info">
+                                <p className="profile-app-name">{tr(d.name)}</p>
+                                <p className="text-muted" style={{ fontSize: 12 }}>{d.docType} · {d.date}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <>
+                    <label className="profile-check" style={{ marginTop: 10 }}>
+                        <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
+                        {tr(PUI.verifyConsent)}
+                    </label>
+                    <button className="btn btn-primary btn-sm" onClick={connect} disabled={linking} style={{ marginTop: 10 }}>
+                        {linking ? tr(PUI.verifyConnecting) : <><ShieldCheck size={14} /> {tr(PUI.verifyBtn)}</>}
+                    </button>
+                </>
+            )}
+            {error && <p className="profile-photo-error">{error}</p>}
+        </div>
+    )
 }
 
 function PensionPanel() {
@@ -461,13 +686,22 @@ export default function ProfilePage() {
     const [savedSchemes, setSavedSchemes] = useState([])
     const [applications, setApplications] = useState([])
     const [loading, setLoading] = useState(true)
+    // Signed out. Rendered as a state of THIS page rather than a redirect to
+    // /signin — tapping "Profile" and landing on a login form tells a citizen
+    // nothing about what is behind it or why they should bother.
+    const [guest, setGuest] = useState(false)
 
     const loadAll = async () => {
         setLoading(true)
 
         // Load local cache first for instant render
         const localUser = getLocalUser()
-        if (localUser) setProfile(localUser)
+        if (!localUser) {
+            setGuest(true)
+            setLoading(false)
+            return
+        }
+        setProfile(localUser)
 
         // v5.0: live profile from the Spring Boot gateway (decrypted server-side)
         try {
@@ -485,7 +719,15 @@ export default function ProfilePage() {
             setProfile(profileData)
             localStorage.setItem('yojna_user', JSON.stringify(profileData))
         } catch (e) {
-            if (e.status === 401 || e.status === 403) { navigate('/signin'); return }
+            if (e.status === 401 || e.status === 403) {
+                // The cookie is gone or expired while a stale local cache
+                // survived. Drop the cache and fall back to the signed-out
+                // view; do NOT redirect.
+                clearLocalUser()
+                setGuest(true)
+                setLoading(false)
+                return
+            }
             // 404 = logged in, no profile document yet — that's fine
         }
 
@@ -507,7 +749,12 @@ export default function ProfilePage() {
     const handleLogout = async () => {
         try { await gateway.logout() } catch { /* cookie clear is best-effort */ }
         clearLocalUser()
-        navigate('/signin')
+        // Stay here, in the signed-out state, rather than being thrown at a
+        // login form the moment you log out.
+        setProfile(null)
+        setApplications([])
+        setSavedSchemes([])
+        setGuest(true)
     }
 
     const handleDeleteAccount = async () => {
@@ -515,7 +762,7 @@ export default function ProfilePage() {
         try {
             await gateway.deleteAccount()
             clearLocalUser()
-            navigate('/signin')
+            navigate('/home')
         } catch (e) { alert(`Could not delete: ${e.message}`) }
     }
 
@@ -541,17 +788,7 @@ export default function ProfilePage() {
     // comment says this should be "retried on first profile save" but no
     // save call ever actually did that. This wraps any profile-write call so
     // a 403 consent error self-heals once instead of surfacing to the citizen.
-    const withConsentRetry = async (writeFn) => {
-        try {
-            return await writeFn()
-        } catch (err) {
-            if (err.status === 403) {
-                await gateway.giveConsent()
-                return await writeFn()
-            }
-            throw err
-        }
-    }
+    // (module-scope `withConsentRetry` — see above)
 
     // Resizes/compresses client-side before upload — the backend caps at
     // 512x512 as a backstop, but sending a raw 12MP phone photo would be a
@@ -616,6 +853,7 @@ export default function ProfilePage() {
 
     const tr = useAutoTranslate([
         ...Object.values(PUI),
+        ...GUEST_UNLOCKS,
         ...SIDEBAR_ITEMS.map(i => i.label),
         ...ALERTS.map(a => a.text), ...ALERTS.map(a => a.time),
         ...applications.map(a => a.schemeName).filter(Boolean),
@@ -627,6 +865,53 @@ export default function ProfilePage() {
         ? profile.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
         : (getLocalUser()?.email?.[0] || '?').toUpperCase()
     const displayEmail = getLocalUser()?.phone || getLocalUser()?.email || ''
+
+    // Signed out: the page itself explains what an account is for and offers
+    // one button, instead of redirecting to /signin. Everything below this
+    // point assumes a citizen we know.
+    if (guest) {
+        return (
+            <div className="page-wrapper">
+                <Navbar />
+                <main className="page-content profile-content">
+                    <div className="glass-card profile-user-card" style={{ position: 'relative' }}>
+                        <div className="sathi-tag"><Shield size={10} /> {tr(PUI.citizenProfile)}</div>
+                        <div className="profile-avatar-wrap">
+                            <div className="profile-avatar"><User size={28} /></div>
+                        </div>
+                        <div className="profile-user-info">
+                            <h2 className="profile-name">{tr(PUI.guestTitle)}</h2>
+                            <p className="text-muted profile-meta">{tr(PUI.guestDesc)}</p>
+                        </div>
+                    </div>
+
+                    <div className="glass-card profile-main-content">
+                        <h3 className="profile-section-title">{tr(PUI.loginRegister)}</h3>
+                        <ul className="profile-unlock-list">
+                            {GUEST_UNLOCKS.map((item) => (
+                                <li key={item}><CheckCircle size={14} className="text-saffron" /> {tr(item)}</li>
+                            ))}
+                        </ul>
+                        {/* One button, not two: sign-in here is a mobile OTP, so
+                            there is no separate registration to send anyone to —
+                            a first-time number is registered by the same step. */}
+                        <button
+                            className="btn btn-primary"
+                            style={{ marginTop: 14 }}
+                            onClick={() => navigate('/signin', { state: { from: '/profile' } })}
+                        >
+                            <LogIn size={15} /> {tr(PUI.loginRegister)}
+                        </button>
+                        <p className="text-muted" style={{ fontSize: 12, marginTop: 8 }}>{tr(PUI.guestOtpNote)}</p>
+                        <button className="btn btn-ghost btn-sm" style={{ marginTop: 12 }} onClick={() => navigate('/schemes')}>
+                            {tr(PUI.browseInstead)}
+                        </button>
+                    </div>
+                </main>
+                <BottomNav />
+            </div>
+        )
+    }
 
     return (
         <div className="page-wrapper">
@@ -786,6 +1071,10 @@ export default function ProfilePage() {
                                     </div>
                                 ))}
                             </div>
+                        )}
+
+                        {active === 'verification' && (
+                            <VerificationPanel profile={profile} tr={tr} onSaved={loadAll} />
                         )}
 
                         {active === 'pension' && (
