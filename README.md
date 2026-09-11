@@ -5,7 +5,7 @@
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1b3e,45:1a3a6e,100:ff9933&height=210&section=header&text=Yojna%20Setu&fontSize=76&fontColor=ffffff&animation=fadeIn&fontAlignY=36&desc=%E0%A4%B8%E0%A5%87%E0%A4%A4%E0%A5%81%20%E2%80%94%20the%20bridge%20between%20a%20citizen%20and%20their%20rights&descAlignY=58&descSize=18" width="100%"/>
 
 <a href="https://github.com/RudyMontoo/YojnaSetu_v5">
-  <img src="https://readme-typing-svg.demolab.com/?font=Poppins&weight=600&size=21&pause=1200&color=FF9933&center=true&vCenter=true&width=820&lines=4%2C900%2B+welfare+schemes.+6+languages.+One+conversation.;Discover+%E2%86%92+Apply+%E2%86%92+Track+%E2%86%92+Get+paid.;Voice-first.+WhatsApp-native.+DPDP-2023+compliant." alt="tagline"/>
+  <img src="https://readme-typing-svg.demolab.com/?font=Poppins&weight=600&size=21&pause=1200&color=FF9933&center=true&vCenter=true&width=820&lines=400%2B+welfare+schemes+seeded%2C+4%2C700%2B+discoverable.+6+languages.;Discover+%E2%86%92+Apply+%E2%86%92+Track+%E2%86%92+Get+paid.;Voice-first.+WhatsApp-native.+DPDP-2023+compliant." alt="tagline"/>
 </a>
 
 <br/><br/>
@@ -152,7 +152,7 @@ graph TD
 |:--:|---|---|
 | 🧭 | **Orchestrator** | Reads intent, routes to the right specialist, screens for prompt-injection first |
 | 1 | **Eligibility** | Vector-searches real schemes, then checks each one **criterion by criterion** against your actual profile — real eligible/not-eligible/needs-more-info verdicts, not a fuzzy score |
-| 2 | **Discovery** | Keeps the catalogue fresh — 4,900+ schemes indexed, structured eligibility rules |
+| 2 | **Discovery** | Keeps the catalogue fresh — 400+ schemes seeded and live today; pulls new/changed ones from MyScheme.gov.in, PIB and data.gov.in on demand, structured eligibility rules extracted automatically. MyScheme's full catalogue (~4,700 schemes) is reachable but rate-limited to 1 request/2s by MyScheme itself, so a full sync is a multi-hour background job, not instant |
 | 3 | **Application Guidance** | Step-by-step how-to-apply + reads the *live* government form for you |
 | 4 | **Document Verify** | PPO ↔ Aadhaar name/DOB mismatch check for pensioners |
 | 5 | **Grievance** | Files & tracks complaints; guides CPGRAMS self-filing, records the reference |
@@ -182,7 +182,7 @@ graph TD
 <td width="50%"><img src="docs/screenshots/status.png" alt="Status tracker"/></td>
 </tr>
 <tr>
-<td valign="top"><b>📚 Schemes — Yojana Catalogue</b><br/><b>4,996 central & state schemes</b> indexed (973 central, the rest spread across every state), searchable with sector filters (Agriculture, Housing, Health, Pension…). Each card shows the real benefit + eligibility, extracted into structured rules.</td>
+<td valign="top"><b>📚 Schemes — Yojana Catalogue</b><br/><b>400+ central & state schemes</b> seeded and indexed today, spanning every state, searchable with sector filters (Agriculture, Housing, Health, Pension…). Each card shows the real benefit + eligibility, extracted into structured rules. The Discovery agent (#2 above) can pull further schemes from MyScheme.gov.in's ~4,700-scheme catalogue on demand — see its row for the real rate-limit this runs into.</td>
 <td valign="top"><b>📊 Status — Application Tracker</b><br/>Every application you've actually started, through its real lifecycle (In&nbsp;Progress → Submitted → Approved/Disbursed), plus <b>My Grievances</b> with their CPGRAMS reference numbers. Just bookmarking a scheme for later lives separately, in <b>Saved Schemes</b> on your Profile.</td>
 </tr>
 <tr>
