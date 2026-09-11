@@ -1,15 +1,22 @@
-version: '3.8'
+# STALE-FILE FIX 2026-09-11: this previously referenced DB_URL/DB_USER/
+# DB_PASS/JWT_SECRET from the old Postgres+HS256 setup, none of which exist
+# in application.properties anymore (see .env.example) — running this as-is
+# built fine but crash-looped on boot (missing FIELD_ENCRYPTION_KEY, the one
+# variable with no default). `env_file: .env` alone already passes through
+# every variable an env-file declares, so the explicit `environment:` list is
+# unnecessary duplication with its own chance to drift out of sync (as this
+# one did) — removed rather than re-duplicated.
+#
+# Usage: copy .env.example to .env in this folder, then `docker compose up
+# --build`. host.docker.internal lets the container reach a Mongo running
+# natively on the host machine (Docker Desktop on Windows/Mac supports this
+# out of the box; extra_hosts below makes it work on Linux Docker Engine too).
 services:
   gateway:
     build: .
     ports:
       - "8080:8080"
-    environment:
-      - DB_URL=${DB_URL}
-      - DB_USER=${DB_USER}
-      - DB_PASS=${DB_PASS}
-      - JWT_SECRET=${JWT_SECRET}
-      - FASTAPI_URL=${FASTAPI_URL:-http://localhost:8001}
-      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:5173}
     env_file:
       - .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
