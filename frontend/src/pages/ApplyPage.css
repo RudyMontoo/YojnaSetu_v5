@@ -1,0 +1,122 @@
+/* `.spin` also exists in several other page stylesheets, but this page loads
+   only its own — defined here too so Loader2 actually rotates. */
+.spin { animation: apply-spin 0.9s linear infinite; }
+@keyframes apply-spin { to { transform: rotate(360deg); } }
+
+/* ── Step indicator ───────────────────────────────────────────────────── */
+.apply-steps {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+}
+.apply-step {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: var(--text-subtle);
+}
+.apply-step-dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--border-glass);
+    color: var(--text-muted);
+    font-size: 10.5px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+.apply-step.active .apply-step-dot { background: var(--grad-aarti); color: #14100a; }
+.apply-step.active .apply-step-label { color: var(--text-primary); font-weight: 600; }
+.apply-step.done .apply-step-dot { background: var(--green); color: #0a1410; }
+.apply-step:not(:last-child)::after {
+    content: '';
+    width: 14px;
+    height: 1px;
+    background: var(--border-glass);
+    margin-left: 4px;
+}
+
+/* ── Form ─────────────────────────────────────────────────────────────── */
+.apply-form {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.apply-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+}
+.apply-form .input-glass { width: 100%; }
+.apply-field-hint {
+    font-size: 11px;
+    color: var(--text-subtle);
+    font-weight: 400;
+}
+.apply-prefill-note {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--border-glass);
+}
+.apply-error {
+    font-size: 12.5px;
+    color: var(--red, #ef4444);
+}
+.apply-check {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-primary) !important;
+    line-height: 1.5;
+}
+.apply-check input { width: auto; margin-top: 2px; accent-color: var(--saffron); }
+
+/* ── EMI preview ──────────────────────────────────────────────────────── */
+.apply-preview {
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: var(--border-glass);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.apply-preview h4 {
+    font-size: 12.5px;
+    margin: 0 0 4px;
+    color: var(--text-primary);
+}
+.apply-preview-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--text-muted);
+    padding: 3px 0;
+}
+.apply-preview-row strong { color: var(--text-primary); }
+
+/* ── Branch picker ────────────────────────────────────────────────────── */
+.apply-partner-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 10px;
+    background: var(--border-glass);
+    flex-wrap: wrap;
+}
+.apply-partner-card.disabled { opacity: 0.55; }

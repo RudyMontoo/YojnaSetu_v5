@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Bookmark, BookmarkCheck, Loader2, Landmark, ArrowRight } from 'lucide-react'
+import { Search, Bookmark, BookmarkCheck, Loader2 } from 'lucide-react'
 import { Navbar, BottomNav } from '../components/Navbar'
 import { gateway } from '../lib/api'
 import { useAutoTranslate } from '../lib/i18n'
@@ -154,16 +154,6 @@ export default function SchemesPage() {
                         {total !== null ? `${total.toLocaleString('en-IN')} ${tr(UI.schemes)}` : tr(UI.schemes)}
                     </p>
                 </div>
-
-                {/* NSFDC credit/education loan module — new, additive, doesn't touch general scheme discovery below */}
-                <button className="glass-card schemes-credit-banner" onClick={() => navigate('/credit-schemes')}>
-                    <Landmark size={20} />
-                    <div>
-                        <strong>NSFDC Credit &amp; Education Loans</strong>
-                        <span>Scheme recommender + EMI calculator for SC concessional financing</span>
-                    </div>
-                    <ArrowRight size={16} />
-                </button>
 
                 {/* Search */}
                 <div className="schemes-search glass-card">

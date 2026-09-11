@@ -59,9 +59,13 @@ export const gateway = {
     return request("/api/v2/profile/me/photo", { method: "POST", formData: fd });
   },
   deleteProfilePhoto: () => request("/api/v2/profile/me/photo", { method: "DELETE" }),
-  // Real bank-branch lookup (OpenStreetMap, proxied server-side — no CORS from browser)
-  creditPartnersNearby: (lat, lng, radiusKm = 15) =>
-    request(`/api/v2/credit-partners/nearby?lat=${lat}&lng=${lng}&radiusKm=${radiusKm}`),
+  // Real bank-branch lookup (OpenStreetMap, proxied server-side — no CORS from browser).
+  // schemeId, when given, adds `deliversScheme` (true/false/unknown) to each
+  // result so a branch that provably can't process this loan is flagged
+  // before the citizen travels there.
+  creditPartnersNearby: (lat, lng, radiusKm = 15, schemeId) =>
+    request(`/api/v2/credit-partners/nearby?lat=${lat}&lng=${lng}&radiusKm=${radiusKm}`
+      + (schemeId ? `&schemeId=${encodeURIComponent(schemeId)}` : "")),
   deleteAccount: () => request("/api/v2/user/me", { method: "DELETE" }),
   // Offline-help callback queue
   requestHelp: (payload) => request("/api/v2/help/request", { method: "POST", body: payload }),
@@ -151,6 +155,31 @@ export const gateway = {
   // DigiLocker redirects the browser back here with the state nonce it was given.
   digilockerCallback: (state, code) =>
     request(`/api/v2/sih/digilocker/callback?state=${encodeURIComponent(state)}&code=${encodeURIComponent(code)}`),
+
+  // ── Credit application lifecycle (CreditApplicationController) ──────────
+  // Authenticated, and distinct from the older gateway.listApplications /
+  // createApplication above: those read/write the welfare-scheme "did you
+  // follow a link" collection, this is a loan file with assignment, document
+  // requests and a validated state machine. See CreditApplication.java.
+  listCreditApplications: () => request("/api/v2/sih/applications"),
+  getCreditApplication: (id) => request(`/api/v2/sih/applications/${id}`),
+  // body: {productId, estimatedCost, annualIncome, category, tenureMonths,
+  //        moratoriumMode, verificationMode}. Opens a DRAFT — nothing is sent
+  //        to a branch until chooseCreditPartner + submitCreditApplication.
+  createCreditApplication: (body) => request("/api/v2/sih/applications", { method: "POST", body }),
+  // body: {partnerId, partnerName, partnerType} — partnerId is the same
+  // composite key the branch locator already keys its rows on (name+lat+lng),
+  // since OpenStreetMap branches have no NSFDC-issued id to reference.
+  chooseCreditPartner: (id, body) =>
+    request(`/api/v2/sih/applications/${id}/partner`, { method: "POST", body }),
+  submitCreditApplication: (id) => request(`/api/v2/sih/applications/${id}/submit`, { method: "POST" }),
+
+  // The exact, purpose-specific wording a citizen is agreeing to — render
+  // this verbatim rather than paraphrasing it, so what's shown matches what
+  // ConsentService actually stores. See ConsentPurpose.java.
+  consentPurposes: () => request("/api/v2/sih/consents/purposes"),
+  grantConsent: (purpose, applicationId) =>
+    request("/api/v2/sih/consents", { method: "POST", body: { purpose, applicationId } }),
 };
 
 export const ai = {
