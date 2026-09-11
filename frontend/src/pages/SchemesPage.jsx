@@ -4,6 +4,7 @@ import { Search, Bookmark, BookmarkCheck, Loader2 } from 'lucide-react'
 import { Navbar, BottomNav } from '../components/Navbar'
 import { gateway } from '../lib/api'
 import { useAutoTranslate } from '../lib/i18n'
+import { excerpt } from '../lib/textFormat'
 import '../components/components.css'
 import './SchemesPage.css'
 
@@ -59,7 +60,10 @@ export default function SchemesPage() {
     const tr = useAutoTranslate([
         ...Object.values(UI),
         ...CATEGORY_FILTERS.map(c => c.label),
-        ...schemes.flatMap(s => [s.name, s.benefitAmount, (s.sector || '').split(',')[0]].filter(Boolean)),
+        // The card shows a short excerpt, not the raw stored text (some
+        // discovered schemes carry several Markdown paragraphs) — translate
+        // exactly what's rendered, so the cache key matches.
+        ...schemes.flatMap(s => [s.name, excerpt(s.benefitAmount), (s.sector || '').split(',')[0]].filter(Boolean)),
     ])
 
     const fetchSchemes = async (pageNum, append = false) => {
@@ -218,7 +222,7 @@ export default function SchemesPage() {
                                         : <Bookmark size={18} className="text-subtle" />}
                                 </button>
                             </div>
-                            {scheme.benefitAmount && <p className="scheme-card-benefit">{tr(scheme.benefitAmount)}</p>}
+                            {scheme.benefitAmount && <p className="scheme-card-benefit">{tr(excerpt(scheme.benefitAmount))}</p>}
                             <div className="scheme-card-footer">
                                 <button className="btn btn-saffron-outline btn-sm" onClick={e => { e.stopPropagation(); openScheme(scheme) }}>
                                     {tr(UI.janiye)}

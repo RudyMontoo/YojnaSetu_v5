@@ -61,6 +61,13 @@
     color: var(--text-muted);
     line-height: 1.5;
     margin-bottom: 14px;
+    /* Backstop clamp on top of the JS excerpt (lib/textFormat.js) — some
+       source text is dense with short words/numbers, so a char-count excerpt
+       alone can still wrap to more lines than intended on a narrow card. */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .scheme-card-footer {

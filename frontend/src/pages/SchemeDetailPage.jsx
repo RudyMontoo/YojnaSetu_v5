@@ -6,6 +6,7 @@ import ApplyMethodModal from '../components/ApplyMethodModal'
 import Disclaimer from '../components/Disclaimer'
 import { ai } from '../lib/api'
 import { useAutoTranslate } from '../lib/i18n'
+import { excerpt } from '../lib/textFormat'
 import '../components/components.css'
 import './SchemeDetailPage.css'
 
@@ -69,7 +70,10 @@ export default function SchemeDetailPage() {
             ministry: routeState.state ? `Government of ${routeState.state}` : 'Government of India',
             category: routeState.sector || 'General',
             tag: routeState.state === 'Central' ? 'Central' : (routeState.state || 'Central'),
-            benefit: routeState.benefit || DEFAULT_SCHEME.benefit,
+            // "Key Benefit" is a one-line highlight badge — some source text
+            // (MyScheme-discovered schemes especially) is several Markdown
+            // paragraphs, which reads as a wall of literal asterisks here.
+            benefit: excerpt(routeState.benefit, 220) || DEFAULT_SCHEME.benefit,
             applyUrl: routeState.apply_url || DEFAULT_SCHEME.applyUrl,
             applyPortal: (() => { try { return new URL(routeState.apply_url).hostname } catch { return DEFAULT_SCHEME.applyPortal } })(),
         } : {
