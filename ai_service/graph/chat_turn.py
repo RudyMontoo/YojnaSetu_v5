@@ -36,10 +36,12 @@ async def _build_initial_state(
     channel: str,
     lang: str,
     profile: dict | None,
+    extra: dict | None = None,
 ) -> dict:
     existing = await db["conversation_sessions"].find_one({"sessionId": session_id})
     prior_messages = existing["messages"] if existing else []
     return {
+        **(extra or {}),
         "citizen_id": citizen_id,
         "session_id": session_id,
         "channel": channel,
@@ -61,13 +63,19 @@ async def run_chat_turn(
     channel: str = "web",
     lang: str = "hi",
     profile: dict | None = None,
+    extra_state: dict | None = None,
 ) -> dict:
     """Runs one full chat turn and persists it. Returns
-    {reply, intent, active_schemes} — session_id is the caller's own input,
-    so it isn't echoed back here."""
+    {reply, intent, active_schemes, credit_eligibility_results} — session_id
+    is the caller's own input, so it isn't echoed back here.
+
+    extra_state seeds additional GraphState keys the caller knows and the
+    graph can't derive for itself (e.g. eligibility_flow_active, read from
+    the session document) — merged first, so it can never clobber the core
+    fields built below."""
     state = await _build_initial_state(
         db, citizen_id=citizen_id, session_id=session_id, message=message,
-        channel=channel, lang=lang, profile=profile,
+        channel=channel, lang=lang, profile=profile, extra=extra_state,
     )
 
     graph = get_graph()
@@ -235,4 +243,10 @@ async def _persist_turn(
         "reply": reply,
         "intent": result.get("intent", ""),
         "active_schemes": active_schemes,
+        # The real EligibilityResponse, when this turn ran the credit
+        # eligibility agent — passed straight through for the StartGo UI's
+        # results panel. None on every other intent.
+        "credit_eligibility_results": (
+            result.get("agent_outputs", {}).get("credit_eligibility", {}).get("results")
+        ),
     }

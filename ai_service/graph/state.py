@@ -17,6 +17,11 @@ class GraphState(TypedDict, total=False):
     profile: dict            # CitizenProfile decrypted
     messages: list[dict]      # conversation history: [{"role": "user"|"assistant", "content": str}]
     intent: str              # set by intent_classifier
+    # True when a credit-eligibility slot-filling flow is already mid-way
+    # through this session. Set by the caller (eligibility_assistant_router)
+    # from the session document, NOT by an agent — see _route_by_intent for
+    # the one narrow routing correction it enables.
+    eligibility_flow_active: bool
     active_schemes: list[dict]  # set by Agent 1 / Agent 8
     reasoning_trace: list[dict]  # append-only, every agent writes here
     agent_outputs: dict       # keyed by agent name

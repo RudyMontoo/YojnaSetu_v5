@@ -18,6 +18,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from ai_service.graph.agents.application_guidance import run_application_guidance
 from ai_service.graph.agents.comparison import run_comparison_agent
 from ai_service.graph.agents.credit_application_intro import run_credit_application_intro
+from ai_service.graph.agents.credit_eligibility import run_credit_eligibility_agent
 from ai_service.graph.agents.credit_faq import run_credit_faq_agent
 from ai_service.graph.agents.csc_assist import run_csc_assist_guidance
 from ai_service.graph.agents.document_verification import run_document_verify_guidance
@@ -35,6 +36,7 @@ logger = logging.getLogger(__name__)
 _INTENT_TO_NODE = {
     "eligibility_query": "agent1_eligibility",
     "credit_application": "credit_application_intro",
+    "credit_eligibility": "credit_eligibility",
     "credit_faq": "credit_faq",
     "comparison": "agent8_comparison",
     "financial_plan": "agent7_financial",
@@ -49,7 +51,24 @@ _INTENT_TO_NODE = {
 
 
 def _route_by_intent(state: GraphState) -> str:
-    return _INTENT_TO_NODE.get(state.get("intent", ""), "placeholder")
+    intent = state.get("intent", "")
+
+    # One narrow correction, for one specific confusion: mid-way through the
+    # credit slot-filling flow, a bare answer to the question Sathi just asked
+    # ("I am SC and I am a woman") carries no loan context of its own, so the
+    # classifier reasonably reads it as general welfare-scheme discovery and
+    # the citizen falls out of the flow with their half-filled answers
+    # stranded. Observed live 2026-09-12 on exactly that sentence.
+    #
+    # Deliberately limited to eligibility_query — the neighbouring intent this
+    # is actually confusable with. An unambiguous topic change mid-flow
+    # (grievance, status_check, comparison) still routes where it should,
+    # because a citizen asking about a stuck pension has genuinely changed
+    # the subject and should not be held hostage by a half-finished form.
+    if intent == "eligibility_query" and state.get("eligibility_flow_active"):
+        return "credit_eligibility"
+
+    return _INTENT_TO_NODE.get(intent, "placeholder")
 
 
 def build_graph(db: AsyncIOMotorDatabase):
@@ -76,11 +95,15 @@ def build_graph(db: AsyncIOMotorDatabase):
     async def _credit_faq_node(state: GraphState) -> GraphState:
         return await run_credit_faq_agent(state, db)
 
+    async def _credit_eligibility_node(state: GraphState) -> GraphState:
+        return await run_credit_eligibility_agent(state, db)
+
     graph = StateGraph(GraphState)
     graph.add_node("intent_classifier", classify_intent)
     graph.add_node("agent1_eligibility", _agent1_node)
     graph.add_node("credit_application_intro", run_credit_application_intro)
     graph.add_node("credit_faq", _credit_faq_node)
+    graph.add_node("credit_eligibility", _credit_eligibility_node)
     graph.add_node("agent8_comparison", _agent8_node)
     graph.add_node("agent7_financial", _agent7_node)
     graph.add_node("agent3_guidance", _agent3_node)
@@ -96,6 +119,7 @@ def build_graph(db: AsyncIOMotorDatabase):
         "agent1_eligibility": "agent1_eligibility",
         "credit_application_intro": "credit_application_intro",
         "credit_faq": "credit_faq",
+        "credit_eligibility": "credit_eligibility",
         "agent8_comparison": "agent8_comparison",
         "agent7_financial": "agent7_financial",
         "agent3_guidance": "agent3_guidance",
@@ -109,6 +133,7 @@ def build_graph(db: AsyncIOMotorDatabase):
     graph.add_edge("agent1_eligibility", END)
     graph.add_edge("credit_application_intro", END)
     graph.add_edge("credit_faq", END)
+    graph.add_edge("credit_eligibility", END)
     graph.add_edge("agent8_comparison", END)
     graph.add_edge("agent7_financial", END)
     graph.add_edge("agent3_guidance", END)
