@@ -220,7 +220,21 @@ public class AuthController {
         cookie.setSecure(cookieSecure);
         cookie.setPath("/");
         cookie.setMaxAge(maxAgeSeconds);
-        cookie.setAttribute("SameSite", "Strict");
+        // SameSite=Strict silently drops the cookie on every cross-SITE request —
+        // not just cross-origin, cross-SITE (different eTLD+1, e.g. spring-gateway
+        // and frontend on two different Azure Container Apps subdomains in prod).
+        // SecurityConfig's CORS is already explicitly configured for cross-origin
+        // credentialed requests (allowCredentials=true) specifically because the
+        // frontend runs on a different origin — Strict directly undermines that:
+        // login looks like it succeeds (cookie is set), then the very next request
+        // silently looks unauthenticated because the browser never sent it back.
+        // SameSite=None requires Secure=true or browsers reject the cookie
+        // outright, so this only applies when cookieSecure is true (i.e. real
+        // HTTPS deployments) — local http dev keeps Lax, which behaves
+        // identically to Strict for same-site localhost-to-localhost calls
+        // (the only difference is top-level GET navigation, irrelevant to API
+        // fetch/XHR) so nothing changes for local dev either way.
+        cookie.setAttribute("SameSite", cookieSecure ? "None" : "Lax");
         res.addCookie(cookie);
     }
 

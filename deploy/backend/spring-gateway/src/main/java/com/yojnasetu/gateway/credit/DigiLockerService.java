@@ -5,6 +5,7 @@ import com.yojnasetu.gateway.credit.CreditApplicationService.TransitionException
 import com.yojnasetu.gateway.security.FieldEncryptionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -63,6 +64,15 @@ public class DigiLockerService {
     private final String redirectUri;
     private final String baseUrl;
 
+    // Explicit @Autowired: this class also has a package-private constructor
+    // (below, for test injection of a fake WebClient) — once a class has more
+    // than one constructor, Spring stops auto-detecting the sole public one
+    // for injection and instead tries a no-arg constructor, which doesn't
+    // exist here. Confirmed live: without this, the app fails to boot
+    // entirely with "No default constructor found" the moment this bean is
+    // reached, even though every unit test passes (tests construct this
+    // class directly with `new`, bypassing Spring, so they never hit it).
+    @Autowired
     public DigiLockerService(DigiLockerLinkRepository links,
                              ConsentService consents,
                              FieldEncryptionService encryption,

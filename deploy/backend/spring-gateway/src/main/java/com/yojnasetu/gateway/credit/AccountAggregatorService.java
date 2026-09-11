@@ -4,6 +4,7 @@ import com.yojnasetu.gateway.credit.CreditApplicationService.Failure;
 import com.yojnasetu.gateway.credit.CreditApplicationService.TransitionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -54,6 +55,10 @@ public class AccountAggregatorService {
 
     private final String apiKey;
 
+    // See DigiLockerService's identical constructor for why @Autowired is
+    // required here: a second (test-only) constructor exists below, and
+    // that alone stops Spring from auto-selecting the public constructor.
+    @Autowired
     public AccountAggregatorService(AaConsentRequestRepository consentRequests,
                                     ConsentService consents,
                                     @Value("${app.account-aggregator.api-key:}") String apiKey,

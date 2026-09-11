@@ -110,7 +110,10 @@ public class AccountController {
         cookie.setSecure(cookieSecure);
         cookie.setPath("/");
         cookie.setMaxAge(0);
-        cookie.setAttribute("SameSite", "Strict");
+        // SameSite=None only when cookieSecure (https) — see AuthController.setCookie
+        // for why Strict silently breaks cross-site auth. Lax over local http is
+        // functionally identical to Strict for API fetch/XHR calls.
+        cookie.setAttribute("SameSite", cookieSecure ? "None" : "Lax");
         res.addCookie(cookie);
     }
 
