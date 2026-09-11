@@ -142,14 +142,22 @@ class EligibilityAssistant:
         context = self._normalize(context)
         lang = (language or "").strip().lower()
 
+        # Snapshot before merging so _ask_for_slots can acknowledge whatever
+        # this message actually added. Without this, a message that answers
+        # something OTHER than the still-missing question (a citizen
+        # volunteering their category before being asked, say) got the exact
+        # same question re-asked with no sign it was heard — reads as a
+        # scripted bot ignoring input, not a targeted follow-up.
+        before = dict(context["slots"])
         await self._merge_slots(user_text, context)
+        newly_filled = {k: v for k, v in context["slots"].items() if before.get(k) is None and v is not None}
 
         missing = [f for f in REQUIRED_SLOTS if context["slots"].get(f) is None]
         context["missing_required"] = missing
 
         if missing:
             return {
-                "bot_reply": await self._ask_for_slots(missing, lang, context),
+                "bot_reply": await self._ask_for_slots(missing, lang, context, newly_filled),
                 "context": context,
                 "results": None,
             }
@@ -235,11 +243,27 @@ Return ONLY a JSON object with these keys:
         except Exception:
             return {}
 
-    async def _ask_for_slots(self, missing: list[str], lang: str, context: dict) -> str:
+    async def _ask_for_slots(
+        self, missing: list[str], lang: str, context: dict, newly_filled: dict[str, Any] | None = None,
+    ) -> str:
         asks = [SLOT_ASK[f].get(lang, SLOT_ASK[f][_DEFAULT_LANG]) for f in missing[:1]]
+
+        # Without this, a message that stated something OTHER than the still-
+        # missing field (e.g. category, before being asked) got the exact same
+        # question repeated with no sign it registered — read as a scripted
+        # bot ignoring the citizen, which is worse than not asking at all.
+        acknowledge = ""
+        if newly_filled:
+            facts = ", ".join(f"{k}={v}" for k, v in newly_filled.items())
+            acknowledge = (
+                f" The citizen's last message told you: {facts}. Briefly acknowledge that you noted "
+                f"it (one short clause), then ask the question below — do not just repeat a question "
+                f"as if nothing was said."
+            )
+
         prompt = (
             f"You are Sathi, a warm assistant helping a citizen find which concessional credit "
-            f"scheme they qualify for. Ask them this, in 1-2 short sentences: {asks[0]}. "
+            f"scheme they qualify for.{acknowledge} Ask them this, in 1-2 short sentences: {asks[0]}. "
             f"{language_instruction(lang)}"
         )
         try:
