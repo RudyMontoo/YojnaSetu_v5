@@ -10,7 +10,7 @@
 
 <br/><br/>
 
-![Schemes](https://img.shields.io/badge/Schemes-4%2C900%2B-ff9933?style=for-the-badge)
+![Schemes](https://img.shields.io/badge/Schemes-400%2B_seeded-ff9933?style=for-the-badge)
 ![Languages](https://img.shields.io/badge/Languages-6-138808?style=for-the-badge)
 ![Agents](https://img.shields.io/badge/AI_Agents-13-000080?style=for-the-badge)
 ![Compliance](https://img.shields.io/badge/DPDP_Act-2023-blue?style=for-the-badge)
@@ -23,6 +23,14 @@
 ![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat-square&logo=mongodb&logoColor=white)
 
 </div>
+
+> ## 🎯 Judging SIH 2026 PS 26092 (SC Concessional Credit Access)?
+> **Read [`docs/SIH_PS_26092.md`](docs/SIH_PS_26092.md) instead of this whole
+> README.** It's a focused, self-contained page covering just that module —
+> the problem statement, what's live at `/startgo`, architecture, and the
+> honest gaps — without wading through the rest of this multi-agent
+> platform. This README describes the full YojnaSetu product that module
+> lives inside of.
 
 <br/>
 

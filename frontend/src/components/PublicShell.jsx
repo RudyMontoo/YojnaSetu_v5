@@ -16,10 +16,15 @@ import '../pages/public/PublicPages.css'
  * need an identity (track an application, the helper portal) prompt for login
  * at the point of action instead of hiding.
  */
+// "Check eligibility" and "Ask Sathi" used to be two separate links: the
+// same conversational assistant under two names, one of them (/chat)
+// opening the OLD app's chat screen — a completely different visual theme
+// from these StartGo pages, and a confusing second front door into what is
+// functionally the same feature. EligibilityPage (at /eligibility) IS Sathi
+// now — one chat, one entry point, correctly labelled for what it does.
 const NAV = [
     { to: '/credit-schemes', label: 'Credit schemes' },
-    { to: '/eligibility', label: 'Check eligibility' },
-    { to: '/chat', label: 'Ask Sathi' },
+    { to: '/eligibility', label: 'Ask Sathi' },
     { to: '/emi-calculator', label: 'EMI calculator' },
     { to: '/csc-finder', label: 'Get help' },
 ]

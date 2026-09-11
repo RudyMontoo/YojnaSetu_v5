@@ -308,3 +308,17 @@
   .gov-eligibility-mobile-tabs { display: flex; }
   .mobile-hidden { display: none; }
 }
+
+/* Recording state on the mic button — a plain color swap isn't enough
+   feedback for "your mic is live right now", so it pulses. */
+.gov-mic-recording {
+  background: var(--gov-red) !important;
+  color: #fff !important;
+  border-color: var(--gov-red) !important;
+  animation: gov-mic-pulse 1.4s ease-in-out infinite;
+}
+@keyframes gov-mic-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(179, 38, 30, 0.45); }
+  50% { box-shadow: 0 0 0 8px rgba(179, 38, 30, 0); }
+}
+@media (prefers-reduced-motion: reduce) { .gov-mic-recording { animation: none; } }

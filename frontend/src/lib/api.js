@@ -199,6 +199,23 @@ export const ai = {
   // situation in plain language instead of filling in fields cold.
   eligibilityChat: (message, context, language) =>
     request("/eligibility-assistant/chat", { method: "POST", body: { message, context, language } }),
+  // Spoken version of the same turn — Sarvam STT transcribes, the same
+  // EligibilityAssistant processes it, Sarvam TTS speaks the reply back.
+  // audio_base64 comes back as an mp3; caller decodes and plays it.
+  eligibilityVoice: (audioBlob, context, language) => {
+    // Filename extension must match what MediaRecorder actually produced —
+    // the backend picks its Sarvam audio_format from this suffix, not the
+    // multipart Content-Type, same convention voice_conversation.py uses.
+    const ext = audioBlob.type.includes("ogg") ? "ogg"
+      : audioBlob.type.includes("mp4") || audioBlob.type.includes("mp3") ? "mp3"
+      : audioBlob.type.includes("wav") ? "wav"
+      : "webm";
+    const fd = new FormData();
+    fd.append("audio", audioBlob, `speech.${ext}`);
+    fd.append("context", JSON.stringify(context || {}));
+    fd.append("language", language || "en");
+    return request("/eligibility-assistant/voice", { method: "POST", formData: fd, timeoutMs: 60000 });
+  },
   financialPlan: () => request("/agents/financial-plan"),
   fileGrievance: (body) => request("/agents/grievance", { method: "POST", body }),
   // Agent 5 — grievance tracking loop

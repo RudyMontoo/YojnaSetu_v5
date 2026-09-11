@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import {
     Send, Loader2, MessageCircle, PanelRightOpen, PanelLeftOpen,
-    CheckCircle2, XCircle, HelpCircle, Lock, ArrowRight,
+    CheckCircle2, XCircle, HelpCircle, Lock, ArrowRight, Mic, Square, Volume2,
 } from 'lucide-react'
 import { PublicPage } from '../../components/PublicShell'
 import LoginPrompt from '../../components/LoginPrompt'
@@ -66,6 +66,13 @@ const UI = {
     browseAll: 'Browse all schemes',
     showResults: 'Show results', showChat: 'Continue chatting',
     startOver: 'Start over',
+    micStart: 'Speak your answer',
+    micStop: 'Stop and send',
+    listening: 'Listening…',
+    transcribing: 'Sathi is listening back…',
+    micDenied: "Couldn't access your microphone. Check your browser's permission for this site, or type instead.",
+    micUnsupported: 'Voice input is not supported in this browser — please type instead.',
+    voiceError: "Couldn't process that recording. Please try again, or type instead.",
 }
 const MISSING_LABELS = {
     estimatedCost: 'how much your project or course will cost',
@@ -199,8 +206,15 @@ export default function EligibilityPage() {
     // Mobile/narrow layout only has room for one panel at a time — this
     // controls which. Desktop shows both side by side regardless.
     const [mobileView, setMobileView] = useState('chat') // 'chat' | 'results'
+    // idle | recording | processing — processing covers both the upload and
+    // waiting for Sathi's spoken reply, same as `busy` does for text.
+    const [voiceState, setVoiceState] = useState('idle')
+    const [voiceError, setVoiceError] = useState('')
     const bottomRef = useRef(null)
     const started = useRef(false)
+    const mediaRecorderRef = useRef(null)
+    const audioChunksRef = useRef([])
+    const audioPlayerRef = useRef(null)
 
     const tr = useAutoTranslate([
         ...Object.values(UI),
@@ -243,6 +257,65 @@ export default function EligibilityPage() {
         }
     }
 
+    // ── Voice: MediaRecorder captures mic audio; the whole clip goes to
+    // /eligibility-assistant/voice as one turn (Sarvam STT -> the same
+    // EligibilityAssistant text uses -> Sarvam TTS). Tap-to-start,
+    // tap-to-stop rather than press-and-hold — more reliable on mobile,
+    // where a hold gesture competes with scrolling.
+    const startRecording = async () => {
+        setVoiceError('')
+        if (typeof MediaRecorder === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+            setVoiceError(tr(UI.micUnsupported))
+            return
+        }
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+            const mimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus']
+                .find((t) => MediaRecorder.isTypeSupported?.(t))
+            const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined)
+            audioChunksRef.current = []
+            recorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunksRef.current.push(e.data) }
+            recorder.onstop = () => {
+                stream.getTracks().forEach((t) => t.stop())
+                const blob = new Blob(audioChunksRef.current, { type: recorder.mimeType || 'audio/webm' })
+                sendVoice(blob)
+            }
+            mediaRecorderRef.current = recorder
+            recorder.start()
+            setVoiceState('recording')
+        } catch {
+            setVoiceError(tr(UI.micDenied))
+        }
+    }
+
+    const stopRecording = () => {
+        mediaRecorderRef.current?.stop()
+        setVoiceState('processing')
+    }
+
+    const sendVoice = async (blob) => {
+        setBusy(true); setError('')
+        try {
+            const res = await ai.eligibilityVoice(blob, context, lang)
+            if (res.transcript) setMessages((m) => [...m, { role: 'user', text: res.transcript }])
+            setContext(res.context)
+            setMessages((m) => [...m, { role: 'assistant', text: res.bot_reply }])
+            if (res.results) {
+                setResult(res.results)
+                setMobileView('results')
+            }
+            if (res.audio_base64 && audioPlayerRef.current) {
+                audioPlayerRef.current.src = `data:audio/mpeg;base64,${res.audio_base64}`
+                audioPlayerRef.current.play().catch(() => {}) // autoplay can be blocked — silent, the reply is still shown as text
+            }
+        } catch (err) {
+            setVoiceError(err.message || tr(UI.voiceError))
+        } finally {
+            setBusy(false)
+            setVoiceState('idle')
+        }
+    }
+
     const onApply = (rec) => {
         if (isGuest()) { setPrompt({ action: tr(UI.loginToApply), body: tr(UI.loginSaveBody) }); return }
         const s = context.slots || {}
@@ -265,10 +338,22 @@ export default function EligibilityPage() {
                 {messages.map((m, i) => (
                     <div key={i} className={`gov-chat-bubble ${m.role}`}>{tr(m.text)}</div>
                 ))}
-                {busy && <div className="gov-chat-bubble assistant gov-chat-typing">{tr(UI.thinking)}</div>}
+                {voiceState === 'recording' && (
+                    <div className="gov-chat-bubble user gov-chat-typing"><Volume2 size={13} style={{ verticalAlign: '-2px' }} /> {tr(UI.listening)}</div>
+                )}
+                {voiceState === 'processing' && (
+                    <div className="gov-chat-bubble assistant gov-chat-typing">{tr(UI.transcribing)}</div>
+                )}
+                {busy && voiceState === 'idle' && <div className="gov-chat-bubble assistant gov-chat-typing">{tr(UI.thinking)}</div>}
                 {error && <div className="gov-notice gov-notice-error" style={{ margin: '8px 0' }}>{error}</div>}
+                {voiceError && <div className="gov-notice gov-notice-error" style={{ margin: '8px 0' }}>{voiceError}</div>}
                 <div ref={bottomRef} />
             </div>
+            {/* Hidden player for Sathi's spoken reply — src is set to a data:
+                URL per turn in sendVoice(), not rendered with controls; the
+                reply is always shown as text too, so autoplay being blocked
+                by the browser never loses information, just the audio. */}
+            <audio ref={audioPlayerRef} hidden />
             <form
                 className="gov-chat-inputrow"
                 onSubmit={(e) => { e.preventDefault(); send(input) }}
@@ -278,11 +363,21 @@ export default function EligibilityPage() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder={tr(UI.inputPh)}
-                    disabled={busy}
+                    disabled={busy || voiceState !== 'idle'}
                     autoFocus
                 />
-                <button className="gov-btn gov-btn-primary gov-btn-sm" type="submit" disabled={busy || !input.trim()}>
-                    {busy ? <Loader2 size={15} className="spin" /> : <Send size={15} />}
+                <button
+                    type="button"
+                    className={`gov-btn gov-btn-sm ${voiceState === 'recording' ? 'gov-mic-recording' : 'gov-btn-ghost'}`}
+                    onClick={voiceState === 'recording' ? stopRecording : startRecording}
+                    disabled={busy && voiceState === 'idle'}
+                    title={tr(voiceState === 'recording' ? UI.micStop : UI.micStart)}
+                    aria-label={tr(voiceState === 'recording' ? UI.micStop : UI.micStart)}
+                >
+                    {voiceState === 'recording' ? <Square size={15} /> : <Mic size={15} />}
+                </button>
+                <button className="gov-btn gov-btn-primary gov-btn-sm" type="submit" disabled={busy || !input.trim() || voiceState !== 'idle'}>
+                    {busy && voiceState === 'idle' ? <Loader2 size={15} className="spin" /> : <Send size={15} />}
                 </button>
             </form>
             <p className="gov-hint" style={{ marginTop: 10 }}>
