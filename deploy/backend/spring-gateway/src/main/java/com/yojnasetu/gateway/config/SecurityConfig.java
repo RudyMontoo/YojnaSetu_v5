@@ -88,6 +88,14 @@ public class SecurityConfig {
                                 // design: a citizen must be able to learn what they qualify for and what
                                 // it costs before creating an account. Reads no profile, persists nothing.
                                 "/api/v2/sih/credit/**",
+                                // General scheme browsing (list, one scheme's detail, trending, recent) —
+                                // same "learn before you sign up" principle as /sih/credit/** above. This
+                                // used to sit behind anyRequest().authenticated() (SchemeCatalogueController's
+                                // original design intent: "any JWT, not public") — moved here deliberately
+                                // so a guest can browse the full catalogue with no account, matching the
+                                // public-first UX the frontend is being built toward. Read-only, no PII.
+                                "/api/v2/schemes",
+                                "/api/v2/schemes/**",
                                 "/internal/**") // FastAPI service-to-service — key-checked in the controller itself, not here
                         .permitAll()
                         // Channel Partner branch staff only. Declared as a path

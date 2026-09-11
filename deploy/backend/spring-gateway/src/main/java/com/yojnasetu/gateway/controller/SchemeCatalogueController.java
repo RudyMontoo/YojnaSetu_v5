@@ -1,16 +1,21 @@
 package com.yojnasetu.gateway.controller;
 
+import com.yojnasetu.gateway.model.Scheme;
+import com.yojnasetu.gateway.repository.SchemeRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -43,9 +48,11 @@ public class SchemeCatalogueController {
     private static final int DEFAULT_PAGE_SIZE = 24;
 
     private final MongoTemplate mongoTemplate;
+    private final SchemeRepository schemes;
 
-    public SchemeCatalogueController(MongoTemplate mongoTemplate) {
+    public SchemeCatalogueController(MongoTemplate mongoTemplate, SchemeRepository schemes) {
         this.mongoTemplate = mongoTemplate;
+        this.schemes = schemes;
     }
 
     @GetMapping("/schemes")
@@ -111,5 +118,44 @@ public class SchemeCatalogueController {
                 "page", safePage,
                 "size", safeSize,
                 "has_more", (long) (safePage + 1) * safeSize < total));
+    }
+
+    /**
+     * GET /api/v2/schemes/{schemeCode} — one scheme's full public record.
+     *
+     * Added so a scheme detail page can be reached directly (a shared link,
+     * a bookmark, a fresh page load) rather than only when the citizen
+     * arrived by clicking through the list in the same browser session and
+     * carrying the record in router state. {@code schemeCode} is the same
+     * public identifier {@link #listSchemes} already returns — never the
+     * Mongo ObjectId, which isn't meant to be a public URL.
+     *
+     * Public by design, same trust level as {@link #listSchemes}: eligibility
+     * criteria, benefits, and required documents are exactly what a citizen
+     * needs to decide whether to even start an account.
+     */
+    @GetMapping("/schemes/{schemeCode}")
+    public ResponseEntity<?> getScheme(@PathVariable String schemeCode) {
+        return schemes.findBySchemeCode(schemeCode)
+                .map(this::toPublicDetail)
+                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "Scheme not found")));
+    }
+
+    private Map<String, Object> toPublicDetail(Scheme s) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("schemeCode", s.getSchemeCode());
+        m.put("name", s.getName());
+        m.put("ministry", s.getMinistry());
+        m.put("state", s.getState());
+        m.put("sector", s.getSector());
+        m.put("category", s.getCategory());
+        m.put("eligibilityText", s.getEligibilityText());
+        m.put("benefitAmount", s.getBenefitAmount());
+        m.put("documents", s.getDocuments());
+        m.put("applyUrl", s.getApplyUrl());
+        m.put("lastUpdated", s.getLastUpdated());
+        return m;
     }
 }
