@@ -31,14 +31,23 @@ import './PublicPages.css'
  * the old form's result cards did — nothing here is chat-generated prose
  * standing in for a verdict.
  *
- * Stateless on the client: `context` grows turn by turn and is sent back
- * each request (mirrors eligibility_assistant.py — no server-side session
- * for a guest with no account).
+ * Session-backed, not stateless: the server keys each turn to a session id
+ * under an anonymous `guest:` identity so the orchestrator can carry
+ * conversation history. `context` is still echoed back and forth for
+ * backward compatibility with the pre-orchestrator client, but the session
+ * document is the source of truth. UI.privacy says exactly this — see the
+ * comment there.
  */
 const UI = {
     title: 'Check your eligibility',
     sub: "Tell Sathi about your situation in your own words — no forms, no scheme names to know in advance.",
-    privacy: 'Your answers are used only to work out which schemes you qualify for. Nothing is saved unless you create an account and ask us to.',
+    // Says exactly what the backend does, no more. This used to read
+    // "Nothing is saved unless you create an account and ask us to", which
+    // stopped being true when the flow moved onto the orchestrator and
+    // started persisting turns to conversation_sessions under an anonymous
+    // guest id. A privacy promise the code doesn't keep is worse than a
+    // narrower one it does.
+    privacy: 'Your answers are used only to work out which schemes you qualify for. This conversation is saved against a random session number so Sathi can remember what you have already told it — not against your name, and no account is created.',
     inputPh: 'Type your answer…',
     send: 'Send',
     thinking: 'Sathi is typing…',

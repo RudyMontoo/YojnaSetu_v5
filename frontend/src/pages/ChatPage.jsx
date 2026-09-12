@@ -49,6 +49,30 @@ const DOC_TYPE_LABELS = {
     service_cert:     { label: 'Service Certificate',    emoji: '🎖️' },
 }
 
+// Shown once, on the empty chat, in place of a bare text box.
+//
+// A citizen who doesn't already know NSFDC's vocabulary has nothing to type
+// into "Ask about any scheme…" — that blank box is the same wall every
+// government scheme portal puts up, and it's where people leave. These are
+// phrased as the citizen's own situation ("I want to start a small shop"),
+// not as scheme names, because the situation is the only thing they can be
+// expected to know. Tapping one sends it as a real message, so the
+// orchestrator classifies it exactly as if it had been typed or spoken.
+const STARTERS = {
+    en: [
+        { label: '🏪 I want to start a small shop', value: 'I want to start a small shop of my own' },
+        { label: '🎓 Money for my child’s college', value: 'I need money for my daughter’s college fees' },
+        { label: '📋 What am I eligible for?', value: 'Which schemes am I eligible for?' },
+        { label: '📄 What documents will I need?', value: 'What documents will I need to apply?' },
+    ],
+    hi: [
+        { label: '🏪 Apni dukaan kholni hai', value: 'Main apni chhoti dukaan kholna chahta hoon' },
+        { label: '🎓 Bachche ki padhai ke liye', value: 'Beti ki college fees ke liye paise chahiye' },
+        { label: '📋 Main kis ke liye eligible hoon?', value: 'Main kaunsi schemes ke liye eligible hoon?' },
+        { label: '📄 Kaunse documents lagenge?', value: 'Apply karne ke liye kaunse documents lagenge?' },
+    ],
+}
+
 /* Custom Sathi AI Avatar SVG */
 const SathiAvatar = () => (
     <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" width="28" height="28">
@@ -338,7 +362,18 @@ export default function ChatPage() {
             name: sch.name,
             benefit: sch.benefitAmount || '',
         }))
-        const finalMsg = { role: 'assistant', text: data.reply || 'Samajh gaya!', intent: data.intent, schemes }
+        const finalMsg = {
+            role: 'assistant',
+            text: data.reply || 'Samajh gaya!',
+            intent: data.intent,
+            schemes,
+            // Tappable answers to whatever this reply just asked (see
+            // graph/quick_replies.py). Rendered only under the LAST bubble —
+            // chips left on scrolled-up turns invite answering a question
+            // that's already been answered.
+            quickReplies: data.quick_replies || [],
+            progress: data.progress || null,
+        }
         // done.reply is authoritative — replace the streaming bubble (a mid-stream
         // provider fallback on the server can leave stale partial tokens in it)
         setMessages(m => (m[m.length - 1]?.streaming ? [...m.slice(0, -1), finalMsg] : [...m, finalMsg]))
@@ -454,9 +489,12 @@ export default function ChatPage() {
         }
     }
 
-    const sendMessage = async () => {
-        if (!input.trim()) return
-        const text = input.trim()
+    // `override` lets a tapped chip / opener send its sentence directly,
+    // without round-tripping through the input box — a chip that filled the
+    // textarea and waited for Send would just be a slower way to type.
+    const sendMessage = async (override) => {
+        const text = (override ?? input).trim()
+        if (!text) return
         addMsg('user', text)
         saveMessage('user', text)
         setInput('')
@@ -484,6 +522,8 @@ export default function ChatPage() {
             setLoading(false)
         }
     }
+
+    const lastMsg = messages[messages.length - 1]
 
     const handleFormSubmit = e => {
         e.preventDefault()
@@ -640,6 +680,56 @@ export default function ChatPage() {
                                 onFile={() => docFileRef.current?.click()}
                                 onDismiss={() => setDocRequested(null)}
                             />
+                        </div>
+                    </div>
+                )}
+
+                {/* ── Tappable answers to the question Sathi just asked ──
+                    Only under the final assistant bubble, and never while a
+                    turn is in flight (tapping twice would send two answers to
+                    one question). The progress hint matters as much as the
+                    chips: a conversation with no visible end is one people
+                    abandon — "2 of 3" tells them it's nearly over. ── */}
+                {!loading && !voiceMode && lastMsg?.role === 'assistant' && lastMsg.quickReplies?.length > 0 && (
+                    <div className="chat-quick-replies">
+                        {lastMsg.progress && lastMsg.progress.total > 0 && lastMsg.progress.answered < lastMsg.progress.total && (
+                            <span className="chat-progress-hint">
+                                {t('chat.questionProgress')
+                                    .replace('{n}', lastMsg.progress.answered + 1)
+                                    .replace('{total}', lastMsg.progress.total)}
+                            </span>
+                        )}
+                        <div className="chat-chip-row">
+                            {lastMsg.quickReplies.map((chip, i) => (
+                                <button
+                                    key={i}
+                                    type="button"
+                                    className="chat-chip"
+                                    onClick={() => sendMessage(chip.value)}
+                                >
+                                    {chip.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* ── Openers on the empty chat: something to tap instead of a
+                    blank box. Disappears the moment the citizen says anything. ── */}
+                {!loading && !voiceMode && messages.length === 1 && (
+                    <div className="chat-quick-replies">
+                        <span className="chat-progress-hint">{t('chat.startersHint')}</span>
+                        <div className="chat-chip-row">
+                            {(STARTERS[lang] || STARTERS.en).map((chip, i) => (
+                                <button
+                                    key={i}
+                                    type="button"
+                                    className="chat-chip chat-chip-starter"
+                                    onClick={() => sendMessage(chip.value)}
+                                >
+                                    {chip.label}
+                                </button>
+                            ))}
                         </div>
                     </div>
                 )}

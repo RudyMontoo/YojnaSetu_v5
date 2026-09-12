@@ -249,4 +249,13 @@ async def _persist_turn(
         "credit_eligibility_results": (
             result.get("agent_outputs", {}).get("credit_eligibility", {}).get("results")
         ),
+        # Tappable answers to the question this reply just asked, and how far
+        # through the required questions we are. Empty on every turn that
+        # didn't ask a closed question — the UI simply shows no chips then.
+        "quick_replies": (
+            result.get("agent_outputs", {}).get("credit_eligibility", {}).get("quick_replies") or []
+        ),
+        "progress": (
+            result.get("agent_outputs", {}).get("credit_eligibility", {}).get("progress")
+        ),
     }

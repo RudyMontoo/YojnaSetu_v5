@@ -45,6 +45,17 @@ class ChatResponse(BaseModel):
     reply: str
     intent: str
     active_schemes: list[dict]
+    # These three come back from run_chat_turn and were being silently dropped
+    # here: pydantic ignores unknown kwargs, so ChatResponse(**result) built a
+    # valid response that just lost them. The WebSocket path (which forwards
+    # the turn dict as-is) had them, REST didn't — and REST is the fallback the
+    # UI uses whenever the socket can't be established, so the eligibility
+    # results panel and the answer chips vanished exactly when the socket was
+    # unavailable. Declared explicitly rather than via extra="allow" so the
+    # response shape stays checkable.
+    credit_eligibility_results: dict | None = None
+    quick_replies: list[dict] = []
+    progress: dict | None = None
 
 
 _indexes_ready = False

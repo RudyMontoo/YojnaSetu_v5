@@ -394,3 +394,62 @@
 @media (prefers-reduced-motion: reduce) {
     .agent-splash { animation: none; opacity: 0; }
 }
+
+/* ── Quick-reply chips ───────────────────────────────────────────────────────
+   Tappable answers to the question Sathi just asked, plus the "question 2 of 3"
+   hint. Indented to line up with the assistant bubbles (past the avatar column)
+   so they read as part of Sathi's turn rather than as page-level navigation. */
+.chat-quick-replies {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: -2px 0 10px 40px;
+}
+
+.chat-progress-hint {
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: var(--text-muted, rgba(255, 255, 255, 0.45));
+}
+
+.chat-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chat-chip {
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border-glass, rgba(255, 255, 255, 0.14));
+    background: var(--bg-glass, rgba(255, 255, 255, 0.05));
+    color: var(--text-primary, #f2f2f5);
+    font-size: 13px;
+    line-height: 1.3;
+    cursor: pointer;
+    /* Thumb-sized: this is a phone-first surface and these chips exist
+       specifically so nobody has to use the keyboard. */
+    min-height: 38px;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.chat-chip:hover,
+.chat-chip:focus-visible {
+    border-color: var(--saffron);
+    color: var(--saffron);
+    background: rgba(255, 107, 53, 0.1);
+}
+
+.chat-chip:active { transform: scale(0.97); }
+
+/* The opening chips carry more weight — they're the only thing standing
+   between a first-time citizen and an empty text box. */
+.chat-chip-starter {
+    border-color: rgba(255, 107, 53, 0.35);
+    background: rgba(255, 107, 53, 0.07);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .chat-chip { transition: none; }
+    .chat-chip:active { transform: none; }
+}

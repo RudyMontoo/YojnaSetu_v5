@@ -21,20 +21,27 @@ CreditEligibilityService via spring_client.check_credit_eligibility() and
 relays its actual verdict. If that call fails, the honest answer is "couldn't
 check right now", never a guess.
 
-Stateless by design: unlike application_assistant (authenticated, session
-persisted server-side in conversation_sessions), this runs for guests with no
-account and no cookie — matching the credit module's public-by-design
-eligibility check. The caller (frontend) holds `context` between turns and
-sends it back each request; nothing is written to Mongo. That also means no
-citizen data is retained anywhere unless they later create an account and
-choose to save it — the same "nothing is saved unless you ask us to" promise
-the plain-form EligibilityPage already made.
+This class itself is pure: it takes a context dict in and hands one back, and
+writes nothing anywhere. Persistence is the router's job, and it is no longer
+"none" — routing this flow through the orchestrator means turns are stored in
+conversation_sessions under an anonymous `guest:<session_id>` id, because the
+orchestrator needs conversation history between turns (see
+eligibility_assistant_router._guest_citizen_id).
+
+That matters for what the UI is allowed to claim. This page used to promise
+"nothing is saved unless you ask us to", which stopped being true the moment
+the flow gained a session. The promise the UI now makes — and the only one
+this design supports — is narrower and accurate: the conversation is stored
+against a random session id, not against a person, no account is created, and
+a guest has no CitizenProfile, so no agent can attach these answers to a real
+identity.
 """
 import logging
 import re
 from typing import Any
 
 from ai_service.graph.llm import ainvoke_with_fallback, language_instruction
+from ai_service.graph.quick_replies import chips_after_results, chips_for, progress
 from ai_service.services.application_assistant import (
     _AMOUNT_RE, _CATEGORY_MAP, _GENDER_MAP, _INCOME_KEYWORDS, _COST_KEYWORDS,
     _to_number,
@@ -188,10 +195,16 @@ class EligibilityAssistant:
     ) -> dict[str, Any]:
         """
         context: {slots, missing_required, asked_optional} — {} on a fresh chat.
-        Returns {"bot_reply": str, "context": dict, "results": dict | None}.
+        Returns {"bot_reply", "context", "results", "quick_replies", "progress"}.
         `results` is the real EligibilityResponse (verdict/recommendations/
         missingProfileData/note) once enough has been collected — never chat
         prose standing in for it.
+
+        `quick_replies` are tappable answers to the question just asked (see
+        graph/quick_replies.py) and `progress` is {answered, total} over the
+        required slots. Both are presentation aids for the SAME question the
+        bot_reply asks — a client that ignores them still gets an identical,
+        complete conversation through the text box.
         """
         context = self._normalize(context)
         lang = (language or "").strip().lower()
@@ -209,11 +222,18 @@ class EligibilityAssistant:
         missing = [f for f in REQUIRED_SLOTS if context["slots"].get(f) is None]
         context["missing_required"] = missing
 
+        # Computed once here and attached to every return: the chips always
+        # describe the question THIS reply asks, so they can never lag a turn
+        # behind the prose (which is how chip UIs usually go wrong).
+        bar = progress(context["slots"], REQUIRED_SLOTS)
+
         if missing:
             return {
                 "bot_reply": await self._ask_for_slots(missing, lang, context, newly_filled),
                 "context": context,
                 "results": None,
+                "quick_replies": chips_for(missing[0], lang),
+                "progress": bar,
             }
 
         if not context["asked_optional"]:
@@ -231,7 +251,13 @@ class EligibilityAssistant:
                 if newly_filled:
                     facts = "; ".join(_format_fact(k, v) for k, v in newly_filled.items())
                     prompt = f"Got it — {facts}. {prompt}"
-                return {"bot_reply": prompt, "context": context, "results": None}
+                return {
+                    "bot_reply": prompt,
+                    "context": context,
+                    "results": None,
+                    "quick_replies": chips_for("category_gender", lang),
+                    "progress": bar,
+                }
 
         results = await check_credit_eligibility({
             "need": context["slots"]["need"],
@@ -245,11 +271,20 @@ class EligibilityAssistant:
                 "bot_reply": _CHECK_FAILED.get(lang, _CHECK_FAILED[_DEFAULT_LANG]),
                 "context": context,
                 "results": None,
+                # No chips on a failure: the only useful action is to retry,
+                # and offering next-steps here would imply a verdict exists.
+                "quick_replies": [],
+                "progress": bar,
             }
         return {
             "bot_reply": _CHECKING.get(lang, _CHECKING[_DEFAULT_LANG]),
             "context": context,
             "results": results,
+            # The verdict is on screen — this is the moment the citizen has a
+            # decision to make, and the one where a scheme portal normally
+            # dead-ends them. Chips here are navigation, not new claims.
+            "quick_replies": chips_after_results(lang),
+            "progress": bar,
         }
 
     @staticmethod

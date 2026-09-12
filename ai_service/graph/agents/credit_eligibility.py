@@ -86,6 +86,13 @@ async def run_credit_eligibility_agent(state: GraphState, db: AsyncIOMotorDataba
             **(state.get("agent_outputs") or {}),
             # The real EligibilityResponse, passed through untouched for the
             # UI's results panel — chat_turn surfaces this on its return.
-            "credit_eligibility": {"results": results},
+            # quick_replies/progress ride alongside: tappable answers to the
+            # question `reply` just asked, so the citizen can answer with a
+            # tap instead of typing an amount on a phone keyboard.
+            "credit_eligibility": {
+                "results": results,
+                "quick_replies": turn.get("quick_replies") or [],
+                "progress": turn.get("progress"),
+            },
         },
     }
