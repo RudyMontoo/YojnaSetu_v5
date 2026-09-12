@@ -71,9 +71,17 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      // Spring Boot API Gateway (user auth, scheme history, CSC locations)
+      // Spring Boot API Gateway (user auth, scheme history, CSC locations).
+      //
+      // Port is env-overridable because 8080 is a popular port: if anything
+      // else on the dev machine already holds it (Airflow, Tomcat, another
+      // Spring app), the gateway has to move, and the proxy has to follow.
+      // Editing this line by hand for that is how you end up with the port
+      // change stashed, forgotten, and the whole frontend silently talking
+      // to the wrong server — every call 404s and nothing says why.
+      //   GATEWAY_PORT=8090 npm run dev   (and PORT=8090 on the gateway)
       '/api': {
-        target: 'http://localhost:8080',
+        target: `http://localhost:${process.env.GATEWAY_PORT || 8080}`,
         changeOrigin: true
       },
       // FastAPI — v5.0 LangGraph orchestrator (12-agent chat)

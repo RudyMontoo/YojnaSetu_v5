@@ -68,6 +68,14 @@ class EligibilityChatResponse(BaseModel):
     intent: str = ""
     results: dict | None = None
     context: dict = {}
+    # Declared, not inherited by accident: pydantic silently ignores kwargs a
+    # model doesn't declare, so leaving these out doesn't fail loudly — it
+    # just returns a valid response with the chips and progress missing, and
+    # the UI renders a bare text box as if the flow never offered any. Same
+    # bug orchestrator_router.py had; this is the endpoint StartGo actually
+    # calls, so it was the one that mattered.
+    quick_replies: list[dict] = []
+    progress: dict | None = None
 
 
 async def _flow_active(db, session_id: str) -> bool:
@@ -140,6 +148,8 @@ async def eligibility_chat(req: EligibilityChatRequest, request: Request):
         session_id=session_id,
         intent=result.get("intent", ""),
         results=results,
+        quick_replies=result.get("quick_replies") or [],
+        progress=result.get("progress"),
     )
 
 
